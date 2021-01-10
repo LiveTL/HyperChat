@@ -88,7 +88,7 @@ const monkeypatch = async() => {
   };
   document.querySelector('#chat>#item-list').outerHTML = `
     <iframe id='optichat' src='${await getWAR('index.html')
-    }/#chat' style='border: 0px; width: 100%; height: 100%'></iframe>
+    }#/chat' style='border: 0px; width: 100%; height: 100%'></iframe>
   `;
 };
 
