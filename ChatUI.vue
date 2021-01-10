@@ -35,21 +35,21 @@
 
 <script>
 export default {
-  name: "ChatUI",
-  props: ["dark"],
+  name: 'ChatUI',
+  props: ['dark'],
   data: () => ({
     messages: new Array(50),
-    current: 0,
+    current: 0
   }),
   metaInfo: {
-    title: "YTC (Optimized)",
-    titleTemplate: "%s | LiveTL",
+    title: 'YTC (Optimized)',
+    titleTemplate: '%s | LiveTL'
   },
   created() {
-    window.addEventListener("message", (d) => {
-      if (d.data.type == "messageChunk") {
+    window.addEventListener('message', (d) => {
+      if (d.data.type === 'messageChunk') {
         d = JSON.parse(JSON.stringify(d.data));
-        d.messages.forEach(async (message) => {
+        d.messages.forEach(async(message) => {
           await this.newMessage(message);
         });
       }
@@ -57,7 +57,7 @@ export default {
   },
   methods: {
     async newMessage(message) {
-      let wasAtBottom = this.isAtBottom();
+      const wasAtBottom = this.isAtBottom();
       this.$set(this.messages, this.current, message);
       this.current++;
       this.current %= this.messages.length;
@@ -67,26 +67,26 @@ export default {
       }
     },
     isAtBottom() {
-      let el = this.$el;
+      const el = this.$el;
       if (!el) return true;
       return Math.round(el.clientHeight + el.scrollTop) >= el.scrollHeight;
     },
     scrollToBottom() {
-      let bottom = this.$refs.bottomElement;
+      const bottom = this.$refs.bottomElement;
       bottom.scrollIntoView();
     },
-    getMessages: function* () {
+    getMessages: function * () {
       for (let i = this.current; i < this.messages.length + this.current; i++) {
-        let message = this.messages[i % this.messages.length];
+        const message = this.messages[i % this.messages.length];
         if (message != null) {
           yield {
             index: i,
-            info: message,
+            info: message
           };
         }
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
