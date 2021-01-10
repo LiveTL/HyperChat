@@ -52,7 +52,8 @@ const messageReceiveCallback = async(response) => {
           message: messageText,
           timestamp: isReplayChat()
             ? messageItem.timestampText.simpleText
-            : parseTimestamp(messageItem.timestampUsec)
+            : parseTimestamp(messageItem.timestampUsec),
+          timestampUsec: parseInt(messageItem.timestampUsec)
         };
         messages.push(item);
       } catch (e) {
@@ -63,11 +64,9 @@ const messageReceiveCallback = async(response) => {
       type: 'messageChunk',
       messages: messages
     };
-    console.debug('Sending chunk', chunk);
     document
       .querySelector('#optichat')
       .contentWindow.postMessage(chunk, '*');
-    console.log(chunk);
   } catch (e) {
     console.debug(e);
   }
@@ -97,6 +96,9 @@ const loaded = async() => {
   `;
   window.addEventListener('messageReceive', d => messageReceiveCallback(d.detail));
   document.body.appendChild(script);
+  window.postMessage({
+    'yt-live-chat-set-dark-theme': true
+  }, '*');
 };
 
 loaded();
