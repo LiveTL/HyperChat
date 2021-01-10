@@ -1,5 +1,5 @@
 <template>
-  <div class="content text-center" @scroll="$forceUpdate()">
+  <div class="content" @scroll="$forceUpdate()">
     <v-main style="height: 100%">
       <div style="vertical-align: bottom; height: 100vh; display: table-cell">
         <v-container fluid>
@@ -21,13 +21,13 @@
         elevation="3"
         fixed
         bottom
-        center
+        style="left: 50%; transform: translateX(-50%);"
         color="#0287C3"
         fab
         @click="scrollToBottom"
         v-show="!isAtBottom()"
       >
-        <v-icon dark>mdi-arrow-down</v-icon>
+        <v-icon>mdi-arrow-down</v-icon>
       </v-btn>
     </v-fade-transition>
   </div>
@@ -36,7 +36,6 @@
 <script>
 export default {
   name: 'ChatUI',
-  props: ['dark'],
   data: () => ({
     messages: new Array(50),
     current: 0
@@ -90,7 +89,8 @@ export default {
 };
 </script>
 
-<style >
+<style>
+
 @keyframes newMessageAnimation {
   0% {
   }
@@ -103,6 +103,8 @@ export default {
   overflow: hidden;
   padding: 10px;
   text-overflow: ellipsis;
+  color: white;
+  mix-blend-mode: difference;
 }
 
 .animating {
@@ -113,4 +115,9 @@ export default {
   overflow-y: scroll;
   height: 100vh;
 }
+
+html {
+  overflow-y: hidden;
+}
+
 </style>
