@@ -1,7 +1,11 @@
 <template>
   <div class="content" @scroll="$forceUpdate()">
     <v-main style="height: 100%">
-      <div style="vertical-align: bottom; height: 100vh; display: table-cell">
+      <div style="vertical-align: bottom; height: 100vh; width: 100vw; display: table-cell;">
+        <div class="message animating text-left highlighted">
+          Welcome to YouTube Chat, optimized by LiveTL!
+          LiveTL Optimized YTC can lower CPU usage by over 90%.
+        </div>
         <v-container fluid>
           <div
             v-for="message of getMessages()"
@@ -120,4 +124,9 @@ html {
   overflow-y: hidden;
 }
 
+.highlighted {
+  background-color: rgba(0, 119, 255, 0.8);
+  margin: 30px;
+  width: initial;
+}
 </style>
