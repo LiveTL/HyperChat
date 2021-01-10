@@ -2,9 +2,9 @@
   <div class="content" @scroll="$forceUpdate()">
     <v-main style="height: 100%">
       <div style="vertical-align: bottom; height: 100vh; width: 100vw; display: table-cell;">
-        <div class="message animating text-left highlighted">
+        <div class="message text-left highlighted">
           Welcome to YouTube Chat, optimized by LiveTL!
-          LiveTL Optimized YTC can lower CPU usage by up to 80%.
+          Optimized YTC can lower CPU usage by up to 80%.
         </div>
         <v-container fluid>
           <div
@@ -52,8 +52,11 @@ export default {
     window.addEventListener('message', (d) => {
       if (d.data.type === 'messageChunk') {
         d = JSON.parse(JSON.stringify(d.data));
+        const date = new Date();
         d.messages.forEach(async(message) => {
-          await this.newMessage(message);
+          setTimeout(() => {
+            this.newMessage(message);
+          }, date.getTime() - Math.round(message.timestampUsec / 1000));
         });
       }
     });
@@ -107,8 +110,6 @@ export default {
   overflow: hidden;
   padding: 10px;
   text-overflow: ellipsis;
-  color: white;
-  mix-blend-mode: difference;
 }
 
 .animating {
@@ -125,7 +126,7 @@ html {
 }
 
 .highlighted {
-  background-color: rgba(0, 119, 255, 0.8);
+  background-color: rgba(0, 119, 255, 0.5);
   margin: 30px;
   width: initial;
 }
