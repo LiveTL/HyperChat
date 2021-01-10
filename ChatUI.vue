@@ -41,7 +41,7 @@
 export default {
   name: 'ChatUI',
   data: () => ({
-    messages: new Array(50),
+    messages: new Array(250),
     current: 0
   }),
   metaInfo: {
