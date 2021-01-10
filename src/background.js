@@ -1,12 +1,12 @@
-browser.browserAction.onClicked.addListener(() => { })
-
+browser.browserAction.onClicked.addListener(() => { });
 
 chrome.runtime.onMessage.addListener((request, sender, callback) => {
   switch (request.type) {
     case 'get_war': {
       callback(chrome.runtime.getURL(request.url));
       break;
-    } case 'message': {
+    }
+    case 'message': {
       console.debug('Broadcasting message', request.data);
       chrome.tabs.query({}, (tabs) => {
         tabs.forEach(tab => {
@@ -14,7 +14,8 @@ chrome.runtime.onMessage.addListener((request, sender, callback) => {
         });
       });
       break;
-    } case 'window': {
+    }
+    case 'window': {
       (window.browser || window.chrome).windows.create({
         url: request.url,
         type: 'popup',
