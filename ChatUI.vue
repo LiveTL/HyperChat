@@ -4,7 +4,7 @@
       <div style="vertical-align: bottom; height: 100vh; width: 100vw; display: table-cell;">
         <div class="message animating text-left highlighted">
           Welcome to YouTube Chat, optimized by LiveTL!
-          LiveTL Optimized YTC can lower CPU usage by over 90%.
+          LiveTL Optimized YTC can lower CPU usage by up to 80%.
         </div>
         <v-container fluid>
           <div
