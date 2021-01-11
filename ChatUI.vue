@@ -10,6 +10,7 @@
           <div
             v-for="message of getMessages()"
             :key="message.index"
+            :id="`message${message.index}`"
             class="message animating text-left"
           >
             <strong>{{ message.info.author.name }}</strong
@@ -175,6 +176,23 @@ export default {
 .content {
   overflow-y: scroll;
   height: 100vh;
+  scrollbar-width: thin;
+}
+
+.content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.content::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 html {
