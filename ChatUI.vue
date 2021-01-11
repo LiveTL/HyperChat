@@ -235,6 +235,6 @@ html {
 }
 
 * {
-  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 </style>
