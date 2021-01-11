@@ -44,12 +44,25 @@ const messageReceiveCallback = async(response) => {
         messageItem.authorBadges.forEach((badge) =>
           authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip)
         );
-        let messageText = '';
+        const runs = [];
         messageItem.message.runs.forEach((run) => {
-          if (run.text) messageText += run.text;
+          if (run.text) {
+            runs.push({
+              type: 'text',
+              text: decodeURIComponent(escape(unescape(encodeURIComponent(
+                run.text
+              ))))
+            });
+          } else if (run.emoji) {
+            runs.push({
+              type: 'emote',
+              src: run.emoji.image.thumbnails[0].url
+            });
+          } else {
+            console.log(messageItem);
+          }
         });
-        messageText = decodeURIComponent(escape(unescape(encodeURIComponent(messageText))));
-        if (!messageText) return;
+        if (!runs) return;
         const timestampUsec = parseInt(messageItem.timestampUsec);
         const timestampText = (messageItem.timestampText || {}).simpleText;
         const date = new Date();
@@ -59,7 +72,7 @@ const messageReceiveCallback = async(response) => {
             id: messageItem.authorExternalChannelId,
             types: authorTypes
           },
-          message: messageText,
+          message: runs,
           timestamp: isReplay
             ? timestampText
             : formatTimestamp(timestampUsec),
