@@ -1,5 +1,6 @@
 <template>
-  <div class="content" ref="content" @scroll="$forceUpdate()">
+  <!-- @scroll="$forceUpdate()" -->
+  <div class="content" ref="content">
     <v-main style="height: 100%">
       <div style="vertical-align: bottom; height: 100vh; width: 100vw; display: table-cell;">
         <div class="message text-left highlighted">
@@ -11,7 +12,7 @@
             v-for="message of getMessages()"
             :key="message.index"
             :id="`message${message.index}`"
-            class="message animating text-left"
+            class="message text-left"
             v-show="message.shown"
           >
             <strong style="margin-right: 5px;">
@@ -25,7 +26,7 @@
         </v-container>
       </div>
     </v-main>
-    <v-fade-transition>
+    <!-- <v-fade-transition>
       <v-btn
         elevation="3"
         fixed
@@ -38,7 +39,7 @@
       >
         <v-icon>mdi-arrow-down</v-icon>
       </v-btn>
-    </v-fade-transition>
+    </v-fade-transition> -->
   </div>
 </template>
 
@@ -74,19 +75,21 @@ class Queue {
   }
 };
 
-const CHAT_HISTORY_SIZE = 10;
+const CHAT_HISTORY_SIZE = 250;
 
 export default {
   name: 'ChatUI',
-  data: () => ({
-    messages: new Array(CHAT_HISTORY_SIZE),
-    current: 0,
-    queued: new Queue(),
-    progress: {
-      current: null,
-      previous: null
-    }
-  }),
+  data: () => {
+    return {
+      messages: new Array(CHAT_HISTORY_SIZE),
+      current: 0,
+      queued: new Queue(),
+      progress: {
+        current: null,
+        previous: null
+      }
+    };
+  },
   metaInfo: {
     title: 'YTC (Optimized)',
     titleTemplate: '%s | LiveTL'
@@ -94,7 +97,7 @@ export default {
   created() {
     window.addEventListener('resize', async() => {
       await this.$nextTick();
-      await this.$forceUpdate();
+      // await this.$forceUpdate();
     });
     window.addEventListener('message', async(d) => {
       d = JSON.parse(JSON.stringify(d.data));
@@ -104,20 +107,20 @@ export default {
         if (Math.abs(this.progress.previous - this.progress.current) > 1 || this.progress.current == null) {
           // scrubbed or skipped
           while (this.queued.top) {
-            await this.newMessage(this.queued.pop().data.message);
+            this.newMessage(this.queued.pop().data.message);
           }
           wasAtBottom = true;
         } else {
           while (this.queued.top != null && this.queued.top.data.timestamp <= this.progress.current) {
             if (wasAtBottom) {
-              await this.newMessage(this.queued.pop().data.message);
+              this.newMessage(this.queued.pop().data.message);
             }
           }
         }
         if (wasAtBottom) {
           await this.$nextTick();
           this.scrollToBottom();
-          await this.$forceUpdate();
+          // await this.$forceUpdate();
         }
         this.progress.previous = this.progress.current;
       } else if (d.type === 'messageChunk') {
@@ -126,10 +129,10 @@ export default {
             setTimeout(async() => {
               wasAtBottom = this.isAtBottom();
               if (wasAtBottom) {
-                await this.newMessage(message);
+                this.newMessage(message);
                 await this.$nextTick();
                 this.scrollToBottom();
-                await this.$forceUpdate();
+                // await this.$forceUpdate();
               }
             }, message.showtime);
           } else {
@@ -143,7 +146,7 @@ export default {
     });
   },
   methods: {
-    async newMessage(message) {
+    newMessage(message) {
       this.$set(this.messages, this.current, message);
       this.current++;
       this.current %= this.messages.length;
@@ -177,12 +180,8 @@ export default {
 </script>
 
 <style>
-
-@keyframes newMessageAnimation {
-  0% {
-  }
-  100% {
-  }
+:root {
+  --accent: rgba(0, 119, 255, 0.5);
 }
 
 .message {
@@ -190,10 +189,6 @@ export default {
   overflow: hidden;
   padding: 10px;
   text-overflow: ellipsis;
-}
-
-.animating {
-  animation: 0.1s newMessageAnimation ease-in-out;
 }
 
 .content {
@@ -223,7 +218,7 @@ html {
 }
 
 .highlighted {
-  background-color: rgba(0, 119, 255, 0.5);
+  background-color: var(--accent);
   margin: 30px 30px 0px 30px;
   width: initial;
 }
