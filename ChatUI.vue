@@ -12,7 +12,7 @@
             :key="message.index"
             :id="`message${message.index}`"
             class="message animating text-left"
-            :style="{ display: message.shown ? 'block' : 'none' }"
+            v-show="message.shown"
           >
             <strong style="margin-right: 5px;">
               {{ message.info.author.name }}
