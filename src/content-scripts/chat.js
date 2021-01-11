@@ -1,14 +1,21 @@
 import { getWAR } from '../modules/war.js';
 
-const isReplayChat = () => {
-  return window.location.href.startsWith(
-    'https://www.youtube.com/live_chat_replay'
-  );
-};
+const isReplay = window.location.href.startsWith(
+  'https://www.youtube.com/live_chat_replay'
+);
 
-const parseTimestamp = (timestamp) => {
+const formatTimestamp = (timestamp) => {
   return (new Date(parseInt(timestamp) / 1000)).toLocaleTimeString(navigator.language,
     { hour: '2-digit', minute: '2-digit' });
+};
+
+const getMillis = (timestamp, usec) => {
+  let secs = Array.from(timestamp.split(':'), t => parseInt(t)).reverse();
+  secs = secs[0] + (secs[1] ? secs[1] * 60 : 0) + (secs[2] ? secs[2] * 60 * 60 : 0);
+  secs *= 1000;
+  secs += usec % 1000;
+  secs /= 1000;
+  return secs;
 };
 
 const messageReceiveCallback = async(response) => {
@@ -43,6 +50,9 @@ const messageReceiveCallback = async(response) => {
         });
         messageText = decodeURIComponent(escape(unescape(encodeURIComponent(messageText))));
         if (!messageText) return;
+        const timestampUsec = parseInt(messageItem.timestampUsec);
+        const timestampText = (messageItem.timestampText || {}).simpleText;
+        const date = new Date();
         const item = {
           author: {
             name: messageItem.authorName.simpleText,
@@ -50,10 +60,11 @@ const messageReceiveCallback = async(response) => {
             types: authorTypes
           },
           message: messageText,
-          timestamp: isReplayChat()
-            ? messageItem.timestampText.simpleText
-            : parseTimestamp(messageItem.timestampUsec),
-          timestampUsec: parseInt(messageItem.timestampUsec)
+          timestamp: isReplay
+            ? timestampText
+            : formatTimestamp(timestampUsec),
+          showtime: isReplay ? getMillis(timestampText, timestampUsec)
+            : date.getTime() - Math.round(timestampUsec / 1000)
         };
         messages.push(item);
       } catch (e) {
@@ -62,7 +73,8 @@ const messageReceiveCallback = async(response) => {
     });
     const chunk = {
       type: 'messageChunk',
-      messages: messages
+      messages: messages,
+      isReplay
     };
     document
       .querySelector('#optichat')
@@ -99,6 +111,10 @@ const loaded = async() => {
   window.postMessage({
     'yt-live-chat-set-dark-theme': true
   }, '*');
+  const messageDisplay = document.querySelector('#optichat');
+  window.addEventListener('message', d => {
+    messageDisplay.contentWindow.postMessage(d.data, '*');
+  });
 };
 
 loaded();
