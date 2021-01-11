@@ -105,6 +105,7 @@ const loaded = async() => {
     <iframe id='optichat' src='${await getWAR('index.html')
     }#/chat' style='border: 0px; width: 100%; height: 100%'></iframe>
   `;
+  document.querySelector('#ticker').remove();
   const script = document.createElement('script');
   script.innerHTML = `
     window.oldFetch = window.oldFetch || window.fetch;
