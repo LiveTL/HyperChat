@@ -8,20 +8,18 @@
         </div>
         <v-container fluid>
           <div
-            v-for="(message, index) in messages"
-            :key="index"
-            :id="`message${index}`"
+            v-for="message of getMessages()"
+            :key="message.index"
+            :id="`message${message.index}`"
+            class="message animating text-left"
           >
-            <div v-if="message != null && index >= current && index < messages.length + current"
-              class="message animating text-left">
-              <strong style="margin-right: 5px;">
-                {{ message.author.name }}
-              </strong>
-              <span v-for="(run, key, chunkIndex) in message.message" :key="chunkIndex">
-                <span v-if="run.type == 'text'">{{ run.text }}</span>
-                <img v-else-if="run.type == 'emote' && run.src" :src="run.src" class="chatEmote" />
-              </span>
-            </div>
+            <strong style="margin-right: 5px;">
+              {{ message.info.author.name }}
+            </strong>
+            <span v-for="(run, key, index) in message.info.message" :key="index">
+              <span :v-if="run.type == 'text'">{{ run.text }}</span>
+              <img :v-else-if="run.type == 'emote' && run.src" :src="run.src" class="chatEmote" />
+            </span>
           </div>
         </v-container>
       </div>
@@ -80,7 +78,7 @@ const CHAT_HISTORY_SIZE = 250;
 export default {
   name: 'ChatUI',
   data: () => ({
-    messages: new Array(CHAT_HISTORY_SIZE * 2),
+    messages: new Array(CHAT_HISTORY_SIZE),
     current: 0,
     queued: new Queue(),
     progress: {
@@ -93,10 +91,8 @@ export default {
     titleTemplate: '%s | LiveTL'
   },
   created() {
-    for (let i = CHAT_HISTORY_SIZE; i < 2 * CHAT_HISTORY_SIZE; i++) {
-      this.$set(this.messages, i, this.messages[i % CHAT_HISTORY_SIZE]);
-    }
     window.addEventListener('resize', async() => {
+      await this.$nextTick();
       await this.$forceUpdate();
     });
     window.addEventListener('message', async(d) => {
@@ -148,7 +144,6 @@ export default {
   methods: {
     async newMessage(message) {
       this.$set(this.messages, this.current, message);
-      this.$set(this.messages, this.current + CHAT_HISTORY_SIZE, message);
       this.current++;
       this.current %= this.messages.length;
     },
@@ -159,6 +154,17 @@ export default {
     },
     scrollToBottom() {
       this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
+    },
+    getMessages: function * () {
+      for (let i = this.current; i < this.messages.length + this.current; i++) {
+        const message = this.messages[i % this.messages.length];
+        if (message != null) {
+          yield {
+            index: i,
+            info: message
+          };
+        }
+      }
     }
   }
 };
