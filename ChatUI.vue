@@ -107,8 +107,9 @@ export default {
       } else if (d.type === 'messageChunk') {
         d.messages.forEach(async(message) => {
           if (!d.isReplay) {
-            setTimeout(() => {
-              this.newMessage(message);
+            setTimeout(async() => {
+              await this.newMessage(message);
+              await this.$nextTick();
               if (wasAtBottom) this.scrollToBottom();
             }, message.showtime);
           } else {
