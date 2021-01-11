@@ -108,6 +108,7 @@ export default {
         d.messages.forEach(async(message) => {
           if (!d.isReplay) {
             setTimeout(async() => {
+              wasAtBottom = this.isAtBottom();
               await this.newMessage(message);
               await this.$nextTick();
               if (wasAtBottom) this.scrollToBottom();
