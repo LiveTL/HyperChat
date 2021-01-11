@@ -1,5 +1,5 @@
 <template>
-  <div class="content" @scroll="$forceUpdate()">
+  <div class="content" ref="content" @scroll="$forceUpdate()">
     <v-main style="height: 100%">
       <div style="vertical-align: bottom; height: 100vh; width: 100vw; display: table-cell;">
         <div class="message text-left highlighted">
@@ -17,7 +17,6 @@
             {{ message.info.message }}
           </div>
         </v-container>
-        <div ref="bottomElement"></div>
       </div>
     </v-main>
     <v-fade-transition>
@@ -38,39 +37,95 @@
 </template>
 
 <script>
+class Queue {
+  constructor() {
+    this.clear();
+  }
+
+  clear() {
+    this.top = null;
+    this.last = this.top;
+  }
+
+  pop() {
+    const front = this.top;
+    this.top = this.top.next;
+    if (front === this.last) {
+      this.last = null;
+    }
+    return front;
+  }
+
+  push(item) {
+    const newItem = { data: item };
+    if (this.last === null) {
+      this.top = newItem;
+      this.last = this.top;
+    } else {
+      this.last.next = newItem;
+      this.last = newItem;
+    }
+  }
+};
+
 export default {
   name: 'ChatUI',
   data: () => ({
     messages: new Array(250),
-    current: 0
+    current: 0,
+    queued: new Queue(),
+    progress: {
+      current: null,
+      previous: null
+    }
   }),
   metaInfo: {
     title: 'YTC (Optimized)',
     titleTemplate: '%s | LiveTL'
   },
   created() {
-    window.addEventListener('message', (d) => {
-      if (d.data.type === 'messageChunk') {
-        d = JSON.parse(JSON.stringify(d.data));
-        const date = new Date();
+    window.addEventListener('message', async(d) => {
+      d = JSON.parse(JSON.stringify(d.data));
+      let wasAtBottom = this.isAtBottom();
+      if (d['yt-player-video-progress']) {
+        this.progress.current = d['yt-player-video-progress'];
+        if (Math.abs(this.progress.previous - this.progress.current) > 1 || this.progress.current == null) {
+          // scrubbed or skipped
+          while (this.queued.top) {
+            await this.newMessage(this.queued.pop().data.message);
+          }
+          wasAtBottom = true;
+        } else {
+          while (this.queued.top != null && this.queued.top.data.timestamp <= this.progress.current) {
+            await this.newMessage(this.queued.pop().data.message);
+          }
+        }
+        await this.$nextTick();
+        if (wasAtBottom) this.scrollToBottom();
+        this.progress.previous = this.progress.current;
+        console.log(this.progress.current, this.queued);
+      } else if (d.type === 'messageChunk') {
         d.messages.forEach(async(message) => {
-          setTimeout(() => {
-            this.newMessage(message);
-          }, date.getTime() - Math.round(message.timestampUsec / 1000));
+          if (!d.isReplay) {
+            setTimeout(() => {
+              this.newMessage(message);
+              if (wasAtBottom) this.scrollToBottom();
+            }, message.showtime);
+          } else {
+            this.queued.push({
+              timestamp: message.showtime,
+              message: message
+            });
+          }
         });
       }
     });
   },
   methods: {
     async newMessage(message) {
-      const wasAtBottom = this.isAtBottom();
       this.$set(this.messages, this.current, message);
       this.current++;
       this.current %= this.messages.length;
-      await this.$nextTick();
-      if (wasAtBottom) {
-        this.scrollToBottom();
-      }
     },
     isAtBottom() {
       const el = this.$el;
@@ -78,8 +133,7 @@ export default {
       return Math.round(el.clientHeight + el.scrollTop) >= el.scrollHeight;
     },
     scrollToBottom() {
-      const bottom = this.$refs.bottomElement;
-      bottom.scrollIntoView();
+      this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
     },
     getMessages: function * () {
       for (let i = this.current; i < this.messages.length + this.current; i++) {
@@ -127,7 +181,7 @@ html {
 
 .highlighted {
   background-color: rgba(0, 119, 255, 0.5);
-  margin: 30px;
+  margin: 0px 30px 0px 30px;
   width: initial;
 }
 </style>
