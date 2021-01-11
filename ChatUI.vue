@@ -18,8 +18,8 @@
               {{ message.info.author.name }}
             </strong>
             <span v-for="(run, key, index) in message.info.message" :key="index">
-              <span :v-if="run.type == 'text'">{{ run.text }}</span>
-              <img :v-else-if="run.type == 'emote' && run.src" :src="run.src" class="chatEmote" />
+              <span v-if="run.type == 'text'">{{ run.text }}</span>
+              <img v-else-if="run.type == 'emote' && run.src" :src="run.src" class="chatEmote" />
             </span>
           </div>
         </v-container>
