@@ -98,7 +98,9 @@ export default {
           wasAtBottom = true;
         } else {
           while (this.queued.top != null && this.queued.top.data.timestamp <= this.progress.current) {
-            await this.newMessage(this.queued.pop().data.message);
+            if (wasAtBottom) {
+              await this.newMessage(this.queued.pop().data.message);
+            }
           }
         }
         await this.$nextTick();
@@ -110,9 +112,11 @@ export default {
           if (!d.isReplay) {
             setTimeout(async() => {
               wasAtBottom = this.isAtBottom();
-              await this.newMessage(message);
-              await this.$nextTick();
-              if (wasAtBottom) this.scrollToBottom();
+              if (wasAtBottom) {
+                await this.newMessage(message);
+                await this.$nextTick();
+                this.scrollToBottom();
+              }
             }, message.showtime);
           } else {
             this.queued.push({
