@@ -39,6 +39,7 @@ const messageReceiveCallback = async(response) => {
         if (!currentElement) return;
         const messageItem = currentElement.liveChatTextMessageRenderer;
         if (!messageItem) return;
+        if (!messageItem.authorName) return;
         messageItem.authorBadges = messageItem.authorBadges || [];
         const authorTypes = [];
         messageItem.authorBadges.forEach((badge) =>
