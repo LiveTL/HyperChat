@@ -89,6 +89,10 @@ export default {
     titleTemplate: '%s | LiveTL'
   },
   created() {
+    window.addEventListener('resize', async() => {
+      await this.$nextTick();
+      await this.$forceUpdate();
+    });
     window.addEventListener('message', async(d) => {
       d = JSON.parse(JSON.stringify(d.data));
       let wasAtBottom = this.isAtBottom();
