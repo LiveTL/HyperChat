@@ -208,7 +208,7 @@ html {
 
 .highlighted {
   background-color: rgba(0, 119, 255, 0.5);
-  margin: 0px 30px 0px 30px;
+  margin: 30px 30px 0px 30px;
   width: initial;
 }
 
