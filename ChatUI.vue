@@ -13,9 +13,13 @@
             :id="`message${message.index}`"
             class="message animating text-left"
           >
-            <strong>{{ message.info.author.name }}</strong
-            >:
-            {{ message.info.message }}
+            <strong style="margin-right: 5px;">
+              {{ message.info.author.name }}
+            </strong>
+            <span v-for="(run, key, index) in message.info.message" :key="index">
+              <span :v-if="run.type == 'text'">{{ run.text }}</span>
+              <img :v-if="run.type == 'emote'" :src="run.src" class="chatEmote" />
+            </span>
           </div>
         </v-container>
       </div>
@@ -106,7 +110,6 @@ export default {
         await this.$nextTick();
         if (wasAtBottom) this.scrollToBottom();
         this.progress.previous = this.progress.current;
-        console.log(this.progress.current, this.queued);
       } else if (d.type === 'messageChunk') {
         d.messages.forEach(async(message) => {
           if (!d.isReplay) {
@@ -137,7 +140,7 @@ export default {
     isAtBottom() {
       const el = this.$el;
       if (!el) return true;
-      return Math.round(el.clientHeight + el.scrollTop) >= el.scrollHeight;
+      return Math.round(el.clientHeight + el.scrollTop + 15) >= el.scrollHeight;
     },
     scrollToBottom() {
       this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
@@ -207,5 +210,10 @@ html {
   background-color: rgba(0, 119, 255, 0.5);
   margin: 0px 30px 0px 30px;
   width: initial;
+}
+
+.chatEmote {
+  vertical-align: sub;
+  height: 1.5em;
 }
 </style>
