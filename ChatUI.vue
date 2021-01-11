@@ -1,6 +1,5 @@
 <template>
-  <!-- @scroll="$forceUpdate()" -->
-  <div class="content" ref="content">
+  <div class="content" ref="content" @scroll="isAtBottom = checkIfBottom()">
     <v-main style="height: 100%">
       <div style="vertical-align: bottom; height: 100vh; width: 100vw; display: table-cell;">
         <div class="message text-left highlighted">
@@ -26,7 +25,7 @@
         </v-container>
       </div>
     </v-main>
-    <!-- <v-fade-transition>
+    <v-fade-transition>
       <v-btn
         elevation="3"
         fixed
@@ -35,11 +34,11 @@
         color="#0287C3"
         fab
         @click="scrollToBottom"
-        v-show="!isAtBottom()"
+        v-show="!isAtBottom"
       >
         <v-icon>mdi-arrow-down</v-icon>
       </v-btn>
-    </v-fade-transition> -->
+    </v-fade-transition>
   </div>
 </template>
 
@@ -84,6 +83,7 @@ export default {
       messages: new Array(CHAT_HISTORY_SIZE),
       current: 0,
       queued: new Queue(),
+      isAtBottom: true,
       progress: {
         current: null,
         previous: null
@@ -96,12 +96,13 @@ export default {
   },
   created() {
     window.addEventListener('resize', async() => {
-      await this.$nextTick();
+      // await this.$nextTick();
       // await this.$forceUpdate();
+      this.scrollToBottom();
     });
     window.addEventListener('message', async(d) => {
       d = JSON.parse(JSON.stringify(d.data));
-      let wasAtBottom = this.isAtBottom();
+      this.isAtBottom = this.checkIfBottom();
       if (d['yt-player-video-progress']) {
         this.progress.current = d['yt-player-video-progress'];
         if (Math.abs(this.progress.previous - this.progress.current) > 1 || this.progress.current == null) {
@@ -109,15 +110,15 @@ export default {
           while (this.queued.top) {
             this.newMessage(this.queued.pop().data.message);
           }
-          wasAtBottom = true;
+          this.isAtBottom = true;
         } else {
           while (this.queued.top != null && this.queued.top.data.timestamp <= this.progress.current) {
-            if (wasAtBottom) {
+            if (this.isAtBottom) {
               this.newMessage(this.queued.pop().data.message);
             }
           }
         }
-        if (wasAtBottom) {
+        if (this.isAtBottom) {
           await this.$nextTick();
           this.scrollToBottom();
           // await this.$forceUpdate();
@@ -127,8 +128,8 @@ export default {
         d.messages.forEach(async(message) => {
           if (!d.isReplay) {
             setTimeout(async() => {
-              wasAtBottom = this.isAtBottom();
-              if (wasAtBottom) {
+              this.isAtBottom = this.checkIfBottom();
+              if (this.isAtBottom) {
                 this.newMessage(message);
                 await this.$nextTick();
                 this.scrollToBottom();
@@ -151,10 +152,10 @@ export default {
       this.current++;
       this.current %= this.messages.length;
     },
-    isAtBottom() {
+    checkIfBottom() {
       const el = this.$el;
       if (!el) return true;
-      return Math.round(el.clientHeight + el.scrollTop + 15) >= el.scrollHeight;
+      return Math.ceil(el.clientHeight + el.scrollTop) >= el.scrollHeight;
     },
     scrollToBottom() {
       this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
