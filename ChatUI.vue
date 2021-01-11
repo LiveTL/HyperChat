@@ -12,6 +12,7 @@
             :key="message.index"
             :id="`message${message.index}`"
             class="message animating text-left"
+            :style="{ display: message.shown ? 'block' : 'none' }"
           >
             <strong style="margin-right: 5px;">
               {{ message.info.author.name }}
@@ -73,7 +74,7 @@ class Queue {
   }
 };
 
-const CHAT_HISTORY_SIZE = 250;
+const CHAT_HISTORY_SIZE = 10;
 
 export default {
   name: 'ChatUI',
@@ -156,14 +157,19 @@ export default {
       this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
     },
     getMessages: function * () {
-      for (let i = this.current; i < this.messages.length + this.current; i++) {
+      for (let i = 0; i < 2 * this.messages.length - 1; i++) {
         const message = this.messages[i % this.messages.length];
-        if (message != null) {
-          yield {
-            index: i,
-            info: message
-          };
-        }
+        yield {
+          index: i,
+          info: message || {
+            author: {},
+            message: []
+          },
+          shown: (
+            message != null &&
+            i >= this.current && i < this.messages.length + this.current
+          )
+        };
       }
     }
   }
@@ -184,7 +190,6 @@ export default {
   overflow: hidden;
   padding: 10px;
   text-overflow: ellipsis;
-  word-wrap: break-word;
 }
 
 .animating {
@@ -227,5 +232,9 @@ html {
   vertical-align: sub;
   height: 1.5em;
   margin: 0px 0.2em 0px 0.2em;
+}
+
+* {
+  word-wrap: break-word;
 }
 </style>
