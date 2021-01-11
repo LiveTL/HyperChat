@@ -18,7 +18,7 @@
             </strong>
             <span v-for="(run, key, index) in message.info.message" :key="index">
               <span :v-if="run.type == 'text'">{{ run.text }}</span>
-              <img :v-if="run.type == 'emote'" :src="run.src" class="chatEmote" />
+              <img :v-else-if="run.type == 'emote'" :src="run.src" class="chatEmote" />
             </span>
           </div>
         </v-container>
