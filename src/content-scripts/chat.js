@@ -43,7 +43,7 @@ const messageReceiveCallback = async(response) => {
         messageItem.authorBadges = messageItem.authorBadges || [];
         const authorTypes = [];
         messageItem.authorBadges.forEach((badge) =>
-          authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip)
+          authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip.toLowerCase())
         );
         const runs = [];
         messageItem.message.runs.forEach((run) => {
