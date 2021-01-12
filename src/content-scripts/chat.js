@@ -108,6 +108,11 @@ const loaded = async() => {
   document.querySelector('#ticker').remove();
   const script = document.createElement('script');
   script.innerHTML = `
+    for (event_name of ["visibilitychange", "webkitvisibilitychange", "blur"]) {
+      window.addEventListener(event_name, event => {
+        event.stopImmediatePropagation();
+      }, true);
+    }
     window.oldFetch = window.oldFetch || window.fetch;
     window.fetch = async (...args) => {
       const url = args[0].url;
