@@ -14,7 +14,7 @@
             class="message text-left"
             v-show="message.shown"
           >
-            <strong style="margin-right: 5px;">
+            <strong style="margin-right: 5px;" :class="message.info.author.types">
               {{ message.info.author.name }}
             </strong>
             <span v-for="(run, key, index) in message.info.message" :key="index">
@@ -228,6 +228,14 @@ html {
   vertical-align: sub;
   height: 1.5em;
   margin: 0px 0.2em 0px 0.2em;
+}
+
+.moderator {
+  color: #5E84F1
+}
+
+.member {
+  color: #26A23F;
 }
 
 * {
