@@ -3,8 +3,9 @@
     <v-main style="height: 100%">
       <div style="vertical-align: bottom; height: 100vh; width: 100vw; display: table-cell;">
         <div class="message text-left highlighted">
-          Welcome to YouTube Chat, optimized by LiveTL!
-          Optimized YTC can lower CPU usage by up to 80%.
+          <strong> Welcome to HyperChat! </strong>
+          <br />
+          HyperChat can lower CPU usage by up to 80%.
         </div>
         <v-container fluid>
           <div
@@ -191,6 +192,11 @@ export default {
   overflow: hidden;
   padding: 10px;
   text-overflow: ellipsis;
+  border-radius: 5px;
+}
+
+.message:nth-child(even) {
+  background-color: #262626;
 }
 
 .content {
@@ -232,7 +238,7 @@ html {
 }
 
 .moderator {
-  color: #5E84F1
+  color: #5E84F1 !important;
 }
 
 .member {
