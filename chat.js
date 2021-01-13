@@ -18,6 +18,16 @@ const getMillis = (timestamp, usec) => {
   return secs;
 };
 
+const colorConversionTable = {
+  4280191205: 'blue',
+  4278248959: 'lightblue',
+  4280150454: 'lightgreen',
+  4294953512: 'yellow',
+  4294278144: 'orange',
+  4293467747: 'hotpink',
+  4293271831: 'red'
+};
+
 const messageReceiveCallback = async(response) => {
   try {
     const messages = [];
@@ -29,41 +39,48 @@ const messageReceiveCallback = async(response) => {
       response.continuationContents.liveChatContinuation.actions || []
     ).forEach((action) => {
       try {
-        const currentElement = (
-          action.addChatItemAction ||
-              (action.replayChatItemAction != null
-                ? action.replayChatItemAction.actions[0].addChatItemAction
-                : null) ||
-              {}
-        ).item;
-        if (!currentElement) return;
-        const messageItem = currentElement.liveChatTextMessageRenderer;
-        if (!messageItem) return;
-        if (!messageItem.authorName) return;
+        let currentElement = action.addChatItemAction;
+        if (action.replayChatItemAction != null) {
+          const thisAction = action.replayChatItemAction.actions[0];
+          currentElement = thisAction.addChatItemAction;
+        }
+        currentElement = (currentElement || {}).item;
+        if (!currentElement) {
+          return;
+        }
+        const messageItem = currentElement.liveChatTextMessageRenderer ||
+                            currentElement.liveChatPaidMessageRenderer ||
+                            currentElement.liveChatPaidStickerRenderer;
+        if (!messageItem) {
+          return;
+        }
+        if (!messageItem.authorName) {
+          console.log(currentElement);
+          return;
+        }
         messageItem.authorBadges = messageItem.authorBadges || [];
         const authorTypes = [];
         messageItem.authorBadges.forEach((badge) =>
           authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip.toLowerCase())
         );
         const runs = [];
-        messageItem.message.runs.forEach((run) => {
-          if (run.text) {
-            runs.push({
-              type: 'text',
-              text: decodeURIComponent(escape(unescape(encodeURIComponent(
-                run.text
-              ))))
-            });
-          } else if (run.emoji) {
-            runs.push({
-              type: 'emote',
-              src: run.emoji.image.thumbnails[0].url
-            });
-          } else {
-            console.log(messageItem);
-          }
-        });
-        if (!runs) return;
+        if (messageItem.message) {
+          messageItem.message.runs.forEach((run) => {
+            if (run.text) {
+              runs.push({
+                type: 'text',
+                text: decodeURIComponent(escape(unescape(encodeURIComponent(
+                  run.text
+                ))))
+              });
+            } else if (run.emoji) {
+              runs.push({
+                type: 'emote',
+                src: run.emoji.image.thumbnails[0].url
+              });
+            }
+          });
+        }
         const timestampUsec = parseInt(messageItem.timestampUsec);
         const timestampText = (messageItem.timestampText || {}).simpleText;
         const date = new Date();
@@ -80,6 +97,12 @@ const messageReceiveCallback = async(response) => {
           showtime: isReplay ? getMillis(timestampText, timestampUsec)
             : date.getTime() - Math.round(timestampUsec / 1000)
         };
+        if (currentElement.liveChatPaidMessageRenderer) {
+          item.superchat = {
+            amount: messageItem.purchaseAmountText.simpleText,
+            color: colorConversionTable[messageItem.bodyBackgroundColor]
+          };
+        }
         messages.push(item);
       } catch (e) {
         console.debug('Error while parsing message.', { e });

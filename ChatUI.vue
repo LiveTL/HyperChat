@@ -12,9 +12,17 @@
             v-for="message of getMessages()"
             :key="message.index"
             :id="`message${message.index}`"
-            class="message text-left"
-            v-show="message.shown"
+            :class="{
+              'message': true,
+              'text-left': true,
+              'superchat': message.info.superchat != null
+            }"
+            v-show="message.shown" :style="{
+              backgroundColor: (((message.info.superchat || {}).color) || 'inherit') + '!important'
+            }"
           >
+            <strong style="margin-right: 5px; text-decoration: underline;"
+              v-if="message.info.superchat">{{ message.info.superchat.amount }}</strong>
             <strong style="margin-right: 5px;" :class="message.info.author.types">
               {{ message.info.author.name }}
             </strong>
@@ -88,7 +96,8 @@ export default {
       progress: {
         current: null,
         previous: null
-      }
+      },
+      console
     };
   },
   metaInfo: {
@@ -196,7 +205,7 @@ export default {
 }
 
 .message:nth-child(even) {
-  background-color: #262626;
+  background-color: #202020;
 }
 
 .content {
@@ -243,6 +252,11 @@ html {
 
 .member {
   color: #26A23F;
+}
+
+.superchat {
+  margin: 15px 0px 15px 0px;
+  color: black;
 }
 
 * {
