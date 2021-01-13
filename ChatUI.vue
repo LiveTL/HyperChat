@@ -18,7 +18,9 @@
               'superchat': message.info.superchat != null
             }"
             v-show="message.shown" :style="{
-              backgroundColor: (((message.info.superchat || {}).color) || 'inherit') + '!important'
+              backgroundColor: (message.info.superchat ?
+                `var(--${message.info.superchat.color})` : 'inherit')
+                + ' !important'
             }"
           >
             <strong style="margin-right: 5px; text-decoration: underline;"
@@ -194,6 +196,13 @@ export default {
 <style>
 :root {
   --accent: rgba(0, 119, 255, 0.5);
+  --blue: #6fa9ff;
+  --lightblue: #00BDFF;
+  --turquoise: #1DE9B7;
+  --yellow: #FFC928;
+  --orange: #F67C00;
+  --pink: #FA3664;
+  --red: #F63413;
 }
 
 .message {

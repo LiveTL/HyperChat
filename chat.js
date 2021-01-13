@@ -21,10 +21,10 @@ const getMillis = (timestamp, usec) => {
 const colorConversionTable = {
   4280191205: 'blue',
   4278248959: 'lightblue',
-  4280150454: 'lightgreen',
+  4280150454: 'turquoise',
   4294953512: 'yellow',
   4294278144: 'orange',
-  4293467747: 'hotpink',
+  4293467747: 'pink',
   4293271831: 'red'
 };
 
