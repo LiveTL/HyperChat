@@ -113,10 +113,10 @@ const loaded = async() => {
         event.stopImmediatePropagation();
       }, true);
     }
-    window.oldFetch = window.fetch;
+    window.fetchFallback = window.fetch;
     window.fetch = async (...args) => {
       const url = args[0].url;
-      const result = await window.oldFetch(...args);
+      const result = await window.fetchFallback(...args);
       if (url.startsWith(
         'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat')
       ) {
