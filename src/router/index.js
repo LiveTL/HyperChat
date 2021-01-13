@@ -12,7 +12,7 @@ const routes = [
   {
     path: '/chat',
     name: 'Chat',
-    component: () => import(/* webpackChunkName: "about" */ '@/components/chat/ChatUI')
+    component: () => import(/* webpackChunkName: "about" */ '@/submodules/chat/ChatUI')
   }
 ];
 
