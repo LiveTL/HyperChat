@@ -113,8 +113,9 @@ export default {
           this.isAtBottom = true;
         } else {
           while (this.queued.top != null && this.queued.top.data.timestamp <= this.progress.current) {
+            const item = this.queued.pop();
             if (this.isAtBottom) {
-              this.newMessage(this.queued.pop().data.message);
+              this.newMessage(item.data.message);
             }
           }
         }
