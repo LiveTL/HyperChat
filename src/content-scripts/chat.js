@@ -137,4 +137,4 @@ const loaded = async() => {
   });
 };
 
-loaded();
+window.addEventListener('load', loaded);
