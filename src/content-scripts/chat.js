@@ -113,7 +113,7 @@ const loaded = async() => {
         event.stopImmediatePropagation();
       }, true);
     }
-    window.oldFetch = window.oldFetch || window.fetch;
+    window.oldFetch = window.fetch;
     window.fetch = async (...args) => {
       const url = args[0].url;
       const result = await window.oldFetch(...args);
