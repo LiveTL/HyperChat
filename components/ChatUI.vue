@@ -25,7 +25,7 @@
           >
             <strong style="margin-right: 5px; text-decoration: underline;"
               v-if="message.info.superchat">{{ message.info.superchat.amount }}</strong>
-            <strong style="margin-right: 5px;" :class="message.info.author.types.map(d => d.split(' ')[0])">
+            <strong style="margin-right: 5px;" :class="(message.info.author.types || []).map(d => d.split(' ')[0])">
               {{ message.info.author.name }}
             </strong>
             <span v-for="(run, key, index) in message.info.message" :key="index">
