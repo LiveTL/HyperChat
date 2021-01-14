@@ -8,7 +8,7 @@ module.exports = {
         contentScripts: {
           entries: {
             chat: [
-              'src/submodules/chat/chat.js'
+              'src/submodules/chat/scripts/chat.js'
             ]
           }
         }
