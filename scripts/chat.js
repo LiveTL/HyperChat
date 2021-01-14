@@ -1,4 +1,4 @@
-import { getWAR } from '../../modules/war.js';
+import { getWAR } from '@/modules/war.js';
 
 const isReplay = window.location.href.startsWith(
   'https://www.youtube.com/live_chat_replay'
