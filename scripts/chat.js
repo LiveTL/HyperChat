@@ -49,8 +49,8 @@ const messageReceiveCallback = async(response) => {
           return;
         }
         const messageItem = currentElement.liveChatTextMessageRenderer ||
-                            currentElement.liveChatPaidMessageRenderer ||
-                            currentElement.liveChatPaidStickerRenderer;
+          currentElement.liveChatPaidMessageRenderer ||
+          currentElement.liveChatPaidStickerRenderer;
         if (!messageItem) {
           return;
         }
@@ -122,6 +122,12 @@ const messageReceiveCallback = async(response) => {
 };
 
 const loaded = async() => {
+  window.postMessage({
+    'yt-player-video-progress': 0
+  }, '*');
+  window.postMessage({
+    'yt-player-video-progress': 69420
+  }, '*');
   const elem = document.querySelector('#chat>#item-list');
   if (!elem) return;
   elem.outerHTML = `

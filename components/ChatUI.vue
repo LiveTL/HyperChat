@@ -279,7 +279,8 @@ html {
 
 .highlighted {
   background-color: var(--accent) !important;
-  margin: 15px 15px 15px 15px;
+  margin: 15px;
+  padding: 10px;
   width: initial;
 }
 
