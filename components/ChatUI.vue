@@ -1,36 +1,59 @@
 <template>
   <div class="content" ref="content" @scroll="isAtBottom = checkIfBottom()">
     <v-main style="height: 100%">
-      <div style="vertical-align: bottom; height: 100vh; width: 100vw; display: table-cell;">
+      <div
+        style="
+          vertical-align: bottom;
+          height: 100vh;
+          width: 100vw;
+          display: table-cell;
+        "
+      >
         <div class="message text-left highlighted">
-          <strong> Welcome to HyperChat! </strong>
+          <strong> Welcome to HyperChat by LiveTL! </strong>
           <br />
           HyperChat can lower CPU usage by up to 80%.
         </div>
-        <v-container fluid>
+        <v-container fluid class="lowpadding">
           <div
             v-for="message of getMessages()"
             :key="message.index"
             :id="`message${message.index}`"
             :class="{
-              'message': true,
+              message: true,
               'text-left': true,
-              'superchat': message.info.superchat != null
+              superchat: message.info.superchat != null,
             }"
-            v-show="message.shown" :style="{
-              backgroundColor: (message.info.superchat ?
-                `var(--${message.info.superchat.color})` : 'inherit')
-                + ' !important'
+            v-show="message.shown"
+            :style="{
+              backgroundColor: message.info.superchat
+                ? `var(--${message.info.superchat.color}) !important`
+                : null,
             }"
           >
-            <strong style="margin-right: 5px; text-decoration: underline;"
-              v-if="message.info.superchat">{{ message.info.superchat.amount }}</strong>
-            <strong style="margin-right: 5px;" :class="(message.info.author.types || []).map(d => d.split(' ')[0])">
+            <strong
+              style="margin-right: 5px; text-decoration: underline"
+              v-if="message.info.superchat"
+              >{{ message.info.superchat.amount }}</strong
+            >
+            <strong
+              style="margin-right: 5px"
+              :class="
+                (message.info.author.types || []).map((d) => d.split(' ')[0])
+              "
+            >
               {{ message.info.author.name }}
             </strong>
-            <span v-for="(run, key, index) in message.info.message" :key="index">
+            <span
+              v-for="(run, key, index) in message.info.message"
+              :key="index"
+            >
               <span v-if="run.type == 'text'">{{ run.text }}</span>
-              <img v-else-if="run.type == 'emote' && run.src" :src="run.src" class="chatEmote" />
+              <img
+                v-else-if="run.type == 'emote' && run.src"
+                :src="run.src"
+                class="chatEmote"
+              />
             </span>
           </div>
         </v-container>
@@ -41,7 +64,7 @@
         elevation="3"
         fixed
         bottom
-        style="left: 50%; transform: translateX(-50%);"
+        style="left: 50%; transform: translateX(-50%)"
         color="#0287C3"
         fab
         @click="scrollToBottom"
@@ -83,7 +106,7 @@ class Queue {
       this.last = newItem;
     }
   }
-};
+}
 
 const CHAT_HISTORY_SIZE = 250;
 
@@ -112,19 +135,25 @@ export default {
       // await this.$forceUpdate();
       this.scrollToBottom();
     });
-    window.addEventListener('message', async(d) => {
+    window.addEventListener('message', async d => {
       d = JSON.parse(JSON.stringify(d.data));
       this.isAtBottom = this.checkIfBottom();
       if (d['yt-player-video-progress']) {
         this.progress.current = d['yt-player-video-progress'];
-        if (Math.abs(this.progress.previous - this.progress.current) > 1 || this.progress.current == null) {
+        if (
+          Math.abs(this.progress.previous - this.progress.current) > 1 ||
+          this.progress.current == null
+        ) {
           // scrubbed or skipped
           while (this.queued.top) {
             this.newMessage(this.queued.pop().data.message);
           }
           this.isAtBottom = true;
         } else {
-          while (this.queued.top != null && this.queued.top.data.timestamp <= this.progress.current) {
+          while (
+            this.queued.top != null &&
+            this.queued.top.data.timestamp <= this.progress.current
+          ) {
             const item = this.queued.pop();
             if (this.isAtBottom) {
               this.newMessage(item.data.message);
@@ -138,7 +167,7 @@ export default {
         }
         this.progress.previous = this.progress.current;
       } else if (d.type === 'messageChunk') {
-        d.messages.forEach(async(message) => {
+        d.messages.forEach(async message => {
           if (!d.isReplay) {
             setTimeout(async() => {
               this.isAtBottom = this.checkIfBottom();
@@ -182,10 +211,10 @@ export default {
             author: {},
             message: []
           },
-          shown: (
+          shown:
             message != null &&
-            i >= this.current && i < this.messages.length + this.current
-          )
+            i >= this.current &&
+            i < this.messages.length + this.current
         };
       }
     }
@@ -197,23 +226,27 @@ export default {
 :root {
   --accent: rgba(0, 119, 255, 0.5);
   --blue: #6fa9ff;
-  --lightblue: #00BDFF;
-  --turquoise: #1DE9B7;
-  --yellow: #FFC928;
-  --orange: #F67C00;
-  --pink: #FA3664;
-  --red: #F63413;
+  --lightblue: #00bdff;
+  --turquoise: #1de9b7;
+  --yellow: #ffc928;
+  --orange: #f67c00;
+  --pink: #fa3664;
+  --red: #f63413;
 }
 
 .message {
   transform-origin: 0 100%;
   overflow: hidden;
-  padding: 10px;
+  padding: 5px 5px 5px 5px;
   text-overflow: ellipsis;
   border-radius: 5px;
 }
 
 .message:nth-child(even) {
+  /* background-color: #202020; */
+}
+
+.message:nth-child(odd) {
   background-color: #202020;
 }
 
@@ -221,22 +254,23 @@ export default {
   overflow-y: scroll;
   height: 100vh;
   scrollbar-width: thin;
+  padding: 0px;
 }
 
 .content::-webkit-scrollbar {
-    width: 4px;
+  width: 4px;
 }
 
 .content::-webkit-scrollbar-track {
-    background: transparent;
+  background: transparent;
 }
 
 .content::-webkit-scrollbar-thumb {
-    background: #888;
+  background: #888;
 }
 
 .content::-webkit-scrollbar-thumb:hover {
-    background: #555;
+  background: #555;
 }
 
 html {
@@ -244,8 +278,8 @@ html {
 }
 
 .highlighted {
-  background-color: var(--accent);
-  margin: 30px 30px 0px 30px;
+  background-color: var(--accent) !important;
+  margin: 15px 15px 15px 15px;
   width: initial;
 }
 
@@ -256,16 +290,20 @@ html {
 }
 
 .moderator {
-  color: #5E84F1 !important;
+  color: #5e84f1 !important;
 }
 
 .member {
-  color: #26A23F;
+  color: #26a23f;
 }
 
 .superchat {
   margin: 15px 0px 15px 0px;
   color: black;
+}
+
+.lowpadding {
+  padding: 0px 10px 0px 10px !important;
 }
 
 * {
