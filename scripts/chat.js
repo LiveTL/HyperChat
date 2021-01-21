@@ -29,6 +29,7 @@ const colorConversionTable = {
 };
 
 const messageReceiveCallback = async(response) => {
+  response = JSON.parse(response);
   try {
     const messages = [];
     if (!response.continuationContents) {
@@ -149,7 +150,7 @@ const loaded = async() => {
       if (url.startsWith(
         'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat')
       ) {
-        const response = await (await result.clone()).json();
+        const response = JSON.stringify(await (await result.clone()).json());
         window.dispatchEvent(new CustomEvent('messageReceive', { detail: response }));
       }
       return result;
