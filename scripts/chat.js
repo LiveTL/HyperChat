@@ -135,6 +135,20 @@ const loaded = async() => {
     <iframe id='optichat' src='${await getWAR('index.html')
     }#/chat' style='border: 0px; width: 100%; height: 100%'></iframe>
   `;
+  const button = document.createElement('div');
+  button.innerHTML = 'Disable HyperChat';
+  button.style.backgroundColor = '#094589';
+  button.style.color = 'white';
+  button.style.border = '4px solid #86868682';
+  button.style.fontSize = '0.75em';
+  button.style.height = '100%';
+  button.style.width = 'fit-content';
+  button.style.borderRadius = '5px';
+  button.style.cursor = 'default';
+  button.style.userSelect = 'none';
+  button.style.float = 'right';
+  button.style.padding = '2.5px';
+  document.querySelector('#primary-content').appendChild(button);
   document.querySelector('#ticker').remove();
   const script = document.createElement('script');
   script.innerHTML = `
@@ -158,12 +172,26 @@ const loaded = async() => {
   `;
   window.addEventListener('messageReceive', d => messageReceiveCallback(d.detail));
   document.body.appendChild(script);
-  window.postMessage({
-    'yt-live-chat-set-dark-theme': true
-  }, '*');
+  // window.postMessage({
+  //   'yt-live-chat-set-dark-theme': true
+  // }, '*');
   const messageDisplay = document.querySelector('#optichat');
+  const html = document.querySelector('html');
+  const sendTheme = () => {
+    const theme = html.hasAttribute('dark');
+    messageDisplay.contentWindow.postMessage({
+      'yt-live-chat-set-dark-theme': theme
+    }, '*');
+  };
+  new MutationObserver(sendTheme).observe(html, {
+    attributes: true
+  });
   window.addEventListener('message', d => {
-    messageDisplay.contentWindow.postMessage(d.data, '*');
+    if (d.data.type === 'getTheme') {
+      sendTheme();
+    } else {
+      messageDisplay.contentWindow.postMessage(d.data, '*');
+    }
   });
 };
 

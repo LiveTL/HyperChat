@@ -166,6 +166,9 @@ export default {
           // await this.$forceUpdate();
         }
         this.progress.previous = this.progress.current;
+      } else if (d['yt-live-chat-set-dark-theme'] != null) {
+        this.$vuetify.theme.dark = d['yt-live-chat-set-dark-theme'];
+        localStorage.setItem('dark_theme', this.$vuetify.theme.dark.toString());
       } else if (d.type === 'messageChunk') {
         d.messages.forEach(async message => {
           if (!d.isReplay) {
@@ -187,6 +190,9 @@ export default {
         });
       }
     });
+    window.parent.postMessage({
+      type: 'getTheme'
+    }, '*');
   },
   methods: {
     newMessage(message) {
@@ -247,7 +253,7 @@ export default {
 }
 
 .message:nth-child(odd) {
-  background-color: #202020;
+  background-color: #86868682;
 }
 
 .content {
@@ -279,7 +285,7 @@ html {
 
 .highlighted {
   background-color: var(--accent) !important;
-  margin: 15px;
+  margin: 10px;
   padding: 10px;
   width: initial;
 }
