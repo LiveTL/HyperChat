@@ -57,7 +57,6 @@ const messageReceiveCallback = async (response) => {
           return;
         }
         if (!messageItem.authorName) {
-          console.log(currentElement);
           return;
         }
         messageItem.authorBadges = messageItem.authorBadges || [];
