@@ -214,7 +214,7 @@ const hyperchatLoaded = async () => {
   window.addEventListener('message', d => {
     if (d.data.type === 'getTheme') {
       sendTheme();
-    } else {
+    } else if (window.isLiveTL) {
       messageDisplay.contentWindow.postMessage(d.data, '*');
     }
   });
