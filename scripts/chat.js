@@ -156,7 +156,9 @@ const hyperchatLoaded = async () => {
   });
   button.innerHTML = 'Enable HyperChat';
   let messageDisplay = {
-    contentWindow: window.parent
+    contentWindow: {
+      postMessage: () => { }
+    }
   };
   document.querySelector('#primary-content').appendChild(button);
   if (localStorage.getItem('HC:ENABLED') === 'true') {
@@ -214,8 +216,6 @@ const hyperchatLoaded = async () => {
   window.addEventListener('message', d => {
     if (d.data.type === 'getTheme') {
       sendTheme();
-    } else if (window.isLiveTL) {
-      messageDisplay.contentWindow.postMessage(d.data, '*');
     }
   });
 };
