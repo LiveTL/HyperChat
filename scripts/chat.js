@@ -1,4 +1,5 @@
 import { getWAR } from '@/modules/war.js';
+// above line is replaced for LiveTL. DO NOT EDIT.
 
 const isReplay = window.location.href.startsWith(
   'https://www.youtube.com/live_chat_replay'
@@ -28,7 +29,7 @@ const colorConversionTable = {
   4293271831: 'red'
 };
 
-const messageReceiveCallback = async(response) => {
+const messageReceiveCallback = async (response) => {
   response = JSON.parse(response);
   try {
     const messages = [];
@@ -122,25 +123,41 @@ const messageReceiveCallback = async(response) => {
   }
 };
 
-const loaded = async() => {
+const hyperchatLoaded = async () => {
+  const css = `
+    .toggleButton {
+      background-color: #094589;
+      color: white;
+      border: 4px solid;
+      border-color: #86868682;
+      font-size: 0.75em;
+      height: 100%;
+      width: fit-content;
+      border-radius: 5px;
+      cursor: default;
+      user-select: none;
+      float: right;
+      padding: 2.5px;
+      transition: 0.25s;
+    }
+    .toggleButton:hover {
+      border-color: lightgray;
+    }
+  `;
+  const style = document.createElement('style');
+  style.innerHTML = css;
+  document.body.appendChild(style)
   const button = document.createElement('div');
-  button.innerHTML = 'Enable HyperChat';
-  button.style.backgroundColor = '#094589';
-  button.style.color = 'white';
-  button.style.border = '4px solid #86868682';
-  button.style.fontSize = '0.75em';
-  button.style.height = '100%';
-  button.style.width = 'fit-content';
-  button.style.borderRadius = '5px';
-  button.style.cursor = 'default';
-  button.style.userSelect = 'none';
-  button.style.float = 'right';
-  button.style.padding = '2.5px';
+  button.className = 'toggleButton';
   button.addEventListener('click', () => {
     localStorage.setItem('HC:ENABLED',
       localStorage.getItem('HC:ENABLED') !== 'true' ? 'true' : 'false');
     location.reload();
   });
+  button.innerHTML = 'Enable HyperChat';
+  let messageDisplay = {
+    contentWindow: window.parent
+  };
   document.querySelector('#primary-content').appendChild(button);
   if (localStorage.getItem('HC:ENABLED') === 'true') {
     button.innerHTML = 'Disable HyperChat';
@@ -152,10 +169,10 @@ const loaded = async() => {
     }, '*');
     const elem = document.querySelector('#chat>#item-list');
     if (!elem) return;
+    const source = await getWAR((window.isLiveTL ? 'hyperchat' : '') + '/index.html');
     elem.outerHTML = `
-    <iframe id='optichat' src='${await getWAR('index.html')
-      }#/chat' style='border: 0px; width: 100%; height: 100%'></iframe>
-  `;
+    <iframe id='optichat' src='${source}#/chat' style='border: 0px; width: 100%; height: 100%'></iframe>
+    `;
     document.querySelector('#ticker').remove();
     const script = document.createElement('script');
     script.innerHTML = `
@@ -182,25 +199,25 @@ const loaded = async() => {
     // window.postMessage({
     //   'yt-live-chat-set-dark-theme': true
     // }, '*');
-    const messageDisplay = document.querySelector('#optichat');
-    const html = document.querySelector('html');
-    const sendTheme = () => {
-      const theme = html.hasAttribute('dark');
-      messageDisplay.contentWindow.postMessage({
-        'yt-live-chat-set-dark-theme': theme
-      }, '*');
-    };
-    new MutationObserver(sendTheme).observe(html, {
-      attributes: true
-    });
-    window.addEventListener('message', d => {
-      if (d.data.type === 'getTheme') {
-        sendTheme();
-      } else {
-        messageDisplay.contentWindow.postMessage(d.data, '*');
-      }
-    });
+    messageDisplay = document.querySelector('#optichat');
   }
+  const html = document.querySelector('html');
+  const sendTheme = () => {
+    const theme = html.hasAttribute('dark');
+    messageDisplay.contentWindow.postMessage({
+      'yt-live-chat-set-dark-theme': theme
+    }, '*');
+  };
+  new MutationObserver(sendTheme).observe(html, {
+    attributes: true
+  });
+  window.addEventListener('message', d => {
+    if (d.data.type === 'getTheme') {
+      sendTheme();
+    } else {
+      messageDisplay.contentWindow.postMessage(d.data, '*');
+    }
+  });
 };
 
-loaded();
+hyperchatLoaded();
