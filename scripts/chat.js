@@ -219,4 +219,5 @@ const hyperchatLoaded = async () => {
   });
 };
 
-hyperchatLoaded();
+window.addEventListener('load', hyperchatLoaded)
+if (document.readyState == 'complete') hyperchatLoaded();
