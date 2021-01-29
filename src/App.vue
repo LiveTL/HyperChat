@@ -11,7 +11,7 @@
       >
         <div class="message text-left highlighted">
           <strong> Welcome to HyperChat by LiveTL! </strong>
-          <br />
+          <br/>
           HyperChat can lower CPU usage by up to 80%.
         </div>
         <v-container fluid class="lowpadding">
@@ -130,7 +130,7 @@ export default {
     titleTemplate: '%s | LiveTL'
   },
   created() {
-    window.addEventListener('resize', async() => {
+    window.addEventListener('resize', async () => {
       // await this.$nextTick();
       // await this.$forceUpdate();
       this.scrollToBottom();
@@ -172,7 +172,7 @@ export default {
       } else if (d.type === 'messageChunk') {
         d.messages.forEach(async message => {
           if (!d.isReplay) {
-            setTimeout(async() => {
+            setTimeout(async () => {
               this.isAtBottom = this.checkIfBottom();
               if (this.isAtBottom) {
                 this.newMessage(message);
