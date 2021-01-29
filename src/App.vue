@@ -34,7 +34,7 @@
             <strong
               style="margin-right: 5px; text-decoration: underline"
               v-if="message.info.superchat"
-              >{{ message.info.superchat.amount }}</strong
+            >{{ message.info.superchat.amount }}</strong
             >
             <strong
               style="margin-right: 5px"
@@ -153,7 +153,7 @@ export default {
           while (
             this.queued.top != null &&
             this.queued.top.data.timestamp <= this.progress.current
-          ) {
+            ) {
             const item = this.queued.pop();
             if (this.isAtBottom) {
               this.newMessage(item.data.message);

@@ -172,7 +172,7 @@ const hyperchatLoaded = async () => {
     if (!elem) return;
     const source = await getWAR((window.isLiveTL ? 'hyperchat/index.html' : 'index.html') + '');
     elem.outerHTML = `
-    <iframe id='optichat' src='${source}#/chat' style='border: 0px; width: 100%; height: 100%'></iframe>
+    <iframe id='optichat' src='${source}' style='border: 0px; width: 100%; height: 100%'></iframe>
     `;
     document.querySelector('#ticker').remove();
     const script = document.createElement('script');
