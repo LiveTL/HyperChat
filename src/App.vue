@@ -121,8 +121,7 @@ export default {
       progress: {
         current: null,
         previous: null
-      },
-      console
+      }
     };
   },
   metaInfo: {
@@ -138,9 +137,7 @@ export default {
     window.addEventListener('message', async d => {
       d = JSON.parse(JSON.stringify(d.data));
       this.isAtBottom = this.checkIfBottom();
-      console.log(d);
       if (d['yt-player-video-progress']) {
-        console.log('progress');
         this.progress.current = d['yt-player-video-progress'];
         if (
           Math.abs(this.progress.previous - this.progress.current) > 1 ||
