@@ -1,6 +1,6 @@
 <template>
-  <div class="content" ref="content" @scroll="isAtBottom = checkIfBottom()">
-    <v-main style="height: 100%">
+  <v-app>
+    <div class="content" ref="content" @scroll="isAtBottom = checkIfBottom()">
       <div
         style="
           vertical-align: bottom;
@@ -58,22 +58,22 @@
           </div>
         </v-container>
       </div>
-    </v-main>
-    <v-fade-transition>
-      <v-btn
-        elevation="3"
-        fixed
-        bottom
-        style="left: 50%; transform: translateX(-50%)"
-        color="#0287C3"
-        fab
-        @click="scrollToBottom"
-        v-show="!isAtBottom"
-      >
-        <v-icon>mdi-arrow-down</v-icon>
-      </v-btn>
-    </v-fade-transition>
-  </div>
+      <v-fade-transition>
+        <v-btn
+          elevation="3"
+          fixed
+          bottom
+          style="left: 50%; transform: translateX(-50%)"
+          color="#0287C3"
+          fab
+          @click="scrollToBottom"
+          v-show="!isAtBottom"
+        >
+          <v-icon>mdi-arrow-down</v-icon>
+        </v-btn>
+      </v-fade-transition>
+    </div>
+  </v-app>
 </template>
 
 <script>
@@ -138,7 +138,9 @@ export default {
     window.addEventListener('message', async d => {
       d = JSON.parse(JSON.stringify(d.data));
       this.isAtBottom = this.checkIfBottom();
+      console.log(d);
       if (d['yt-player-video-progress']) {
+        console.log('progress');
         this.progress.current = d['yt-player-video-progress'];
         if (
           Math.abs(this.progress.previous - this.progress.current) > 1 ||
@@ -167,7 +169,7 @@ export default {
         this.$vuetify.theme.dark = d['yt-live-chat-set-dark-theme'];
         localStorage.setItem('dark_theme', this.$vuetify.theme.dark.toString());
       } else if (d.type === 'messageChunk') {
-        d.messages.forEach(async message => {
+        for (const message of d.messages) {
           if (!d.isReplay) {
             setTimeout(async () => {
               this.isAtBottom = this.checkIfBottom();
@@ -184,7 +186,7 @@ export default {
               message: message
             });
           }
-        });
+        }
       }
     });
     window.parent.postMessage({

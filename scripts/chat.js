@@ -145,7 +145,7 @@ const hyperchatLoaded = async () => {
   `;
   const style = document.createElement('style');
   style.innerHTML = css;
-  document.body.appendChild(style)
+  document.body.appendChild(style);
   const button = document.createElement('div');
   button.className = 'toggleButton';
   button.addEventListener('click', () => {
@@ -215,9 +215,11 @@ const hyperchatLoaded = async () => {
   window.addEventListener('message', d => {
     if (d.data.type === 'getTheme') {
       sendTheme();
+    } else if (d.data['yt-player-video-progress'] != null) {
+      messageDisplay.contentWindow.postMessage(d.data, '*');
     }
   });
 };
 
-window.addEventListener('load', hyperchatLoaded)
-if (document.readyState == 'complete') hyperchatLoaded();
+window.addEventListener('load', hyperchatLoaded);
+if (document.readyState === 'complete') hyperchatLoaded();
