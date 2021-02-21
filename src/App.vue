@@ -1,6 +1,8 @@
 <template>
   <v-app>
-    <div class="content" ref="content" @scroll="isAtBottom = checkIfBottom()">
+    <div class="content"
+      @scroll="isAtBottom = checkIfBottom();"
+      ref="content">
       <div
         style="
           vertical-align: bottom;
@@ -16,7 +18,7 @@
         </div>
         <v-container fluid class="lowpadding">
           <div
-            v-for="message of getMessages()"
+            v-for="message in messages"
             :key="message.index"
             :id="`message${message.index}`"
             :class="{
@@ -109,13 +111,24 @@ class Queue {
 }
 
 const CHAT_HISTORY_SIZE = 250;
+const EMPTY = [];
+for (let i = 0; i < CHAT_HISTORY_SIZE; i++) {
+  EMPTY.push({
+    index: i,
+    info: {
+      author: {},
+      message: []
+    },
+    shown: false
+  });
+}
 
 export default {
   name: 'ChatUI',
   data: () => {
     return {
-      messages: new Array(CHAT_HISTORY_SIZE),
-      current: 0,
+      messages: EMPTY,
+      current: CHAT_HISTORY_SIZE,
       queued: new Queue(),
       isAtBottom: true,
       progress: {
@@ -192,33 +205,25 @@ export default {
   },
   methods: {
     newMessage(message) {
-      this.$set(this.messages, this.current, message);
+      this.$set(this.messages, this.current, {
+        index: this.current,
+        info: message,
+        shown: true
+      });
+      this.$set(this.messages, this.current % CHAT_HISTORY_SIZE, {
+        index: this.current % CHAT_HISTORY_SIZE,
+        info: message,
+        shown: false
+      });
       this.current++;
-      this.current %= this.messages.length;
     },
     checkIfBottom() {
-      const el = this.$el;
+      const el = this.$refs.content;
       if (!el) return true;
-      return Math.ceil(el.clientHeight + el.scrollTop) >= el.scrollHeight;
+      return Math.ceil(window.innerHeight + el.scrollTop) >= el.scrollHeight;
     },
     scrollToBottom() {
       this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
-    },
-    getMessages: function * () {
-      for (let i = 0; i < 2 * this.messages.length - 1; i++) {
-        const message = this.messages[i % this.messages.length];
-        yield {
-          index: i,
-          info: message || {
-            author: {},
-            message: []
-          },
-          shown:
-            message != null &&
-            i >= this.current &&
-            i < this.messages.length + this.current
-        };
-      }
     }
   }
 };
@@ -276,7 +281,7 @@ export default {
 }
 
 html {
-  overflow-y: hidden;
+  overflow-y: hidden !important;
 }
 
 .highlighted {
