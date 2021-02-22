@@ -1,8 +1,6 @@
 <template>
   <v-app>
-    <div class="content"
-      @scroll="isAtBottom = checkIfBottom();"
-      ref="content">
+    <div class="content" ref="content" @scroll="isAtBottom = checkIfBottom()">
       <div
         style="
           vertical-align: bottom;
@@ -18,7 +16,7 @@
         </div>
         <v-container fluid class="lowpadding">
           <div
-            v-for="message in messages"
+            v-for="message of getMessages()"
             :key="message.index"
             :id="`message${message.index}`"
             :class="{
@@ -109,26 +107,13 @@ class Queue {
     }
   }
 }
-
 const CHAT_HISTORY_SIZE = 250;
-const EMPTY = [];
-for (let i = 0; i < CHAT_HISTORY_SIZE; i++) {
-  EMPTY.push({
-    index: i,
-    info: {
-      author: {},
-      message: []
-    },
-    shown: false
-  });
-}
-
 export default {
   name: 'ChatUI',
   data: () => {
     return {
-      messages: EMPTY,
-      current: CHAT_HISTORY_SIZE,
+      messages: new Array(CHAT_HISTORY_SIZE),
+      current: 0,
       queued: new Queue(),
       isAtBottom: true,
       progress: {
@@ -205,17 +190,9 @@ export default {
   },
   methods: {
     newMessage(message) {
-      this.$set(this.messages, this.current, {
-        index: this.current,
-        info: message,
-        shown: true
-      });
-      this.$set(this.messages, this.current % CHAT_HISTORY_SIZE, {
-        index: this.current % CHAT_HISTORY_SIZE,
-        info: message,
-        shown: false
-      });
+      this.$set(this.messages, this.current, message);
       this.current++;
+      this.current %= this.messages.length;
     },
     checkIfBottom() {
       const el = this.$refs.content;
@@ -224,6 +201,22 @@ export default {
     },
     scrollToBottom() {
       this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
+    },
+    getMessages: function * () {
+      for (let i = 0; i < 2 * this.messages.length - 1; i++) {
+        const message = this.messages[i % this.messages.length];
+        yield {
+          index: i,
+          info: message || {
+            author: {},
+            message: []
+          },
+          shown:
+            message != null &&
+            i >= this.current &&
+            i < this.messages.length + this.current
+        };
+      }
     }
   }
 };
@@ -240,7 +233,6 @@ export default {
   --pink: #fa3664;
   --red: #f63413;
 }
-
 .message {
   transform-origin: 0 100%;
   overflow: hidden;
@@ -248,72 +240,57 @@ export default {
   text-overflow: ellipsis;
   border-radius: 5px;
 }
-
 .message:nth-child(even) {
   /* background-color: #202020; */
 }
-
 .message:nth-child(odd) {
   background-color: #86868682;
 }
-
 .content {
   overflow-y: scroll;
   height: 100vh;
   scrollbar-width: thin;
   padding: 0px;
 }
-
 .content::-webkit-scrollbar {
   width: 4px;
 }
-
 .content::-webkit-scrollbar-track {
   background: transparent;
 }
-
 .content::-webkit-scrollbar-thumb {
   background: #888;
 }
-
 .content::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
-
 html {
   overflow-y: hidden !important;
 }
-
 .highlighted {
   background-color: var(--accent) !important;
   margin: 10px;
   padding: 10px;
   width: initial;
 }
-
 .chatEmote {
   vertical-align: sub;
   height: 1.5em;
   margin: 0px 0.2em 0px 0.2em;
 }
-
 .moderator {
   color: #5e84f1 !important;
 }
-
 .member {
   color: #26a23f;
 }
-
 .superchat {
   margin: 15px 0px 15px 0px;
   color: black;
 }
-
 .lowpadding {
   padding: 0px 10px 0px 10px !important;
 }
-
 * {
   overflow-wrap: anywhere;
 }
