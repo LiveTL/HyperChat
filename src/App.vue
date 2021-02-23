@@ -213,11 +213,9 @@ export default {
     },
     scrollToTop() {
       this.$refs.content.scrollTop = 0;
-      this.isAtBottom = false;
     },
     scrollToBottom() {
-      this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
-      this.isAtBottom = true;
+      this.$refs.content.scrollTop = this.$refs.content.scrollHeight + 1;
     },
     getMessages: function * () {
       for (let i = 0; i < 2 * this.messages.length - 1; i++) {
