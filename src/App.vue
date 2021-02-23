@@ -19,13 +19,10 @@
             v-for="message of getMessages()"
             :key="message.index"
             :id="`message${message.index}`"
-            :data-id="message.index"
-            v-observe-visibility="visibilityChanged"
             :class="{
               message: true,
               'text-left': true,
               superchat: message.info.superchat != null,
-              chatMessage: message.shown
             }"
             v-show="message.shown"
             :style="{
@@ -80,11 +77,6 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import VueObserveVisibility from 'vue-observe-visibility';
-
-Vue.use(VueObserveVisibility);
-
 class Queue {
   constructor() {
     this.clear();
@@ -127,8 +119,7 @@ export default {
       progress: {
         current: null,
         previous: null
-      },
-      visibility: (new Array(2 * CHAT_HISTORY_SIZE)).map(() => false)
+      }
     };
   },
   metaInfo: {
@@ -139,7 +130,6 @@ export default {
     window.addEventListener('resize', async () => {
       // await this.$nextTick();
       // await this.$forceUpdate();
-      this.isAtBottom = false;
       this.scrollToBottom();
     });
     window.addEventListener('message', async d => {
@@ -226,27 +216,6 @@ export default {
             i >= this.current &&
             i < this.messages.length + this.current
         };
-      }
-    },
-    visibilityChanged (isVisible, entry) {
-      const id = entry.target.dataset.id;
-      console.log(id);
-      if (!id) return;
-      this.visibility[parseInt(id)] = isVisible;
-      if (this.isAtBottom) {
-        entry.target.style.display = isVisible ? 'block' : 'none';
-      }
-    }
-  },
-  watch: {
-    isAtBottom(newVal, oldVal) {
-      const elems = document.querySelectorAll('.chatMessage');
-      if (newVal && !oldVal) {
-        elems.forEach(e => {
-          e.style.display = this.visibility[parseInt(e.dataset.id)] ? 'block' : 'none';
-        });
-      } else if (oldVal && !newVal) {
-        elems.forEach(e => { e.style.display = 'block'; });
       }
     }
   }
