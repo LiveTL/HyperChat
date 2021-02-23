@@ -12,7 +12,8 @@
         <div class="message text-left highlighted">
           <strong> Welcome to HyperChat by LiveTL! </strong>
           <br/>
-          HyperChat can lower CPU usage by up to 80%.
+          HyperChat can lower CPU usage by up to 80%.<br/>
+          Initial messages may take several seconds to load.
         </div>
         <v-container fluid class="lowpadding">
           <div
@@ -136,12 +137,13 @@ export default {
     titleTemplate: '%s | LiveTL'
   },
   created() {
-    window.addEventListener('resize', async () => {
-      // await this.$nextTick();
-      // await this.$forceUpdate();
-      this.isAtBottom = false;
-      this.scrollToBottom();
-    });
+    new ResizeObserver(async entries => {
+      setTimeout(async() => {
+        document.querySelectorAll('.chatMessage').forEach(e => {
+          e.style.display = 'block';
+        });
+      }, 0);
+    }).observe(document.body);
     window.addEventListener('message', async d => {
       d = JSON.parse(JSON.stringify(d.data));
       this.isAtBottom = this.checkIfBottom();
@@ -209,8 +211,13 @@ export default {
       if (!el) return true;
       return Math.ceil(window.innerHeight + el.scrollTop) >= el.scrollHeight;
     },
+    scrollToTop() {
+      this.$refs.content.scrollTop = 0;
+      this.isAtBottom = false;
+    },
     scrollToBottom() {
       this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
+      this.isAtBottom = true;
     },
     getMessages: function * () {
       for (let i = 0; i < 2 * this.messages.length - 1; i++) {
@@ -230,7 +237,6 @@ export default {
     },
     visibilityChanged (isVisible, entry) {
       const id = entry.target.dataset.id;
-      console.log(id);
       if (!id) return;
       this.visibility[parseInt(id)] = isVisible;
       if (this.isAtBottom) {
