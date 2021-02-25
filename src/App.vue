@@ -14,49 +14,48 @@
           <br/>
           HyperChat can lower CPU usage by up to 80%.
         </div>
-        <v-container fluid class="lowpadding">
-          <div
-            v-for="message of getMessages()"
-            :key="message.index"
-            :id="`message${message.index}`"
-            :class="{
-              message: true,
-              'text-left': true,
-              superchat: message.info.superchat != null,
-            }"
-            v-show="message.shown"
-            :style="{
-              backgroundColor: message.info.superchat
-                ? `var(--${message.info.superchat.color}) !important`
-                : null,
-            }"
+        <div
+          v-for="message of getMessages()"
+          :key="message.index"
+          :id="`message${message.index}`"
+          :class="{
+            message: true,
+            'text-left': true,
+            superchat: message.info.superchat != null
+          }"
+          v-show="message.shown"
+          :style="{
+            backgroundColor: message.info.superchat
+              ? `var(--${message.info.superchat.color}) !important`
+              : null,
+          }"
+        >
+          <strong
+            style="margin-right: 5px; text-decoration: underline"
+            v-if="message.info.superchat"
+          >{{ message.info.superchat.amount }}</strong
           >
-            <strong
-              style="margin-right: 5px; text-decoration: underline"
-              v-if="message.info.superchat"
-            >{{ message.info.superchat.amount }}</strong
-            >
-            <strong
-              style="margin-right: 5px"
-              :class="
-                (message.info.author.types || []).map((d) => d.split(' ')[0])
-              "
-            >
-              {{ message.info.author.name }}
-            </strong>
-            <span
-              v-for="(run, key, index) in message.info.message"
-              :key="index"
-            >
-              <span v-if="run.type == 'text'">{{ run.text }}</span>
-              <img
-                v-else-if="run.type == 'emote' && run.src"
-                :src="run.src"
-                class="chatEmote"
-              />
-            </span>
-          </div>
-        </v-container>
+          <strong
+            style="margin-right: 5px"
+            :class="
+              (message.info.author.types || []).map((d) => d.split(' ')[0])
+            "
+          >
+            {{ message.info.author.name }}
+          </strong>
+          <span
+            v-for="(run, key, index) in message.info.message"
+            :key="index"
+          >
+            <span v-if="run.type == 'text'">{{ run.text }}</span>
+            <img
+              v-else-if="run.type == 'emote' && run.src"
+              :src="run.src"
+              class="chatEmote"
+            />
+          </span>
+        </div>
+        <div ref="lastMessage"></div>
       </div>
       <v-fade-transition>
         <v-btn
@@ -201,6 +200,7 @@ export default {
     },
     scrollToBottom() {
       this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
+      // this.$vuetify.goTo(this.$refs.lastMessage, { container: this.$refs.content });
     },
     getMessages: function * () {
       for (let i = 0; i < 2 * this.messages.length - 1; i++) {
