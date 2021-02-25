@@ -8,11 +8,14 @@
           width: 100vw;
           display: table-cell;
         "
+        class="lowpadding"
       >
         <div class="message text-left highlighted">
           <strong> Welcome to HyperChat by LiveTL! </strong>
           <br/>
           HyperChat can lower CPU usage by up to 80%.
+          <br />
+          <i>It may take a few seconds for messages to start appearing.</i>
         </div>
         <div
           v-for="message of getMessages()"
@@ -118,7 +121,8 @@ export default {
       progress: {
         current: null,
         previous: null
-      }
+      },
+      interval: null
     };
   },
   metaInfo: {
@@ -134,52 +138,29 @@ export default {
     window.addEventListener('message', async d => {
       d = JSON.parse(JSON.stringify(d.data));
       this.isAtBottom = this.checkIfBottom();
-      if (d['yt-player-video-progress']) {
-        this.progress.current = d['yt-player-video-progress'];
-        if (
-          Math.abs(this.progress.previous - this.progress.current) > 1 ||
-          this.progress.current == null
-        ) {
-          // scrubbed or skipped
-          while (this.queued.top) {
-            this.newMessage(this.queued.pop().data.message);
-          }
-          this.isAtBottom = true;
-        } else {
-          while (this.queued.top != null && this.queued.top.data.timestamp <= this.progress.current) {
-            const item = this.queued.pop();
-            if (this.isAtBottom) {
-              this.newMessage(item.data.message);
-            }
-          }
-        }
-        if (this.isAtBottom) {
-          await this.$nextTick();
-          this.scrollToBottom();
-          // await this.$forceUpdate();
-        }
-        this.progress.previous = this.progress.current;
+      if (d['yt-player-video-progress'] && !this.interval) {
+        this.videoProgressUpdated(d);
       } else if (d['yt-live-chat-set-dark-theme'] != null) {
         this.$vuetify.theme.dark = d['yt-live-chat-set-dark-theme'];
         localStorage.setItem('dark_theme', this.$vuetify.theme.dark.toString());
       } else if (d.type === 'messageChunk') {
-        for (const message of d.messages) {
-          if (!d.isReplay) {
-            setTimeout(async () => {
-              this.isAtBottom = this.checkIfBottom();
-              if (this.isAtBottom) {
-                this.newMessage(message);
-                await this.$nextTick();
-                this.scrollToBottom();
-                // await this.$forceUpdate();
-              }
-            }, message.showtime);
-          } else {
-            this.queued.push({
-              timestamp: message.showtime,
-              message: message
+        if (!d.isReplay && !this.interval) {
+          const runQueue = () => {
+            this.videoProgressUpdated({
+              'yt-player-video-progress': Date.now() / 1000
             });
-          }
+          };
+          this.interval = setInterval(runQueue, 250);
+          runQueue();
+          runQueue();
+        }
+        for (const message of d.messages.sort((m1, m2) => m1.showtime - m2.showtime)) {
+          let timestamp = (Date.now() + message.showtime) / 1000;
+          if (d.isReplay) timestamp = message.showtime;
+          this.queued.push({
+            timestamp,
+            message: message
+          });
         }
       }
     });
@@ -188,10 +169,38 @@ export default {
     }, '*');
   },
   methods: {
-    newMessage(message) {
+    async newMessage(message) {
       this.$set(this.messages, this.current, message);
       this.current++;
       this.current %= this.messages.length;
+      if (this.isAtBottom) {
+        await this.$nextTick();
+        this.scrollToBottom();
+        // await this.$forceUpdate();
+      }
+    },
+    async videoProgressUpdated(d) {
+      const time = d['yt-player-video-progress'];
+      if (time < 0) return;
+      this.progress.current = time;
+      if (
+        Math.abs(this.progress.previous - this.progress.current) > 1 ||
+          this.progress.current == null
+      ) {
+        // scrubbed or skipped
+        while (this.queued.top) {
+          this.newMessage(this.queued.pop().data.message);
+        }
+        this.isAtBottom = true;
+      } else {
+        while (this.queued.top != null && this.queued.top.data.timestamp <= this.progress.current) {
+          const item = this.queued.pop();
+          if (this.isAtBottom) {
+            this.newMessage(item.data.message);
+          }
+        }
+      }
+      this.progress.previous = this.progress.current;
     },
     checkIfBottom() {
       const el = this.$refs.content;
@@ -269,7 +278,7 @@ html {
 }
 .highlighted {
   background-color: var(--accent) !important;
-  margin: 10px;
+  margin: 10px 0px 10px 0px;
   padding: 10px;
   width: initial;
 }
