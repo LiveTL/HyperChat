@@ -160,7 +160,10 @@ const hyperchatLoaded = async () => {
       postMessage: () => { }
     }
   };
-  document.querySelector('#primary-content').appendChild(button);
+  const primaryContent = document.querySelector('#primary-content');
+  try {
+    primaryContent.appendChild(button);
+  } catch (e) { console.debug(e); }
   if (localStorage.getItem('HC:ENABLED') === 'true') {
     button.innerHTML = 'Disable HyperChat';
     window.postMessage({

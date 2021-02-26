@@ -11,7 +11,17 @@
         class="lowpadding"
       >
         <div class="message text-left highlighted">
-          <strong> Welcome to HyperChat by LiveTL! </strong>
+          <strong style="font-size: 1.5em;">
+            <img src="./../assets/logo.png" style="
+              height: 2.5em;
+              vertical-align: middle;
+              border-radius: 100%;
+              border: 0.25em solid gray;
+              margin: 10px;
+              background-color: white;
+            " />
+            Welcome to HyperChat by LiveTL!
+          </strong>
           <br/>
           HyperChat can lower CPU usage by up to 80%.
           <br />
