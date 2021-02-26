@@ -7,12 +7,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/views/Home')
-  },
-  {
-    path: '/chat',
-    name: 'Chat',
-    component: () => import(/* webpackChunkName: "about" */ '@/submodules/chat/components/ChatUI')
+    component: () => import(/* webpackChunkName: "about" */ '@/submodules/chat/src/App.vue')
   }
 ];
 
