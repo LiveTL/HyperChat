@@ -123,6 +123,7 @@ const messageReceiveCallback = async (response) => {
 };
 
 const hyperchatLoaded = async () => {
+  if (document.querySelector('.toggleButton')) return;
   const css = `
     .toggleButton {
       background-color: #094589;
