@@ -1,5 +1,3 @@
-browser.browserAction.onClicked.addListener(() => { });
-
 chrome.runtime.onMessage.addListener((request, sender, callback) => {
   switch (request.type) {
     case 'get_war': {
@@ -25,3 +23,12 @@ chrome.runtime.onMessage.addListener((request, sender, callback) => {
     }
   }
 });
+
+const launch = () => chrome.tabs.create({ url: 'https://kentonishi.github.io/HyperChat/review.html' });
+
+chrome.runtime.onInstalled.addListener(details => {
+  if (details.reason !== 'update') {
+    launch();
+  }
+});
+chrome.browserAction.onClicked.addListener(launch);
