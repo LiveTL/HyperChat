@@ -11,21 +11,30 @@
         class="lowpadding"
       >
         <div class="message text-left highlighted">
-          <strong style="font-size: 1.5em;">
-            <img src="./../assets/logo.png" style="
-              height: 2.5em;
-              vertical-align: middle;
-              border-radius: 100%;
-              border: 0.25em solid gray;
-              margin: 10px;
-              background-color: white;
-            " />
-            Welcome to HyperChat by LiveTL!
-          </strong>
+          <span style="margin-bottom: 5px; display: inline-block;">
+            <strong style="font-size: 1.5em;">
+              <img src="./../assets/logo.png" style="
+                height: 2.5em;
+                vertical-align: middle;
+                border-radius: 100%;
+                border: 0.25em solid gray;
+                margin-right: 5px;
+                background-color: white;
+              " />
+              Welcome to HyperChat by LiveTL!
+            </strong>
+          </span>
           <br/>
-          HyperChat can lower CPU usage by up to 80%.
-          <br />
-          <i>It may take a few seconds for messages to start appearing.</i>
+          <span>
+            <i>It may take a few seconds for messages to start appearing.</i>
+            <br />
+            <span style="font-size: 1em; display: inline-block;">
+              Don't forget to <a href="http://kentonishi.github.io/hyperchat/review.html" target="_blank">drop a 5-star review</a>
+              and <a href="https://github.com/KentoNishi/HyperChat" target="_blank">star the GitHub repository</a>!
+            </span>
+            <br /><br />
+            <strong>NEW IN {{ update.version }}:</strong> {{ update.comments }}
+          </span>
         </div>
         <div
           v-for="message of getMessages()"
@@ -89,6 +98,7 @@
 </template>
 
 <script>
+import { updates } from './changelog.js';
 class Queue {
   constructor() {
     this.clear();
@@ -132,7 +142,8 @@ export default {
         current: null,
         previous: null
       },
-      interval: null
+      interval: null,
+      update: updates[updates.length - 1]
     };
   },
   metaInfo: {
@@ -312,5 +323,8 @@ html {
 }
 * {
   overflow-wrap: anywhere;
+}
+a {
+  color: inherit !important;
 }
 </style>
