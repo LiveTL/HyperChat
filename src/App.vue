@@ -29,7 +29,8 @@
             <i>It may take a few seconds for messages to start appearing.</i>
             <br />
             <span style="font-size: 1em; display: inline-block;">
-              Don't forget to <a href="http://kentonishi.github.io/hyperchat/review.html" target="_blank">drop a 5-star review</a>
+              Don't forget to <a href="http://kentonishi.github.io/HyperChat/review" target="_blank">drop a 5-star review</a>,
+              <a href="http://kentonishi.github.io/HyperChat/" target="_blank">share with your friends</a>,
               and <a href="https://github.com/KentoNishi/HyperChat" target="_blank">star the GitHub repository</a>!
             </span>
             <br /><br />
