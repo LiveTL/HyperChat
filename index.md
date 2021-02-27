@@ -1,5 +1,7 @@
 # Download HyperChat
 
+<link rel="icon" href="./public/favicon.ico" type="image/x-icon" />
+
 <h3 style="width: 100%;text-align:center;">Choose your platform below!</h3>
 <span id="actionMessage" class="flex">
     <a href="#"><img src="./img/install-chrome.png" /></a>
