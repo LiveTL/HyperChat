@@ -125,6 +125,8 @@ const messageReceiveCallback = async (response) => {
 };
 
 const hyperchatLoaded = async () => {
+  if (document.querySelector('.toggleButton')) return;
+  document.body.style.minWidth = document.body.style.minHeight = '0px';
   const css = `
     .toggleButton {
       background-color: #094589;
@@ -192,14 +194,14 @@ const hyperchatLoaded = async () => {
     elem.outerHTML = `
     <iframe id='optichat' src='${source}' style='border: 0px; width: 100%; height: 100%'></iframe>
     `;
-    if (isFirefox) {
+    if (isFirefox || window.isAndroid) {
       const frame = document.querySelector('#optichat');
       const scale = 0.8;
       const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
       frame.style.transformOrigin = '0px 0px';
       frame.style.minWidth = inverse;
       frame.style.minHeight = inverse;
-      frame.style.transform = `scale(${scale * 100}%)`;
+      frame.style.transform = `scale(${scale})`;
     }
     document.querySelector('#ticker').remove();
     const script = document.createElement('script');
@@ -247,4 +249,4 @@ const hyperchatLoaded = async () => {
 };
 
 window.addEventListener('load', hyperchatLoaded)
-if (document.readyState == 'complete') hyperchatLoaded();
+if (document.readyState === 'complete') hyperchatLoaded();
