@@ -5,6 +5,8 @@ const isReplay = window.location.href.startsWith(
   'https://www.youtube.com/live_chat_replay'
 );
 
+const isFirefox = !!/Firefox/.exec(navigator.userAgent);
+
 const formatTimestamp = (timestamp) => {
   return (new Date(parseInt(timestamp) / 1000)).toLocaleTimeString(navigator.language,
     { hour: '2-digit', minute: '2-digit' });
@@ -178,6 +180,15 @@ const hyperchatLoaded = async () => {
     elem.outerHTML = `
     <iframe id='optichat' src='${source}' style='border: 0px; width: 100%; height: 100%'></iframe>
     `;
+    if (isFirefox) {
+      const frame = document.querySelector('#optichat');
+      const scale = 0.8;
+      const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
+      frame.style.transformOrigin = '0px 0px';
+      frame.style.minWidth = inverse;
+      frame.style.minHeight = inverse;
+      frame.style.transform = `scale(${scale * 100}%)`;
+    }
     document.querySelector('#ticker').remove();
     const script = document.createElement('script');
     script.innerHTML = `
