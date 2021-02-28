@@ -154,7 +154,7 @@ const hyperchatLoaded = async () => {
   `;
   const style = document.createElement('style');
   style.innerHTML = css;
-  document.body.appendChild(style)
+  document.body.appendChild(style);
   const button = document.createElement('div');
   button.className = 'toggleButton';
   button.addEventListener('click', () => {
@@ -194,7 +194,7 @@ const hyperchatLoaded = async () => {
     elem.outerHTML = `
     <iframe id='optichat' src='${source}' style='border: 0px; width: 100%; height: 100%'></iframe>
     `;
-    if (isFirefox || window.isAndroid) {
+    if (window.isFirefox || window.isAndroid) {
       const frame = document.querySelector('#optichat');
       const scale = 0.8;
       const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
@@ -223,13 +223,15 @@ const hyperchatLoaded = async () => {
       }
       return result;
     };
-  `;
+    `;
     window.addEventListener('messageReceive', d => messageReceiveCallback(d.detail));
     document.body.appendChild(script);
     // window.postMessage({
     //   'yt-live-chat-set-dark-theme': true
     // }, '*');
     messageDisplay = document.querySelector('#optichat');
+  } else {
+    button.style.display = 'block';
   }
   const html = document.querySelector('html');
   const sendTheme = () => {
@@ -244,9 +246,11 @@ const hyperchatLoaded = async () => {
   window.addEventListener('message', d => {
     if (d.data.type === 'getTheme') {
       sendTheme();
+    } else if (d.data['yt-player-video-progress'] != null) {
+      messageDisplay.contentWindow.postMessage(d.data, '*');
     }
   });
 };
 
-window.addEventListener('load', hyperchatLoaded)
+window.addEventListener('load', hyperchatLoaded);
 if (document.readyState === 'complete') hyperchatLoaded();
