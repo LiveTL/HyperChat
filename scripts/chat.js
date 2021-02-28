@@ -5,7 +5,7 @@ const isReplay = window.location.href.startsWith(
   'https://www.youtube.com/live_chat_replay'
 );
 
-const isFirefox = !!/Firefox/.exec(navigator.userAgent);
+window.isFirefox = window.isFirefox || !!/Firefox/.exec(navigator.userAgent);
 
 const formatTimestamp = (timestamp) => {
   return (new Date(parseInt(timestamp) / 1000)).toLocaleTimeString(navigator.language,
