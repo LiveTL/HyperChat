@@ -189,6 +189,7 @@ export default {
     window.parent.postMessage({
       type: 'getTheme'
     }, '*');
+    this.$nextTick(this.scrollToBottom);
   },
   methods: {
     async newMessage(message) {
