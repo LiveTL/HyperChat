@@ -1,0 +1,26 @@
+name: Latest Release Build
+on:
+  release:
+    types:
+      - released
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with: 
+          submodules: 'recursive'
+      - name: Package extensions
+        run: |
+          npm run build
+          cd artifacts
+          mv HyperChat-$(echo -n ${{ github.ref }} | sed 's/[refs\/tagv]//g')-production.zip HyperChat.zip
+          cd ..
+      - name: Upload package to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: artifacts/HyperChat.zip
+          asset_name: HyperChat.zip
+          tag: ${{ github.ref }}
+          overwrite: true

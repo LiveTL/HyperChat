@@ -26,9 +26,9 @@ chrome.runtime.onMessage.addListener((request, sender, callback) => {
 
 const launch = () => chrome.tabs.create({ url: 'https://kentonishi.github.io/HyperChat/review' });
 
-chrome.runtime.onInstalled.addListener(details => {
-  if (details.reason !== 'update') {
-    launch();
-  }
-});
+// chrome.runtime.onInstalled.addListener(details => {
+//   if (details.reason !== 'update') {
+//     launch();
+//   }
+// });
 chrome.browserAction.onClicked.addListener(launch);
