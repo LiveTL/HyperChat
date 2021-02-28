@@ -123,7 +123,6 @@ const messageReceiveCallback = async (response) => {
 };
 
 const hyperchatLoaded = async () => {
-  if (document.querySelector('.toggleButton')) return;
   const css = `
     .toggleButton {
       background-color: #094589;
@@ -139,14 +138,19 @@ const hyperchatLoaded = async () => {
       float: right;
       padding: 2.5px;
       transition: 0.25s;
+      display: none;
     }
     .toggleButton:hover {
       border-color: lightgray;
     }
+    yt-live-chat-app {
+      min-height: 0px;
+      min-width: 0px;
+    }
   `;
   const style = document.createElement('style');
   style.innerHTML = css;
-  document.body.appendChild(style);
+  document.body.appendChild(style)
   const button = document.createElement('div');
   button.className = 'toggleButton';
   button.addEventListener('click', () => {
@@ -160,11 +164,8 @@ const hyperchatLoaded = async () => {
       postMessage: () => { }
     }
   };
-  const primaryContent = document.querySelector('#primary-content');
-  try {
-    primaryContent.appendChild(button);
-  } catch (e) { console.debug(e); }
-  if (localStorage.getItem('HC:ENABLED') === 'true') {
+  document.querySelector('#primary-content').appendChild(button);
+  if (localStorage.getItem('HC:ENABLED') !== 'false') {
     button.innerHTML = 'Disable HyperChat';
     window.postMessage({
       'yt-player-video-progress': 0
@@ -174,7 +175,18 @@ const hyperchatLoaded = async () => {
     }, '*');
     const elem = document.querySelector('#chat>#item-list');
     if (!elem) return;
-    const source = await getWAR((window.isLiveTL ? 'hyperchat/index.html' : 'index.html') + '');
+    await new Promise((resolve, reject) => {
+      const poller = setInterval(() => {
+        getWAR = getWAR || window.getWAR;
+        if (getWAR) {
+          if (!window.isAndroid) button.style.display = 'block';
+          clearInterval(poller);
+          resolve();
+        }
+      }, 100);
+    });
+    console.debug('Found definition of getWAR');
+    const source = await getWAR(window.isLiveTL ? 'hyperchat/index.html' : 'index.html');
     elem.outerHTML = `
     <iframe id='optichat' src='${source}' style='border: 0px; width: 100%; height: 100%'></iframe>
     `;
@@ -219,11 +231,9 @@ const hyperchatLoaded = async () => {
   window.addEventListener('message', d => {
     if (d.data.type === 'getTheme') {
       sendTheme();
-    } else if (d.data['yt-player-video-progress'] != null) {
-      messageDisplay.contentWindow.postMessage(d.data, '*');
     }
   });
 };
 
-window.addEventListener('load', hyperchatLoaded);
-if (document.readyState === 'complete') hyperchatLoaded();
+window.addEventListener('load', hyperchatLoaded)
+if (document.readyState == 'complete') hyperchatLoaded();
