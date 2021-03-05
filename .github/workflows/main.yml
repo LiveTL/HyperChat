@@ -19,6 +19,7 @@ jobs:
           export VERSION_NUMBER=$(echo -n ${{ github.ref }} | sed 's/[refs\/tagv]//g')
           npm run release
           cd artifacts
+          ls -a
           mv HyperChat-v$VERSION_NUMBER-production.zip HyperChat.zip
           cd ..
       - name: Upload package to release
