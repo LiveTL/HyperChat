@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "homepage_url": "http://localhost:8080/",
-  "description": "A Vue Browser Extension",
+  "description": "YouTube chat, but it's fast and sleek!",
   "default_locale": "en",
   "permissions": [
     "webRequest",

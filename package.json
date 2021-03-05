@@ -1,10 +1,11 @@
 {
   "name": "HyperChat",
-  "version": "0.1.0",
+  "version": "69.42.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service build --mode development --watch",
     "build": "vue-cli-service build",
+    "release": "sed -i -e \"s/69.42.0/$VERSION_NUMBER/g\" src/submodules/chat/package.json; npm run build; git reset src/submodules/chat/package.json;",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
