@@ -12,9 +12,10 @@ jobs:
           submodules: 'recursive'
       - name: Package extensions
         run: |
-          npm run build
+          export VERSION_NUMBER=$(echo -n ${{ github.ref }} | sed 's/[refs\/tagv]//g')
+          npm run release
           cd artifacts
-          mv HyperChat-$(echo -n ${{ github.ref }} | sed 's/[refs\/tagv]//g')-production.zip HyperChat.zip
+          mv HyperChat-$VERSION_NUMBER-production.zip HyperChat.zip
           cd ..
       - name: Upload package to release
         uses: svenstaro/upload-release-action@v2
