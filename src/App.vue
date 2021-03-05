@@ -11,27 +11,43 @@
         class="lowpadding"
       >
         <div class="message text-left highlighted">
-          <span style="margin-bottom: 5px; display: inline-block;">
-            <strong style="font-size: 1.5em;">
-              <img src="./../assets/logo.png" style="
-                height: 2.5em;
-                vertical-align: middle;
-                border-radius: 100%;
-                border: 0.25em solid gray;
-                margin-right: 5px;
-                background-color: white;
-              " />
+          <span style="margin-bottom: 5px; display: inline-block">
+            <strong style="font-size: 1.5em">
+              <img
+                src="./../assets/logo.png"
+                style="
+                  height: 2.5em;
+                  vertical-align: middle;
+                  border-radius: 100%;
+                  border: 0.25em solid gray;
+                  margin-right: 5px;
+                  background-color: white;
+                "
+              />
               Welcome to HyperChat by LiveTL!
             </strong>
           </span>
-          <br/>
+          <br />
           <span>
             <i>It may take a few seconds for messages to start appearing.</i>
             <br />
-            <span style="font-size: 1em; display: inline-block;">
-              Don't forget to <a href="http://livetl.github.io/HyperChat/review" target="_blank" @click="openLink">drop a 5-star review</a>,
-              <a href="http://livetl.github.io/HyperChat/" target="_blank" @click="openLink">share with your friends</a>,
-              and <a href="https://github.com/LiveTL/HyperChat" target="_blank" @click="openLink">star the GitHub repository</a>!
+            <span style="font-size: 1em; display: inline-block">
+              Don't forget to
+              <CustomLink
+                href="#/review"
+                >drop a 5-star review</CustomLink
+              >,
+              <CustomLink
+                href="https://livetl.app/hyperchat"
+                >share with your friends</CustomLink
+              >, <CustomLink
+                href="https://discord.gg/uJrV3tmthg"
+                >join our Discord server</CustomLink
+              >, and
+              <CustomLink
+                href="https://github.com/LiveTL/HyperChat"
+                >star the GitHub repository</CustomLink
+              >!
             </span>
             <br /><br />
             <strong>NEW IN {{ update.version }}:</strong> {{ update.comments }}
@@ -44,7 +60,7 @@
           :class="{
             message: true,
             'text-left': true,
-            superchat: message.info.superchat != null
+            superchat: message.info.superchat != null,
           }"
           v-show="message.shown"
           :style="{
@@ -56,7 +72,7 @@
           <strong
             style="margin-right: 5px; text-decoration: underline"
             v-if="message.info.superchat"
-          >{{ message.info.superchat.amount }}</strong
+            >{{ message.info.superchat.amount }}</strong
           >
           <strong
             style="margin-right: 5px"
@@ -66,10 +82,7 @@
           >
             {{ message.info.author.name }}
           </strong>
-          <span
-            v-for="(run, key, index) in message.info.message"
-            :key="index"
-          >
+          <span v-for="(run, key, index) in message.info.message" :key="index">
             <span v-if="run.type == 'text'">{{ run.text }}</span>
             <img
               v-else-if="run.type == 'emote' && run.src"
@@ -99,6 +112,7 @@
 </template>
 
 <script>
+import CustomLink from '@/submodules/chat/src/CustomLink.vue';
 import { updates } from './changelog.js';
 class Queue {
   constructor() {
@@ -176,7 +190,9 @@ export default {
           runQueue();
           runQueue();
         }
-        for (const message of d.messages.sort((m1, m2) => m1.showtime - m2.showtime)) {
+        for (const message of d.messages.sort(
+          (m1, m2) => m1.showtime - m2.showtime
+        )) {
           let timestamp = (Date.now() + message.showtime) / 1000;
           if (d.isReplay) timestamp = message.showtime;
           this.queued.push({
@@ -186,9 +202,12 @@ export default {
         }
       }
     });
-    window.parent.postMessage({
-      type: 'getTheme'
-    }, '*');
+    window.parent.postMessage(
+      {
+        type: 'getTheme'
+      },
+      '*'
+    );
     this.$nextTick(this.scrollToBottom);
   },
   methods: {
@@ -208,7 +227,7 @@ export default {
       this.progress.current = time;
       if (
         Math.abs(this.progress.previous - this.progress.current) > 1 ||
-          this.progress.current == null
+        this.progress.current == null
       ) {
         // scrubbed or skipped
         while (this.queued.top) {
@@ -216,7 +235,10 @@ export default {
         }
         this.isAtBottom = true;
       } else {
-        while (this.queued.top != null && this.queued.top.data.timestamp <= this.progress.current) {
+        while (
+          this.queued.top != null &&
+          this.queued.top.data.timestamp <= this.progress.current
+        ) {
           const item = this.queued.pop();
           if (this.isAtBottom) {
             this.newMessage(item.data.message);
@@ -249,13 +271,10 @@ export default {
             i < this.messages.length + this.current
         };
       }
-    },
-    openLink(event) {
-      if (window.Android) {
-        event.preventDefault();
-        window.Android.open(event.target.href);
-      }
     }
+  },
+  components: {
+    CustomLink
   }
 };
 </script>

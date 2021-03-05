@@ -181,7 +181,6 @@ const hyperchatLoaded = async () => {
     if (!elem) return;
     await new Promise((resolve, reject) => {
       const poller = setInterval(() => {
-        getWAR = getWAR || window.getWAR;
         if (getWAR) {
           if (!window.isAndroid) button.style.display = 'block';
           clearInterval(poller);
