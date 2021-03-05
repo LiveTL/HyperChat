@@ -24,7 +24,7 @@ chrome.runtime.onMessage.addListener((request, sender, callback) => {
   }
 });
 
-const launch = () => chrome.tabs.create({ url: 'https://kentonishi.github.io/HyperChat/review' });
+const launch = () => chrome.tabs.create({ url: chrome.runtime.getURL('index.html#/review') });
 
 // chrome.runtime.onInstalled.addListener(details => {
 //   if (details.reason !== 'update') {

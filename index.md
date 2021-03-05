@@ -7,7 +7,7 @@
     <a href="#"><img src="./img/install-chrome.png" /></a>
     <a href="#"><img src="./img/install-firefox.png" /></a>
 </span>
-<h4 style="width: 100%;text-align:center;">... or <a href="https://github.com/KentoNishi/LiveTL/releases">download manually from GitHub</a>!</h4>
+<h4 style="width: 100%;text-align:center;">... or <a href="https://github.com/LiveTL/HyperChat/releases">download manually from GitHub</a>!</h4>
 <br />
 
 <!-- ![](./img/cover-android.png) -->
