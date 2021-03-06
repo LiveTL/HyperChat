@@ -19,13 +19,13 @@ const routes = [
       if (isAndroid) {
         window.location.href = 'https://play.google.com/store/apps/details?id=com.livetl.android';
       } else if (userAgentString.indexOf('Chrome') > -1) {
-        window.location.href = 'https://livetl.app';
+        window.location.href = 'https://livetl.app/en/hyperchat/';
       } else if (userAgentString.indexOf('Firefox') > -1) {
-        window.location.href = 'https://livetl.app';
+        window.location.href = 'https://livetl.app/en/hyperchat/';
       } else if (userAgentString.indexOf('Safari') > -1) {
-        window.location.href = 'https://livetl.app';
+        window.location.href = 'https://livetl.app/en/hyperchat/';
       } else {
-        window.location.href = 'https://livetl.app';
+        window.location.href = 'https://livetl.app/en/hyperchat/';
       }
     }
   }
