@@ -9,9 +9,15 @@ export default {
   props: ['href'],
   methods: {
     openLink(event) {
+      let href = event.target.href;
+      if (window.location.hash.includes('isLiveTL') && href.includes('#/')) {
+        href = 'https://livetl.app/hyperchat';
+      }
+      event.preventDefault();
       if (window.Android) {
-        event.preventDefault();
-        window.Android.open(event.target.href);
+        window.Android.open(href);
+      } else {
+        window.open(href);
       }
     }
   }
