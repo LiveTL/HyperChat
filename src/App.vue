@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import CustomLink from '@/submodules/chat/src/CustomLink.vue';
+import CustomLink from './CustomLink.vue';
 import { updates } from './changelog.js';
 class Queue {
   constructor() {
