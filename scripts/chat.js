@@ -1,6 +1,10 @@
 import { getWAR } from '@/modules/war.js';
 // above line is replaced for LiveTL. DO NOT EDIT.
 
+for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
+  window.addEventListener(eventName, e => e.stopImmediatePropagation(), true);
+}
+
 const isReplay = window.location.href.startsWith(
   'https://www.youtube.com/live_chat_replay'
 );
