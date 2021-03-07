@@ -18,5 +18,6 @@ module.exports = {
   transpileDependencies: [
     'vuetify'
   ],
-  publicPath: ''
+  publicPath: '',
+  productionSourceMap: false
 };
