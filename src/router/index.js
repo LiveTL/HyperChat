@@ -19,9 +19,9 @@ const routes = [
       if (isAndroid) {
         window.location.href = 'https://play.google.com/store/apps/details?id=com.livetl.android';
       } else if (userAgentString.indexOf('Chrome') > -1) {
-        window.location.href = 'https://livetl.app/en/hyperchat/';
+        window.location.href = 'https://chrome.google.com/webstore/detail/naipgebhooiiccifflecbffmnjbabdbh/reviews';
       } else if (userAgentString.indexOf('Firefox') > -1) {
-        window.location.href = 'https://livetl.app/en/hyperchat/';
+        window.location.href = 'https://addons.mozilla.org/en-US/firefox/addon/hyperchat';
       } else if (userAgentString.indexOf('Safari') > -1) {
         window.location.href = 'https://livetl.app/en/hyperchat/';
       } else {
