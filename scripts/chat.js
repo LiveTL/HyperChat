@@ -191,7 +191,7 @@ const hyperchatLoaded = async () => {
     console.debug('Found definition of getWAR');
     const source = await getWAR(window.isLiveTL ? 'hyperchat/index.html' : 'index.html');
     elem.outerHTML = `
-    <iframe id='optichat' src='${source}#${window.isLiveTL?'isLiveTL':''}' style='border: 0px; width: 100%; height: 100%'></iframe>
+    <iframe id='optichat' src='${source}#${window.isLiveTL ? 'isLiveTL' : ''}' style='border: 0px; width: 100%; height: 100%'></iframe>
     `;
     if (window.isFirefox || window.isAndroid) {
       const frame = document.querySelector('#optichat');
