@@ -5,9 +5,6 @@
   "description": "YouTube chat, but it's fast and sleek!",
   "default_locale": "en",
   "permissions": [
-    "webRequest",
-    "webRequestBlocking",
-    "webNavigation",
     "https://youtube.com/*?*"
   ],
   "icons": {
