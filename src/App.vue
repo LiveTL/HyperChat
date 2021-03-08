@@ -43,11 +43,14 @@
               >, <CustomLink
                 href="https://discord.gg/uJrV3tmthg"
                 >join our Discord server</CustomLink
-              >, and
+              >,
               <CustomLink
                 href="https://github.com/LiveTL/HyperChat"
                 >star the GitHub repository</CustomLink
-              >!
+              >, and <CustomLink
+                href="https://opencollective.com/livetl"
+                >
+                chip in a few dollars to help fund future projects (stay tuned)</CustomLink>!
             </span>
             <br /><br />
             <strong>NEW IN {{ update.version }}:</strong> {{ update.comments }}
