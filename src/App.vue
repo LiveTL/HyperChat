@@ -31,6 +31,7 @@
           <span>
             <i>It may take a few seconds for messages to start appearing.</i>
             <br />
+            <strong>HyperChat can reduce CPU usage by up to 80%!</strong>
             <span style="font-size: 1em; display: inline-block">
               Don't forget to
               <CustomLink
