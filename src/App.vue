@@ -300,6 +300,7 @@ export default {
   padding: 5px 5px 5px 5px;
   text-overflow: ellipsis;
   border-radius: 5px;
+  min-height: calc(1.7em + 10px);
 }
 .message:nth-child(even) {
   /* background-color: #202020; */
