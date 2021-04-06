@@ -197,7 +197,7 @@ const hyperchatLoaded = async () => {
     elem.outerHTML = `
     <iframe id='optichat' src='${source}${(!window.isAndroid && window.isLiveTL ? '#isLiveTL' : '')}' style='border: 0px; width: 100%; height: 100%'></iframe>
     `;
-    if (window.isFirefox || window.isAndroid) {
+    if (window.isFirefox || window.isAndroid || window.isLiveTL) {
       const frame = document.querySelector('#optichat');
       const scale = 0.8;
       const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
