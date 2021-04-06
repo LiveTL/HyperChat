@@ -25,3 +25,6 @@ Build or serve the extension:
 npm run serve # hot reload mode
 npm run build # production mode
 ```
+
+## Additional Info
+* The extension may *eventually* be rewritten in Svelte. However, we have not started the process in the interest of time. If you would like to contribute to porting the components to Svelte, please check out the `svelte` branch.
