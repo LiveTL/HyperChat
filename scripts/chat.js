@@ -166,7 +166,7 @@ const hyperchatLoaded = async () => {
       localStorage.getItem('HC:ENABLED') !== 'true' ? 'true' : 'false');
     location.reload();
   });
-  button.innerHTML = 'Enable HyperChat';
+  button.innerHTML = 'Enable HC';
   let messageDisplay = {
     contentWindow: {
       postMessage: () => { }
@@ -174,7 +174,7 @@ const hyperchatLoaded = async () => {
   };
   document.querySelector('#primary-content').appendChild(button);
   if (localStorage.getItem('HC:ENABLED') !== 'false') {
-    button.innerHTML = 'Disable HyperChat';
+    button.innerHTML = 'Disable HC';
     window.postMessage({
       'yt-player-video-progress': 0
     }, '*');
