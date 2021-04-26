@@ -338,6 +338,7 @@ html {
 .chatEmote {
   vertical-align: sub;
   height: 1.5em;
+  width: 1.5em;
   margin: 0px 0.2em 0px 0.2em;
 }
 .moderator {
