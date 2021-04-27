@@ -249,7 +249,7 @@ const hyperchatLoaded = async () => {
   window.addEventListener('message', d => {
     if (d.data.type === 'getTheme') {
       sendTheme();
-    } else if (d.data['yt-player-video-progress'] != null) {
+    } else if (d.data['yt-player-video-progress'] != null && messageDisplay.contentWindow) {
       messageDisplay.contentWindow.postMessage(d.data, '*');
     }
   });
