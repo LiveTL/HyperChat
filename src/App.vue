@@ -344,8 +344,11 @@ html {
 .moderator {
   color: #5e84f1 !important;
 }
+.owner {
+  color: #ffd600 !important;
+}
 .member {
-  color: #26a23f;
+  color: #2ba640;
 }
 .superchat {
   margin: 15px 0px 15px 0px;
