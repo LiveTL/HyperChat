@@ -46,7 +46,7 @@ replaceVersion();
 addChromeManifest();
 
 spawn(
-  'bash',
+  'sh',
   [
     '-c',
     cmds.join(' && ')
