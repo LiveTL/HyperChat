@@ -13,12 +13,12 @@ exports.updates = [
               'on GitHub if you have any spare time!'
   },
   {
-    version: 'v1.0.14',
+    version: 'v1.0.15',
     comments: 'Font color improvements and Firefox incognito support! ' +
               'Sorry for slow progress on HyperChat... ' +
               'the dev team has been really busy on ' +
               'major projects such as LiveTL and Kanatran. ' +
               'Please consider contributing to HyperChat ' +
               'on GitHub if you have any spare time!'
-  },
+  }
 ];
