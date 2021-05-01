@@ -16,18 +16,21 @@ jobs:
       - name: Package extensions
         run: |
           npm install
-          export VERSION_NUMBER=$(echo -n ${{ github.ref }} | sed 's/[refs\/tagv]//g')
-          npm run release
-          ls -a
-          cd artifacts
-          ls -a
-          mv HyperChat-v$VERSION_NUMBER-production.zip HyperChat.zip
-          cd ..
-      - name: Upload package to release
+          npm run build 
+          node utils/package.js --version=$(echo -n ${{ github.ref }} | sed 's/[refs\/tagv]//g')
+      - name: Upload Chrome package to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: artifacts/HyperChat.zip
-          asset_name: HyperChat.zip
+          file: zips/HyperChat-Chrome.zip
+          asset_name: HyperChat-Chrome.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+      - name: Upload Firefox package to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: zips/HyperChat-Firefox.zip
+          asset_name: HyperChat-Firefox.zip
           tag: ${{ github.ref }}
           overwrite: true
