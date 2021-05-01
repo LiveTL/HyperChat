@@ -8,7 +8,10 @@
           width: 100vw;
           display: table-cell;
         "
-        class="lowpadding"
+        :class="{
+          lowpadding: true,
+          dark: Boolean($vuetify.theme.dark)
+        }"
       >
         <div class="message text-left highlighted">
           <span style="margin-bottom: 5px; display: inline-block">
@@ -341,11 +344,23 @@ html {
   width: 1.5em;
   margin: 0px 0.2em 0px 0.2em;
 }
+.dark .moderator {
+  color: #A0BDFC !important;
+}
 .moderator {
-  color: #5e84f1 !important;
+  color: #2441C0 !important;
+}
+.dark .owner {
+  color: #FFD600 !important;
+}
+.owner {
+  color: #866518 !important;
+}
+.dark .member {
+  color: #04B301;
 }
 .member {
-  color: #26a23f;
+  color: #0E5D10;
 }
 .superchat {
   margin: 15px 0px 15px 0px;
