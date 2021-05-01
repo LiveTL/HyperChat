@@ -6,7 +6,8 @@
     "serve": "vue-cli-service build --mode development --watch",
     "build": "vue-cli-service build",
     "release": "sed -i -e \"s/69.42.0/$VERSION_NUMBER/g\" package.json; npm run build;",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "package": "node utils/package.js"
   },
   "dependencies": {
     "core-js": "^3.6.5",
