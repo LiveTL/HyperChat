@@ -356,10 +356,12 @@ html {
 .owner {
   color: #866518 !important;
 }
-.dark .member {
+.dark .member,
+.dark .new {
   color: #04B301;
 }
-.member {
+.member,
+.new {
   color: #0E5D10;
 }
 .superchat {
