@@ -23,7 +23,7 @@ exports.updates = [
   },
   {
     version: 'v1.0.16',
-    comments: 'Auto-scroll patch, font color improvements, and more!' +
+    comments: 'Auto-scroll patch, font color improvements, and more! ' +
               'Sorry for slow progress on HyperChat... ' +
               'the dev team has been really busy on ' +
               'major projects such as LiveTL and Kanatran. ' +
