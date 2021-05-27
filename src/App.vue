@@ -300,16 +300,11 @@ export default {
 .message {
   transform-origin: 0 100%;
   overflow: hidden;
-  padding: 5px 5px 5px 5px;
+  padding: 6px;
   text-overflow: ellipsis;
-  border-radius: 5px;
-  min-height: calc(1.7em + 10px);
-}
-.message:nth-child(even) {
-  /* background-color: #202020; */
 }
 .message:nth-child(odd) {
-  background-color: #86868682;
+  background-color: #86868621;
 }
 .content {
   overflow-y: scroll;
