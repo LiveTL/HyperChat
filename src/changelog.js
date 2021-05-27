@@ -29,5 +29,9 @@ exports.updates = [
               'major projects such as LiveTL and Kanatran. ' +
               'Please consider contributing to HyperChat ' +
               'on GitHub if you have any spare time!'
+  },
+  {
+    version: 'v1.0.17',
+    comments: 'A more pleasant theme and small changes to scrolling mechanics!'
   }
 ];
