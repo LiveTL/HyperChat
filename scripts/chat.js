@@ -140,25 +140,23 @@ const hyperchatLoaded = async () => {
     .toggleButton {
       position: relative;
       display: flex;
+      align-items: center;
       box-sizing: border-box;
       border: none;
       border-radius: 4px;
-      padding: 0 10px;
+      padding: 4px 10px;
+      margin: -2px 0;
       min-width: 64px;
-      height: 24px;
-      vertical-align: middle;
+      height: 28px;
       text-align: center;
       text-overflow: ellipsis;
       text-transform: uppercase;
 
-      border: 1px solid ${hyperChatEnabled ? '#30acffa1' : 'rgb(189, 189, 189)'};
       ${hyperChatEnabled ? 'color: #30acff;' : 'color: var(--yt-live-chat-secondary-text-color);'}
-     
       
       font-family: var(--pure-material-font, "Roboto", "Segoe UI", BlinkMacSystemFont, system-ui, -apple-system);
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 500;
-      line-height: 24px;
       overflow: hidden;
       outline: none;
       cursor: pointer;
@@ -166,92 +164,91 @@ const hyperchatLoaded = async () => {
     }
 
     .toggleButton img {
-      width: 23px;
-      height: 23px;
+      width: 24px;
+      height: 24px;
       margin-right: 4px;
       ${hyperChatEnabled ? '' : `
-        filter: grayscale(1);
+        filter: saturate(0.8);
       `}
     }
 
     .toggleButton::-moz-focus-inner {
-        border: none;
+      border: none;
     }
 
     /* Overlay */
     .toggleButton::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));
-        opacity: 0;
-        transition: opacity 0.2s;
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgb(255, 255, 255);
+      opacity: 0;
+      transition: opacity 0.2s;
     }
 
     /* Hover, Focus */
     .toggleButton:hover,
     .toggleButton:focus {
-      box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
-      border: 1px solid #30acffa1;
+      background: rgba(0, 0, 0, 0.1);
       color: #30acff;
     }
 
     .toggleButton:hover img,
     .toggleButton:focus img {
-      filter: grayscale(0.2);
+      filter: saturate(0.8);
     }
 
     /* Ripple */
     .toggleButton::after {
-        content: "";
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        border-radius: 50%;
-        padding: 50%;
-        width: 32px; /* Safari */
-        height: 32px; /* Safari */
-        background-color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(1);
-        transition: opacity 1s, transform 0.5s;
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      border-radius: 50%;
+      padding: 50%;
+      width: 32px; /* Safari */
+      height: 32px; /* Safari */
+      background-color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1);
+      transition: opacity 1s, transform 0.5s;
     }
 
     .toggleButton:hover::before {
-        opacity: 0.08;
+      opacity: 0.08;
     }
 
     .toggleButton:focus::before {
-        opacity: 0.24;
+      opacity: 0.24;
     }
 
     .toggleButton:hover:focus::before {
-        opacity: 0.3;
+      opacity: 0.3;
     }
 
     .toggleButton:active::after {
-        opacity: 0.32;
-        transform: translate(-50%, -50%) scale(0);
-        transition: transform 0s;
+      opacity: 0.32;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0s;
     }
 
     /* Disabled */
     .toggleButton:disabled {
-        color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);
-        background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.12);
-        box-shadow: none;
-        cursor: initial;
+      color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);
+      background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.12);
+      box-shadow: none;
+      cursor: initial;
     }
 
     .toggleButton:disabled::before {
-        opacity: 0;
+      opacity: 0;
     }
 
     .toggleButton:disabled::after {
-        opacity: 0;
+      opacity: 0;
     }
     yt-live-chat-app {
       min-height: 0px;
@@ -324,6 +321,7 @@ const hyperchatLoaded = async () => {
     /* Base styles for the tooltip's content area */
     .tooltip:after,
     [data-tooltip]:after {
+      text-align: center;
       z-index: 1000;
       padding: 8px;
       width: 120px;
