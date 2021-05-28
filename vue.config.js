@@ -1,3 +1,5 @@
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 module.exports = {
   pluginOptions: {
     browserExtension: {
@@ -19,5 +21,13 @@ module.exports = {
     'vuetify'
   ],
   publicPath: '',
-  productionSourceMap: false
+  productionSourceMap: false,
+  configureWebpack: {
+    plugins: [
+      new CopyWebpackPlugin([{
+        from: 'src/submodules/chat/assets',
+        to: 'assets'
+      }])
+    ]
+  }
 };
