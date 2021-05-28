@@ -131,7 +131,7 @@ const messageReceiveCallback = async (response) => {
 const hyperchatLoaded = async () => {
   if (document.querySelector('.toggleButton')) return;
   document.body.style.minWidth = document.body.style.minHeight = '0px';
-  const hyperChatEnabled = localStorage.getItem('HC:ENABLED') === 'true';
+  const hyperChatEnabled = localStorage.getItem('HC:ENABLED') !== 'false';
 
   const css = `
     .toggleButtonContainer {
