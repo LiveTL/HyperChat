@@ -91,6 +91,7 @@
           </strong>
           <span v-for="(run, key, index) in message.info.message" :key="index">
             <span v-if="run.type == 'text'">{{ run.text }}</span>
+            <a v-else-if="run.type == 'link'" :href="run.url" target="_blank">{{ run.text }}</a>
             <img
               v-else-if="run.type == 'emote' && run.src"
               :src="run.src"
