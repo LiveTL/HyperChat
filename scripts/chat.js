@@ -152,7 +152,7 @@ const hyperchatLoaded = async () => {
       text-transform: uppercase;
 
       border: 1px solid ${hyperChatEnabled ? '#30acffa1' : 'rgb(189, 189, 189)'};
-      ${hyperChatEnabled ? `color: #30acff;` : `color: var(--yt-live-chat-secondary-text-color);`}
+      ${hyperChatEnabled ? 'color: #30acff;' : 'color: var(--yt-live-chat-secondary-text-color);'}
      
       
       font-family: var(--pure-material-font, "Roboto", "Segoe UI", BlinkMacSystemFont, system-ui, -apple-system);
@@ -475,7 +475,7 @@ const hyperchatLoaded = async () => {
 
   const buttonContainer = document.createElement('div');
   buttonContainer.setAttribute('data-tooltip', hyperChatEnabled ? 'Disable HyperChat' : 'Enable HyperChat');
-  buttonContainer.className = "toggleButtonContainer tooltip-bottom";
+  buttonContainer.className = 'toggleButtonContainer tooltip-bottom';
 
   const button = document.createElement('div');
   button.className = 'toggleButton';
@@ -484,7 +484,8 @@ const hyperchatLoaded = async () => {
       hyperChatEnabled ? 'false' : 'true');
     location.reload();
   });
-  button.innerHTML = `<img src="${chrome.runtime.getURL('hyperchat/logo-48.png')}" /> HC`;
+  // eslint-disable-next-line no-undef
+  button.innerHTML = `<img src="${chrome.runtime.getURL((window.isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png')}" /> HC`;
   let messageDisplay = {
     contentWindow: {
       postMessage: () => { }

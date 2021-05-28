@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "copy-webpack-plugin": "^9.0.0",
     "core-js": "^3.6.5",
     "hosted-git-info": "^4.0.2",
     "is-svg": "^4.3.1",
