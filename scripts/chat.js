@@ -151,7 +151,7 @@ const hyperchatLoaded = async () => {
       text-overflow: ellipsis;
       text-transform: uppercase;
 
-      border: 1px solid rgb(189, 189, 189);
+      border: 1px solid ${hyperChatEnabled ? '#30acffa1' : 'rgb(189, 189, 189)'};
       ${hyperChatEnabled ? `color: #30acff;` : `color: var(--yt-live-chat-secondary-text-color);`}
      
       
@@ -195,6 +195,13 @@ const hyperchatLoaded = async () => {
     .toggleButton:hover,
     .toggleButton:focus {
       box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+      border: 1px solid #30acffa1;
+      color: #30acff;
+    }
+
+    .toggleButton:hover img,
+    .toggleButton:focus img {
+      filter: grayscale(0.2);
     }
 
     /* Ripple */
