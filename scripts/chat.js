@@ -150,13 +150,10 @@ const hyperchatLoaded = async () => {
       text-align: center;
       text-overflow: ellipsis;
       text-transform: uppercase;
-      ${hyperChatEnabled ? `
-        color: #3f51b5;
-        border: 1px solid rgba(63, 81, 181, 0.5);
-      ` : `
-        color: rgba(0, 0, 0, 0.87);
-        border: 1px solid rgba(0, 0, 0, 0.23);
-      `}
+
+      border: 1px solid rgb(189, 189, 189);
+      ${hyperChatEnabled ? `color: #30acff;` : `color: var(--yt-live-chat-secondary-text-color);`}
+     
       
       font-family: var(--pure-material-font, "Roboto", "Segoe UI", BlinkMacSystemFont, system-ui, -apple-system);
       font-size: 14px;
