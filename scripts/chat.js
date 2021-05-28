@@ -164,8 +164,9 @@ const hyperchatLoaded = async () => {
     }
 
     .toggleButton img {
-      width: 24px;
-      height: 24px;
+      width: 30px;
+      height: 30px;
+      margin: -3px 0;
       margin-right: 4px;
       ${hyperChatEnabled ? '' : `
         filter: saturate(0.8);
