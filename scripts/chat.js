@@ -133,23 +133,103 @@ const hyperchatLoaded = async () => {
   document.body.style.minWidth = document.body.style.minHeight = '0px';
   const css = `
     .toggleButton {
-      background-color: #094589;
-      color: white;
-      border: 4px solid;
-      border-color: #86868682;
-      font-size: 0.75em;
-      height: 100%;
-      width: fit-content;
-      border-radius: 5px;
-      cursor: default;
-      user-select: none;
+      position: relative;
+      display: inline-block;
       float: right;
-      padding: 2.5px;
-      transition: 0.25s;
-      display: none;
+      box-sizing: border-box;
+      border: none;
+      border-radius: 4px;
+      padding: 0 16px;
+      min-width: 64px;
+      height: 24px;
+      vertical-align: middle;
+      text-align: center;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));
+      background-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));
+      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+      font-family: var(--pure-material-font, "Roboto", "Segoe UI", BlinkMacSystemFont, system-ui, -apple-system);
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 26px;
+      overflow: hidden;
+      outline: none;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
     }
-    .toggleButton:hover {
-      border-color: lightgray;
+
+    .toggleButton::-moz-focus-inner {
+        border: none;
+    }
+
+    /* Overlay */
+    .toggleButton::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    /* Hover, Focus */
+    .toggleButton:hover,
+    .toggleButton:focus {
+      box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    /* Ripple */
+    .toggleButton::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        border-radius: 50%;
+        padding: 50%;
+        width: 32px; /* Safari */
+        height: 32px; /* Safari */
+        background-color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+        transition: opacity 1s, transform 0.5s;
+    }
+
+    .toggleButton:hover::before {
+        opacity: 0.08;
+    }
+
+    .toggleButton:focus::before {
+        opacity: 0.24;
+    }
+
+    .toggleButton:hover:focus::before {
+        opacity: 0.3;
+    }
+
+    .toggleButton:active::after {
+        opacity: 0.32;
+        transform: translate(-50%, -50%) scale(0);
+        transition: transform 0s;
+    }
+
+    /* Disabled */
+    .toggleButton:disabled {
+        color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);
+        background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.12);
+        box-shadow: none;
+        cursor: initial;
+    }
+
+    .toggleButton:disabled::before {
+        opacity: 0;
+    }
+
+    .toggleButton:disabled::after {
+        opacity: 0;
     }
     yt-live-chat-app {
       min-height: 0px;
