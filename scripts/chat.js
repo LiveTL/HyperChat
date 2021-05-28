@@ -131,11 +131,15 @@ const messageReceiveCallback = async (response) => {
 const hyperchatLoaded = async () => {
   if (document.querySelector('.toggleButton')) return;
   document.body.style.minWidth = document.body.style.minHeight = '0px';
+  const hyperChatEnabled = localStorage.getItem('HC:ENABLED') === 'true';
+
   const css = `
+    .toggleButtonContainer {
+      float: right;
+    }
     .toggleButton {
       position: relative;
-      display: inline-block;
-      float: right;
+      display: flex;
       box-sizing: border-box;
       border: none;
       border-radius: 4px;
@@ -146,17 +150,31 @@ const hyperchatLoaded = async () => {
       text-align: center;
       text-overflow: ellipsis;
       text-transform: uppercase;
-      color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));
-      background-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));
-      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+      ${hyperChatEnabled ? `
+        color: #3f51b5;
+        border: 1px solid rgba(63, 81, 181, 0.5);
+      ` : `
+        color: rgba(0, 0, 0, 0.87);
+        border: 1px solid rgba(0, 0, 0, 0.23);
+      `}
+      
       font-family: var(--pure-material-font, "Roboto", "Segoe UI", BlinkMacSystemFont, system-ui, -apple-system);
-      font-size: 11px;
+      font-size: 14px;
       font-weight: 500;
-      line-height: 26px;
+      line-height: 24px;
       overflow: hidden;
       outline: none;
       cursor: pointer;
       transition: box-shadow 0.2s;
+    }
+
+    .toggleButton img {
+      width: 23px;
+      height: 23px;
+      margin-right: 4px;
+      ${hyperChatEnabled ? '' : `
+        filter: grayscale(1);
+      `}
     }
 
     .toggleButton::-moz-focus-inner {
@@ -235,26 +253,242 @@ const hyperchatLoaded = async () => {
       min-height: 0px;
       min-width: 0px;
     }
+
+    /**
+     * Tooltip Styles (source: https://codepen.io/cbracco/pen/nufHz)
+    */
+
+    /* Base styles for the element that has a tooltip */
+    [data-tooltip],
+    .tooltip {
+      position: relative;
+      cursor: pointer;
+    }
+
+    /* Base styles for the entire tooltip */
+    [data-tooltip]:before,
+    [data-tooltip]:after,
+    .tooltip:before,
+    .tooltip:after {
+      position: absolute;
+      visibility: hidden;
+      -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+      filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+      opacity: 0;
+      -webkit-transition: 
+        opacity 0.2s ease-in-out,
+        visibility 0.2s ease-in-out,
+        -webkit-transform 0.2s cubic-bezier(0.71, 1.7, 0.77, 1.24);
+      -moz-transition:    
+        opacity 0.2s ease-in-out,
+        visibility 0.2s ease-in-out,
+        -moz-transform 0.2s cubic-bezier(0.71, 1.7, 0.77, 1.24);
+      transition:         
+        opacity 0.2s ease-in-out,
+        visibility 0.2s ease-in-out,
+        transform 0.2s cubic-bezier(0.71, 1.7, 0.77, 1.24);
+      -webkit-transform: translate3d(0, 0, 0);
+      -moz-transform:    translate3d(0, 0, 0);
+      transform:         translate3d(0, 0, 0);
+      pointer-events: none;
+    }
+
+    /* Show the entire tooltip on hover and focus */
+    [data-tooltip]:hover:before,
+    [data-tooltip]:hover:after,
+    [data-tooltip]:focus:before,
+    [data-tooltip]:focus:after,
+    .tooltip:hover:before,
+    .tooltip:hover:after,
+    .tooltip:focus:before,
+    .tooltip:focus:after {
+      visibility: visible;
+      -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+      filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+      opacity: 1;
+    }
+
+    /* Base styles for the tooltip's directional arrow */
+    .tooltip:before,
+    [data-tooltip]:before {
+      z-index: 1001;
+      border: 6px solid transparent;
+      background: transparent;
+      content: "";
+    }
+
+    /* Base styles for the tooltip's content area */
+    .tooltip:after,
+    [data-tooltip]:after {
+      z-index: 1000;
+      padding: 8px;
+      width: 120px;
+      background-color: #000;
+      background-color: hsla(0, 0%, 20%, 0.9);
+      color: #fff;
+      content: attr(data-tooltip);
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    /* Directions */
+
+    /* Top (default) */
+    [data-tooltip]:before,
+    [data-tooltip]:after,
+    .tooltip:before,
+    .tooltip:after,
+    .tooltip-top:before,
+    .tooltip-top:after {
+      bottom: 100%;
+      left: 50%;
+    }
+
+    [data-tooltip]:before,
+    .tooltip:before,
+    .tooltip-top:before {
+      margin-left: -6px;
+      margin-bottom: -12px;
+      border-top-color: #000;
+      border-top-color: hsla(0, 0%, 20%, 0.9);
+    }
+
+    /* Horizontally align top/bottom tooltips */
+    [data-tooltip]:after,
+    .tooltip:after,
+    .tooltip-top:after {
+      margin-left: -80px;
+    }
+
+    [data-tooltip]:hover:before,
+    [data-tooltip]:hover:after,
+    [data-tooltip]:focus:before,
+    [data-tooltip]:focus:after,
+    .tooltip:hover:before,
+    .tooltip:hover:after,
+    .tooltip:focus:before,
+    .tooltip:focus:after,
+    .tooltip-top:hover:before,
+    .tooltip-top:hover:after,
+    .tooltip-top:focus:before,
+    .tooltip-top:focus:after {
+      -webkit-transform: translateY(-12px);
+      -moz-transform:    translateY(-12px);
+      transform:         translateY(-12px); 
+    }
+
+    /* Left */
+    .tooltip-left:before,
+    .tooltip-left:after {
+      right: 100%;
+      bottom: 50%;
+      left: auto;
+    }
+
+    .tooltip-left:before {
+      margin-left: 0;
+      margin-right: -12px;
+      margin-bottom: 0;
+      border-top-color: transparent;
+      border-left-color: #000;
+      border-left-color: hsla(0, 0%, 20%, 0.9);
+    }
+
+    .tooltip-left:hover:before,
+    .tooltip-left:hover:after,
+    .tooltip-left:focus:before,
+    .tooltip-left:focus:after {
+      -webkit-transform: translateX(-12px);
+      -moz-transform:    translateX(-12px);
+      transform:         translateX(-12px); 
+    }
+
+    /* Bottom */
+    .tooltip-bottom:before,
+    .tooltip-bottom:after {
+      top: 100%;
+      bottom: auto;
+      left: 50%;
+    }
+
+    .tooltip-bottom:before {
+      margin-top: -12px;
+      margin-bottom: 0;
+      border-top-color: transparent;
+      border-bottom-color: #000;
+      border-bottom-color: hsla(0, 0%, 20%, 0.9);
+    }
+
+    .tooltip-bottom:hover:before,
+    .tooltip-bottom:hover:after,
+    .tooltip-bottom:focus:before,
+    .tooltip-bottom:focus:after {
+      -webkit-transform: translateY(12px);
+      -moz-transform:    translateY(12px);
+      transform:         translateY(12px); 
+    }
+
+    /* Right */
+    .tooltip-right:before,
+    .tooltip-right:after {
+      bottom: 50%;
+      left: 100%;
+    }
+
+    .tooltip-right:before {
+      margin-bottom: 0;
+      margin-left: -12px;
+      border-top-color: transparent;
+      border-right-color: #000;
+      border-right-color: hsla(0, 0%, 20%, 0.9);
+    }
+
+    .tooltip-right:hover:before,
+    .tooltip-right:hover:after,
+    .tooltip-right:focus:before,
+    .tooltip-right:focus:after {
+      -webkit-transform: translateX(12px);
+      -moz-transform:    translateX(12px);
+      transform:         translateX(12px); 
+    }
+
+    /* Move directional arrows down a bit for left/right tooltips */
+    .tooltip-left:before,
+    .tooltip-right:before {
+      top: 3px;
+    }
+
+    /* Vertically center tooltip content for left/right tooltips */
+    .tooltip-left:after,
+    .tooltip-right:after {
+      margin-left: 0;
+      margin-bottom: -16px;
+    }
   `;
   const style = document.createElement('style');
   style.innerHTML = css;
   document.body.appendChild(style);
+
+  const buttonContainer = document.createElement('div');
+  buttonContainer.setAttribute('data-tooltip', hyperChatEnabled ? 'Disable HyperChat' : 'Enable HyperChat');
+  buttonContainer.className = "toggleButtonContainer tooltip-bottom";
+
   const button = document.createElement('div');
   button.className = 'toggleButton';
   button.addEventListener('click', () => {
     localStorage.setItem('HC:ENABLED',
-      localStorage.getItem('HC:ENABLED') !== 'true' ? 'true' : 'false');
+      hyperChatEnabled ? 'false' : 'true');
     location.reload();
   });
-  button.innerHTML = 'Enable HC';
+  button.innerHTML = `<img src="${chrome.runtime.getURL('hyperchat/logo-48.png')}" /> HC`;
   let messageDisplay = {
     contentWindow: {
       postMessage: () => { }
     }
   };
-  document.querySelector('#primary-content').appendChild(button);
-  if (localStorage.getItem('HC:ENABLED') !== 'false') {
-    button.innerHTML = 'Disable HC';
+  buttonContainer.appendChild(button);
+  document.querySelector('#primary-content').appendChild(buttonContainer);
+  if (hyperChatEnabled) {
     window.postMessage({
       'yt-player-video-progress': 0
     }, '*');
@@ -266,7 +500,7 @@ const hyperchatLoaded = async () => {
     await new Promise((resolve, reject) => {
       const poller = setInterval(() => {
         if (getWAR) {
-          if (!window.isAndroid) button.style.display = 'block';
+          if (!window.isAndroid) button.style.display = 'flex';
           clearInterval(poller);
           resolve();
         }
@@ -309,12 +543,10 @@ const hyperchatLoaded = async () => {
     `;
     window.addEventListener('messageReceive', d => messageReceiveCallback(d.detail));
     document.body.appendChild(script);
-    // window.postMessage({
-    //   'yt-live-chat-set-dark-theme': true
-    // }, '*');
+
     messageDisplay = document.querySelector('#optichat');
   } else {
-    button.style.display = 'block';
+    button.style.display = 'flex';
   }
   const html = document.querySelector('html');
   const sendTheme = () => {
