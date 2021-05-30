@@ -202,11 +202,28 @@ export default {
           runQueue();
           runQueue();
         }
-        const messages = d.actions
-          .filter((action) => action.type === 'addChatItem')
-          .map((action) => action.item)
-          .sort((m1, m2) => m1.showtime - m2.showtime);
-        for (const message of messages) {
+        const messages = [];
+        const bonks = [];
+        const deletions = [];
+        d.actions.forEach((action) => {
+          switch (action.type) {
+            case 'addChatItem':
+              messages.push(action.item);
+              break;
+            case 'authorBonked':
+              bonks.push(action.item);
+              break;
+            case 'messageDeleted':
+              deletions.push(action.item);
+              break;
+            default:
+              console.debug(`Unknown action type ${action.type}`);
+              break;
+          }
+        });
+        for (const message of messages.sort(
+          (m1, m2) => m1.showtime - m2.showtime
+        )) {
           let timestamp = (Date.now() + message.showtime) / 1000;
           if (d.isReplay) timestamp = message.showtime;
           this.queued.push({
@@ -214,16 +231,22 @@ export default {
             message: message
           });
         }
-
-        const bonks = d.actions
-          .filter((action) => action.type === 'authorBonked')
-          .map((action) => action.item);
+        if (!bonks.length && !deletions.length) {
+          return;
+        }
         this.messages.forEach(message => {
           for (const bonk of bonks) {
-            if (bonk.authorID === message.author.id) {
+            if (bonk.authorId === message.author.id) {
               message.message = bonk.replacedMessage;
               message.deleted = true;
-              break;
+              return;
+            }
+          }
+          for (const deletion of deletions) {
+            if (deletion.messageId === message.messageId) {
+              message.message = deletion.replacedMessage;
+              message.deleted = true;
+              return;
             }
           }
         });

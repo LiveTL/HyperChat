@@ -104,7 +104,8 @@ const parseAddChatItemAction = (action) => {
       ? timestampText
       : formatTimestamp(timestampUsec),
     showtime: isReplay ? getMillis(timestampText, timestampUsec)
-      : date.getTime() - Math.round(timestampUsec / 1000)
+      : date.getTime() - Math.round(timestampUsec / 1000),
+    messageId: messageItem.id
   };
   if (actionItem.liveChatPaidMessageRenderer) {
     item.superchat = {
@@ -122,12 +123,24 @@ const parseAuthorBonkedAction = (action) => {
   if (!action.deletedStateMessage || !action.externalChannelId) {
     return false;
   }
-
   return {
     type: 'authorBonked',
     item: {
       replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
-      authorID: action.externalChannelId
+      authorId: action.externalChannelId
+    }
+  };
+};
+
+const parseMessageDeletedAction = (action) => {
+  if (!action.deletedStateMessage || !action.targetItemId) {
+    return false;
+  }
+  return {
+    type: 'messageDeleted',
+    item: {
+      replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
+      messageId: action.targetItemId
     }
   };
 };
@@ -152,12 +165,14 @@ const messageReceiveCallback = async (response) => {
             action.replayChatItemAction.actions[0].addChatItemAction
           );
         } else if (action.markChatItemsByAuthorAsDeletedAction) {
-          console.log('markChatItemsByAuthorAsDeletedAction found');
           parsedAction = parseAuthorBonkedAction(
             action.markChatItemsByAuthorAsDeletedAction
           );
+        } else if (action.markChatItemAsDeletedAction) {
+          parsedAction = parseMessageDeletedAction(
+            action.markChatItemAsDeletedAction
+          );
         }
-
         if (!parsedAction) {
           return;
         }
