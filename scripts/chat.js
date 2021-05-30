@@ -35,6 +35,80 @@ const colorConversionTable = {
   4293271831: 'red'
 };
 
+const parseAddChatItemAction = (action) => {
+  const actionItem = (action || {}).item;
+  if (!actionItem) {
+    return false;
+  }
+  const messageItem = actionItem.liveChatTextMessageRenderer ||
+    actionItem.liveChatPaidMessageRenderer ||
+    actionItem.liveChatPaidStickerRenderer;
+  if (!messageItem) {
+    return false;
+  }
+  if (!messageItem.authorName) {
+    return false;
+  }
+  messageItem.authorBadges = messageItem.authorBadges || [];
+  const authorTypes = [];
+  messageItem.authorBadges.forEach((badge) =>
+    authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip.toLowerCase())
+  );
+  const runs = [];
+  if (messageItem.message) {
+    messageItem.message.runs.forEach((run) => {
+      if (run.text && run.navigationEndpoint) {
+        let url = run.navigationEndpoint.commandMetadata.webCommandMetadata.url;
+        if (url.startsWith('/')) {
+          url = 'https://www.youtube.com'.concat(url);
+        }
+        runs.push({
+          type: 'link',
+          text: decodeURIComponent(escape(unescape(encodeURIComponent(
+            run.text
+          )))),
+          url: url
+        });
+      } else if (run.text) {
+        runs.push({
+          type: 'text',
+          text: decodeURIComponent(escape(unescape(encodeURIComponent(
+            run.text
+          ))))
+        });
+      } else if (run.emoji) {
+        runs.push({
+          type: 'emote',
+          src: run.emoji.image.thumbnails[0].url
+        });
+      }
+    });
+  }
+  const timestampUsec = parseInt(messageItem.timestampUsec);
+  const timestampText = (messageItem.timestampText || {}).simpleText;
+  const date = new Date();
+  const item = {
+    author: {
+      name: messageItem.authorName.simpleText,
+      id: messageItem.authorExternalChannelId,
+      types: authorTypes
+    },
+    message: runs,
+    timestamp: isReplay
+      ? timestampText
+      : formatTimestamp(timestampUsec),
+    showtime: isReplay ? getMillis(timestampText, timestampUsec)
+      : date.getTime() - Math.round(timestampUsec / 1000)
+  };
+  if (actionItem.liveChatPaidMessageRenderer) {
+    item.superchat = {
+      amount: messageItem.purchaseAmountText.simpleText,
+      color: colorConversionTable[messageItem.bodyBackgroundColor]
+    };
+  }
+  return item;
+};
+
 const messageReceiveCallback = async (response) => {
   response = JSON.parse(response);
   try {
@@ -47,82 +121,20 @@ const messageReceiveCallback = async (response) => {
       response.continuationContents.liveChatContinuation.actions || []
     ).forEach((action) => {
       try {
-        let currentElement = action.addChatItemAction;
-        if (action.replayChatItemAction != null) {
-          const thisAction = action.replayChatItemAction.actions[0];
-          currentElement = thisAction.addChatItemAction;
+        let pushItem;
+        if (action.addChatItemAction) {
+          pushItem = parseAddChatItemAction(action.addChatItemAction);
+        } else if (action.replayChatItemAction) {
+          pushItem = parseAddChatItemAction(
+            action.replayChatItemAction.actions[0].addChatItemAction
+          );
         }
-        currentElement = (currentElement || {}).item;
-        if (!currentElement) {
+
+        if (!pushItem) {
           return;
         }
-        const messageItem = currentElement.liveChatTextMessageRenderer ||
-          currentElement.liveChatPaidMessageRenderer ||
-          currentElement.liveChatPaidStickerRenderer;
-        if (!messageItem) {
-          return;
-        }
-        if (!messageItem.authorName) {
-          return;
-        }
-        messageItem.authorBadges = messageItem.authorBadges || [];
-        const authorTypes = [];
-        messageItem.authorBadges.forEach((badge) =>
-          authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip.toLowerCase())
-        );
-        const runs = [];
-        if (messageItem.message) {
-          messageItem.message.runs.forEach((run) => {
-            if (run.text && run.navigationEndpoint) {
-              let url = run.navigationEndpoint.commandMetadata.webCommandMetadata.url;
-              if (url.startsWith('/')) {
-                url = 'https://www.youtube.com'.concat(url);
-              }
-              runs.push({
-                type: 'link',
-                text: decodeURIComponent(escape(unescape(encodeURIComponent(
-                  run.text
-                )))),
-                url: url
-              });
-            } else if (run.text) {
-              runs.push({
-                type: 'text',
-                text: decodeURIComponent(escape(unescape(encodeURIComponent(
-                  run.text
-                ))))
-              });
-            } else if (run.emoji) {
-              runs.push({
-                type: 'emote',
-                src: run.emoji.image.thumbnails[0].url
-              });
-            }
-          });
-        }
-        const timestampUsec = parseInt(messageItem.timestampUsec);
-        const timestampText = (messageItem.timestampText || {}).simpleText;
-        const date = new Date();
-        const item = {
-          author: {
-            name: messageItem.authorName.simpleText,
-            id: messageItem.authorExternalChannelId,
-            types: authorTypes
-          },
-          message: runs,
-          timestamp: isReplay
-            ? timestampText
-            : formatTimestamp(timestampUsec),
-          showtime: isReplay ? getMillis(timestampText, timestampUsec)
-            : date.getTime() - Math.round(timestampUsec / 1000)
-        };
-        if (currentElement.liveChatPaidMessageRenderer) {
-          item.superchat = {
-            amount: messageItem.purchaseAmountText.simpleText,
-            color: colorConversionTable[messageItem.bodyBackgroundColor]
-          };
-        }
-        messages.push(item);
+
+        messages.push(pushItem);
       } catch (e) {
         console.debug('Error while parsing message.', { e });
       }
