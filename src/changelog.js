@@ -33,5 +33,9 @@ exports.updates = [
   {
     version: 'v1.0.17',
     comments: 'A more pleasant theme and small changes to scrolling mechanics!'
+  },
+  {
+    version: 'v1.1.0',
+    comments: 'Launch button overhaul, support for [message deleted], clickable links, and more!'
   }
 ];
