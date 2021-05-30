@@ -35,6 +35,38 @@ const colorConversionTable = {
   4293271831: 'red'
 };
 
+const parseMessageRuns = (runs) => {
+  const parsedRuns = [];
+  runs.forEach((run) => {
+    if (run.text && run.navigationEndpoint) {
+      let url = run.navigationEndpoint.commandMetadata.webCommandMetadata.url;
+      if (url.startsWith('/')) {
+        url = 'https://www.youtube.com'.concat(url);
+      }
+      parsedRuns.push({
+        type: 'link',
+        text: decodeURIComponent(escape(unescape(encodeURIComponent(
+          run.text
+        )))),
+        url: url
+      });
+    } else if (run.text) {
+      parsedRuns.push({
+        type: 'text',
+        text: decodeURIComponent(escape(unescape(encodeURIComponent(
+          run.text
+        ))))
+      });
+    } else if (run.emoji) {
+      parsedRuns.push({
+        type: 'emote',
+        src: run.emoji.image.thumbnails[0].url
+      });
+    }
+  });
+  return parsedRuns;
+};
+
 const parseAddChatItemAction = (action) => {
   const actionItem = (action || {}).item;
   if (!actionItem) {
@@ -54,36 +86,10 @@ const parseAddChatItemAction = (action) => {
   messageItem.authorBadges.forEach((badge) =>
     authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip.toLowerCase())
   );
-  const runs = [];
-  if (messageItem.message) {
-    messageItem.message.runs.forEach((run) => {
-      if (run.text && run.navigationEndpoint) {
-        let url = run.navigationEndpoint.commandMetadata.webCommandMetadata.url;
-        if (url.startsWith('/')) {
-          url = 'https://www.youtube.com'.concat(url);
-        }
-        runs.push({
-          type: 'link',
-          text: decodeURIComponent(escape(unescape(encodeURIComponent(
-            run.text
-          )))),
-          url: url
-        });
-      } else if (run.text) {
-        runs.push({
-          type: 'text',
-          text: decodeURIComponent(escape(unescape(encodeURIComponent(
-            run.text
-          ))))
-        });
-      } else if (run.emoji) {
-        runs.push({
-          type: 'emote',
-          src: run.emoji.image.thumbnails[0].url
-        });
-      }
-    });
+  if (!messageItem.message) {
+    return false;
   }
+  const runs = parseMessageRuns(messageItem.message.runs);
   const timestampUsec = parseInt(messageItem.timestampUsec);
   const timestampText = (messageItem.timestampText || {}).simpleText;
   const date = new Date();
@@ -120,7 +126,7 @@ const parseAuthorBonkedAction = (action) => {
   return {
     type: 'authorBonked',
     item: {
-      replacedMessage: action.deletedStateMessage.runs[0].text,
+      replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
       authorID: action.externalChannelId
     }
   };

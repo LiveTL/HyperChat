@@ -89,7 +89,11 @@
           >
             {{ message.info.author.name }}
           </strong>
-          <span v-for="(run, key, index) in message.info.message" :key="index">
+          <span
+            v-for="(run, key, index) in message.info.message"
+            :key="index"
+            :class="{deleted: message.info.deleted}"
+          >
             <span v-if="run.type == 'text'">{{ run.text }}</span>
             <a v-else-if="run.type == 'link'" :href="run.url" target="_blank">{{ run.text }}</a>
             <img
@@ -200,10 +204,9 @@ export default {
         }
         const messages = d.actions
           .filter((action) => action.type === 'addChatItem')
-          .map((action) => action.item);
-        for (const message of messages.sort(
-          (m1, m2) => m1.showtime - m2.showtime
-        )) {
+          .map((action) => action.item)
+          .sort((m1, m2) => m1.showtime - m2.showtime);
+        for (const message of messages) {
           let timestamp = (Date.now() + message.showtime) / 1000;
           if (d.isReplay) timestamp = message.showtime;
           this.queued.push({
@@ -211,6 +214,19 @@ export default {
             message: message
           });
         }
+
+        const bonks = d.actions
+          .filter((action) => action.type === 'authorBonked')
+          .map((action) => action.item);
+        this.messages.forEach(message => {
+          for (const bonk of bonks) {
+            if (bonk.authorID === message.author.id) {
+              message.message = bonk.replacedMessage;
+              message.deleted = true;
+              break;
+            }
+          }
+        });
       }
     });
     window.parent.postMessage(
@@ -362,6 +378,13 @@ html {
 .member,
 .new {
   color: #0E5D10;
+}
+.deleted {
+  font-style: italic;
+  color: #6e6b6b;
+}
+.dark .deleted {
+  color: #898888;
 }
 .superchat {
   margin: 15px 0px 15px 0px;
