@@ -106,13 +106,30 @@ const parseAddChatItemAction = (action) => {
       color: colorConversionTable[messageItem.bodyBackgroundColor]
     };
   }
-  return item;
+  return {
+    type: 'addChatItem',
+    item: item
+  };
+};
+
+const parseAuthorBonkedAction = (action) => {
+  if (!action.deletedStateMessage || !action.externalChannelId) {
+    return false;
+  }
+
+  return {
+    type: 'authorBonked',
+    item: {
+      replacedMessage: action.deletedStateMessage.runs[0].text,
+      authorID: action.externalChannelId
+    }
+  };
 };
 
 const messageReceiveCallback = async (response) => {
   response = JSON.parse(response);
   try {
-    const messages = [];
+    const actions = [];
     if (!response.continuationContents) {
       console.debug('Response was invalid', response);
       return;
@@ -121,27 +138,31 @@ const messageReceiveCallback = async (response) => {
       response.continuationContents.liveChatContinuation.actions || []
     ).forEach((action) => {
       try {
-        let pushItem;
+        let parsedAction;
         if (action.addChatItemAction) {
-          pushItem = parseAddChatItemAction(action.addChatItemAction);
+          parsedAction = parseAddChatItemAction(action.addChatItemAction);
         } else if (action.replayChatItemAction) {
-          pushItem = parseAddChatItemAction(
+          parsedAction = parseAddChatItemAction(
             action.replayChatItemAction.actions[0].addChatItemAction
+          );
+        } else if (action.markChatItemsByAuthorAsDeletedAction) {
+          console.log('markChatItemsByAuthorAsDeletedAction found');
+          parsedAction = parseAuthorBonkedAction(
+            action.markChatItemsByAuthorAsDeletedAction
           );
         }
 
-        if (!pushItem) {
+        if (!parsedAction) {
           return;
         }
-
-        messages.push(pushItem);
+        actions.push(parsedAction);
       } catch (e) {
-        console.debug('Error while parsing message.', { e });
+        console.debug('Error while parsing actions.', { e });
       }
     });
     const chunk = {
-      type: 'messageChunk',
-      messages: messages,
+      type: 'actionChunk',
+      actions: actions,
       isReplay
     };
     document

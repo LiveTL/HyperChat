@@ -187,7 +187,7 @@ export default {
       } else if (d['yt-live-chat-set-dark-theme'] != null) {
         this.$vuetify.theme.dark = d['yt-live-chat-set-dark-theme'];
         localStorage.setItem('dark_theme', this.$vuetify.theme.dark.toString());
-      } else if (d.type === 'messageChunk') {
+      } else if (d.type === 'actionChunk') {
         if (!d.isReplay && !this.interval) {
           const runQueue = () => {
             this.videoProgressUpdated({
@@ -198,7 +198,10 @@ export default {
           runQueue();
           runQueue();
         }
-        for (const message of d.messages.sort(
+        const messages = d.actions
+          .filter((action) => action.type === 'addChatItem')
+          .map((action) => action.item);
+        for (const message of messages.sort(
           (m1, m2) => m1.showtime - m2.showtime
         )) {
           let timestamp = (Date.now() + message.showtime) / 1000;
