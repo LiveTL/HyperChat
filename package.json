@@ -12,6 +12,7 @@
   "dependencies": {
     "browserslist": "^4.16.6",
     "core-js": "^3.6.5",
+    "dns-packet": "^5.2.4",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vuetify": "^2.2.11",
