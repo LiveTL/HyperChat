@@ -92,7 +92,7 @@
           <span
             v-for="(run, key, index) in message.info.message"
             :key="index"
-            :class="{deleted: message.info.deleted}"
+            :class="{ deleted: message.info.deleted }"
           >
             <span v-if="run.type == 'text'">{{ run.text }}</span>
             <a v-else-if="run.type == 'link'" :href="run.url" target="_blank">{{ run.text }}</a>
@@ -183,7 +183,7 @@ export default {
       // await this.$forceUpdate();
       this.scrollToBottom();
     });
-    window.addEventListener('message', async d => {
+    window.addEventListener('message', async (d) => {
       d = JSON.parse(JSON.stringify(d.data));
       this.isAtBottom = this.checkIfBottom();
       if (d['yt-player-video-progress'] && !this.interval) {
@@ -206,19 +206,12 @@ export default {
         const bonks = [];
         const deletions = [];
         d.actions.forEach((action) => {
-          switch (action.type) {
-            case 'addChatItem':
-              messages.push(action.item);
-              break;
-            case 'authorBonked':
-              bonks.push(action.item);
-              break;
-            case 'messageDeleted':
-              deletions.push(action.item);
-              break;
-            default:
-              console.debug(`Unknown action type ${action.type}`);
-              break;
+          if (action.type === 'addChatItem') {
+            messages.push(action.item);
+          } else if (action.type === 'authorBonked') {
+            bonks.push(action.item);
+          } else if (action.type === 'messageDeleted') {
+            deletions.push(action.item);
           }
         });
         for (const message of messages.sort(
@@ -226,6 +219,7 @@ export default {
         )) {
           let timestamp = (Date.now() + message.showtime) / 1000;
           if (d.isReplay) timestamp = message.showtime;
+          this.checkDeleted(message, bonks, deletions);
           this.queued.push({
             timestamp,
             message: message
@@ -234,22 +228,9 @@ export default {
         if (!bonks.length && !deletions.length) {
           return;
         }
-        this.messages.forEach(message => {
-          for (const bonk of bonks) {
-            if (bonk.authorId === message.author.id) {
-              message.message = bonk.replacedMessage;
-              message.deleted = true;
-              return;
-            }
-          }
-          for (const deletion of deletions) {
-            if (deletion.messageId === message.messageId) {
-              message.message = deletion.replacedMessage;
-              message.deleted = true;
-              return;
-            }
-          }
-        });
+        this.messages.forEach((message) =>
+          this.checkDeleted(message, bonks, deletions)
+        );
       }
     });
     window.parent.postMessage(
@@ -320,6 +301,22 @@ export default {
             i >= this.current &&
             i < this.messages.length + this.current
         };
+      }
+    },
+    checkDeleted(message, bonks, deletions) {
+      for (const bonk of bonks) {
+        if (bonk.authorId === message.author.id) {
+          message.message = bonk.replacedMessage;
+          message.deleted = true;
+          return;
+        }
+      }
+      for (const deletion of deletions) {
+        if (deletion.messageId === message.messageId) {
+          message.message = deletion.replacedMessage;
+          message.deleted = true;
+          return;
+        }
       }
     }
   },
@@ -404,7 +401,7 @@ html {
 }
 .deleted {
   font-style: italic;
-  color: #6e6b6b;
+  color: #6E6B6B;
 }
 .dark .deleted {
   color: #898888;
