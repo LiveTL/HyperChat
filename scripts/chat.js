@@ -35,10 +35,120 @@ const colorConversionTable = {
   4293271831: 'red'
 };
 
+const parseMessageRuns = (runs) => {
+  const parsedRuns = [];
+  runs.forEach((run) => {
+    if (run.text && run.navigationEndpoint) {
+      let url = run.navigationEndpoint.commandMetadata.webCommandMetadata.url;
+      if (url.startsWith('/')) {
+        url = 'https://www.youtube.com'.concat(url);
+      }
+      parsedRuns.push({
+        type: 'link',
+        text: decodeURIComponent(escape(unescape(encodeURIComponent(
+          run.text
+        )))),
+        url: url
+      });
+    } else if (run.text) {
+      parsedRuns.push({
+        type: 'text',
+        text: decodeURIComponent(escape(unescape(encodeURIComponent(
+          run.text
+        ))))
+      });
+    } else if (run.emoji) {
+      parsedRuns.push({
+        type: 'emote',
+        src: run.emoji.image.thumbnails[0].url
+      });
+    }
+  });
+  return parsedRuns;
+};
+
+const parseAddChatItemAction = (action) => {
+  const actionItem = (action || {}).item;
+  if (!actionItem) {
+    return false;
+  }
+  const messageItem = actionItem.liveChatTextMessageRenderer ||
+    actionItem.liveChatPaidMessageRenderer ||
+    actionItem.liveChatPaidStickerRenderer;
+  if (!messageItem) {
+    return false;
+  }
+  if (!messageItem.authorName) {
+    return false;
+  }
+  messageItem.authorBadges = messageItem.authorBadges || [];
+  const authorTypes = [];
+  messageItem.authorBadges.forEach((badge) =>
+    authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip.toLowerCase())
+  );
+  if (!messageItem.message) {
+    return false;
+  }
+  const runs = parseMessageRuns(messageItem.message.runs);
+  const timestampUsec = parseInt(messageItem.timestampUsec);
+  const timestampText = (messageItem.timestampText || {}).simpleText;
+  const date = new Date();
+  const item = {
+    author: {
+      name: messageItem.authorName.simpleText,
+      id: messageItem.authorExternalChannelId,
+      types: authorTypes
+    },
+    message: runs,
+    timestamp: isReplay
+      ? timestampText
+      : formatTimestamp(timestampUsec),
+    showtime: isReplay ? getMillis(timestampText, timestampUsec)
+      : date.getTime() - Math.round(timestampUsec / 1000),
+    messageId: messageItem.id
+  };
+  if (actionItem.liveChatPaidMessageRenderer) {
+    item.superchat = {
+      amount: messageItem.purchaseAmountText.simpleText,
+      color: colorConversionTable[messageItem.bodyBackgroundColor]
+    };
+  }
+  return {
+    type: 'addChatItem',
+    item: item
+  };
+};
+
+const parseAuthorBonkedAction = (action) => {
+  if (!action.deletedStateMessage || !action.externalChannelId) {
+    return false;
+  }
+  return {
+    type: 'authorBonked',
+    item: {
+      replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
+      authorId: action.externalChannelId
+    }
+  };
+};
+
+const parseMessageDeletedAction = (action) => {
+  if (!action.deletedStateMessage || !action.targetItemId) {
+    return false;
+  }
+  return {
+    type: 'messageDeleted',
+    item: {
+      replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
+      messageId: action.targetItemId
+    }
+  };
+};
+
 const messageReceiveCallback = async (response) => {
   response = JSON.parse(response);
   try {
-    const messages = [];
+    const actions = [];
     if (!response.continuationContents) {
       console.debug('Response was invalid', response);
       return;
@@ -47,89 +157,33 @@ const messageReceiveCallback = async (response) => {
       response.continuationContents.liveChatContinuation.actions || []
     ).forEach((action) => {
       try {
-        let currentElement = action.addChatItemAction;
-        if (action.replayChatItemAction != null) {
-          const thisAction = action.replayChatItemAction.actions[0];
-          currentElement = thisAction.addChatItemAction;
+        let parsedAction;
+        if (action.addChatItemAction) {
+          parsedAction = parseAddChatItemAction(action.addChatItemAction);
+        } else if (action.replayChatItemAction) {
+          parsedAction = parseAddChatItemAction(
+            action.replayChatItemAction.actions[0].addChatItemAction
+          );
+        } else if (action.markChatItemsByAuthorAsDeletedAction) {
+          parsedAction = parseAuthorBonkedAction(
+            action.markChatItemsByAuthorAsDeletedAction
+          );
+        } else if (action.markChatItemAsDeletedAction) {
+          parsedAction = parseMessageDeletedAction(
+            action.markChatItemAsDeletedAction
+          );
         }
-        currentElement = (currentElement || {}).item;
-        if (!currentElement) {
+        if (!parsedAction) {
           return;
         }
-        const messageItem = currentElement.liveChatTextMessageRenderer ||
-          currentElement.liveChatPaidMessageRenderer ||
-          currentElement.liveChatPaidStickerRenderer;
-        if (!messageItem) {
-          return;
-        }
-        if (!messageItem.authorName) {
-          return;
-        }
-        messageItem.authorBadges = messageItem.authorBadges || [];
-        const authorTypes = [];
-        messageItem.authorBadges.forEach((badge) =>
-          authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip.toLowerCase())
-        );
-        const runs = [];
-        if (messageItem.message) {
-          messageItem.message.runs.forEach((run) => {
-            if (run.text && run.navigationEndpoint) {
-              let url = run.navigationEndpoint.commandMetadata.webCommandMetadata.url;
-              if (url.startsWith('/')) {
-                url = 'https://www.youtube.com'.concat(url);
-              }
-              runs.push({
-                type: 'link',
-                text: decodeURIComponent(escape(unescape(encodeURIComponent(
-                  run.text
-                )))),
-                url: url
-              });
-            } else if (run.text) {
-              runs.push({
-                type: 'text',
-                text: decodeURIComponent(escape(unescape(encodeURIComponent(
-                  run.text
-                ))))
-              });
-            } else if (run.emoji) {
-              runs.push({
-                type: 'emote',
-                src: run.emoji.image.thumbnails[0].url
-              });
-            }
-          });
-        }
-        const timestampUsec = parseInt(messageItem.timestampUsec);
-        const timestampText = (messageItem.timestampText || {}).simpleText;
-        const date = new Date();
-        const item = {
-          author: {
-            name: messageItem.authorName.simpleText,
-            id: messageItem.authorExternalChannelId,
-            types: authorTypes
-          },
-          message: runs,
-          timestamp: isReplay
-            ? timestampText
-            : formatTimestamp(timestampUsec),
-          showtime: isReplay ? getMillis(timestampText, timestampUsec)
-            : date.getTime() - Math.round(timestampUsec / 1000)
-        };
-        if (currentElement.liveChatPaidMessageRenderer) {
-          item.superchat = {
-            amount: messageItem.purchaseAmountText.simpleText,
-            color: colorConversionTable[messageItem.bodyBackgroundColor]
-          };
-        }
-        messages.push(item);
+        actions.push(parsedAction);
       } catch (e) {
-        console.debug('Error while parsing message.', { e });
+        console.debug('Error while parsing actions.', { e });
       }
     });
     const chunk = {
-      type: 'messageChunk',
-      messages: messages,
+      type: 'actionChunk',
+      actions: actions,
       isReplay
     };
     document
