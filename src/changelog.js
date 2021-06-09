@@ -36,6 +36,9 @@ exports.updates = [
   },
   {
     version: 'v1.1.0',
-    comments: 'Launch button overhaul, support for [message deleted], clickable links, and more!'
+    comments: 'Launch button overhaul, support for [message deleted], clickable links, and more!' +
+              'We hope support for deleted messages can cut down on spam' +
+              'about the news of Coco\'s graduation. Please remember to respect stream' +
+              'chat etiquette in other streamers\' chats.'
   }
 ];
