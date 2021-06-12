@@ -228,9 +228,13 @@ export default {
         if (!bonks.length && !deletions.length) {
           return;
         }
+        const wasBottom = this.checkIfBottom();
         this.messages.forEach((message) =>
           this.checkDeleted(message, bonks, deletions)
         );
+        if (wasBottom) {
+          this.$nextTick(this.scrollToBottom);
+        }
       }
     });
     window.parent.postMessage(
