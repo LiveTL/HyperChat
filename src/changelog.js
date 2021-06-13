@@ -40,5 +40,9 @@ exports.updates = [
               'We hope support for deleted messages can cut down on spam ' +
               'about the news of Coco\'s graduation. Please remember to respect stream ' +
               'chat etiquette in other streamers\' chats.'
+  },
+  {
+    version: 'v1.1.1',
+    comments: 'Fixed some more scrolling issues!'
   }
 ];
