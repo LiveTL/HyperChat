@@ -660,5 +660,8 @@ const chatLoaded = async () => {
   }
 };
 
-window.addEventListener('load', chatLoaded);
-if (document.readyState === 'complete') chatLoaded();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', chatLoaded);
+} else {
+  chatLoaded();
+}
