@@ -218,7 +218,7 @@ export default {
           (m1, m2) => m1.showtime - m2.showtime
         )) {
           let timestamp = (Date.now() + message.showtime) / 1000;
-          if (d.isReplay) timestamp = message.showtime;
+          if (d.isReplay || d.isInitial) timestamp = message.showtime;
           this.checkDeleted(message, bonks, deletions);
           this.queued.push({
             timestamp,
