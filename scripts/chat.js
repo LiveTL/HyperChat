@@ -558,7 +558,14 @@ const chatLoaded = async () => {
     }
   };
   buttonContainer.appendChild(button);
-  document.querySelector('#primary-content').appendChild(buttonContainer);
+  await new Promise((resolve, reject) => {
+    const poller = setInterval(() => {
+      const e = document.querySelector('#primary-content');
+      if (e) e.appendChild(buttonContainer);
+      clearInterval(poller);
+      resolve();
+    }, 100);
+  });
   if (hyperChatEnabled) {
     window.postMessage({
       'yt-player-video-progress': 0
