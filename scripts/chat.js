@@ -145,17 +145,17 @@ const parseMessageDeletedAction = (action) => {
   };
 };
 
-const messageReceiveCallback = async (response) => {
+const messageReceiveCallback = async (response, isInitial = false) => {
   response = JSON.parse(response);
   try {
     const actions = [];
-    if (!response.continuationContents) {
+    const actionsObject = response?.continuationContents?.liveChatContinuation?.actions ||
+      response?.contents?.liveChatRenderer?.actions;
+    if (!actionsObject) {
       console.debug('Response was invalid', response);
       return;
     }
-    (
-      response.continuationContents.liveChatContinuation.actions || []
-    ).forEach((action) => {
+    (actionsObject || []).forEach((action) => {
       try {
         let parsedAction;
         if (action.addChatItemAction) {
@@ -184,7 +184,8 @@ const messageReceiveCallback = async (response) => {
     const chunk = {
       type: 'actionChunk',
       actions: actions,
-      isReplay
+      isReplay,
+      isInitial
     };
     document
       .querySelector('#optichat')
@@ -194,7 +195,7 @@ const messageReceiveCallback = async (response) => {
   }
 };
 
-const hyperchatLoaded = async () => {
+const chatLoaded = async () => {
   if (document.querySelector('.toggleButton')) return;
   document.body.style.minWidth = document.body.style.minHeight = '0px';
   const hyperChatEnabled = localStorage.getItem('HC:ENABLED') !== 'false';
@@ -635,7 +636,28 @@ const hyperchatLoaded = async () => {
       messageDisplay.contentWindow.postMessage(d.data, '*');
     }
   });
+
+  if (!hyperChatEnabled) {
+    return;
+  }
+  const processInitialJson = () => {
+    const scripts = document.querySelector('body').querySelectorAll('script');
+    scripts.forEach(script => {
+      const start = 'window["ytInitialData"] = ';
+      const text = script.text;
+      if (!text || !text.startsWith(start)) {
+        return;
+      }
+      const json = text.replace(start, '').slice(0, -1);
+      messageReceiveCallback(json, true);
+    });
+  };
+  const iframe = document.querySelector('#optichat');
+  iframe.addEventListener('load', processInitialJson);
 };
 
-window.addEventListener('load', hyperchatLoaded);
-if (document.readyState === 'complete') hyperchatLoaded();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', chatLoaded);
+} else {
+  chatLoaded();
+}
