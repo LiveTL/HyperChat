@@ -149,13 +149,13 @@ const messageReceiveCallback = async (response, isInitial = false) => {
   response = JSON.parse(response);
   try {
     const actions = [];
-    if (!response.continuationContents) {
+    const actionsObject = response?.continuationContents?.liveChatContinuation?.actions ||
+      response?.contents?.liveChatRenderer?.actions;
+    if (!actionsObject) {
       console.debug('Response was invalid', response);
       return;
     }
-    (
-      response.continuationContents.liveChatContinuation.actions || []
-    ).forEach((action) => {
+    (actionsObject || []).forEach((action) => {
       try {
         let parsedAction;
         if (action.addChatItemAction) {
@@ -653,11 +653,7 @@ const chatLoaded = async () => {
     });
   };
   const iframe = document.querySelector('#optichat');
-  if (iframe.readyState === 'complete') {
-    processInitialJson();
-  } else {
-    iframe.addEventListener('load', processInitialJson);
-  }
+  iframe.addEventListener('load', processInitialJson);
 };
 
 if (document.readyState === 'loading') {
