@@ -5,196 +5,6 @@ for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) 
   window.addEventListener(eventName, e => e.stopImmediatePropagation(), true);
 }
 
-const isReplay = window.location.href.startsWith(
-  'https://www.youtube.com/live_chat_replay'
-);
-
-window.isFirefox = window.isFirefox || !!/Firefox/.exec(navigator.userAgent);
-
-const formatTimestamp = (timestamp) => {
-  return (new Date(parseInt(timestamp) / 1000)).toLocaleTimeString(navigator.language,
-    { hour: '2-digit', minute: '2-digit' });
-};
-
-const getMillis = (timestamp, usec) => {
-  let secs = Array.from(timestamp.split(':'), t => parseInt(t)).reverse();
-  secs = secs[0] + (secs[1] ? secs[1] * 60 : 0) + (secs[2] ? secs[2] * 60 * 60 : 0);
-  secs *= 1000;
-  secs += usec % 1000;
-  secs /= 1000;
-  return secs;
-};
-
-const colorConversionTable = {
-  4280191205: 'blue',
-  4278248959: 'lightblue',
-  4280150454: 'turquoise',
-  4294953512: 'yellow',
-  4294278144: 'orange',
-  4293467747: 'pink',
-  4293271831: 'red'
-};
-
-const parseMessageRuns = (runs) => {
-  const parsedRuns = [];
-  runs.forEach((run) => {
-    if (run.text && run.navigationEndpoint) {
-      let url = run.navigationEndpoint.commandMetadata.webCommandMetadata.url;
-      if (url.startsWith('/')) {
-        url = 'https://www.youtube.com'.concat(url);
-      }
-      parsedRuns.push({
-        type: 'link',
-        text: decodeURIComponent(escape(unescape(encodeURIComponent(
-          run.text
-        )))),
-        url: url
-      });
-    } else if (run.text) {
-      parsedRuns.push({
-        type: 'text',
-        text: decodeURIComponent(escape(unescape(encodeURIComponent(
-          run.text
-        ))))
-      });
-    } else if (run.emoji) {
-      parsedRuns.push({
-        type: 'emote',
-        src: run.emoji.image.thumbnails[0].url
-      });
-    }
-  });
-  return parsedRuns;
-};
-
-const parseAddChatItemAction = (action) => {
-  const actionItem = (action || {}).item;
-  if (!actionItem) {
-    return false;
-  }
-  const messageItem = actionItem.liveChatTextMessageRenderer ||
-    actionItem.liveChatPaidMessageRenderer ||
-    actionItem.liveChatPaidStickerRenderer;
-  if (!messageItem) {
-    return false;
-  }
-  if (!messageItem.authorName) {
-    return false;
-  }
-  messageItem.authorBadges = messageItem.authorBadges || [];
-  const authorTypes = [];
-  messageItem.authorBadges.forEach((badge) =>
-    authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip.toLowerCase())
-  );
-  if (!messageItem.message) {
-    return false;
-  }
-  const runs = parseMessageRuns(messageItem.message.runs);
-  const timestampUsec = parseInt(messageItem.timestampUsec);
-  const timestampText = (messageItem.timestampText || {}).simpleText;
-  const date = new Date();
-  const item = {
-    author: {
-      name: messageItem.authorName.simpleText,
-      id: messageItem.authorExternalChannelId,
-      types: authorTypes
-    },
-    message: runs,
-    timestamp: isReplay
-      ? timestampText
-      : formatTimestamp(timestampUsec),
-    showtime: isReplay ? getMillis(timestampText, timestampUsec)
-      : date.getTime() - Math.round(timestampUsec / 1000),
-    messageId: messageItem.id
-  };
-  if (actionItem.liveChatPaidMessageRenderer) {
-    item.superchat = {
-      amount: messageItem.purchaseAmountText.simpleText,
-      color: colorConversionTable[messageItem.bodyBackgroundColor]
-    };
-  }
-  return {
-    type: 'addChatItem',
-    item: item
-  };
-};
-
-const parseAuthorBonkedAction = (action) => {
-  if (!action.deletedStateMessage || !action.externalChannelId) {
-    return false;
-  }
-  return {
-    type: 'authorBonked',
-    item: {
-      replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
-      authorId: action.externalChannelId
-    }
-  };
-};
-
-const parseMessageDeletedAction = (action) => {
-  if (!action.deletedStateMessage || !action.targetItemId) {
-    return false;
-  }
-  return {
-    type: 'messageDeleted',
-    item: {
-      replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
-      messageId: action.targetItemId
-    }
-  };
-};
-
-const messageReceiveCallback = async (response, isInitial = false) => {
-  response = JSON.parse(response);
-  try {
-    const actions = [];
-    const actionsObject = response?.continuationContents?.liveChatContinuation?.actions ||
-      response?.contents?.liveChatRenderer?.actions;
-    if (!actionsObject) {
-      console.debug('Response was invalid', response);
-      return;
-    }
-    (actionsObject || []).forEach((action) => {
-      try {
-        let parsedAction;
-        if (action.addChatItemAction) {
-          parsedAction = parseAddChatItemAction(action.addChatItemAction);
-        } else if (action.replayChatItemAction) {
-          parsedAction = parseAddChatItemAction(
-            action.replayChatItemAction.actions[0].addChatItemAction
-          );
-        } else if (action.markChatItemsByAuthorAsDeletedAction) {
-          parsedAction = parseAuthorBonkedAction(
-            action.markChatItemsByAuthorAsDeletedAction
-          );
-        } else if (action.markChatItemAsDeletedAction) {
-          parsedAction = parseMessageDeletedAction(
-            action.markChatItemAsDeletedAction
-          );
-        }
-        if (!parsedAction) {
-          return;
-        }
-        actions.push(parsedAction);
-      } catch (e) {
-        console.debug('Error while parsing actions.', { e });
-      }
-    });
-    const chunk = {
-      type: 'actionChunk',
-      actions: actions,
-      isReplay,
-      isInitial
-    };
-    document
-      .querySelector('#optichat')
-      .contentWindow.postMessage(chunk, '*');
-  } catch (e) {
-    console.debug(e);
-  }
-};
-
 const chatLoaded = async () => {
   if (document.querySelector('.toggleButton')) return;
   document.body.style.minWidth = document.body.style.minHeight = '0px';
@@ -599,29 +409,6 @@ const chatLoaded = async () => {
       frame.style.transform = `scale(${scale})`;
     }
     document.querySelector('#ticker').remove();
-    const script = document.createElement('script');
-    script.innerHTML = `
-    for (event_name of ["visibilitychange", "webkitvisibilitychange", "blur"]) {
-      window.addEventListener(event_name, event => {
-        event.stopImmediatePropagation();
-      }, true);
-    }
-    window.fetchFallback = window.fetch;
-    window.fetch = async (...args) => {
-      const url = args[0].url;
-      const result = await window.fetchFallback(...args);
-      if (url.startsWith(
-        'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat')
-      ) {
-        const response = JSON.stringify(await (await result.clone()).json());
-        window.dispatchEvent(new CustomEvent('messageReceive', { detail: response }));
-      }
-      return result;
-    };
-    `;
-    window.addEventListener('messageReceive', d => messageReceiveCallback(d.detail));
-    document.body.appendChild(script);
-
     messageDisplay = document.querySelector('#optichat');
   } else {
     button.style.display = 'flex';
@@ -644,23 +431,24 @@ const chatLoaded = async () => {
     }
   });
 
-  if (!hyperChatEnabled) {
-    return;
-  }
-  const processInitialJson = () => {
-    const scripts = document.querySelector('body').querySelectorAll('script');
-    scripts.forEach(script => {
-      const start = 'window["ytInitialData"] = ';
-      const text = script.text;
-      if (!text || !text.startsWith(start)) {
-        return;
-      }
-      const json = text.replace(start, '').slice(0, -1);
-      messageReceiveCallback(json, true);
-    });
-  };
-  const iframe = document.querySelector('#optichat');
-  iframe.addEventListener('load', processInitialJson);
+  // TODO: Initial data
+  // if (!hyperChatEnabled) {
+  //   return;
+  // }
+  // const processInitialJson = () => {
+  //   const scripts = document.querySelector('body').querySelectorAll('script');
+  //   scripts.forEach(script => {
+  //     const start = 'window["ytInitialData"] = ';
+  //     const text = script.text;
+  //     if (!text || !text.startsWith(start)) {
+  //       return;
+  //     }
+  //     const json = text.replace(start, '').slice(0, -1);
+  //     messageReceiveCallback(json, true);
+  //   });
+  // };
+  // const iframe = document.querySelector('#optichat');
+  // iframe.addEventListener('load', processInitialJson);
 };
 
 if (document.readyState === 'loading') {

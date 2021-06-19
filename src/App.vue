@@ -183,15 +183,14 @@ export default {
       // await this.$forceUpdate();
       this.scrollToBottom();
     });
-    window.addEventListener('message', async (d) => {
-      d = JSON.parse(JSON.stringify(d.data));
-      this.isAtBottom = this.checkIfBottom();
-      if (d['yt-player-video-progress'] && !this.interval) {
-        this.videoProgressUpdated(d);
-      } else if (d['yt-live-chat-set-dark-theme'] != null) {
-        this.$vuetify.theme.dark = d['yt-live-chat-set-dark-theme'];
-        localStorage.setItem('dark_theme', this.$vuetify.theme.dark.toString());
-      } else if (d.type === 'actionChunk') {
+    // eslint-disable-next-line no-undef
+    chrome.tabs.getCurrent((tab) => {
+      // eslint-disable-next-line no-undef
+      const port = chrome.tabs.connect(tab.id);
+      port.onMessage.addListener((d) => {
+        if (d.type !== 'actionChunk') {
+          return;
+        }
         if (!d.isReplay && !this.interval) {
           const runQueue = () => {
             this.videoProgressUpdated({
@@ -235,6 +234,17 @@ export default {
         if (wasBottom) {
           this.$nextTick(this.scrollToBottom);
         }
+      });
+    });
+
+    window.addEventListener('message', async (d) => {
+      d = JSON.parse(JSON.stringify(d.data));
+      this.isAtBottom = this.checkIfBottom();
+      if (d['yt-player-video-progress'] && !this.interval) {
+        this.videoProgressUpdated(d);
+      } else if (d['yt-live-chat-set-dark-theme'] != null) {
+        this.$vuetify.theme.dark = d['yt-live-chat-set-dark-theme'];
+        localStorage.setItem('dark_theme', this.$vuetify.theme.dark.toString());
       }
     });
     window.parent.postMessage(
