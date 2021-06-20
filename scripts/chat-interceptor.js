@@ -1,4 +1,4 @@
-import { parseChatResponse } from './parse-chat.js';
+import { parseChatResponse } from './chat-parser.js';
 
 const connectedPorts = [];
 // eslint-disable-next-line no-undef
