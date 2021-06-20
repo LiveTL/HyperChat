@@ -183,62 +183,66 @@ export default {
       // await this.$forceUpdate();
       this.scrollToBottom();
     });
-    // eslint-disable-next-line no-undef
-    chrome.tabs.getCurrent((tab) => {
-      // eslint-disable-next-line no-undef
-      const port = chrome.tabs.connect(tab.id);
-      port.onMessage.addListener((d) => {
-        if (d.type !== 'actionChunk') {
-          return;
-        }
-        if (!d.isReplay && !this.interval) {
-          const runQueue = () => {
-            this.videoProgressUpdated({
-              'yt-player-video-progress': Date.now() / 1000
+
+    window.addEventListener('message', async (message) => {
+      const data = message.data;
+      if (data.type === 'frameInfo') {
+        // eslint-disable-next-line no-undef
+        const port = chrome.runtime.connect();
+        port.postMessage({ type: 'registerClient', frameInfo: data.frameInfo });
+        port.onMessage.addListener((payload) => {
+          if (payload.type !== 'actionChunk') {
+            return;
+          }
+          if (!payload.isReplay && !this.interval) {
+            const runQueue = () => {
+              this.videoProgressUpdated({
+                'yt-player-video-progress': Date.now() / 1000
+              });
+            };
+            this.interval = setInterval(runQueue, 250);
+            runQueue();
+            runQueue();
+          }
+          const messages = [];
+          const bonks = [];
+          const deletions = [];
+          payload.actions.forEach((action) => {
+            if (action.type === 'addChatItem') {
+              messages.push(action.item);
+            } else if (action.type === 'authorBonked') {
+              bonks.push(action.item);
+            } else if (action.type === 'messageDeleted') {
+              deletions.push(action.item);
+            }
+          });
+          for (const message of messages.sort(
+            (m1, m2) => m1.showtime - m2.showtime
+          )) {
+            let timestamp = (Date.now() + message.showtime) / 1000;
+            if (message.isReplay || message.isInitial) timestamp = message.showtime;
+            this.checkDeleted(message, bonks, deletions);
+            this.queued.push({
+              timestamp,
+              message: message
             });
-          };
-          this.interval = setInterval(runQueue, 250);
-          runQueue();
-          runQueue();
-        }
-        const messages = [];
-        const bonks = [];
-        const deletions = [];
-        d.actions.forEach((action) => {
-          if (action.type === 'addChatItem') {
-            messages.push(action.item);
-          } else if (action.type === 'authorBonked') {
-            bonks.push(action.item);
-          } else if (action.type === 'messageDeleted') {
-            deletions.push(action.item);
+          }
+          if (!bonks.length && !deletions.length) {
+            return;
+          }
+          const wasBottom = this.checkIfBottom();
+          this.messages.forEach((message) =>
+            this.checkDeleted(message, bonks, deletions)
+          );
+          if (wasBottom) {
+            this.$nextTick(this.scrollToBottom);
           }
         });
-        for (const message of messages.sort(
-          (m1, m2) => m1.showtime - m2.showtime
-        )) {
-          let timestamp = (Date.now() + message.showtime) / 1000;
-          if (d.isReplay || d.isInitial) timestamp = message.showtime;
-          this.checkDeleted(message, bonks, deletions);
-          this.queued.push({
-            timestamp,
-            message: message
-          });
-        }
-        if (!bonks.length && !deletions.length) {
-          return;
-        }
-        const wasBottom = this.checkIfBottom();
-        this.messages.forEach((message) =>
-          this.checkDeleted(message, bonks, deletions)
-        );
-        if (wasBottom) {
-          this.$nextTick(this.scrollToBottom);
-        }
-      });
-    });
 
-    window.addEventListener('message', async (d) => {
-      d = JSON.parse(JSON.stringify(d.data));
+        return;
+      }
+
+      const d = JSON.parse(JSON.stringify(data));
       this.isAtBottom = this.checkIfBottom();
       if (d['yt-player-video-progress'] && !this.interval) {
         this.videoProgressUpdated(d);

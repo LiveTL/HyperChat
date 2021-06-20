@@ -1,14 +1,21 @@
 import { parseChatResponse } from './chat-parser.js';
 
-const connectedPorts = [];
 // eslint-disable-next-line no-undef
-chrome.runtime.onConnect.addListener((port) => {
-  connectedPorts.push(port);
+const port = chrome.runtime.connect();
+let frameInfo;
+port.onMessage.addListener((message) => {
+  if (message.type === 'interceptorRegistered') {
+    frameInfo = message.frameInfo;
+    console.debug('Recieved frameInfo', frameInfo);
+  }
 });
+port.postMessage({ type: 'registerInterceptor' });
 
 const messageReceiveCallback = (response, isInitial = false) => {
-  connectedPorts.forEach((port) => {
-    port.postMessage(parseChatResponse(response, isInitial));
+  port.postMessage({
+    type: 'sendToClients',
+    frameInfo,
+    payload: parseChatResponse(response, isInitial)
   });
 };
 
@@ -36,6 +43,22 @@ const chatLoaded = () => {
 
   window.addEventListener('messageReceive', d => messageReceiveCallback(d.detail));
   document.body.appendChild(script);
+
+  // TODO: Initial data
+  // const processInitialJson = () => {
+  //   const scripts = document.querySelector('body').querySelectorAll('script');
+  //   scripts.forEach(script => {
+  //     const start = 'window["ytInitialData"] = ';
+  //     const text = script.text;
+  //     if (!text || !text.startsWith(start)) {
+  //       return;
+  //     }
+  //     const json = text.replace(start, '').slice(0, -1);
+  //     messageReceiveCallback(json, true);
+  //   });
+  // };
+  // const iframe = document.querySelector('#optichat');
+  // iframe.addEventListener('load', processInitialJson);
 };
 
 if (document.readyState === 'loading') {

@@ -431,24 +431,22 @@ const chatLoaded = async () => {
     }
   });
 
-  // TODO: Initial data
-  // if (!hyperChatEnabled) {
-  //   return;
-  // }
-  // const processInitialJson = () => {
-  //   const scripts = document.querySelector('body').querySelectorAll('script');
-  //   scripts.forEach(script => {
-  //     const start = 'window["ytInitialData"] = ';
-  //     const text = script.text;
-  //     if (!text || !text.startsWith(start)) {
-  //       return;
-  //     }
-  //     const json = text.replace(start, '').slice(0, -1);
-  //     messageReceiveCallback(json, true);
-  //   });
-  // };
-  // const iframe = document.querySelector('#optichat');
-  // iframe.addEventListener('load', processInitialJson);
+  if (!hyperChatEnabled) {
+    return;
+  }
+
+  // eslint-disable-next-line no-undef
+  const port = chrome.runtime.connect();
+  port.onMessage.addListener((message) => {
+    if (message.type === 'queryResult') {
+      const frameInfo = message.frameInfo;
+      const iframe = document.querySelector('#optichat');
+      iframe.addEventListener('load', () => {
+        iframe.contentWindow.postMessage({ type: 'frameInfo', frameInfo }, '*');
+      });
+    }
+  });
+  port.postMessage({ type: 'queryFrameInfo' });
 };
 
 if (document.readyState === 'loading') {
