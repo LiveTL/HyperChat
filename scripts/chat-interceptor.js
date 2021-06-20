@@ -1,8 +1,12 @@
 import { parseChatResponse } from './parse-chat.js';
 
 const connectedPorts = [];
+// eslint-disable-next-line no-undef
+chrome.runtime.onConnect.addListener((port) => {
+  connectedPorts.push(port);
+});
 
-export const messageReceiveCallback = (response, isInitial = false) => {
+const messageReceiveCallback = (response, isInitial = false) => {
   connectedPorts.forEach((port) => {
     port.postMessage(parseChatResponse(response, isInitial));
   });
@@ -29,11 +33,6 @@ const chatLoaded = () => {
       return result;
     };
   `;
-
-  // eslint-disable-next-line no-undef
-  chrome.runtime.onConnect.addListener((port) => {
-    connectedPorts.push(port);
-  });
 
   window.addEventListener('messageReceive', d => messageReceiveCallback(d.detail));
   document.body.appendChild(script);

@@ -59,7 +59,7 @@ const parseMessageRuns = (runs) => {
 };
 
 const parseAddChatItemAction = (action) => {
-  console.log(action);
+  // console.log(action);
   const actionItem = action.item;
   if (!actionItem) {
     return false;
