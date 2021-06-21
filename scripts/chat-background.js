@@ -1,4 +1,5 @@
-/* eslint-disable no-undef */
+const isLiveTL = false;
+// DO NOT EDIT THE ABOVE LINE. It is updated by webpack.
 /** @typedef {{onMessage, postMessage, onDisconnect, sender?, name?}} Port */
 /** @typedef {{frameInfo: FrameInfo, port: Port, clients: Port[]}} Interceptor */
 
@@ -26,6 +27,14 @@ class FrameInfo {
   }
 }
 
+chrome.browserAction.onClicked.addListener(() => {
+  if (isLiveTL) {
+    chrome.tabs.create({ url: 'https://livetl.app' });
+  } else {
+    chrome.tabs.create({ url: chrome.runtime.getURL('index.html#/review') });
+  }
+});
+
 // const sendMessageAsync = (data) => {
 //   // eslint-disable-next-line no-unused-vars
 //   return new Promise((resolve, reject) => chrome.runtime.sendMessage(data, resolve));
@@ -49,7 +58,7 @@ class FrameInfo {
 const queryFrameInfo = (port) => {
   const sender = port.sender;
   if (!sender) {
-    console.debug('Port has no sender', { port });
+    console.debug('Port has no sender, query failed', { port });
     return;
   }
 
@@ -67,7 +76,7 @@ const queryFrameInfo = (port) => {
  */
 const registerInterceptor = (port) => {
   if (!port.sender) {
-    console.debug('Interceptor port has no sender', { port });
+    console.debug('Interceptor port has no sender, not registering', { port });
     return;
   }
   const tabId = port.sender.tab.id;
@@ -77,7 +86,7 @@ const registerInterceptor = (port) => {
   if (interceptors.some(
     (interceptor) => interceptor.frameInfo.compare(frameInfo)
   )) {
-    console.debug('Interceptor already registered', { port, interceptors });
+    console.debug('Interceptor already registered, not registering', { port, interceptors });
     return;
   }
 
@@ -152,7 +161,10 @@ const registerClient = (port, frameInfo) => {
  */
 const sendToClients = (senderPort, frameInfo, payload) => {
   if (!frameInfo || !payload) {
-    console.debug('Invalid message', { senderPort, frameInfo, payload });
+    console.debug(
+      'Invalid message, not sending to clients',
+      { senderPort, frameInfo, payload }
+    );
     return;
   }
 
@@ -168,13 +180,8 @@ const sendToClients = (senderPort, frameInfo, payload) => {
 
   if (!sent) {
     console.debug(
-      'Interceptor not registered',
-      {
-        interceptors,
-        senderPort,
-        frameInfo,
-        payload
-      }
+      'Interceptor not registered, no clients to send to',
+      { interceptors, senderPort, frameInfo, payload }
     );
   }
 };

@@ -1,6 +1,5 @@
 import { parseChatResponse } from './chat-parser.js';
 
-// eslint-disable-next-line no-undef
 const port = chrome.runtime.connect();
 let frameInfo;
 port.onMessage.addListener((message) => {

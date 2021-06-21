@@ -1,5 +1,6 @@
-import { getWAR } from '@/modules/war.js';
-// above line is replaced for LiveTL. DO NOT EDIT.
+const isLiveTL = false;
+// DO NOT EDIT THE ABOVE LINE. It is updated by webpack.
+const getWAR = path => chrome.runtime.getURL(path);
 
 for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
   window.addEventListener(eventName, e => e.stopImmediatePropagation(), true);
@@ -360,8 +361,7 @@ const chatLoaded = async () => {
       hyperChatEnabled ? 'false' : 'true');
     location.reload();
   });
-  // eslint-disable-next-line no-undef
-  button.innerHTML = `<img src="${chrome.runtime.getURL((window.isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png')}" /> HC`;
+  button.innerHTML = `<img src="${chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png')}" /> HC`;
   let messageDisplay = {
     contentWindow: {
       postMessage: () => { }
@@ -395,11 +395,11 @@ const chatLoaded = async () => {
       }, 100);
     });
     console.debug('Found definition of getWAR');
-    const source = await getWAR(window.isLiveTL ? 'hyperchat/index.html' : 'index.html');
+    const source = await getWAR(isLiveTL ? 'hyperchat/index.html' : 'index.html');
     elem.outerHTML = `
-    <iframe id='optichat' src='${source}${(!window.isAndroid && window.isLiveTL ? '#isLiveTL' : '')}' style='border: 0px; width: 100%; height: 100%'></iframe>
+    <iframe id='optichat' src='${source}${(!window.isAndroid && isLiveTL ? '#isLiveTL' : '')}' style='border: 0px; width: 100%; height: 100%'></iframe>
     `;
-    if (window.isFirefox || window.isAndroid || window.isLiveTL) {
+    if (window.isFirefox || window.isAndroid || isLiveTL) {
       const frame = document.querySelector('#optichat');
       const scale = 0.8;
       const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
@@ -435,18 +435,20 @@ const chatLoaded = async () => {
     return;
   }
 
-  // eslint-disable-next-line no-undef
-  const port = chrome.runtime.connect();
-  port.onMessage.addListener((message) => {
-    if (message.type === 'queryResult') {
-      const frameInfo = message.frameInfo;
-      const iframe = document.querySelector('#optichat');
-      iframe.addEventListener('load', () => {
-        iframe.contentWindow.postMessage({ type: 'frameInfo', frameInfo }, '*');
-      });
-    }
+  const iframe = document.querySelector('#optichat');
+  // Note: iframe readyState is always 'complete' even when it shouldn't be
+  iframe.addEventListener('load', () => {
+    const port = chrome.runtime.connect();
+    port.onMessage.addListener((message) => {
+      if (message.type === 'queryResult') {
+        iframe.contentWindow.postMessage(
+          { type: 'frameInfo', frameInfo: message.frameInfo }, '*'
+        );
+        port.disconnect();
+      }
+    });
+    port.postMessage({ type: 'queryFrameInfo' });
   });
-  port.postMessage({ type: 'queryFrameInfo' });
 };
 
 if (document.readyState === 'loading') {
