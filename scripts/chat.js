@@ -1,6 +1,7 @@
 const isLiveTL = false;
 // DO NOT EDIT THE ABOVE LINE. It is updated by webpack.
 const getWAR = path => chrome.runtime.getURL(path);
+const isFirefox = navigator.userAgent.includes('Firefox');
 
 for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
   window.addEventListener(eventName, e => e.stopImmediatePropagation(), true);
@@ -399,7 +400,7 @@ const chatLoaded = async () => {
     elem.outerHTML = `
     <iframe id='optichat' src='${source}${(!window.isAndroid && isLiveTL ? '#isLiveTL' : '')}' style='border: 0px; width: 100%; height: 100%'></iframe>
     `;
-    if (window.isFirefox || window.isAndroid || isLiveTL) {
+    if (isFirefox || isLiveTL) {
       const frame = document.querySelector('#optichat');
       const scale = 0.8;
       const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
