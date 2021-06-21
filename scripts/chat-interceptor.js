@@ -1,5 +1,6 @@
 import { parseChatResponse } from './chat-parser.js';
 
+/** Register interceptor */
 const port = chrome.runtime.connect();
 let frameInfo;
 port.onMessage.addListener((message) => {
@@ -10,6 +11,12 @@ port.onMessage.addListener((message) => {
 });
 port.postMessage({ type: 'registerInterceptor' });
 
+/**
+ * Parse and send YTC JSON response.
+ *
+ * @param {*} response YTC JSON response
+ * @param {boolean} [isInitial=false]
+ */
 const messageReceiveCallback = (response, isInitial = false) => {
   port.postMessage({
     type: 'sendToClients',
@@ -18,11 +25,13 @@ const messageReceiveCallback = (response, isInitial = false) => {
   });
 };
 
+// FIXME: VOD chat does not work at the moment.
 const chatLoaded = () => {
+  /** Inject interceptor script */
   const script = document.createElement('script');
   script.innerHTML = `
-    for (event_name of ["visibilitychange", "webkitvisibilitychange", "blur"]) {
-      window.addEventListener(event_name, event => {
+    for (eventName of ["visibilitychange", "webkitvisibilitychange", "blur"]) {
+      window.addEventListener(eventName, event => {
         event.stopImmediatePropagation();
       }, true);
     }
@@ -39,7 +48,6 @@ const chatLoaded = () => {
       return result;
     };
   `;
-
   window.addEventListener('messageReceive', d => messageReceiveCallback(d.detail));
   document.body.appendChild(script);
 
@@ -60,6 +68,10 @@ const chatLoaded = () => {
   // iframe.addEventListener('load', processInitialJson);
 };
 
+/**
+ * Load on DOMContentLoaded or later.
+ * Does not matter unless run_at is specified in extensions' manifest.
+ */
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', chatLoaded);
 } else {

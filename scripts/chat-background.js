@@ -186,6 +186,7 @@ const sendToClients = (senderPort, frameInfo, payload) => {
   }
 };
 
+/** Start background messaging */
 chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((message) => {
     if (!message.type) {
