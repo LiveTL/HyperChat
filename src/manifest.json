@@ -1,5 +1,6 @@
 {
   "manifest_version": 2,
+  "content_security_policy": "script-src 'self' https://www.youtube.com 'unsafe-eval'; object-src 'self'",
   "name": "__MSG_extName__",
   "homepage_url": "http://localhost:8080/",
   "description": "YouTube chat, but it's fast and sleek!",
