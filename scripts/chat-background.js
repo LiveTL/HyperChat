@@ -35,21 +35,6 @@ chrome.browserAction.onClicked.addListener(() => {
   }
 });
 
-// const sendMessageAsync = (data) => {
-//   // eslint-disable-next-line no-unused-vars
-//   return new Promise((resolve, reject) => chrome.runtime.sendMessage(data, resolve));
-// };
-
-// export const getFrameInfoAsync = async () => {
-//   return await sendMessageAsync({ type: 'getFrameInfo' });
-// };
-
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-//   if (request.type === 'getFrameInfo') {
-//     sendResponse(new FrameInfo(sender.tab.id, sender.frameId));
-//   }
-// });
-
 /**
  * Respond with sender's frame info.
  *
@@ -171,6 +156,11 @@ const sendToClients = (senderPort, frameInfo, payload) => {
   const sent = interceptors.some((interceptor) => {
     if (!interceptor.frameInfo.compare(frameInfo)) {
       return false;
+    }
+
+    if (interceptor.clients.length < 1) {
+      console.debug('No clients to send to', { interceptor, payload });
+      return true;
     }
 
     interceptor.clients.forEach((port) => port.postMessage(payload));

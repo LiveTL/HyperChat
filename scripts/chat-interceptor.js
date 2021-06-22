@@ -25,7 +25,6 @@ const messageReceiveCallback = (response, isInitial = false) => {
   });
 };
 
-// FIXME: VOD chat does not work at the moment.
 const chatLoaded = () => {
   /** Inject interceptor script */
   const script = document.createElement('script');

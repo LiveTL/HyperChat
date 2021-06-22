@@ -198,6 +198,7 @@ export default {
         runQueue();
         runQueue();
       }
+      /** Separate each action */
       const messages = [];
       const bonks = [];
       const deletions = [];
@@ -210,17 +211,19 @@ export default {
           deletions.push(action.item);
         }
       });
+      /** Sort and add messages to queue */
       for (const message of messages.sort(
         (m1, m2) => m1.showtime - m2.showtime
       )) {
         let timestamp = (Date.now() + message.showtime) / 1000;
-        if (message.isReplay || message.isInitial) timestamp = message.showtime;
+        if (payload.isReplay || payload.isInitial) timestamp = message.showtime;
         this.checkDeleted(message, bonks, deletions);
         this.queued.push({
           timestamp,
           message: message
         });
       }
+      /** Handle deletions and bonks */
       if (!bonks.length && !deletions.length) {
         return;
       }
@@ -235,6 +238,7 @@ export default {
 
     window.addEventListener('message', async (message) => {
       const data = message.data;
+      /** Connect to background messaging as client */
       if (data.type === 'frameInfo') {
         const port = chrome.runtime.connect();
         port.postMessage({ type: 'registerClient', frameInfo: data.frameInfo });
@@ -242,7 +246,7 @@ export default {
           processMessagePayload(payload);
         });
       }
-
+      /** Handle YT values */
       const d = JSON.parse(JSON.stringify(data));
       this.isAtBottom = this.checkIfBottom();
       if (d['yt-player-video-progress'] && !this.interval) {
