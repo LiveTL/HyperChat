@@ -247,8 +247,10 @@ const parseMessageDeletedAction = (action) => {
  */
 
 /**
- * @param {ytcResponse} response
- * @param {boolean} [isInitial=false]
+ * Parse YTC JSON. Returns actionChunk payload.
+ *
+ * @param {ytcResponse} response JSON response.
+ * @param {boolean} [isInitial=false] Whether JSON is initial data.
  */
 export const parseChatResponse = (response, isInitial = false) => {
   response = JSON.parse(response);

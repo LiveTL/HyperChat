@@ -1,31 +1,11 @@
 const isLiveTL = false;
 // DO NOT EDIT THE ABOVE LINE. It is updated by webpack.
 /** @typedef {{onMessage, postMessage, onDisconnect, sender?, name?}} Port */
-/** @typedef {{frameInfo: FrameInfo, port: Port, clients: Port[]}} Interceptor */
+/** @typedef {{frameInfo: FrameInfo, port: Port, clients: Port[], initialData}} Interceptor */
+/** @typedef {{tabId: number, frameId: number}} FrameInfo */
 
 /** @type {Interceptor[]} */
 const interceptors = [];
-
-/** Tab and frame info of an interceptor. */
-class FrameInfo {
-  /**
-   * @param {number} tabId
-   * @param {number} frameId
-   */
-  constructor(tabId, frameId) {
-    this.tabId = tabId;
-    this.frameId = frameId;
-  }
-
-  /**
-   * @param {FrameInfo} frameInfo
-   * @return {boolean} True if frameInfo matches `this`.
-   */
-  compare(frameInfo) {
-    return this.tabId === frameInfo.tabId &&
-      this.frameId === frameInfo.frameId;
-  }
-}
 
 chrome.browserAction.onClicked.addListener(() => {
   if (isLiveTL) {
@@ -34,6 +14,16 @@ chrome.browserAction.onClicked.addListener(() => {
     chrome.tabs.create({ url: chrome.runtime.getURL('index.html#/review') });
   }
 });
+
+/**
+ * @param {FrameInfo} a
+ * @param {FrameInfo} b
+ * @return {boolean} True if both FrameInfo matches.
+ */
+const compareFrameInfo = (a, b) => {
+  if (!a || !b) return false;
+  return a.tabId === b.tabId && a.frameId === b.frameId;
+};
 
 /**
  * Respond with sender's frame info.
@@ -47,7 +37,10 @@ const queryFrameInfo = (port) => {
     return;
   }
 
-  const frameInfo = new FrameInfo(port.sender.tab.id, port.sender.frameId);
+  const frameInfo = {
+    tabId: port.sender.tab.id,
+    frameId: port.sender.frameId
+  };
 
   port.postMessage({ type: 'queryResult', frameInfo });
   console.debug('Query successful', { port, frameInfo });
@@ -64,30 +57,39 @@ const registerInterceptor = (port) => {
     console.debug('Interceptor port has no sender, not registering', { port });
     return;
   }
-  const tabId = port.sender.tab.id;
-  const frameId = port.sender.frameId;
-  const frameInfo = new FrameInfo(tabId, frameId);
+  const frameInfo = {
+    tabId: port.sender.tab.id,
+    frameId: port.sender.frameId
+  };
 
+  /** Check if interceptor already registered */
   if (interceptors.some(
-    (interceptor) => interceptor.frameInfo.compare(frameInfo)
+    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
   )) {
-    console.debug('Interceptor already registered, not registering', { port, interceptors });
+    console.debug(
+      'Interceptor already registered, not registering',
+      { port, interceptors }
+    );
     return;
   }
 
-  // Unregister interceptor when port disconnects
+  /** Unregister interceptor when port disconnects */
   port.onDisconnect.addListener(() => {
     const i = interceptors.findIndex(
-      (interceptor) => interceptor.frameInfo.compare(frameInfo)
+      (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
     );
     if (i < 0) {
-      console.debug('Failed to unregister interceptor', { port, interceptors });
+      console.debug(
+        'Failed to unregister interceptor',
+        { port, interceptors }
+      );
       return;
     }
     interceptors.splice(i, 1);
     console.debug('Unregister intercepter successful', { port, interceptors });
   });
 
+  /** Add interceptor to array */
   interceptors.push({ frameInfo: frameInfo, port: port, clients: [] });
   port.postMessage({ type: 'interceptorRegistered', frameInfo: frameInfo });
   console.debug('Register interceptor successful', { frameInfo });
@@ -95,45 +97,46 @@ const registerInterceptor = (port) => {
 
 /**
  * Register a new client to an interceptor.
- * Client port MUST have a name.
  *
  * @param {Port} port
  * @param {FrameInfo} frameInfo
+ * @param {boolean} [getInitialData]
  */
-const registerClient = (port, frameInfo) => {
-  if (!port.name || port.name === '') {
-    port.name = `${Date.now()}${Math.random()}`;
-    console.debug('Gave client port a name', { port, frameInfo });
-    // return;
+const registerClient = (port, frameInfo, getInitialData) => {
+  const interceptor = interceptors.find(
+    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
+  );
+  if (!interceptor) {
+    console.debug(
+      'Failed to find interceptor, register client unsuccessful',
+      { interceptors, port, frameInfo }
+    );
+    return;
   }
 
-  const registered = interceptors.some((interceptor) => {
-    if (!interceptor.frameInfo.compare(frameInfo)) {
-      return false;
+  /** Assign pseudo-unique name */
+  port.name = `${Date.now()}${Math.random()}`;
+
+  /** Unregister client when port disconnects */
+  port.onDisconnect.addListener(() => {
+    const i = interceptor.clients.findIndex(
+      (clientPort) => clientPort.name === port.name
+    );
+    if (i < 0) {
+      console.debug('Failed to unregister client', { port, interceptor });
+      return;
     }
-
-    // Unregister client when port disconnects
-    port.onDisconnect.addListener(() => {
-      const i = interceptor.clients.findIndex(
-        (clientPort) => clientPort.name === port.name
-      );
-      if (i < 0) {
-        console.debug('Failed to unregister client', { port, interceptor });
-        return;
-      }
-      interceptor.clients.splice(i, 1);
-      console.debug('Unregister client successful', { port, interceptor });
-    });
-
-    interceptor.clients.push(port);
-    console.debug('Register client successful', { interceptor, port });
-    return true;
+    interceptor.clients.splice(i, 1);
+    console.debug('Unregister client successful', { port, interceptor });
   });
 
-  if (!registered) {
-    console.debug(
-      'Failed to register client', { interceptors, port, frameInfo }
-    );
+  /** Add client to array */
+  interceptor.clients.push(port);
+  console.debug('Register client successful', { port, interceptor });
+
+  if (getInitialData && interceptor.initialData) {
+    port.postMessage(interceptor.initialData);
+    console.debug('Sent initial data', { port, interceptor });
   }
 };
 
@@ -145,35 +148,54 @@ const registerClient = (port, frameInfo) => {
  * @param {any} payload
  */
 const sendToClients = (senderPort, frameInfo, payload) => {
-  if (!frameInfo || !payload) {
+  if (!payload) {
     console.debug(
-      'Invalid message, not sending to clients',
+      'Invalid payload, not sending to clients',
       { senderPort, frameInfo, payload }
     );
     return;
   }
-
-  const sent = interceptors.some((interceptor) => {
-    if (!interceptor.frameInfo.compare(frameInfo)) {
-      return false;
-    }
-
-    if (interceptor.clients.length < 1) {
-      console.debug('No clients to send to', { interceptor, payload });
-      return true;
-    }
-
-    interceptor.clients.forEach((port) => port.postMessage(payload));
-    console.debug('Sent to clients', { interceptor, payload });
-    return true;
-  });
-
-  if (!sent) {
+  const interceptor = interceptors.find(
+    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
+  );
+  if (!interceptor) {
     console.debug(
       'Interceptor not registered, no clients to send to',
       { interceptors, senderPort, frameInfo, payload }
     );
+    return;
   }
+
+  if (interceptor.clients.length < 1) {
+    console.debug('No clients to send to', { interceptor, payload });
+    return;
+  }
+
+  interceptor.clients.forEach((port) => port.postMessage(payload));
+  console.debug('Sent to clients', { interceptor, payload });
+};
+
+const setInitialData = (senderPort, frameInfo, payload) => {
+  if (!payload) {
+    console.debug(
+      'Invalid payload, not saving as initial data',
+      { senderPort, frameInfo, payload }
+    );
+    return;
+  }
+  const interceptor = interceptors.find(
+    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
+  );
+  if (!interceptor) {
+    console.debug(
+      'Interceptor not registered, not saving as initial data',
+      { interceptors, senderPort, frameInfo, payload }
+    );
+    return;
+  }
+
+  interceptor.initialData = payload;
+  console.debug('Saved initial data', { interceptor, payload });
 };
 
 /** Start background messaging */
@@ -192,12 +214,13 @@ chrome.runtime.onConnect.addListener((port) => {
         registerInterceptor(port);
         break;
       case 'registerClient':
-        registerClient(port, message.frameInfo);
+        registerClient(port, message.frameInfo, message.getInitialData);
         break;
       case 'sendToClients':
-        sendToClients(
-          port, message.frameInfo, message.payload
-        );
+        sendToClients(port, message.frameInfo, message.payload);
+        break;
+      case 'setInitialData':
+        setInitialData(port, message.frameInfo, message.payload);
         break;
       default:
         console.debug('Unknown message type', port, message);

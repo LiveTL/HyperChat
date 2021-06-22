@@ -241,7 +241,11 @@ export default {
       /** Connect to background messaging as client */
       if (data.type === 'frameInfo') {
         const port = chrome.runtime.connect();
-        port.postMessage({ type: 'registerClient', frameInfo: data.frameInfo });
+        port.postMessage({
+          type: 'registerClient',
+          frameInfo: data.frameInfo,
+          getInitialData: true
+        });
         port.onMessage.addListener((payload) => {
           processMessagePayload(payload);
         });

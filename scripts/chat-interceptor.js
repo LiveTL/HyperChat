@@ -1,30 +1,5 @@
 import { parseChatResponse } from './chat-parser.js';
 
-/** Register interceptor */
-const port = chrome.runtime.connect();
-let frameInfo;
-port.onMessage.addListener((message) => {
-  if (message.type === 'interceptorRegistered') {
-    frameInfo = message.frameInfo;
-    console.debug('Recieved frameInfo', frameInfo);
-  }
-});
-port.postMessage({ type: 'registerInterceptor' });
-
-/**
- * Parse and send YTC JSON response.
- *
- * @param {*} response YTC JSON response
- * @param {boolean} [isInitial=false]
- */
-const messageReceiveCallback = (response, isInitial = false) => {
-  port.postMessage({
-    type: 'sendToClients',
-    frameInfo,
-    payload: parseChatResponse(response, isInitial)
-  });
-};
-
 const chatLoaded = () => {
   /** Inject interceptor script */
   const script = document.createElement('script');
@@ -47,24 +22,43 @@ const chatLoaded = () => {
       return result;
     };
   `;
-  window.addEventListener('messageReceive', d => messageReceiveCallback(d.detail));
   document.body.appendChild(script);
 
-  // TODO: Initial data
-  // const processInitialJson = () => {
-  //   const scripts = document.querySelector('body').querySelectorAll('script');
-  //   scripts.forEach(script => {
-  //     const start = 'window["ytInitialData"] = ';
-  //     const text = script.text;
-  //     if (!text || !text.startsWith(start)) {
-  //       return;
-  //     }
-  //     const json = text.replace(start, '').slice(0, -1);
-  //     messageReceiveCallback(json, true);
-  //   });
-  // };
-  // const iframe = document.querySelector('#optichat');
-  // iframe.addEventListener('load', processInitialJson);
+  /** Register interceptor */
+  const port = chrome.runtime.connect();
+  port.onMessage.addListener((message) => {
+    if (message.type === 'interceptorRegistered') {
+      const frameInfo = message.frameInfo;
+      console.debug('Recieved frameInfo', frameInfo);
+
+      /** Send JSON response to clients */
+      window.addEventListener('messageReceive', d => {
+        port.postMessage({
+          type: 'sendToClients',
+          frameInfo,
+          payload: parseChatResponse(d.detail)
+        });
+      });
+
+      /** Handle initial data */
+      const scripts = document.querySelector('body').querySelectorAll('script');
+      for (const script of scripts) {
+        const start = 'window["ytInitialData"] = ';
+        const text = script.text;
+        if (!text || !text.startsWith(start)) {
+          continue;
+        }
+        const json = text.replace(start, '').slice(0, -1);
+        port.postMessage({
+          type: 'setInitialData',
+          frameInfo,
+          payload: parseChatResponse(json, true)
+        });
+        break;
+      }
+    }
+  });
+  port.postMessage({ type: 'registerInterceptor' });
 };
 
 /**
