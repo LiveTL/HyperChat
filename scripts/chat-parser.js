@@ -291,6 +291,7 @@ export const parseChatResponse = (response, isInitial = false) => {
     return;
   }
 
+  // TODO: We can probably remove one level of iteration here
   return {
     type: 'actionChunk',
     actions: parsedActions,

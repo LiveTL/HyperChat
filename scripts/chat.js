@@ -1,5 +1,7 @@
+import { getFrameInfoAsync } from './chat-utils.js';
+
 const isLiveTL = false;
-// DO NOT EDIT THE ABOVE LINE. It is updated by webpack.
+// DO NOT EDIT THE ABOVE LINE, it will be updated by webpack.
 const isFirefox = navigator.userAgent.includes('Firefox');
 
 const chatLoaded = () => {
@@ -421,18 +423,12 @@ const chatLoaded = () => {
   });
 
   // Note: iframe readyState is always 'complete' even when it shouldn't be
-  optichat.addEventListener('load', () => {
+  optichat.addEventListener('load', async () => {
     /** Forward frameInfo to optichat for background messaging */
-    const port = chrome.runtime.connect();
-    port.onMessage.addListener((message) => {
-      if (message.type === 'queryResult') {
-        optichat.contentWindow.postMessage(
-          { type: 'frameInfo', frameInfo: message.frameInfo }, '*'
-        );
-        port.disconnect();
-      }
-    });
-    port.postMessage({ type: 'queryFrameInfo' });
+    const frameInfo = await getFrameInfoAsync();
+    optichat.contentWindow.postMessage(
+      { type: 'frameInfo', frameInfo: frameInfo }, '*'
+    );
   });
 };
 

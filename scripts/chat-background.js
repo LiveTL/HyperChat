@@ -7,13 +7,7 @@ const isLiveTL = false;
 /** @type {Interceptor[]} */
 const interceptors = [];
 
-chrome.browserAction.onClicked.addListener(() => {
-  if (isLiveTL) {
-    chrome.tabs.create({ url: 'https://livetl.app' });
-  } else {
-    chrome.tabs.create({ url: chrome.runtime.getURL('index.html#/review') });
-  }
-});
+// TODO: Keep clients when interceptor reloads (frameId is most likely still the same)
 
 /**
  * @param {FrameInfo} a
@@ -23,27 +17,6 @@ chrome.browserAction.onClicked.addListener(() => {
 const compareFrameInfo = (a, b) => {
   if (!a || !b) return false;
   return a.tabId === b.tabId && a.frameId === b.frameId;
-};
-
-/**
- * Respond with sender's frame info.
- *
- * @param {Port} port
- */
-const queryFrameInfo = (port) => {
-  const sender = port.sender;
-  if (!sender) {
-    console.debug('Port has no sender, query failed', { port });
-    return;
-  }
-
-  const frameInfo = {
-    tabId: port.sender.tab.id,
-    frameId: port.sender.frameId
-  };
-
-  port.postMessage({ type: 'queryResult', frameInfo });
-  console.debug('Query successful', { port, frameInfo });
 };
 
 /**
@@ -198,7 +171,7 @@ const setInitialData = (senderPort, frameInfo, payload) => {
   console.debug('Saved initial data', { interceptor, payload });
 };
 
-/** Start background messaging */
+/** Handle long-lived background messaging */
 chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((message) => {
     if (!message.type) {
@@ -207,9 +180,6 @@ chrome.runtime.onConnect.addListener((port) => {
     }
 
     switch (message.type) {
-      case 'queryFrameInfo':
-        queryFrameInfo(port);
-        break;
       case 'registerInterceptor':
         registerInterceptor(port);
         break;
@@ -227,6 +197,29 @@ chrome.runtime.onConnect.addListener((port) => {
         break;
     }
   });
+});
+
+/** Handle browser action click */
+chrome.browserAction.onClicked.addListener(() => {
+  if (isLiveTL) {
+    chrome.tabs.create({ url: 'https://livetl.app' });
+  } else {
+    chrome.tabs.create({ url: chrome.runtime.getURL('index.html#/review') });
+  }
+});
+
+/** Handle one-time requests */
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === 'getFrameInfo') {
+    sendResponse({ tabId: sender.tab.id, frameId: sender.frameId });
+  } else if (request.type === 'createPopup') {
+    chrome.windows.create({
+      url: request.url,
+      type: 'popup',
+      height: 300,
+      width: 600
+    });
+  }
 });
 
 // Interceptor register - save frameInfo
