@@ -1,6 +1,9 @@
 import { parseChatResponse } from './chat-parser.js';
 
 const chatLoaded = () => {
+  /** Workaround for https://github.com/LiveTL/HyperChat/issues/12 */
+  if (chrome.windows) return;
+
   /** Inject interceptor script */
   const script = document.createElement('script');
   script.innerHTML = `

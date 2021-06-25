@@ -5,6 +5,9 @@ const isLiveTL = false;
 const isFirefox = navigator.userAgent.includes('Firefox');
 
 const chatLoaded = () => {
+  /** Workaround for https://github.com/LiveTL/HyperChat/issues/12 */
+  if (chrome.windows) return;
+
   if (document.querySelector('.toggleButton')) {
     console.debug('HC Button already injected.');
     return;

@@ -171,56 +171,60 @@ const setInitialData = (senderPort, frameInfo, payload) => {
   console.debug('Saved initial data', { interceptor, payload });
 };
 
-/** Handle long-lived background messaging */
-chrome.runtime.onConnect.addListener((port) => {
-  port.onMessage.addListener((message) => {
-    if (!message.type) {
-      console.debug('Message has no type', port, message);
-      return;
-    }
+/** Workaround for https://github.com/LiveTL/HyperChat/issues/12 */
+if (!(window.location.href.includes(`${chrome.runtime.id}/index.html`))) {
+  console.log('Running in background');
+  /** Handle long-lived background messaging */
+  chrome.runtime.onConnect.addListener((port) => {
+    port.onMessage.addListener((message) => {
+      if (!message.type) {
+        console.debug('Message has no type', port, message);
+        return;
+      }
 
-    switch (message.type) {
-      case 'registerInterceptor':
-        registerInterceptor(port);
-        break;
-      case 'registerClient':
-        registerClient(port, message.frameInfo, message.getInitialData);
-        break;
-      case 'sendToClients':
-        sendToClients(port, message.frameInfo, message.payload);
-        break;
-      case 'setInitialData':
-        setInitialData(port, message.frameInfo, message.payload);
-        break;
-      default:
-        console.debug('Unknown message type', port, message);
-        break;
+      switch (message.type) {
+        case 'registerInterceptor':
+          registerInterceptor(port);
+          break;
+        case 'registerClient':
+          registerClient(port, message.frameInfo, message.getInitialData);
+          break;
+        case 'sendToClients':
+          sendToClients(port, message.frameInfo, message.payload);
+          break;
+        case 'setInitialData':
+          setInitialData(port, message.frameInfo, message.payload);
+          break;
+        default:
+          console.debug('Unknown message type', port, message);
+          break;
+      }
+    });
+  });
+
+  /** Handle browser action click */
+  chrome.browserAction.onClicked.addListener(() => {
+    if (isLiveTL) {
+      chrome.tabs.create({ url: 'https://livetl.app' });
+    } else {
+      chrome.tabs.create({ url: chrome.runtime.getURL('index.html#/review') });
     }
   });
-});
 
-/** Handle browser action click */
-chrome.browserAction.onClicked.addListener(() => {
-  if (isLiveTL) {
-    chrome.tabs.create({ url: 'https://livetl.app' });
-  } else {
-    chrome.tabs.create({ url: chrome.runtime.getURL('index.html#/review') });
-  }
-});
-
-/** Handle one-time requests */
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'getFrameInfo') {
-    sendResponse({ tabId: sender.tab.id, frameId: sender.frameId });
-  } else if (request.type === 'createPopup') {
-    chrome.windows.create({
-      url: request.url,
-      type: 'popup',
-      height: 300,
-      width: 600
-    });
-  }
-});
+  /** Handle one-time requests */
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.type === 'getFrameInfo') {
+      sendResponse({ tabId: sender.tab.id, frameId: sender.frameId });
+    } else if (request.type === 'createPopup') {
+      chrome.windows.create({
+        url: request.url,
+        type: 'popup',
+        height: 300,
+        width: 600
+      });
+    }
+  });
+}
 
 // Interceptor register - save frameInfo
 // Client register with matching frameInfo - save as clients of matching interceptor
