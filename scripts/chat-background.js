@@ -7,8 +7,6 @@ const isLiveTL = false;
 /** @type {Interceptor[]} */
 const interceptors = [];
 
-// TODO: Keep clients when interceptor reloads (frameId is most likely still the same)
-
 /**
  * @param {FrameInfo} a
  * @param {FrameInfo} b
@@ -17,6 +15,19 @@ const interceptors = [];
 const compareFrameInfo = (a, b) => {
   if (!a || !b) return false;
   return a.tabId === b.tabId && a.frameId === b.frameId;
+};
+
+/**
+ * If port and clients are empty, removes interceptor from array.
+ *
+ * @param {number} i Index of interceptor
+ */
+const cleanupInterceptor = (i) => {
+  const interceptor = interceptors[i];
+  if (!interceptor.port && interceptor.clients.length < 1) {
+    console.debug('Removing empty interceptor', { interceptor, interceptors });
+    interceptors.splice(i, 1);
+  }
 };
 
 /**
@@ -35,17 +46,6 @@ const registerInterceptor = (port) => {
     frameId: port.sender.frameId
   };
 
-  /** Check if interceptor already registered */
-  if (interceptors.some(
-    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
-  )) {
-    console.debug(
-      'Interceptor already registered, not registering',
-      { port, interceptors }
-    );
-    return;
-  }
-
   /** Unregister interceptor when port disconnects */
   port.onDisconnect.addListener(() => {
     const i = interceptors.findIndex(
@@ -58,14 +58,26 @@ const registerInterceptor = (port) => {
       );
       return;
     }
-    interceptors.splice(i, 1);
-    console.debug('Unregister intercepter successful', { port, interceptors });
+    interceptors[i].port = null;
+    cleanupInterceptor(i);
+    console.debug('Interceptor unregistered', { port, interceptors });
   });
 
   /** Add interceptor to array */
-  interceptors.push({ frameInfo: frameInfo, port: port, clients: [] });
+  const i = interceptors.findIndex(
+    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
+  );
+  if (i < 0) {
+    interceptors.push({ frameInfo: frameInfo, port: port, clients: [] });
+    console.debug('New interceptor registered', { port });
+  } else {
+    console.debug(
+      'Replaced existing interceptor port',
+      { oldPort: interceptors[i].port, port }
+    );
+    interceptors[i].port = port;
+  }
   port.postMessage({ type: 'interceptorRegistered', frameInfo: frameInfo });
-  console.debug('Register interceptor successful', { frameInfo });
 };
 
 /**
