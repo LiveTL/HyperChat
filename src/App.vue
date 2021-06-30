@@ -298,7 +298,7 @@ export default {
     checkIfBottom() {
       const el = this.$refs.content;
       if (!el) return true;
-      return Math.ceil(window.innerHeight + el.scrollTop) >= el.scrollHeight;
+      return Math.ceil(window.innerHeight + el.scrollTop) >= el.scrollHeight - 2;
     },
     scrollToBottom() {
       this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
