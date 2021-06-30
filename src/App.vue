@@ -238,13 +238,8 @@ export default {
         this.messages.forEach((message) =>
           this.checkDeleted(message, bonks, deletions)
         );
-        if (d.isInitial) {
-          this.queued.push({
-            message: {
-              welcomeMessage: true
-            },
-            timestamp: 69420
-          });
+        if ((d.isInitial || d.isReplay) && this.showWelcome === 'future') {
+          this.showWelcome = 'now';
         }
         if (wasBottom) {
           this.$nextTick(this.scrollToBottom);
@@ -295,6 +290,10 @@ export default {
         }
       }
       this.progress.previous = this.progress.current;
+      if (this.showWelcome === 'now') {
+        this.newMessage({ welcomeMessage: true });
+        this.showWelcome = 'done';
+      }
     },
     checkIfBottom() {
       const el = this.$refs.content;
