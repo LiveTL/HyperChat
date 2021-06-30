@@ -176,7 +176,8 @@ export default {
         previous: null
       },
       interval: null,
-      update: updates[updates.length - 1]
+      update: updates[updates.length - 1],
+      showWelcome: 'future'
     };
   },
   metaInfo: {
@@ -184,6 +185,7 @@ export default {
     titleTemplate: '%s | LiveTL'
   },
   created() {
+    this.$set(this.messages, 0, { welcomeMessage: true });
     window.addEventListener('resize', async () => {
       // await this.$nextTick();
       // await this.$forceUpdate();
@@ -191,6 +193,7 @@ export default {
     });
     window.addEventListener('message', async (d) => {
       d = JSON.parse(JSON.stringify(d.data));
+      // console.log(d);
       this.isAtBottom = this.checkIfBottom();
       if (d['yt-player-video-progress'] && !this.interval) {
         this.videoProgressUpdated(d);
@@ -230,9 +233,6 @@ export default {
             timestamp,
             message: message
           });
-        }
-        if (!bonks.length && !deletions.length) {
-          return;
         }
         const wasBottom = this.checkIfBottom();
         this.messages.forEach((message) =>
