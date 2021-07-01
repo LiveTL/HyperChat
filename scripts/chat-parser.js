@@ -30,23 +30,7 @@ const colorConversionTable = {
 };
 
 /**
- * Expected YTC message run object.
- *
- * @typedef {Object} ytcMessageRun
- * @property {string} [text]
- *
- * @property {Object} [navigationEndpoint]
- * @property {Object} navigationEndpoint.commandMetadata
- * @property {Object} navigationEndpoint.commandMetadata.webCommandMetadata
- * @property {string} navigationEndpoint.commandMetadata.webCommandMetadata.url
- *
- * @property {Object} [emoji]
- * @property {Object} emoji.image
- * @property {{url: string}[]} emoji.image.thumbnails
- */
-
-/**
- * @param {ytcMessageRun[]} runs
+ * @param {MessageRun[]} runs
  */
 const parseMessageRuns = (runs) => {
   /**
@@ -87,40 +71,6 @@ const parseMessageRuns = (runs) => {
   });
   return parsedRuns;
 };
-
-/**
- * Expected YTC addChatItemAction object.
- *
- * @typedef {Object} AddChatItemAction
- * @property {Object} item
- * @property {MessageRenderer} [item.liveChatTextMessageRenderer]
- * @property {MessageRenderer} [item.liveChatPaidMessageRenderer]
- * @property {MessageRenderer} [item.liveChatPaidStickerRenderer]
- */
-/**
- * Expected YTC message renderer object.
- *
- * @typedef {Object} MessageRenderer
- * @property {Object} message
- * @property {ytcMessageRun[]} message.runs
- * @property {{simpleText: string}} authorName
- * @property {AuthorBadge[]} [authorBadges]
- * @property {string} id
- * @property {string} timestampUsec Timestamp in microseconds
- * @property {string} authorExternalChannelId
- * @property {{simpleText: string}} [timestampText] Only available on VODs
- * @property {{simpleText: string}} [purchaseAmountText] Only available on superchats
- * @property {number} [bodyBackgroundColor] Only available on superchats
- */
-/**
- * Expected YTC author badge object.
- *
- * @typedef {Object} AuthorBadge
- * @property {Object} liveChatAuthorBadgeRenderer
- * @property {string} liveChatAuthorBadgeRenderer.tooltip
- * @property {Object} [liveChatAuthorBadgeRenderer.icon] Only available for verified, mods and owner
- * @property {string} liveChatAuthorBadgeRenderer.icon.iconType Unlocalized string
- */
 
 /**
  * @param {AddChatItemAction} action
@@ -175,15 +125,6 @@ const parseAddChatItemAction = (action) => {
 };
 
 /**
- * Expected YTC markChatItemsByAuthorAsDeletedAction object.
- *
- * @typedef {Object} AuthorBonkedAction
- * @property {Object} deletedStateMessage Message to replace deleted messages.
- * @property {ytcMessageRun[]} deletedStateMessage.runs
- * @property {string} externalChannelId ID of channel that was bonked.
- */
-
-/**
  * @param {AuthorBonkedAction} action
  */
 const parseAuthorBonkedAction = (action) => {
@@ -198,15 +139,6 @@ const parseAuthorBonkedAction = (action) => {
     }
   };
 };
-
-/**
- * Expected YTC markChatItemAsDeletedAction object.
- *
- * @typedef {Object} MessageDeletedAction
- * @property {Object} deletedStateMessage Message to replace deleted messages.
- * @property {ytcMessageRun[]} deletedStateMessage.runs
- * @property {string} targetItemId ID of message to be deleted.
- */
 
 /**
  * @param {MessageDeletedAction} action
@@ -225,31 +157,34 @@ const parseMessageDeletedAction = (action) => {
 };
 
 /**
- * Expected YTC JSON response.
- *
- * @typedef {Object} ytcResponse
- * @property {Object} [continuationContents]
- * @property {Object} continuationContents.liveChatContinuation
- * @property {ytcAction[]} [continuationContents.liveChatContinuation.actions]
- *
- * @property {Object} [contents]
- * @property {Object} contents.liveChatRenderer
- * @property {ytcAction[]} [contents.liveChatRenderer.actions]
+ * @param {AddPinnedAction} action
  */
-/**
- * Expected YTC action object.
- *
- * @typedef {Object} ytcAction
- * @property {AddChatItemAction} [addChatItemAction]
- * @property {{actions: ytcAction[]}} [replayChatItemAction]
- * @property {AuthorBonkedAction} [markChatItemsByAuthorAsDeletedAction]
- * @property {MessageDeletedAction} [markChatItemAsDeletedAction]
- */
+const parsePinnedMessageAction = (action) => {
+  const baseRenderer = action.bannerRenderer?.liveChatBannerRenderer;
+  if (!baseRenderer) {
+    return false;
+  }
+  const parsedContents = parseAddChatItemAction(
+    { item: baseRenderer.contents }
+  );
+  if (!parsedContents) {
+    return false;
+  }
+  return {
+    type: 'messagePinned',
+    item: {
+      header: parseMessageRuns(
+        baseRenderer.header.liveChatBannerHeaderRenderer.text.runs
+      ),
+      contents: parsedContents.item
+    }
+  };
+};
 
 /**
  * Parse YTC JSON. Returns actionChunk payload.
  *
- * @param {ytcResponse} response JSON response.
+ * @param {YtcResponse} response JSON response.
  * @param {boolean} [isInitial=false] Whether JSON is initial data.
  */
 export const parseChatResponse = (response, isInitial = false) => {
@@ -279,6 +214,12 @@ export const parseChatResponse = (response, isInitial = false) => {
       parsedAction = parseMessageDeletedAction(
         action.markChatItemAsDeletedAction
       );
+    } else if (action.addBannerToLiveChatCommand) {
+      parsedAction = parsePinnedMessageAction(
+        action.addBannerToLiveChatCommand
+      );
+    } else if (action.removeBannerForLiveChatCommand) {
+      parsedAction = { type: 'removePinned' };
     }
 
     if (!parsedAction) {
