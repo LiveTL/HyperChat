@@ -173,10 +173,9 @@ const parsePinnedMessageAction = (action) => {
 };
 
 /**
- * Parse YTC JSON. Returns actionChunk payload.
- *
  * @param {YtcResponse} response JSON response.
  * @param {boolean} [isInitial=false] Whether JSON is initial data.
+ * @returns {*} actionChunk payload.
  */
 export const parseChatResponse = (response, isInitial = false) => {
   response = JSON.parse(response);

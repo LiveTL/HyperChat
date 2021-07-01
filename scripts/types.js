@@ -1,19 +1,16 @@
 /** Base JSON */
 /**
  * Expected YTC JSON response.
- *
  * @typedef {Object} YtcResponse
  * @property {Object} [continuationContents]
  * @property {Object} continuationContents.liveChatContinuation
  * @property {YtcAction[]} [continuationContents.liveChatContinuation.actions]
- *
  * @property {Object} [contents]
  * @property {Object} contents.liveChatRenderer
  * @property {YtcAction[]} [contents.liveChatRenderer.actions]
  */
 /**
  * Expected YTC action object.
- *
  * @typedef {Object} YtcAction
  * @property {AddChatItemAction} [addChatItemAction]
  * @property {{actions: ytcAction[]}} [replayChatItemAction]
@@ -26,7 +23,6 @@
 /** Actions */
 /**
  * YTC addChatItemAction object.
- *
  * @typedef {Object} AddChatItemAction
  * @property {Object} item
  * @property {MessageRenderer} [item.liveChatTextMessageRenderer]
@@ -35,7 +31,6 @@
  */
 /**
  * YTC markChatItemsByAuthorAsDeletedAction object.
- *
  * @typedef {Object} AuthorBonkedAction
  * @property {Object} deletedStateMessage Message to replace deleted messages.
  * @property {MessageRun[]} deletedStateMessage.runs
@@ -43,7 +38,6 @@
  */
 /**
  * YTC markChatItemAsDeletedAction object.
- *
  * @typedef {Object} MessageDeletedAction
  * @property {Object} deletedStateMessage Message to replace deleted messages.
  * @property {MessageRun[]} deletedStateMessage.runs
@@ -51,7 +45,6 @@
  */
 /**
  * YTC addBannerToLiveChatCommand object.
- *
  * @typedef {Object} AddPinnedAction
  * @property {Object} bannerRenderer
  * @property {Object} bannerRenderer.liveChatBannerRenderer
@@ -62,22 +55,18 @@
 /** Misc types */
 /**
  * YTC message run object.
- *
  * @typedef {Object} MessageRun
  * @property {string} [text]
- *
  * @property {Object} [navigationEndpoint]
  * @property {Object} navigationEndpoint.commandMetadata
  * @property {Object} navigationEndpoint.commandMetadata.webCommandMetadata
  * @property {string} navigationEndpoint.commandMetadata.webCommandMetadata.url
- *
  * @property {Object} [emoji]
  * @property {Object} emoji.image
  * @property {{url: string}[]} emoji.image.thumbnails
  */
 /**
  * YTC message renderer object.
- *
  * @typedef {Object} MessageRenderer
  * @property {Object} message
  * @property {MessageRun[]} message.runs
@@ -92,7 +81,6 @@
  */
 /**
  * YTC author badge object.
- *
  * @typedef {Object} AuthorBadge
  * @property {Object} liveChatAuthorBadgeRenderer
  * @property {string} liveChatAuthorBadgeRenderer.tooltip
@@ -101,7 +89,6 @@
  */
 /**
  * YTC banner header object.
- *
  * @typedef {Object} BannerHeader
  * @property {Object} liveChatBannerHeaderRenderer
  * @property {Object} liveChatBannerHeaderRenderer.text

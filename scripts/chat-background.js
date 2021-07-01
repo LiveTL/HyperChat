@@ -19,7 +19,6 @@ const compareFrameInfo = (a, b) => {
 
 /**
  * If port and clients are empty, removes interceptor from array.
- *
  * @param {number} i Index of interceptor
  */
 const cleanupInterceptor = (i) => {
@@ -33,7 +32,6 @@ const cleanupInterceptor = (i) => {
 /**
  * Register a new interceptor.
  * Will immediately respond with its FrameInfo on success.
- *
  * @param {Port} port
  */
 const registerInterceptor = (port) => {
@@ -81,8 +79,6 @@ const registerInterceptor = (port) => {
 };
 
 /**
- * Register a new client to an interceptor.
- *
  * @param {Port} port
  * @param {FrameInfo} frameInfo
  * @param {boolean} [getInitialData]
@@ -126,11 +122,9 @@ const registerClient = (port, frameInfo, getInitialData) => {
 };
 
 /**
- * Send payload to clients of interceptors with matching frameInfo
- *
  * @param {Port} senderPort
  * @param {FrameInfo} frameInfo
- * @param {any} payload
+ * @param {*} payload
  */
 const sendToClients = (senderPort, frameInfo, payload) => {
   if (!payload) {
@@ -160,6 +154,11 @@ const sendToClients = (senderPort, frameInfo, payload) => {
   console.debug('Sent to clients', { interceptor, payload });
 };
 
+/**
+ * @param {Port} senderPort
+ * @param {FrameInfo} frameInfo
+ * @param {*} payload
+ */
 const setInitialData = (senderPort, frameInfo, payload) => {
   if (!payload) {
     console.debug(
@@ -237,7 +236,3 @@ if (!(window.location.href.includes(`${chrome.runtime.id}/index.html`))) {
     }
   });
 }
-
-// Interceptor register - save frameInfo
-// Client register with matching frameInfo - save as clients of matching interceptor
-// Interceptor send response object - send to all clients
