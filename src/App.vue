@@ -13,95 +13,101 @@
           dark: Boolean($vuetify.theme.dark)
         }"
       >
-        <div class="message text-left highlighted">
-          <span style="margin-bottom: 5px; display: inline-block">
-            <strong style="font-size: 1.5em">
-              <img
-                src="./../assets/logo.png"
-                style="
-                  height: 2.5em;
-                  vertical-align: middle;
-                  border-radius: 100%;
-                  border: 0.25em solid gray;
-                  margin-right: 5px;
-                  background-color: white;
-                "
-              />
-              Welcome to HyperChat by LiveTL!
-            </strong>
-          </span>
-          <br />
-          <span>
-            <i>It may take a few seconds for messages to start appearing.</i>
-            <br />
-            <strong>HyperChat can reduce CPU usage by up to 80%!</strong>
-            <span style="font-size: 1em; display: inline-block">
-              Don't forget to
-              <CustomLink
-                href="#/review"
-                >drop a 5-star review</CustomLink
-              >,
-              <CustomLink
-                href="https://livetl.app/hyperchat"
-                >share with your friends</CustomLink
-              >, <CustomLink
-                href="https://discord.gg/uJrV3tmthg"
-                >join our Discord server</CustomLink
-              >,
-              <CustomLink
-                href="https://github.com/LiveTL/HyperChat"
-                >star the GitHub repository</CustomLink
-              >, and <CustomLink
-                href="https://opencollective.com/livetl"
-                >
-                chip in a few dollars to help fund future projects (stay tuned)</CustomLink>!
-            </span>
-            <br /><br />
-            <strong>NEW IN {{ update.version }}:</strong> {{ update.comments }}
-          </span>
-        </div>
         <div
           v-for="message of getMessages()"
           :key="message.index"
-          :id="`message${message.index}`"
-          :class="{
-            message: true,
-            'text-left': true,
-            superchat: message.info.superchat != null,
-          }"
-          v-show="message.shown"
-          :style="{
-            backgroundColor: message.info.superchat
-              ? `var(--${message.info.superchat.color}) !important`
-              : null,
-          }"
+          class="messageContainer"
         >
-          <strong
-            style="margin-right: 5px; text-decoration: underline"
-            v-if="message.info.superchat"
-            >{{ message.info.superchat.amount }}</strong
+          <div v-if="message.info.welcomeMessage" class="message text-left highlighted"
+            v-show="message.shown">
+            <span style="margin-bottom: 5px; display: inline-block">
+              <strong style="font-size: 1.5em">
+                <img
+                  src="./../assets/logo.png"
+                  style="
+                    height: 2.5em;
+                    vertical-align: middle;
+                    border-radius: 100%;
+                    border: 0.25em solid gray;
+                    margin-right: 5px;
+                    background-color: white;
+                  "
+                />
+                Welcome to HyperChat by LiveTL!
+              </strong>
+            </span>
+            <br />
+            <span>
+              <i>It may take a few seconds for messages to start appearing.</i>
+              <br />
+              <strong>HyperChat can reduce CPU usage by up to 80%!</strong>
+              <span style="font-size: 1em; display: inline-block">
+                Don't forget to
+                <CustomLink
+                  href="#/review"
+                  >drop a 5-star review</CustomLink
+                >,
+                <CustomLink
+                  href="https://livetl.app/hyperchat"
+                  >share with your friends</CustomLink
+                >, <CustomLink
+                  href="https://discord.gg/uJrV3tmthg"
+                  >join our Discord server</CustomLink
+                >,
+                <CustomLink
+                  href="https://github.com/LiveTL/HyperChat"
+                  >star the GitHub repository</CustomLink
+                >, and <CustomLink
+                  href="https://opencollective.com/livetl"
+                  >
+                  chip in a few dollars to help fund future projects (stay tuned)</CustomLink>!
+              </span>
+              <br /><br />
+              <strong>NEW IN {{ update.version }}:</strong> {{ update.comments }}
+            </span>
+          </div>
+          <div
+            v-else
+            :id="`message${message.index}`"
+            :class="{
+              message: true,
+              'text-left': true,
+              superchat: message.info.superchat != null,
+            }"
+            v-show="message.shown"
+            :style="{
+              backgroundColor: message.info.superchat
+                ? `var(--${message.info.superchat.color}) !important`
+                : null,
+            }"
           >
-          <strong
-            style="margin-right: 5px"
-            :class="
-              (message.info.author.types || []).map((d) => d.split(' ')[0])
-            "
-          >
-            {{ message.info.author.name }}
-          </strong>
-          <span
-            v-for="(run, key, index) in message.info.message"
-            :key="index"
-            :class="{ deleted: message.info.deleted }"
-          >
-            <span v-if="run.type == 'text'">{{ run.text }}</span>
-            <a v-else-if="run.type == 'link'" :href="run.url" target="_blank">{{ run.text }}</a>
-            <img
-              v-else-if="run.type == 'emote' && run.src"
-              :src="run.src"
-              class="chatEmote"
-            />
-          </span>
+            <strong
+              style="margin-right: 5px; text-decoration: underline"
+              v-if="message.info.superchat"
+              >{{ message.info.superchat.amount }}</strong
+            >
+            <strong
+              style="margin-right: 5px"
+              :class="
+                (message.info.author.types || []).map((d) => d.split(' ')[0])
+              "
+            >
+              {{ message.info.author.name }}
+            </strong>
+            <span
+              v-for="(run, key, index) in message.info.message"
+              :key="index"
+              :class="{ deleted: message.info.deleted }"
+            >
+              <span v-if="run.type == 'text'">{{ run.text }}</span>
+              <a v-else-if="run.type == 'link'" :href="run.url" target="_blank">{{ run.text }}</a>
+              <img
+                v-else-if="run.type == 'emote' && run.src"
+                :src="run.src"
+                class="chatEmote"
+              />
+            </span>
+          </div>
         </div>
         <div ref="lastMessage"></div>
       </div>
@@ -170,7 +176,8 @@ export default {
         previous: null
       },
       interval: null,
-      update: updates[updates.length - 1]
+      update: updates[updates.length - 1],
+      showWelcome: 'future'
     };
   },
   metaInfo: {
@@ -178,6 +185,7 @@ export default {
     titleTemplate: '%s | LiveTL'
   },
   created() {
+    this.$set(this.messages, 0, { welcomeMessage: true });
     window.addEventListener('resize', async () => {
       // await this.$nextTick();
       // await this.$forceUpdate();
@@ -224,13 +232,13 @@ export default {
         });
       }
       /** Handle deletions and bonks */
-      if (!bonks.length && !deletions.length) {
-        return;
-      }
       const wasBottom = this.checkIfBottom();
       this.messages.forEach((message) =>
         this.checkDeleted(message, bonks, deletions)
       );
+      if ((payload.isInitial || payload.isReplay) && this.showWelcome === 'future') {
+        this.showWelcome = 'now';
+      }
       if (wasBottom) {
         this.$nextTick(this.scrollToBottom);
       }
@@ -304,11 +312,15 @@ export default {
         }
       }
       this.progress.previous = this.progress.current;
+      if (this.showWelcome === 'now') {
+        this.newMessage({ welcomeMessage: true });
+        this.showWelcome = 'done';
+      }
     },
     checkIfBottom() {
       const el = this.$refs.content;
       if (!el) return true;
-      return Math.ceil(window.innerHeight + el.scrollTop) >= el.scrollHeight;
+      return Math.ceil(window.innerHeight + el.scrollTop) >= el.scrollHeight - 2;
     },
     scrollToBottom() {
       this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
@@ -370,7 +382,7 @@ export default {
   padding: 6px;
   text-overflow: ellipsis;
 }
-.message:nth-child(odd) {
+.messageContainer:nth-child(odd) {
   background-color: #86868621;
 }
 .content {

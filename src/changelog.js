@@ -44,5 +44,9 @@ exports.updates = [
   {
     version: 'v1.1.1',
     comments: 'Fixed some more scrolling issues!'
+  },
+  {
+    version: 'v1.2.0',
+    comments: 'Messages that were present in the chat before HC was lauched now appear instantly!'
   }
 ];
