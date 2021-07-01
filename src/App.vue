@@ -321,6 +321,7 @@ export default {
       }
     },
     checkDeleted(message, bonks, deletions) {
+      if (message.welcomeMessage) return;
       for (const bonk of bonks) {
         if (bonk.authorId === message.author.id) {
           message.message = bonk.replacedMessage;
