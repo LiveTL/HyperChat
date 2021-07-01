@@ -118,10 +118,7 @@ const parseAddChatItemAction = (action) => {
       color: colorConversionTable[renderer.bodyBackgroundColor]
     };
   }
-  return {
-    type: 'addChatItem',
-    item: item
-  };
+  return item;
 };
 
 /**
@@ -132,11 +129,8 @@ const parseAuthorBonkedAction = (action) => {
     return false;
   }
   return {
-    type: 'authorBonked',
-    item: {
-      replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
-      authorId: action.externalChannelId
-    }
+    replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
+    authorId: action.externalChannelId
   };
 };
 
@@ -148,11 +142,8 @@ const parseMessageDeletedAction = (action) => {
     return false;
   }
   return {
-    type: 'messageDeleted',
-    item: {
-      replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
-      messageId: action.targetItemId
-    }
+    replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
+    messageId: action.targetItemId
   };
 };
 
@@ -176,7 +167,7 @@ const parsePinnedMessageAction = (action) => {
       header: parseMessageRuns(
         baseRenderer.header.liveChatBannerHeaderRenderer.text.runs
       ),
-      contents: parsedContents.item
+      contents: parsedContents
     }
   };
 };
@@ -189,7 +180,6 @@ const parsePinnedMessageAction = (action) => {
  */
 export const parseChatResponse = (response, isInitial = false) => {
   response = JSON.parse(response);
-  const parsedActions = [];
   const actionsArray =
     response.continuationContents?.liveChatContinuation.actions ||
     response.contents?.liveChatRenderer.actions;
@@ -197,6 +187,11 @@ export const parseChatResponse = (response, isInitial = false) => {
     console.debug('Invalid response:', response);
     return;
   }
+
+  const addChatItemActions = [];
+  const bonkActions = [];
+  const deletionActions = [];
+  const miscActions = [];
 
   actionsArray.forEach((action) => {
     let parsedAction;
@@ -206,36 +201,43 @@ export const parseChatResponse = (response, isInitial = false) => {
       parsedAction = parseAddChatItemAction(
         action.replayChatItemAction.actions[0].addChatItemAction
       );
-    } else if (action.markChatItemsByAuthorAsDeletedAction) {
+    }
+    if (parsedAction) {
+      addChatItemActions.push(parsedAction);
+      return;
+    }
+
+    if (action.markChatItemsByAuthorAsDeletedAction) {
       parsedAction = parseAuthorBonkedAction(
         action.markChatItemsByAuthorAsDeletedAction
       );
+      if (parsedAction) bonkActions.push(parsedAction);
     } else if (action.markChatItemAsDeletedAction) {
       parsedAction = parseMessageDeletedAction(
         action.markChatItemAsDeletedAction
       );
+      if (parsedAction) deletionActions.push(parsedAction);
     } else if (action.addBannerToLiveChatCommand) {
       parsedAction = parsePinnedMessageAction(
         action.addBannerToLiveChatCommand
       );
+      if (parsedAction) miscActions.push(parsedAction);
     } else if (action.removeBannerForLiveChatCommand) {
       parsedAction = { type: 'removePinned' };
+      miscActions.push(parsedAction);
     }
 
     if (!parsedAction) {
       console.debug('Unparsed action:', action);
-      return;
     }
-    parsedActions.push(parsedAction);
   });
-  if (parsedActions.length < 1) {
-    return;
-  }
 
-  // TODO: We can probably remove one level of iteration here
   return {
     type: 'actionChunk',
-    actions: parsedActions,
+    messages: addChatItemActions,
+    bonks: bonkActions,
+    deletions: deletionActions,
+    miscActions,
     isReplay,
     isInitial
   };

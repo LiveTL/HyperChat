@@ -207,18 +207,9 @@ export default {
         runQueue();
       }
       /** Separate each action */
-      const messages = [];
-      const bonks = [];
-      const deletions = [];
-      payload.actions.forEach((action) => {
-        if (action.type === 'addChatItem') {
-          messages.push(action.item);
-        } else if (action.type === 'authorBonked') {
-          bonks.push(action.item);
-        } else if (action.type === 'messageDeleted') {
-          deletions.push(action.item);
-        }
-      });
+      const messages = payload.messages;
+      const bonks = payload.bonks;
+      const deletions = payload.deletions;
       /** Sort and add messages to queue */
       for (const message of messages.sort(
         (m1, m2) => m1.showtime - m2.showtime
