@@ -1,3 +1,5 @@
+import { parseChatResponse } from './chat-parser.js';
+
 const isLiveTL = false;
 // DO NOT EDIT THE ABOVE LINE. It is updated by webpack.
 /** @typedef {{onMessage, postMessage, onDisconnect, sender?, name?}} Port */
@@ -29,6 +31,7 @@ const cleanupInterceptor = (i) => {
   }
 };
 
+// FIXME: Embed TLs doesn't unregister first interceptor
 /**
  * Register a new interceptor.
  * Will immediately respond with its FrameInfo on success.
@@ -109,6 +112,12 @@ const registerClient = (port, frameInfo, getInitialData) => {
     }
     interceptor.clients.splice(i, 1);
     console.debug('Unregister client successful', { port, interceptor });
+
+    cleanupInterceptor(
+      interceptors.findIndex(
+        (interc) => compareFrameInfo(interc.frameInfo, frameInfo)
+      )
+    );
   });
 
   /** Add client to array */
@@ -124,9 +133,30 @@ const registerClient = (port, frameInfo, getInitialData) => {
 /**
  * @param {Port} senderPort
  * @param {FrameInfo} frameInfo
- * @param {*} payload
+ * @param {*} response
  */
-const sendToClients = (senderPort, frameInfo, payload) => {
+const sendToClients = (senderPort, frameInfo, response) => {
+  if (!response) {
+    console.debug('Invalid response', { senderPort, frameInfo, response });
+    return;
+  }
+  const interceptor = interceptors.find(
+    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
+  );
+  if (!interceptor) {
+    console.debug(
+      'Interceptor not registered, cannot send to clients',
+      { interceptors, senderPort, frameInfo, response }
+    );
+    return;
+  }
+
+  if (interceptor.clients.length < 1) {
+    console.debug('No clients to send to', { interceptor, response });
+    return;
+  }
+
+  const payload = parseChatResponse(response);
   if (!payload) {
     console.debug(
       'Invalid payload, not sending to clients',
@@ -134,22 +164,6 @@ const sendToClients = (senderPort, frameInfo, payload) => {
     );
     return;
   }
-  const interceptor = interceptors.find(
-    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
-  );
-  if (!interceptor) {
-    console.debug(
-      'Interceptor not registered, no clients to send to',
-      { interceptors, senderPort, frameInfo, payload }
-    );
-    return;
-  }
-
-  if (interceptor.clients.length < 1) {
-    console.debug('No clients to send to', { interceptor, payload });
-    return;
-  }
-
   interceptor.clients.forEach((port) => port.postMessage(payload));
   console.debug('Sent to clients', { interceptor, payload });
 };
@@ -157,14 +171,11 @@ const sendToClients = (senderPort, frameInfo, payload) => {
 /**
  * @param {Port} senderPort
  * @param {FrameInfo} frameInfo
- * @param {*} payload
+ * @param {*} response
  */
-const setInitialData = (senderPort, frameInfo, payload) => {
-  if (!payload) {
-    console.debug(
-      'Invalid payload, not saving as initial data',
-      { senderPort, frameInfo, payload }
-    );
+const setInitialData = (senderPort, frameInfo, response) => {
+  if (!response) {
+    console.debug('Invalid response', { senderPort, frameInfo, response });
     return;
   }
   const interceptor = interceptors.find(
@@ -172,12 +183,20 @@ const setInitialData = (senderPort, frameInfo, payload) => {
   );
   if (!interceptor) {
     console.debug(
-      'Interceptor not registered, not saving as initial data',
-      { interceptors, senderPort, frameInfo, payload }
+      'Interceptor not registered, not saving initial data',
+      { interceptors, senderPort, frameInfo, response }
     );
     return;
   }
 
+  const payload = parseChatResponse(response, true);
+  if (!payload) {
+    console.debug(
+      'Invalid payload, not saving initial data',
+      { senderPort, frameInfo, payload }
+    );
+    return;
+  }
   interceptor.initialData = payload;
   console.debug('Saved initial data', { interceptor, payload });
 };
@@ -201,10 +220,10 @@ if (!(window.location.href.includes(`${chrome.runtime.id}/index.html`))) {
           registerClient(port, message.frameInfo, message.getInitialData);
           break;
         case 'sendToClients':
-          sendToClients(port, message.frameInfo, message.payload);
+          sendToClients(port, message.frameInfo, message.response);
           break;
         case 'setInitialData':
-          setInitialData(port, message.frameInfo, message.payload);
+          setInitialData(port, message.frameInfo, message.response);
           break;
         default:
           console.debug('Unknown message type', port, message);

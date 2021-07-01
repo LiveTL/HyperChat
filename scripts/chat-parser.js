@@ -111,6 +111,7 @@ const parseAddChatItemAction = (action) => {
       : date.getTime() - Math.round(timestampUsec / 1000),
     messageId: renderer.id
   };
+  // FIXME: Initial data is shown backwards
   // TODO: Super stickers
   if (actionItem.liveChatPaidMessageRenderer) {
     item.superchat = {

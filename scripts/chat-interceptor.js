@@ -1,5 +1,3 @@
-import { parseChatResponse } from './chat-parser.js';
-
 const chatLoaded = () => {
   /** Workaround for https://github.com/LiveTL/HyperChat/issues/12 */
   if (chrome.windows) return;
@@ -39,7 +37,7 @@ const chatLoaded = () => {
         port.postMessage({
           type: 'sendToClients',
           frameInfo,
-          payload: parseChatResponse(d.detail)
+          response: d.detail
         });
       });
 
@@ -55,7 +53,7 @@ const chatLoaded = () => {
         port.postMessage({
           type: 'setInitialData',
           frameInfo,
-          payload: parseChatResponse(json, true)
+          response: json
         });
         break;
       }
