@@ -31,7 +31,6 @@ const cleanupInterceptor = (i) => {
   }
 };
 
-// FIXME: Embed TLs doesn't unregister first interceptor
 /**
  * Register a new interceptor.
  * Will immediately respond with its FrameInfo on success.
@@ -93,6 +92,14 @@ const registerClient = (port, frameInfo, getInitialData) => {
   if (!interceptor) {
     console.debug(
       'Failed to find interceptor, register client unsuccessful',
+      { interceptors, port, frameInfo }
+    );
+    return;
+  }
+
+  if (interceptor.clients.some((client) => client.name === port.name)) {
+    console.debug(
+      'Client already registered. Not registering',
       { interceptors, port, frameInfo }
     );
     return;
