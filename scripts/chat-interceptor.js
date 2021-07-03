@@ -1,3 +1,7 @@
+const isReplay = window.location.href.startsWith(
+  'https://www.youtube.com/live_chat_replay'
+);
+
 const chatLoaded = () => {
   /** Workaround for https://github.com/LiveTL/HyperChat/issues/12 */
   if (chrome.windows) return;
@@ -37,7 +41,8 @@ const chatLoaded = () => {
         port.postMessage({
           type: 'sendToClients',
           frameInfo,
-          response: d.detail
+          response: d.detail,
+          isReplay
         });
       });
 
@@ -53,7 +58,8 @@ const chatLoaded = () => {
         port.postMessage({
           type: 'setInitialData',
           frameInfo,
-          response: json
+          response: json,
+          isReplay
         });
         break;
       }

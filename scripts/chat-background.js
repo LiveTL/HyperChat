@@ -5,6 +5,7 @@ const isLiveTL = false;
 /** @typedef {{onMessage, postMessage, onDisconnect, sender?, name?}} Port */
 /** @typedef {{frameInfo: FrameInfo, port: Port, clients: Port[], initialData}} Interceptor */
 /** @typedef {{tabId: number, frameId: number}} FrameInfo */
+/** @typedef {{type: string, frameInfo: FrameInfo, response, isReplay: boolean}} PayloadMessage */
 
 /** @type {Interceptor[]} */
 const interceptors = [];
@@ -139,10 +140,10 @@ const registerClient = (port, frameInfo, getInitialData) => {
 
 /**
  * @param {Port} senderPort
- * @param {FrameInfo} frameInfo
- * @param {*} response
+ * @param {PayloadMessage} message
  */
-const sendToClients = (senderPort, frameInfo, response) => {
+const sendToClients = (senderPort, message) => {
+  const { response, frameInfo, isReplay } = message;
   if (!response) {
     console.debug('Invalid response', { senderPort, frameInfo, response });
     return;
@@ -163,7 +164,7 @@ const sendToClients = (senderPort, frameInfo, response) => {
     return;
   }
 
-  const payload = parseChatResponse(response);
+  const payload = parseChatResponse(response, isReplay);
   if (!payload) {
     console.debug(
       'Invalid payload, not sending to clients',
@@ -177,10 +178,10 @@ const sendToClients = (senderPort, frameInfo, response) => {
 
 /**
  * @param {Port} senderPort
- * @param {FrameInfo} frameInfo
- * @param {*} response
+ * @param {PayloadMessage} message
  */
-const setInitialData = (senderPort, frameInfo, response) => {
+const setInitialData = (senderPort, message) => {
+  const { response, frameInfo, isReplay } = message;
   if (!response) {
     console.debug('Invalid response', { senderPort, frameInfo, response });
     return;
@@ -196,7 +197,7 @@ const setInitialData = (senderPort, frameInfo, response) => {
     return;
   }
 
-  const payload = parseChatResponse(response, true);
+  const payload = parseChatResponse(response, isReplay, true);
   if (!payload) {
     console.debug(
       'Invalid payload, not saving initial data',
@@ -227,10 +228,10 @@ if (!(window.location.href.includes(`${chrome.runtime.id}/index.html`))) {
           registerClient(port, message.frameInfo, message.getInitialData);
           break;
         case 'sendToClients':
-          sendToClients(port, message.frameInfo, message.response);
+          sendToClients(port, message);
           break;
         case 'setInitialData':
-          setInitialData(port, message.frameInfo, message.response);
+          setInitialData(port, message);
           break;
         default:
           console.debug('Unknown message type', port, message);

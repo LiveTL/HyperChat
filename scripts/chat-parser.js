@@ -1,7 +1,3 @@
-const isReplay = window.location.href.startsWith(
-  'https://www.youtube.com/live_chat_replay'
-);
-
 const formatTimestamp = (timestamp) => {
   return (new Date(parseInt(timestamp) / 1000))
     .toLocaleTimeString(
@@ -75,7 +71,7 @@ const parseMessageRuns = (runs) => {
 /**
  * @param {AddChatItemAction} action
  */
-const parseAddChatItemAction = (action) => {
+const parseAddChatItemAction = (action, isReplay) => {
   // console.log(action);
   const actionItem = action.item;
   if (!actionItem) {
@@ -97,6 +93,7 @@ const parseAddChatItemAction = (action) => {
   }
   const runs = parseMessageRuns(renderer.message.runs);
   const timestampUsec = parseInt(renderer.timestampUsec);
+  console.debug({ runs, timestampUsec });
   const timestampText = renderer.timestampText?.simpleText; // only used on replays
   const date = new Date();
   const item = {
@@ -111,7 +108,7 @@ const parseAddChatItemAction = (action) => {
       : date.getTime() - Math.round(timestampUsec / 1000),
     messageId: renderer.id
   };
-  // FIXME: Initial data is shown backwards
+  // FIXME: Showtime is backwards for live streams. Replay is fine.
   // TODO: Super stickers
   if (actionItem.liveChatPaidMessageRenderer) {
     item.superchat = {
@@ -178,7 +175,7 @@ const parsePinnedMessageAction = (action) => {
  * @param {boolean} [isInitial=false] Whether JSON is initial data.
  * @returns {*} actionChunk payload.
  */
-export const parseChatResponse = (response, isInitial = false) => {
+export const parseChatResponse = (response, isReplay, isInitial = false) => {
   response = JSON.parse(response);
   const actionsArray =
     response.continuationContents?.liveChatContinuation.actions ||
@@ -196,10 +193,11 @@ export const parseChatResponse = (response, isInitial = false) => {
   actionsArray.forEach((action) => {
     let parsedAction;
     if (action.addChatItemAction) {
-      parsedAction = parseAddChatItemAction(action.addChatItemAction);
+      parsedAction =
+        parseAddChatItemAction(action.addChatItemAction, isReplay);
     } else if (action.replayChatItemAction?.actions[0]?.addChatItemAction) {
       parsedAction = parseAddChatItemAction(
-        action.replayChatItemAction.actions[0].addChatItemAction
+        action.replayChatItemAction.actions[0].addChatItemAction, isReplay
       );
     }
     if (parsedAction) {
