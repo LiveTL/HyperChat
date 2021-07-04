@@ -214,11 +214,9 @@ export default {
       for (const message of messages.sort(
         (m1, m2) => m1.showtime - m2.showtime
       )) {
-        let timestamp = (Date.now() + message.showtime) / 1000;
-        if (payload.isReplay || payload.isInitial) timestamp = message.showtime;
         this.checkDeleted(message, bonks, deletions);
         this.queued.push({
-          timestamp,
+          timestamp: message.showtime / 1000,
           message: message
         });
       }

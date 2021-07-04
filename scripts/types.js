@@ -4,16 +4,26 @@
  * @typedef {Object} YtcResponse
  * @property {Object} [continuationContents]
  * @property {Object} continuationContents.liveChatContinuation
+ * @property {ContinuationData[]} continuationContents.liveChatContinuation.continuations
  * @property {YtcAction[]} [continuationContents.liveChatContinuation.actions]
- * @property {Object} [contents]
+ * @property {Object} [contents] Initial data only
  * @property {Object} contents.liveChatRenderer
+ * @property {ContinuationData[]} contents.liveChatRenderer.continuations
  * @property {YtcAction[]} [contents.liveChatRenderer.actions]
+ */
+/**
+ * Expected YTC continuation data object
+ * @typedef {Object} ContinuationData
+ * @property {Object} [timedContinuationData]
+ * @property {number} timedContinuationData.timeoutMs
+ * @property {Object} [invalidationContinuationData]
+ * @property {number} invalidationContinuationData.timeoutMs
  */
 /**
  * Expected YTC action object.
  * @typedef {Object} YtcAction
  * @property {AddChatItemAction} [addChatItemAction]
- * @property {{actions: ytcAction[]}} [replayChatItemAction]
+ * @property {ReplayChatItemAction} [replayChatItemAction]
  * @property {AuthorBonkedAction} [markChatItemsByAuthorAsDeletedAction]
  * @property {MessageDeletedAction} [markChatItemAsDeletedAction]
  * @property {AddPinnedAction} [addBannerToLiveChatCommand]
@@ -28,6 +38,11 @@
  * @property {MessageRenderer} [item.liveChatTextMessageRenderer]
  * @property {MessageRenderer} [item.liveChatPaidMessageRenderer]
  * @property {MessageRenderer} [item.liveChatPaidStickerRenderer]
+ */
+/**
+ * @typedef {Object} ReplayChatItemAction
+ * @property {ytcAction[]} actions
+ * @property {IntString} videoOffsetTimeMsec
  */
 /**
  * YTC markChatItemsByAuthorAsDeletedAction object.
@@ -73,7 +88,7 @@
  * @property {{simpleText: string}} authorName
  * @property {AuthorBadge[]} [authorBadges]
  * @property {string} id
- * @property {string} timestampUsec Timestamp in microseconds
+ * @property {IntString} timestampUsec Timestamp in microseconds
  * @property {string} authorExternalChannelId
  * @property {{simpleText: string}} [timestampText] Only available on VODs
  * @property {{simpleText: string}} [purchaseAmountText] Only available on superchats
@@ -94,3 +109,4 @@
  * @property {Object} liveChatBannerHeaderRenderer.text
  * @property {MessageRun[]} liveChatBannerHeaderRenderer.text.runs
  */
+/** @typedef {string} IntString Integer formatted as string */

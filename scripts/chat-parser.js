@@ -5,16 +5,6 @@ const formatTimestamp = (timestamp) => {
     );
 };
 
-const getMillis = (timestamp, usec) => {
-  let secs = Array.from(timestamp.split(':'), t => parseInt(t)).reverse();
-  secs =
-    secs[0] + (secs[1] ? secs[1] * 60 : 0) + (secs[2] ? secs[2] * 60 * 60 : 0);
-  secs *= 1000;
-  secs += usec % 1000;
-  secs /= 1000;
-  return secs;
-};
-
 const colorConversionTable = {
   4280191205: 'blue',
   4278248959: 'lightblue',
@@ -70,17 +60,18 @@ const parseMessageRuns = (runs) => {
 
 /**
  * @param {AddChatItemAction} action
+ * @param {boolean} isReplay
+ * @param {number} offsetMs If replay, is the exact msec to show message
  */
-const parseAddChatItemAction = (action, isReplay) => {
-  // console.log(action);
-  const actionItem = action.item;
-  if (!actionItem) {
+const parseAddChatItemAction = (action, isReplay, offsetMs) => {
+  if (!action || !action.item) {
     return false;
   }
+  const actionItem = action.item;
   const renderer = actionItem.liveChatTextMessageRenderer ||
     actionItem.liveChatPaidMessageRenderer ||
     actionItem.liveChatPaidStickerRenderer;
-  // FIXME: Doesn't allow empty superchats
+  // FIXME: Doesn't show empty superchats
   if (!renderer || !renderer.authorName || !renderer.message) {
     return false;
   }
@@ -93,9 +84,7 @@ const parseAddChatItemAction = (action, isReplay) => {
   }
   const runs = parseMessageRuns(renderer.message.runs);
   const timestampUsec = parseInt(renderer.timestampUsec);
-  console.debug({ runs, timestampUsec });
   const timestampText = renderer.timestampText?.simpleText; // only used on replays
-  const date = new Date();
   const item = {
     author: {
       name: renderer.authorName.simpleText,
@@ -104,11 +93,9 @@ const parseAddChatItemAction = (action, isReplay) => {
     },
     message: runs,
     timestamp: isReplay ? timestampText : formatTimestamp(timestampUsec),
-    showtime: isReplay ? getMillis(timestampText, timestampUsec)
-      : date.getTime() - Math.round(timestampUsec / 1000),
+    showtime: isReplay ? offsetMs : (timestampUsec / 1000) + offsetMs,
     messageId: renderer.id
   };
-  // FIXME: Showtime is backwards for live streams. Replay is fine.
   // TODO: Super stickers
   if (actionItem.liveChatPaidMessageRenderer) {
     item.superchat = {
@@ -172,14 +159,16 @@ const parsePinnedMessageAction = (action) => {
 
 /**
  * @param {YtcResponse} response JSON response.
+ * @param {boolean} isReplay
  * @param {boolean} [isInitial=false] Whether JSON is initial data.
  * @returns {*} actionChunk payload.
  */
 export const parseChatResponse = (response, isReplay, isInitial = false) => {
   response = JSON.parse(response);
-  const actionsArray =
-    response.continuationContents?.liveChatContinuation.actions ||
-    response.contents?.liveChatRenderer.actions;
+  const base =
+    response.continuationContents?.liveChatContinuation ||
+    response.contents?.liveChatRenderer;
+  const actionsArray = base?.actions;
   if (!actionsArray) {
     console.debug('Invalid response:', response);
     return;
@@ -193,11 +182,18 @@ export const parseChatResponse = (response, isReplay, isInitial = false) => {
   actionsArray.forEach((action) => {
     let parsedAction;
     if (action.addChatItemAction) {
+      const liveTimeoutMs =
+        base.continuations[0].timedContinuationData?.timeoutMs ||
+        base.continuations[0].invalidationContinuationData?.timeoutMs;
       parsedAction =
-        parseAddChatItemAction(action.addChatItemAction, isReplay);
-    } else if (action.replayChatItemAction?.actions[0]?.addChatItemAction) {
+        parseAddChatItemAction(
+          action.addChatItemAction, isReplay, liveTimeoutMs
+        );
+    } else if (action.replayChatItemAction) {
+      const replayAction = action.replayChatItemAction;
+      const replayTimeMs = replayAction.videoOffsetTimeMsec;
       parsedAction = parseAddChatItemAction(
-        action.replayChatItemAction.actions[0].addChatItemAction, isReplay
+        replayAction.actions[0]?.addChatItemAction, isReplay, replayTimeMs
       );
     }
     if (parsedAction) {
