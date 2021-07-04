@@ -51,15 +51,22 @@ const cleanupInterceptor = (i) => {
 /**
  * @param {Port} port
  */
+const getPortFrameInfo = (port) => {
+  return {
+    tabId: port.sender.tab.id,
+    frameId: port.sender.frameId
+  };
+}
+
+/**
+ * @param {Port} port
+ */
 const registerInterceptor = (port) => {
   if (!port.sender) {
     console.debug('Interceptor port has no sender, not registering', { port });
     return;
   }
-  const frameInfo = {
-    tabId: port.sender.tab.id,
-    frameId: port.sender.frameId
-  };
+  const frameInfo = getPortFrameInfo(port);
 
   /** Unregister interceptor when port disconnects */
   port.onDisconnect.addListener(() => {
@@ -96,7 +103,7 @@ const registerInterceptor = (port) => {
 
 /**
  * @param {Port} port
- * @param {FrameInfo} frameInfo
+ * @param {FrameInfo} frameInfo FrameInfo of interceptor to register on
  * @param {boolean} [getInitialData]
  */
 const registerClient = (port, frameInfo, getInitialData) => {
@@ -152,7 +159,8 @@ const registerClient = (port, frameInfo, getInitialData) => {
  * @param {PayloadMessage} message
  */
 const sendToClients = (senderPort, message) => {
-  const { response, frameInfo, isReplay } = message;
+  const { response, isReplay } = message;
+  const frameInfo = getPortFrameInfo(senderPort);
   if (!response) {
     console.debug('Invalid response', { senderPort, frameInfo, response });
     return;
@@ -186,7 +194,8 @@ const sendToClients = (senderPort, message) => {
  * @param {PayloadMessage} message
  */
 const setInitialData = (senderPort, message) => {
-  const { response, frameInfo, isReplay } = message;
+  const { response, isReplay } = message;
+  const frameInfo = getPortFrameInfo(senderPort);
   if (!response) {
     console.debug('Invalid response', { senderPort, frameInfo, response });
     return;
@@ -210,7 +219,12 @@ const setInitialData = (senderPort, message) => {
   console.debug('Saved initial data', { interceptor, payload });
 };
 
-const sendPlayerProgress = (senderPort, frameInfo, playerProgress) => {
+/**
+ * @param {Port} senderPort 
+ * @param {number} playerProgress 
+ */
+const sendPlayerProgress = (senderPort, playerProgress) => {
+  const frameInfo = getPortFrameInfo(senderPort);
   const interceptor = findInterceptor(
     frameInfo,
     'cannot send player progress',
@@ -248,7 +262,7 @@ if (!(window.location.href.includes(`${chrome.runtime.id}/index.html`))) {
           setInitialData(port, message);
           break;
         case 'sendPlayerProgress':
-          sendPlayerProgress(port, message.frameInfo, message.playerProgress);
+          sendPlayerProgress(port, message.playerProgress);
           break;
         default:
           console.debug('Unknown message type', port, message);

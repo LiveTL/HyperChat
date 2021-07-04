@@ -1,5 +1,3 @@
-import { getFrameInfoAsync } from './chat-utils.js';
-
 const isReplay = window.location.href.startsWith(
   'https://www.youtube.com/live_chat_replay'
 );
@@ -32,7 +30,6 @@ const chatLoaded = async () => {
   document.body.appendChild(script);
 
   /** Register interceptor */
-  const frameInfo = await getFrameInfoAsync();
   const port = chrome.runtime.connect();
   port.postMessage({ type: 'registerInterceptor' });
 
@@ -40,7 +37,6 @@ const chatLoaded = async () => {
   window.addEventListener('messageReceive', (d) => {
     port.postMessage({
       type: 'sendToClients',
-      frameInfo,
       response: d.detail,
       isReplay
     });
@@ -57,7 +53,6 @@ const chatLoaded = async () => {
     const json = text.replace(start, '').slice(0, -1);
     port.postMessage({
       type: 'setInitialData',
-      frameInfo,
       response: json,
       isReplay
     });
@@ -68,7 +63,6 @@ const chatLoaded = async () => {
     if (d.data['yt-player-video-progress'] != null) {
       port.postMessage({
         type: 'sendPlayerProgress',
-        frameInfo,
         playerProgress: d.data['yt-player-video-progress']
       });
     }

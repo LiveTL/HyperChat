@@ -428,7 +428,7 @@ const chatLoaded = () => {
     /** Forward frameInfo to optichat for background messaging */
     const frameInfo = await getFrameInfoAsync();
     optichat.contentWindow.postMessage(
-      { type: 'frameInfo', frameInfo: frameInfo }, '*'
+      { type: 'frameInfo', frameInfo }, '*'
     );
   });
 };
