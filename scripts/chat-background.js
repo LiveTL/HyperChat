@@ -21,6 +21,22 @@ const compareFrameInfo = (a, b) => {
 };
 
 /**
+ * @param {FrameInfo} frameInfo
+ * @param {string} debugText
+ * @param {Object} debugObject
+ * @returns {Interceptor|undefined}
+ */
+const findInterceptor = (frameInfo, debugText, debugObject) => {
+  const interceptor = interceptors.find(
+    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
+  );
+  if (!interceptor) {
+    console.debug(`Interceptor not registered, ${debugText}`, debugObject);
+  }
+  return interceptor;
+};
+
+/**
  * If port and clients are empty, removes interceptor from array.
  * @param {number} i Index of interceptor
  */
@@ -33,8 +49,6 @@ const cleanupInterceptor = (i) => {
 };
 
 /**
- * Register a new interceptor.
- * Will immediately respond with its FrameInfo on success.
  * @param {Port} port
  */
 const registerInterceptor = (port) => {
@@ -70,7 +84,7 @@ const registerInterceptor = (port) => {
   );
   if (i < 0) {
     interceptors.push({ frameInfo: frameInfo, port: port, clients: [] });
-    console.debug('New interceptor registered', { port });
+    console.debug('New interceptor registered', { port, interceptors });
   } else {
     console.debug(
       'Replaced existing interceptor port',
@@ -78,7 +92,6 @@ const registerInterceptor = (port) => {
     );
     interceptors[i].port = port;
   }
-  port.postMessage({ type: 'interceptorRegistered', frameInfo: frameInfo });
 };
 
 /**
@@ -87,16 +100,12 @@ const registerInterceptor = (port) => {
  * @param {boolean} [getInitialData]
  */
 const registerClient = (port, frameInfo, getInitialData) => {
-  const interceptor = interceptors.find(
-    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
+  const interceptor = findInterceptor(
+    frameInfo,
+    'register client unsuccessful',
+    { interceptors, port, frameInfo }
   );
-  if (!interceptor) {
-    console.debug(
-      'Failed to find interceptor, register client unsuccessful',
-      { interceptors, port, frameInfo }
-    );
-    return;
-  }
+  if (!interceptor) return;
 
   if (interceptor.clients.some((client) => client.name === port.name)) {
     console.debug(
@@ -148,19 +157,15 @@ const sendToClients = (senderPort, message) => {
     console.debug('Invalid response', { senderPort, frameInfo, response });
     return;
   }
-  const interceptor = interceptors.find(
-    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
+  const interceptor = findInterceptor(
+    frameInfo,
+    'cannot send to clients',
+    { interceptors, senderPort, frameInfo, response }
   );
-  if (!interceptor) {
-    console.debug(
-      'Interceptor not registered, cannot send to clients',
-      { interceptors, senderPort, frameInfo, response }
-    );
-    return;
-  }
+  if (!interceptor) return;
 
   if (interceptor.clients.length < 1) {
-    console.debug('No clients to send to', { interceptor, response });
+    console.debug('No clients', { interceptor, response });
     return;
   }
 
@@ -186,16 +191,12 @@ const setInitialData = (senderPort, message) => {
     console.debug('Invalid response', { senderPort, frameInfo, response });
     return;
   }
-  const interceptor = interceptors.find(
-    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
+  const interceptor = findInterceptor(
+    frameInfo,
+    'not saving initial data',
+    { interceptors, senderPort, frameInfo, response }
   );
-  if (!interceptor) {
-    console.debug(
-      'Interceptor not registered, not saving initial data',
-      { interceptors, senderPort, frameInfo, response }
-    );
-    return;
-  }
+  if (!interceptor) return;
 
   const payload = parseChatResponse(response, isReplay, true);
   if (!payload) {
@@ -207,6 +208,19 @@ const setInitialData = (senderPort, message) => {
   }
   interceptor.initialData = payload;
   console.debug('Saved initial data', { interceptor, payload });
+};
+
+const sendPlayerProgress = (senderPort, frameInfo, playerProgress) => {
+  const interceptor = findInterceptor(
+    frameInfo,
+    'cannot send player progress',
+    { interceptors, senderPort, frameInfo, playerProgress }
+  );
+  if (!interceptor) return;
+
+  interceptor.clients.forEach(
+    (port) => port.postMessage({ type: 'playerProgress', playerProgress })
+  );
 };
 
 /** Workaround for https://github.com/LiveTL/HyperChat/issues/12 */
@@ -232,6 +246,9 @@ if (!(window.location.href.includes(`${chrome.runtime.id}/index.html`))) {
           break;
         case 'setInitialData':
           setInitialData(port, message);
+          break;
+        case 'sendPlayerProgress':
+          sendPlayerProgress(port, message.frameInfo, message.playerProgress);
           break;
         default:
           console.debug('Unknown message type', port, message);

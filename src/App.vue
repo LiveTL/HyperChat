@@ -193,15 +193,8 @@ export default {
     });
 
     const processMessagePayload = (payload) => {
-      if (payload.type !== 'actionChunk') {
-        return;
-      }
       if (!payload.isReplay && !this.interval) {
-        const runQueue = () => {
-          this.videoProgressUpdated({
-            'yt-player-video-progress': Date.now() / 1000
-          });
-        };
+        const runQueue = () => this.videoProgressUpdated(Date.now() / 1000);
         this.interval = setInterval(runQueue, 250);
         runQueue();
         runQueue();
@@ -244,15 +237,17 @@ export default {
           getInitialData: true
         });
         port.onMessage.addListener((payload) => {
-          processMessagePayload(payload);
+          if (payload.type === 'actionChunk') {
+            processMessagePayload(payload);
+          } else if (payload.type === 'playerProgress' && !this.interval) {
+            this.videoProgressUpdated(payload.playerProgress);
+          }
         });
       }
       /** Handle YT values */
       const d = JSON.parse(JSON.stringify(data));
       this.isAtBottom = this.checkIfBottom();
-      if (d['yt-player-video-progress'] && !this.interval) {
-        this.videoProgressUpdated(d);
-      } else if (d['yt-live-chat-set-dark-theme'] != null) {
+      if (d['yt-live-chat-set-dark-theme'] != null) {
         this.$vuetify.theme.dark = d['yt-live-chat-set-dark-theme'];
         localStorage.setItem('dark_theme', this.$vuetify.theme.dark.toString());
       }
@@ -276,8 +271,7 @@ export default {
         // await this.$forceUpdate();
       }
     },
-    async videoProgressUpdated(d) {
-      const time = d['yt-player-video-progress'];
+    async videoProgressUpdated(time) {
       if (time < 0) return;
       this.progress.current = time;
       if (

@@ -1,8 +1,10 @@
+import { getFrameInfoAsync } from './chat-utils.js';
+
 const isReplay = window.location.href.startsWith(
   'https://www.youtube.com/live_chat_replay'
 );
 
-const chatLoaded = () => {
+const chatLoaded = async () => {
   /** Workaround for https://github.com/LiveTL/HyperChat/issues/12 */
   if (chrome.windows) return;
 
@@ -30,42 +32,47 @@ const chatLoaded = () => {
   document.body.appendChild(script);
 
   /** Register interceptor */
+  const frameInfo = await getFrameInfoAsync();
   const port = chrome.runtime.connect();
-  port.onMessage.addListener((message) => {
-    if (message.type === 'interceptorRegistered') {
-      const frameInfo = message.frameInfo;
-      console.debug('Recieved frameInfo', frameInfo);
+  port.postMessage({ type: 'registerInterceptor' });
 
-      /** Send JSON response to clients */
-      window.addEventListener('messageReceive', d => {
-        port.postMessage({
-          type: 'sendToClients',
-          frameInfo,
-          response: d.detail,
-          isReplay
-        });
+  /** Send JSON response to clients */
+  window.addEventListener('messageReceive', (d) => {
+    port.postMessage({
+      type: 'sendToClients',
+      frameInfo,
+      response: d.detail,
+      isReplay
+    });
+  });
+
+  /** Handle initial data */
+  const scripts = document.querySelector('body').querySelectorAll('script');
+  for (const script of scripts) {
+    const start = 'window["ytInitialData"] = ';
+    const text = script.text;
+    if (!text || !text.startsWith(start)) {
+      continue;
+    }
+    const json = text.replace(start, '').slice(0, -1);
+    port.postMessage({
+      type: 'setInitialData',
+      frameInfo,
+      response: json,
+      isReplay
+    });
+    break;
+  }
+
+  window.addEventListener('message', (d) => {
+    if (d.data['yt-player-video-progress'] != null) {
+      port.postMessage({
+        type: 'sendPlayerProgress',
+        frameInfo,
+        playerProgress: d.data['yt-player-video-progress']
       });
-
-      /** Handle initial data */
-      const scripts = document.querySelector('body').querySelectorAll('script');
-      for (const script of scripts) {
-        const start = 'window["ytInitialData"] = ';
-        const text = script.text;
-        if (!text || !text.startsWith(start)) {
-          continue;
-        }
-        const json = text.replace(start, '').slice(0, -1);
-        port.postMessage({
-          type: 'setInitialData',
-          frameInfo,
-          response: json,
-          isReplay
-        });
-        break;
-      }
     }
   });
-  port.postMessage({ type: 'registerInterceptor' });
 };
 
 /**

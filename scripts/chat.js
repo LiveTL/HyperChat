@@ -376,12 +376,12 @@ const chatLoaded = () => {
   // Everything beyond this is only run if HyperChat is enabled.
   if (!hyperChatEnabled) return;
 
-  window.postMessage({
-    'yt-player-video-progress': 0
-  }, '*');
-  window.postMessage({
-    'yt-player-video-progress': 69420
-  }, '*');
+  // window.postMessage({
+  //   'yt-player-video-progress': 0
+  // }, '*');
+  // window.postMessage({
+  //   'yt-player-video-progress': 69420
+  // }, '*');
 
   const ytcItemList = document.querySelector('#chat>#item-list');
   if (!ytcItemList) {
@@ -420,8 +420,6 @@ const chatLoaded = () => {
   window.addEventListener('message', d => {
     if (d.data.type === 'getTheme') {
       sendTheme();
-    } else if (d.data['yt-player-video-progress'] != null && optichat.contentWindow) {
-      optichat.contentWindow.postMessage(d.data, '*');
     }
   });
 
