@@ -28,6 +28,9 @@ const parseMessageRuns = (runs) => {
    */
   /** @type {ParsedRun[]} */
   const parsedRuns = [];
+  if (!runs) {
+    return parsedRuns;
+  }
   runs.forEach((run) => {
     if (run.text && run.navigationEndpoint) {
       let url = run.navigationEndpoint.commandMetadata.webCommandMetadata.url;
@@ -71,18 +74,23 @@ const parseAddChatItemAction = (action, isReplay, offsetMs) => {
   const renderer = actionItem.liveChatTextMessageRenderer ||
     actionItem.liveChatPaidMessageRenderer ||
     actionItem.liveChatPaidStickerRenderer;
-  // FIXME: Doesn't show empty superchats
-  if (!renderer || !renderer.authorName || !renderer.message) {
+  if (!renderer || !renderer.authorName) {
     return false;
   }
 
   const authorTypes = [];
   if (renderer.authorBadges) {
-    renderer.authorBadges.forEach((badge) =>
-      authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip.toLowerCase())
-    );
+    renderer.authorBadges.forEach((badge) => {
+      const badgeRenderer = badge.liveChatAuthorBadgeRenderer;
+      const iconType = badgeRenderer.icon?.iconType;
+      if (iconType) {
+        authorTypes.push(iconType.toLowerCase());
+        return;
+      }
+      authorTypes.push(badgeRenderer.tooltip.toLowerCase());
+    });
   }
-  const runs = parseMessageRuns(renderer.message.runs);
+  const runs = parseMessageRuns(renderer.message?.runs);
   const timestampUsec = parseInt(renderer.timestampUsec);
   const timestampText = renderer.timestampText?.simpleText; // only used on replays
   const item = {
@@ -211,7 +219,7 @@ export const parseChatResponse = (response, isReplay, isInitial = false) => {
         action.markChatItemAsDeletedAction
       );
       if (parsedAction) deletionActions.push(parsedAction);
-    } else if (action.addBannerToLiveChatCommand) {
+    } else if (action.addBannerToLiveChatCommand) { // TODO: Pinned message UI
       parsedAction = parsePinnedMessageAction(
         action.addBannerToLiveChatCommand
       );
