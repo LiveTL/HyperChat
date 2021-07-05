@@ -550,8 +550,9 @@ const chatLoaded = async () => {
       hyperChatEnabled ? 'false' : 'true');
     location.reload();
   });
-  // eslint-disable-next-line no-undef
-  button.innerHTML = `<img src="${chrome.runtime.getURL((window.isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png')}" /> HC`;
+  button.innerHTML = `<img src="${
+    window.chrome.runtime.getURL((window.isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png')
+  }" /> HC`;
   let messageDisplay = {
     contentWindow: {
       postMessage: () => { }
