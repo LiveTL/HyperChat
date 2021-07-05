@@ -238,8 +238,7 @@ export default {
         this.messages.forEach((message) =>
           this.checkDeleted(message, bonks, deletions)
         );
-        console.log((d) , this.showWelcome == 'future');
-        if ((d.isInitial || d.isReplay) && this.showWelcome == 'future') {
+        if ((d.isInitial || d.isReplay) && this.showWelcome === 'future') {
           this.showWelcome = 'now';
         }
         if (wasBottom) {
@@ -291,7 +290,7 @@ export default {
         }
       }
       this.progress.previous = this.progress.current;
-      if (this.showWelcome == 'now') {
+      if (this.showWelcome === 'now') {
         this.newMessage({ welcomeMessage: true });
         this.showWelcome = 'done';
       }
@@ -299,7 +298,7 @@ export default {
     checkIfBottom() {
       const el = this.$refs.content;
       if (!el) return true;
-      return Math.ceil(window.innerHeight + el.scrollTop) >= el.scrollHeight;
+      return Math.ceil(window.innerHeight + el.scrollTop) >= el.scrollHeight - 2;
     },
     scrollToBottom() {
       this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
@@ -322,6 +321,7 @@ export default {
       }
     },
     checkDeleted(message, bonks, deletions) {
+      if (message.welcomeMessage) return;
       for (const bonk of bonks) {
         if (bonk.authorId === message.author.id) {
           message.message = bonk.replacedMessage;
