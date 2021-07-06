@@ -56,7 +56,7 @@ const getPortFrameInfo = (port) => {
     tabId: port.sender.tab.id,
     frameId: port.sender.frameId
   };
-}
+};
 
 /**
  * @param {Port} port
@@ -220,8 +220,8 @@ const setInitialData = (senderPort, message) => {
 };
 
 /**
- * @param {Port} senderPort 
- * @param {number} playerProgress 
+ * @param {Port} senderPort
+ * @param {number} playerProgress
  */
 const sendPlayerProgress = (senderPort, playerProgress) => {
   const frameInfo = getPortFrameInfo(senderPort);
