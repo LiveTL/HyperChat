@@ -2,6 +2,8 @@ import { getFrameInfoAsync } from './chat-utils.js';
 
 const isLiveTL = false;
 // DO NOT EDIT THE ABOVE LINE, it will be updated by webpack.
+const isAndroid = false;
+// DO NOT EDIT THE ABOVE LINE, it will be updated by webpack.
 const isFirefox = navigator.userAgent.includes('Firefox');
 
 const chatLoaded = () => {
@@ -392,7 +394,7 @@ const chatLoaded = () => {
   /** Inject optichat */
   const source = chrome.runtime.getURL(isLiveTL ? 'hyperchat/index.html' : 'index.html');
   ytcItemList.outerHTML = `
-  <iframe id='optichat' src='${source}${(!window.isAndroid && isLiveTL ? '#isLiveTL' : '')}' style='border: 0px; width: 100%; height: 100%'></iframe>
+  <iframe id='optichat' src='${source}${(!isAndroid && isLiveTL ? '#isLiveTL' : '')}' style='border: 0px; width: 100%; height: 100%'></iframe>
   `;
   if (isFirefox || isLiveTL) {
     const frame = document.querySelector('#optichat');
