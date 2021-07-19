@@ -98,6 +98,7 @@
  * YTC author badge object.
  * @typedef {Object} AuthorBadge
  * @property {Object} liveChatAuthorBadgeRenderer
+ * @property {*} liveChatAuthorBadgeRenderer.customThumbnail
  * @property {string} liveChatAuthorBadgeRenderer.tooltip
  * @property {Object} [liveChatAuthorBadgeRenderer.icon] Only available for verified, mods and owner
  * @property {string} liveChatAuthorBadgeRenderer.icon.iconType Unlocalized string

@@ -85,9 +85,11 @@ const parseAddChatItemAction = (action, isReplay, offsetMs) => {
       const iconType = badgeRenderer.icon?.iconType;
       if (iconType) {
         authorTypes.push(iconType.toLowerCase());
-        return;
+      } else if (badgeRenderer.customThumbnail) {
+        authorTypes.push('member');
+      } else {
+        authorTypes.push(badgeRenderer.tooltip.toLowerCase());
       }
-      authorTypes.push(badgeRenderer.tooltip.toLowerCase());
     });
   }
   const runs = parseMessageRuns(renderer.message?.runs);
