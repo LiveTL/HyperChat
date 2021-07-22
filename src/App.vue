@@ -191,59 +191,65 @@ export default {
       // await this.$forceUpdate();
       this.scrollToBottom();
     });
-    window.addEventListener('message', async (d) => {
-      d = JSON.parse(JSON.stringify(d.data));
-      // console.log(d);
-      this.isAtBottom = this.checkIfBottom();
-      if (d['yt-player-video-progress'] && !this.interval) {
-        this.videoProgressUpdated(d);
-      } else if (d['yt-live-chat-set-dark-theme'] != null) {
-        this.$vuetify.theme.dark = d['yt-live-chat-set-dark-theme'];
-        localStorage.setItem('dark_theme', this.$vuetify.theme.dark.toString());
-      } else if (d.type === 'actionChunk') {
-        if (!d.isReplay && !this.interval) {
-          const runQueue = () => {
-            this.videoProgressUpdated({
-              'yt-player-video-progress': Date.now() / 1000
-            });
-          };
-          this.interval = setInterval(runQueue, 250);
-          runQueue();
-          runQueue();
-        }
-        const messages = [];
-        const bonks = [];
-        const deletions = [];
-        d.actions.forEach((action) => {
-          if (action.type === 'addChatItem') {
-            messages.push(action.item);
-          } else if (action.type === 'authorBonked') {
-            bonks.push(action.item);
-          } else if (action.type === 'messageDeleted') {
-            deletions.push(action.item);
+
+    const processMessagePayload = (payload) => {
+      if (!payload.isReplay && !this.interval) {
+        const runQueue = () => this.videoProgressUpdated(Date.now() / 1000);
+        this.interval = setInterval(runQueue, 250);
+        runQueue();
+        runQueue();
+      }
+      /** Separate each action */
+      const messages = payload.messages;
+      const bonks = payload.bonks;
+      const deletions = payload.deletions;
+      /** Sort and add messages to queue */
+      for (const message of messages.sort(
+        (m1, m2) => m1.showtime - m2.showtime
+      )) {
+        this.checkDeleted(message, bonks, deletions);
+        this.queued.push({
+          timestamp: message.showtime / 1000,
+          message: message
+        });
+      }
+      /** Handle deletions and bonks */
+      const wasBottom = this.checkIfBottom();
+      this.messages.forEach((message) =>
+        this.checkDeleted(message, bonks, deletions)
+      );
+      if ((payload.isInitial || payload.isReplay) && this.showWelcome === 'future') {
+        this.showWelcome = 'now';
+      }
+      if (wasBottom) {
+        this.$nextTick(this.scrollToBottom);
+      }
+    };
+
+    window.addEventListener('message', async (message) => {
+      const data = message.data;
+      /** Connect to background messaging as client */
+      if (data.type === 'frameInfo') {
+        const port = chrome.runtime.connect();
+        port.postMessage({
+          type: 'registerClient',
+          frameInfo: data.frameInfo,
+          getInitialData: true
+        });
+        port.onMessage.addListener((payload) => {
+          if (payload.type === 'actionChunk') {
+            processMessagePayload(payload);
+          } else if (payload.type === 'playerProgress' && !this.interval) {
+            this.videoProgressUpdated(payload.playerProgress);
           }
         });
-        for (const message of messages.sort(
-          (m1, m2) => m1.showtime - m2.showtime
-        )) {
-          let timestamp = (Date.now() + message.showtime) / 1000;
-          if (d.isReplay || d.isInitial) timestamp = message.showtime;
-          this.checkDeleted(message, bonks, deletions);
-          this.queued.push({
-            timestamp,
-            message: message
-          });
-        }
-        const wasBottom = this.checkIfBottom();
-        this.messages.forEach((message) =>
-          this.checkDeleted(message, bonks, deletions)
-        );
-        if ((d.isInitial || d.isReplay) && this.showWelcome === 'future') {
-          this.showWelcome = 'now';
-        }
-        if (wasBottom) {
-          this.$nextTick(this.scrollToBottom);
-        }
+      }
+      /** Handle YT values */
+      const d = JSON.parse(JSON.stringify(data));
+      this.isAtBottom = this.checkIfBottom();
+      if (d['yt-live-chat-set-dark-theme'] != null) {
+        this.$vuetify.theme.dark = d['yt-live-chat-set-dark-theme'];
+        localStorage.setItem('dark_theme', this.$vuetify.theme.dark.toString());
       }
     });
     window.parent.postMessage(
@@ -265,8 +271,7 @@ export default {
         // await this.$forceUpdate();
       }
     },
-    async videoProgressUpdated(d) {
-      const time = d['yt-player-video-progress'];
+    async videoProgressUpdated(time) {
       if (time < 0) return;
       this.progress.current = time;
       if (

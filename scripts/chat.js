@@ -1,205 +1,24 @@
-import { getWAR } from '@/modules/war.js';
-// above line is replaced for LiveTL. DO NOT EDIT.
+import { getFrameInfoAsync } from './chat-utils.js';
 
-for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
-  window.addEventListener(eventName, e => e.stopImmediatePropagation(), true);
-}
+const isLiveTL = false;
+// DO NOT EDIT THE ABOVE LINE, it will be updated by webpack.
+const isAndroid = false;
+// DO NOT EDIT THE ABOVE LINE, it will be updated by webpack.
+const isFirefox = navigator.userAgent.includes('Firefox');
 
-const isReplay = window.location.href.startsWith(
-  'https://www.youtube.com/live_chat_replay'
-);
+const chatLoaded = () => {
+  /** Workaround for https://github.com/LiveTL/HyperChat/issues/12 */
+  if (chrome.windows) return;
 
-window.isFirefox = window.isFirefox || !!/Firefox/.exec(navigator.userAgent);
-
-const formatTimestamp = (timestamp) => {
-  return (new Date(parseInt(timestamp) / 1000)).toLocaleTimeString(navigator.language,
-    { hour: '2-digit', minute: '2-digit' });
-};
-
-const getMillis = (timestamp, usec) => {
-  let secs = Array.from(timestamp.split(':'), t => parseInt(t)).reverse();
-  secs = secs[0] + (secs[1] ? secs[1] * 60 : 0) + (secs[2] ? secs[2] * 60 * 60 : 0);
-  secs *= 1000;
-  secs += usec % 1000;
-  secs /= 1000;
-  return secs;
-};
-
-const colorConversionTable = {
-  4280191205: 'blue',
-  4278248959: 'lightblue',
-  4280150454: 'turquoise',
-  4294953512: 'yellow',
-  4294278144: 'orange',
-  4293467747: 'pink',
-  4293271831: 'red'
-};
-
-const parseMessageRuns = (runs) => {
-  const parsedRuns = [];
-  runs.forEach((run) => {
-    if (run.text && run.navigationEndpoint) {
-      let url = run.navigationEndpoint.commandMetadata.webCommandMetadata.url;
-      if (url.startsWith('/')) {
-        url = 'https://www.youtube.com'.concat(url);
-      }
-      parsedRuns.push({
-        type: 'link',
-        text: decodeURIComponent(escape(unescape(encodeURIComponent(
-          run.text
-        )))),
-        url: url
-      });
-    } else if (run.text) {
-      parsedRuns.push({
-        type: 'text',
-        text: decodeURIComponent(escape(unescape(encodeURIComponent(
-          run.text
-        ))))
-      });
-    } else if (run.emoji) {
-      parsedRuns.push({
-        type: 'emote',
-        src: run.emoji.image.thumbnails[0].url
-      });
-    }
-  });
-  return parsedRuns;
-};
-
-const parseAddChatItemAction = (action) => {
-  const actionItem = (action || {}).item;
-  if (!actionItem) {
-    return false;
+  if (document.querySelector('.toggleButton')) {
+    console.debug('HC Button already injected.');
+    return;
   }
-  const messageItem = actionItem.liveChatTextMessageRenderer ||
-    actionItem.liveChatPaidMessageRenderer ||
-    actionItem.liveChatPaidStickerRenderer;
-  if (!messageItem) {
-    return false;
-  }
-  if (!messageItem.authorName) {
-    return false;
-  }
-  messageItem.authorBadges = messageItem.authorBadges || [];
-  const authorTypes = [];
-  messageItem.authorBadges.forEach((badge) =>
-    authorTypes.push(badge.liveChatAuthorBadgeRenderer.tooltip.toLowerCase())
-  );
-  if (!messageItem.message) {
-    return false;
-  }
-  const runs = parseMessageRuns(messageItem.message.runs);
-  const timestampUsec = parseInt(messageItem.timestampUsec);
-  const timestampText = (messageItem.timestampText || {}).simpleText;
-  const date = new Date();
-  const item = {
-    author: {
-      name: messageItem.authorName.simpleText,
-      id: messageItem.authorExternalChannelId,
-      types: authorTypes
-    },
-    message: runs,
-    timestamp: isReplay
-      ? timestampText
-      : formatTimestamp(timestampUsec),
-    showtime: isReplay ? getMillis(timestampText, timestampUsec)
-      : date.getTime() - Math.round(timestampUsec / 1000),
-    messageId: messageItem.id
-  };
-  if (actionItem.liveChatPaidMessageRenderer) {
-    item.superchat = {
-      amount: messageItem.purchaseAmountText.simpleText,
-      color: colorConversionTable[messageItem.bodyBackgroundColor]
-    };
-  }
-  return {
-    type: 'addChatItem',
-    item: item
-  };
-};
 
-const parseAuthorBonkedAction = (action) => {
-  if (!action.deletedStateMessage || !action.externalChannelId) {
-    return false;
-  }
-  return {
-    type: 'authorBonked',
-    item: {
-      replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
-      authorId: action.externalChannelId
-    }
-  };
-};
-
-const parseMessageDeletedAction = (action) => {
-  if (!action.deletedStateMessage || !action.targetItemId) {
-    return false;
-  }
-  return {
-    type: 'messageDeleted',
-    item: {
-      replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
-      messageId: action.targetItemId
-    }
-  };
-};
-
-const messageReceiveCallback = async (response, isInitial = false) => {
-  response = JSON.parse(response);
-  try {
-    const actions = [];
-    const actionsObject = response?.continuationContents?.liveChatContinuation?.actions ||
-      response?.contents?.liveChatRenderer?.actions;
-    if (!actionsObject) {
-      console.debug('Response was invalid', response);
-      return;
-    }
-    (actionsObject || []).forEach((action) => {
-      try {
-        let parsedAction;
-        if (action.addChatItemAction) {
-          parsedAction = parseAddChatItemAction(action.addChatItemAction);
-        } else if (action.replayChatItemAction) {
-          parsedAction = parseAddChatItemAction(
-            action.replayChatItemAction.actions[0].addChatItemAction
-          );
-        } else if (action.markChatItemsByAuthorAsDeletedAction) {
-          parsedAction = parseAuthorBonkedAction(
-            action.markChatItemsByAuthorAsDeletedAction
-          );
-        } else if (action.markChatItemAsDeletedAction) {
-          parsedAction = parseMessageDeletedAction(
-            action.markChatItemAsDeletedAction
-          );
-        }
-        if (!parsedAction) {
-          return;
-        }
-        actions.push(parsedAction);
-      } catch (e) {
-        console.debug('Error while parsing actions.', { e });
-      }
-    });
-    const chunk = {
-      type: 'actionChunk',
-      actions: actions,
-      isReplay,
-      isInitial
-    };
-    document
-      .querySelector('#optichat')
-      .contentWindow.postMessage(chunk, '*');
-  } catch (e) {
-    console.debug(e);
-  }
-};
-
-const chatLoaded = async () => {
-  if (document.querySelector('.toggleButton')) return;
   document.body.style.minWidth = document.body.style.minHeight = '0px';
   const hyperChatEnabled = localStorage.getItem('HC:ENABLED') !== 'false';
 
+  /** Inject CSS */
   const css = `
     .toggleButtonContainer {
       float: right;
@@ -539,6 +358,7 @@ const chatLoaded = async () => {
   style.innerHTML = css;
   document.body.appendChild(style);
 
+  /** Inject HC button */
   const buttonContainer = document.createElement('div');
   buttonContainer.setAttribute('data-tooltip', hyperChatEnabled ? 'Disable HyperChat' : 'Enable HyperChat');
   buttonContainer.className = 'toggleButtonContainer tooltip-bottom';
@@ -550,87 +370,49 @@ const chatLoaded = async () => {
       hyperChatEnabled ? 'false' : 'true');
     location.reload();
   });
-  button.innerHTML = `<img src="${
-    window.chrome.runtime.getURL((window.isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png')
-  }" /> HC`;
-  let messageDisplay = {
-    contentWindow: {
-      postMessage: () => { }
-    }
-  };
+  button.innerHTML = `<img src="${chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png')}" /> HC`;
   buttonContainer.appendChild(button);
-  await new Promise((resolve, reject) => {
-    const poller = setInterval(() => {
-      const e = document.querySelector('#primary-content');
-      if (e) e.appendChild(buttonContainer);
-      clearInterval(poller);
-      resolve();
-    }, 100);
-  });
-  if (hyperChatEnabled) {
-    window.postMessage({
-      'yt-player-video-progress': 0
-    }, '*');
-    window.postMessage({
-      'yt-player-video-progress': 69420
-    }, '*');
-    const elem = document.querySelector('#chat>#item-list');
-    if (!elem) return;
-    await new Promise((resolve, reject) => {
-      const poller = setInterval(() => {
-        if (getWAR) {
-          if (!window.isAndroid) button.style.display = 'flex';
-          clearInterval(poller);
-          resolve();
-        }
-      }, 100);
-    });
-    console.debug('Found definition of getWAR');
-    const source = await getWAR(window.isLiveTL ? 'hyperchat/index.html' : 'index.html');
-    elem.outerHTML = `
-    <iframe id='optichat' src='${source}${(!window.isAndroid && window.isLiveTL ? '#isLiveTL' : '')}' style='border: 0px; width: 100%; height: 100%'></iframe>
-    `;
-    if (window.isFirefox || window.isAndroid || window.isLiveTL) {
-      const frame = document.querySelector('#optichat');
-      const scale = 0.8;
-      const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
-      frame.style.transformOrigin = '0px 0px';
-      frame.style.minWidth = inverse;
-      frame.style.minHeight = inverse;
-      frame.style.transform = `scale(${scale})`;
-    }
-    document.querySelector('#ticker').remove();
-    const script = document.createElement('script');
-    script.innerHTML = `
-    for (event_name of ["visibilitychange", "webkitvisibilitychange", "blur"]) {
-      window.addEventListener(event_name, event => {
-        event.stopImmediatePropagation();
-      }, true);
-    }
-    window.fetchFallback = window.fetch;
-    window.fetch = async (...args) => {
-      const url = args[0].url;
-      const result = await window.fetchFallback(...args);
-      if (url.startsWith(
-        'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat')
-      ) {
-        const response = JSON.stringify(await (await result.clone()).json());
-        window.dispatchEvent(new CustomEvent('messageReceive', { detail: response }));
-      }
-      return result;
-    };
-    `;
-    window.addEventListener('messageReceive', d => messageReceiveCallback(d.detail));
-    document.body.appendChild(script);
+  document.querySelector('#primary-content').appendChild(buttonContainer);
+  button.style.display = 'flex';
 
-    messageDisplay = document.querySelector('#optichat');
-  } else {
-    button.style.display = 'flex';
+  // Everything beyond this is only run if HyperChat is enabled.
+  if (!hyperChatEnabled) return;
+
+  // window.postMessage({
+  //   'yt-player-video-progress': 0
+  // }, '*');
+  // window.postMessage({
+  //   'yt-player-video-progress': 69420
+  // }, '*');
+
+  const ytcItemList = document.querySelector('#chat>#item-list');
+  if (!ytcItemList) {
+    console.debug('Unable to find YTC item-list.');
+    return;
   }
+
+  /** Inject optichat */
+  const source = chrome.runtime.getURL(isLiveTL ? 'hyperchat/index.html' : 'index.html');
+  ytcItemList.outerHTML = `
+  <iframe id='optichat' src='${source}${(!isAndroid && isLiveTL ? '#isLiveTL' : '')}' style='border: 0px; width: 100%; height: 100%'></iframe>
+  `;
+  if (isFirefox || isLiveTL) {
+    const frame = document.querySelector('#optichat');
+    const scale = 0.8;
+    const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
+    frame.style.transformOrigin = '0px 0px';
+    frame.style.minWidth = inverse;
+    frame.style.minHeight = inverse;
+    frame.style.transform = `scale(${scale})`;
+  }
+  document.querySelector('#ticker').remove();
+
+  /** Forward theme and yt-player-video-progress to optichat */
+  const optichat = document.querySelector('#optichat');
   const html = document.querySelector('html');
   const sendTheme = () => {
     const theme = html.hasAttribute('dark');
-    messageDisplay.contentWindow.postMessage({
+    optichat.contentWindow.postMessage({
       'yt-live-chat-set-dark-theme': theme
     }, '*');
   };
@@ -640,30 +422,23 @@ const chatLoaded = async () => {
   window.addEventListener('message', d => {
     if (d.data.type === 'getTheme') {
       sendTheme();
-    } else if (d.data['yt-player-video-progress'] != null && messageDisplay.contentWindow) {
-      messageDisplay.contentWindow.postMessage(d.data, '*');
     }
   });
 
-  if (!hyperChatEnabled) {
-    return;
-  }
-  const processInitialJson = () => {
-    const scripts = document.querySelector('body').querySelectorAll('script');
-    scripts.forEach(script => {
-      const start = 'window["ytInitialData"] = ';
-      const text = script.text;
-      if (!text || !text.startsWith(start)) {
-        return;
-      }
-      const json = text.replace(start, '').slice(0, -1);
-      messageReceiveCallback(json, true);
-    });
-  };
-  const iframe = document.querySelector('#optichat');
-  iframe.addEventListener('load', processInitialJson);
+  // Note: iframe readyState is always 'complete' even when it shouldn't be
+  optichat.addEventListener('load', async () => {
+    /** Forward frameInfo to optichat for background messaging */
+    const frameInfo = await getFrameInfoAsync();
+    optichat.contentWindow.postMessage(
+      { type: 'frameInfo', frameInfo }, '*'
+    );
+  });
 };
 
+/**
+ * Load on DOMContentLoaded or later.
+ * Does not matter unless run_at is specified in extensions' manifest.
+ */
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', chatLoaded);
 } else {
