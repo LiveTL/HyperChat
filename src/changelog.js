@@ -48,5 +48,12 @@ exports.updates = [
   {
     version: 'v1.2.0',
     comments: 'Messages that were present in the chat before HC was lauched now appear instantly!'
+  },
+  {
+    version: 'v1.3.0',
+    comments: 'The entire message pipeline has been reworked (special thanks to @ChrRubin!). ' +
+              'If you know any friends that previously had issues with HyperChat, be sure to ' +
+              'let them know that this update may solve all of their problems. ' +
+              'Next on our to-do list is support for pinned messages!'
   }
 ];
