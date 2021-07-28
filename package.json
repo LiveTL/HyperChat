@@ -1,40 +1,17 @@
 {
-  "name": "hyperchat",
+  "name": "chat",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "build": "vue-cli-service build --mode development --watch",
-    "publish": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
-  },
-  "dependencies": {
-    "copy-webpack-plugin": "^9.0.0",
-    "core-js": "^3.6.5",
-    "hosted-git-info": "^4.0.2",
-    "is-svg": "^4.3.1",
-    "lodash": "^4.17.21",
-    "postcss": "^8.2.15",
-    "ssri": "^8.0.1",
-    "url-parse": "^1.5.1",
-    "vue": "^2.6.11",
-    "vuetify": "^2.4.0"
-  },
+  "scripts": {},
+  "dependencies": {},
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.5.0",
-    "@vue/cli-plugin-eslint": "^4.5.0",
-    "@vue/cli-service": "^4.5.0",
-    "@vue/eslint-config-standard": "^5.1.2",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-import": "^2.20.2",
+    "eslint": "^7.31.0",
+    "eslint-config-semistandard": "^16.0.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "eslint-plugin-vue": "^6.2.2",
-    "sass": "^1.32.0",
-    "sass-loader": "^10.0.0",
-    "vue-cli-plugin-vuetify": "^2.1.0",
-    "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.7.0"
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-svelte3": "^3.2.0",
+    "svelte": "^3.41.0"
   }
 }
