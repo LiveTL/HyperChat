@@ -6,7 +6,8 @@
     "noEmit": true,
     "strict": true,
     "lib": ["DOM"],
-    "target": "ES6"
+    "target": "ES6",
+    "typeRoots": ["./node_modules/@types", "./src/submodules/chat/src/ts"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "build"]
