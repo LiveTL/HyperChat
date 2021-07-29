@@ -5,19 +5,17 @@ module.exports = {
     node: true,
     webextensions: true
   },
-  extends: 'semistandard',
+  parser: '@typescript-eslint/parser',
+  plugins: [
+    '@typescript-eslint'
+  ],
+  extends: [
+    'semistandard',
+    'plugin:@typescript-eslint/recommended'
+  ],
   parserOptions: {
     sourceType: 'module'
   },
-  plugins: [
-    'svelte3'
-  ],
-  overrides: [
-    {
-      files: ['*.svelte'],
-      processor: 'svelte3/svelte3'
-    }
-  ],
   rules: {
     'linebreak-style': [
       'error',
