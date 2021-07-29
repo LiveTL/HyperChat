@@ -1,5 +1,6 @@
 module.exports = {
   env: {
+    browser: true,
     es6: true,
     node: true,
     webextensions: true
@@ -22,5 +23,6 @@ module.exports = {
       'error',
       'unix'
     ]
-  }
+  },
+  root: true
 };

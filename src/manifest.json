@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "__MSG_extName__",
-  "homepage_url": "http://localhost:8080/",
+  "name": "HyperChat by LiveTL",
+  "homepage_url": "https://livetl.app/en/hyperchat/",
   "description": "YouTube chat, but it's fast and sleek!",
   "default_locale": "en",
   "permissions": [
@@ -29,7 +29,6 @@
     }
   ],
   "browser_action": {
-    "default_title": "__MSG_extName__",
     "default_icon": {
       "32": "icons/32x32.png",
       "128": "icons/128x128.png"

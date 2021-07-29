@@ -1,12 +1,7 @@
-const mode = (process.argv.indexOf('production') || process.argv.indexOf('android')) != -1 ? 'production' : 'development';
-process.env.NODE_ENV = process.env.NODE_ENV || mode;
-
-var webpack = require('webpack'),
-  config = require('../webpack.config');
+const webpack = require('webpack');
+const config = require('../webpack.config');
 
 const fs = require('fs');
-
-delete config.chromeExtensionBoilerplate;
 
 webpack(
   config,
@@ -18,28 +13,25 @@ webpack(
 );
 
 // eslint-disable-next-line no-unused-vars
-function replaceVersion() {
+function replaceVersion () {
   try {
     const versionArg = process.argv.filter(arg => arg.startsWith('--version'))[0];
     const version = versionArg.split('=')[1];
     const manifest = JSON.parse(fs.readFileSync('./build/manifest.json', {
       encoding: 'utf8', flag: 'r'
     }));
-    const newManifest = JSON.stringify({...manifest, version});
+    const newManifest = JSON.stringify({ ...manifest, version });
     fs.writeFileSync('./build/manifest.json', newManifest, {
       encoding: 'utf8', flag: 'w+'
     });
-  }
-  // eslint-disable-next-line no-empty
-  catch (e) { }
+  } catch (e) { }
 }
 
-
-function addChromeManifest() {
+function addChromeManifest () {
   const manifest = JSON.parse(fs.readFileSync('./build/manifest.json', {
     encoding: 'utf8', flag: 'r'
   }));
-  
+
   const chromeManifest = JSON.stringify({
     ...manifest, incognito: 'split'
   });
