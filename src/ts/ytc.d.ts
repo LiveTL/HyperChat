@@ -163,12 +163,23 @@ declare namespace Ytc {
     simpleText: string;
   };
 
-  type ParsedRun = {
-    type: 'link' | 'text' | 'emote';
-    text?: string;
-    url?: string;
-    src?: string;
-  };
+  type ParsedTextRun = {
+    type: 'text';
+    text: string;
+  }
+
+  type ParsedLinkRun = {
+    type: 'link';
+    text: string;
+    url: string;
+  }
+
+  type ParsedEmoteRun = {
+    type: 'emote';
+    src: string;
+  }
+
+  type ParsedRun = ParsedTextRun | ParsedLinkRun | ParsedEmoteRun;
 
   type ParsedMessage = {
     author: {
@@ -197,12 +208,22 @@ declare namespace Ytc {
   };
 
   type ParsedPinned = {
-    header: ParsedRun[];
-    contents: ParsedMessage;
+    type: 'messagePinned';
+    item: {
+      header: ParsedRun[];
+      contents: ParsedMessage;
+    }
   };
 
-  type ParsedMisc<T> = {
-    type: string;
-    item?: T;
+  type ParsedMisc = ParsedPinned | { type: 'removePinned'}
+
+  type Renderers = TextMessageRenderer | PaidMessageRenderer | PaidStickerRenderer;
+  /**
+   * Type predicates
+   */
+  /** Checks if renderer is a PaidMessageRenderer */
+  const isPaidMessageRenderer = (actionItem: AddChatItem, renderer: Renderers): renderer is PaidMessageRenderer => {
+    const r = renderer as PaidMessageRenderer;
+    return actionItem.liveChatPaidMessageRenderer && r.purchaseAmountText && (r.bodyBackgroundColor !== undefined);
   };
 }

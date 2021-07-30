@@ -1,5 +1,6 @@
 declare namespace Chat {
   type ActionChunk = {
+    type: 'actionChunk';
     messages: Ytc.ParsedMessage[];
     bonks: Ytc.ParsedBonk[];
     deletions: Ytc.ParsedDeleted[];
@@ -8,14 +9,12 @@ declare namespace Chat {
     isInitial: boolean;
   };
 
-  type IPayload = {
-    actionChunk?: ActionChunk;
-    playerProgress?: number;
-  };
-
-  type ActionChunkPayload = IPayload & {
-    actionChunk: ActionChunk;
+  type PlayerProgress = {
+    type: 'playerProgress';
+    playerProgress: number;
   }
+
+  type Payload = ActionChunk | PlayerProgress;
 
   type Port = chrome.runtime.Port;
 
@@ -28,6 +27,6 @@ declare namespace Chat {
     frameInfo: FrameInfo;
     port: Port;
     clients: Port[];
-    initialData: ActionChunkPayload;
+    initialData: ActionChunk;
   }
 }

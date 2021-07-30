@@ -10,7 +10,7 @@ const colorToHex = (color: number) => {
 };
 
 const parseMessageRuns = (runs: Ytc.MessageRun[]) => {
-  const parsedRuns = [] as Ytc.ParsedRun[];
+  const parsedRuns: Ytc.ParsedRun[] = [];
   if (!runs) {
     return parsedRuns;
   }
@@ -44,19 +44,19 @@ const parseMessageRuns = (runs: Ytc.MessageRun[]) => {
   return parsedRuns;
 };
 
-const parseAddChatItemAction = (action?: Ytc.AddChatItemAction, isReplay = false, offsetMs = 0): Ytc.ParsedMessage | false => {
+const parseAddChatItemAction = (action?: Ytc.AddChatItemAction, isReplay = false, offsetMs = 0): Ytc.ParsedMessage | undefined => {
   if (!action || !action.item) {
-    return false;
+    return;
   }
   const actionItem = action.item;
   const renderer = actionItem.liveChatTextMessageRenderer ||
     actionItem.liveChatPaidMessageRenderer ||
     actionItem.liveChatPaidStickerRenderer;
   if (!renderer || !renderer.authorName) {
-    return false;
+    return;
   }
 
-  const authorTypes = [] as string[];
+  const authorTypes: string[] = [];
   if (renderer.authorBadges) {
     renderer.authorBadges.forEach((badge) => {
       const badgeRenderer = badge.liveChatAuthorBadgeRenderer;
@@ -73,31 +73,30 @@ const parseAddChatItemAction = (action?: Ytc.AddChatItemAction, isReplay = false
   const runs = parseMessageRuns(renderer.message?.runs);
   const timestampUsec = parseInt(renderer.timestampUsec);
   const timestampText = renderer.timestampText?.simpleText;
-  const item = {
+  const item: Ytc.ParsedMessage = {
     author: {
       name: renderer.authorName.simpleText,
       id: renderer.authorExternalChannelId,
       types: authorTypes
     },
     message: runs,
-    timestamp: isReplay ? timestampText as string : formatTimestamp(timestampUsec),
+    timestamp: isReplay && timestampText ? timestampText : formatTimestamp(timestampUsec),
     showtime: isReplay ? offsetMs : (timestampUsec / 1000) + offsetMs,
     messageId: renderer.id
-  } as Ytc.ParsedMessage;
+  };
   // TODO: Super stickers
-  if (actionItem.liveChatPaidMessageRenderer) {
-    const superchatRenderer = renderer as Ytc.PaidMessageRenderer;
+  if (Ytc.isPaidMessageRenderer(actionItem, renderer)) {
     item.superchat = {
-      amount: superchatRenderer.purchaseAmountText.simpleText,
-      color: colorToHex(superchatRenderer.bodyBackgroundColor)
+      amount: renderer.purchaseAmountText.simpleText,
+      color: colorToHex(renderer.bodyBackgroundColor)
     };
   }
   return item;
 };
 
-const parseAuthorBonkedAction = (action: Ytc.AuthorBonkedAction): Ytc.ParsedBonk | false => {
+const parseAuthorBonkedAction = (action: Ytc.AuthorBonkedAction): Ytc.ParsedBonk | undefined => {
   if (!action.deletedStateMessage || !action.externalChannelId) {
-    return false;
+    return;
   }
   return {
     replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
@@ -105,9 +104,9 @@ const parseAuthorBonkedAction = (action: Ytc.AuthorBonkedAction): Ytc.ParsedBonk
   };
 };
 
-const parseMessageDeletedAction = (action: Ytc.MessageDeletedAction): Ytc.ParsedDeleted | false => {
+const parseMessageDeletedAction = (action: Ytc.MessageDeletedAction): Ytc.ParsedDeleted | undefined => {
   if (!action.deletedStateMessage || !action.targetItemId) {
-    return false;
+    return;
   }
   return {
     replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
@@ -115,16 +114,16 @@ const parseMessageDeletedAction = (action: Ytc.MessageDeletedAction): Ytc.Parsed
   };
 };
 
-const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedMisc<Ytc.ParsedPinned> | false => {
+const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned | undefined => {
   const baseRenderer = action.bannerRenderer?.liveChatBannerRenderer;
   if (!baseRenderer) {
-    return false;
+    return;
   }
   const parsedContents = parseAddChatItemAction(
     { item: baseRenderer.contents }
   );
   if (!parsedContents) {
-    return false;
+    return;
   }
   return {
     type: 'messagePinned',
@@ -138,7 +137,7 @@ const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedMisc<Y
 };
 
 export const parseChatResponse = (response: string, isReplay: boolean, isInitial = false): Chat.ActionChunk | undefined => {
-  const parsedResponse = JSON.parse(response) as Ytc.RawResponse;
+  const parsedResponse: Ytc.RawResponse = JSON.parse(response);
   const base =
     parsedResponse.continuationContents?.liveChatContinuation ||
     parsedResponse.contents?.liveChatRenderer;
@@ -148,17 +147,17 @@ export const parseChatResponse = (response: string, isReplay: boolean, isInitial
     return;
   }
 
-  const addChatItemActions = [] as Ytc.ParsedMessage[];
-  const bonkActions = [] as Ytc.ParsedBonk[];
-  const deletionActions = [] as Ytc.ParsedDeleted[];
-  const miscActions = [] as Ytc.ParsedMisc<unknown>[];
+  const addChatItemActions: Ytc.ParsedMessage[] = [];
+  const bonkActions: Ytc.ParsedBonk[] = [];
+  const deletionActions: Ytc.ParsedDeleted[] = [];
+  const miscActions: Ytc.ParsedMisc[] = [];
 
   actionsArray.forEach((action) => {
     let parsedAction;
     if (action.addChatItemAction) {
       const liveTimeoutMs =
-        (base.continuations[0].timedContinuationData?.timeoutMs ||
-        base.continuations[0].invalidationContinuationData?.timeoutMs) as number;
+        base.continuations[0].timedContinuationData?.timeoutMs ||
+        base.continuations[0].invalidationContinuationData?.timeoutMs;
       parsedAction =
         parseAddChatItemAction(
           action.addChatItemAction, isReplay, liveTimeoutMs
@@ -191,7 +190,7 @@ export const parseChatResponse = (response: string, isReplay: boolean, isInitial
       );
       if (parsedAction) miscActions.push(parsedAction);
     } else if (action.removeBannerForLiveChatCommand) {
-      parsedAction = { type: 'removePinned' };
+      parsedAction = { type: 'removePinned' } as const;
       miscActions.push(parsedAction);
     }
 
@@ -201,6 +200,7 @@ export const parseChatResponse = (response: string, isReplay: boolean, isInitial
   });
 
   return {
+    type: 'actionChunk',
     messages: addChatItemActions,
     bonks: bonkActions,
     deletions: deletionActions,
