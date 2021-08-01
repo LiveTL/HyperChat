@@ -3,18 +3,12 @@
   "name": "HyperChat by LiveTL",
   "homepage_url": "https://livetl.app/en/hyperchat/",
   "description": "YouTube chat, but it's fast and sleek!",
-  "default_locale": "en",
+  "version": "42.0.69",
   "permissions": [
   ],
   "icons": {
-    "32": "icons/32x32.png",
-    "128": "icons/128x128.png"
-  },
-  "background": {
-    "scripts": [
-      "js/background.js"
-    ],
-    "persistent": true
+    "48": "assets/logo-48.png",
+    "128": "assets/logo-128.png"
   },
   "content_scripts": [
     {
@@ -23,15 +17,15 @@
         "https://www.youtube.com/live_chat_replay*"
       ],
       "js": [
-        "js/chat.js"
+        "chat-injector.bundle.js"
       ],
       "all_frames": true
     }
   ],
   "browser_action": {
     "default_icon": {
-      "32": "icons/32x32.png",
-      "128": "icons/128x128.png"
+      "48": "assets/logo-48.png",
+      "128": "assets/logo-128.png"
     }
   },
   "web_accessible_resources": [

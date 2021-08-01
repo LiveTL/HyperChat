@@ -15,6 +15,10 @@
   "devDependencies": {
     "@babel/core": "^7.14.8",
     "@babel/preset-env": "^7.14.8",
+    "@smui/button": "^4.2.0",
+    "@smui/common": "^4.2.0",
+    "@smui/icon-button": "^4.2.0",
+    "@smui/tooltip": "^4.2.0",
     "@tsconfig/svelte": "^2.0.1",
     "@types/chrome": "^0.0.149",
     "@typescript-eslint/eslint-plugin": "^4.28.5",
@@ -39,6 +43,7 @@
     "svelte-check": "^2.2.3",
     "svelte-loader": "^3.1.2",
     "svelte-preprocess": "^4.7.4",
+    "ts-loader": "^9.2.4",
     "typescript": "^4.3.5",
     "webpack": "^5.47.0",
     "webpack-dev-server": "^3.11.2"

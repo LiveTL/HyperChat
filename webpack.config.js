@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const { preprocess } = require('./svelte.config');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-const mode = process.env.NODE_ENV;
+const mode = process.env.NODE_ENV || 'development';
 const prod = mode !== 'development';
 
 module.exports = {
@@ -11,7 +12,7 @@ module.exports = {
     chat: path.join(__dirname, 'src', 'submodules', 'chat', 'scripts', 'chat.js'),
     'chat-interceptor': path.join(__dirname, 'src', 'submodules', 'chat', 'scripts', 'chat-interceptor.js'),
     'chat-background': path.join(__dirname, 'src', 'submodules', 'chat', 'scripts', 'chat-background.js'),
-    hyperchat: path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'hyperchat.js')
+    'chat-injector': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-injector.ts')
   },
   output: {
     path: path.join(__dirname, 'build'),
@@ -22,11 +23,16 @@ module.exports = {
     alias: {
       svelte: path.resolve('node_modules', 'svelte')
     },
-    extensions: ['.mjs', '.js', '.svelte'],
+    extensions: ['.mjs', '.js', '.svelte', '.tsx', '.ts'],
     mainFields: ['svelte', 'browser', 'module', 'main']
   },
   module: {
     rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
+      },
       {
         test: /\.svelte$/,
         use: {
@@ -59,7 +65,7 @@ module.exports = {
               // Prefer `dart-sass`
               implementation: require('sass'),
               sassOptions: {
-                includePaths: ['./theme', './node_modules']
+                includePaths: ['./src/submodules/chat/src/theme', './node_modules']
               }
             }
           }
