@@ -10,12 +10,12 @@ const defaultWhitelistPatterns = [
   /w-.\/7/
 ];
 
-module.exports = (purge = false) => {
-  // const tailwind = {};
+module.exports = (purge = false, tailwind = {}) => {
   const postcss = [];
   const whitelist = defaultWhitelist;
   const whitelistPatterns = defaultWhitelistPatterns;
-  const tailwindConfig = require('./tailwind.config.js');
+  const whitelistPatternsChildren = defaultWhitelistPatterns;
+  const tailwindConfig = require('./tailwind.config.js')(tailwind);
   return [
     require('postcss-import')(),
     require('postcss-url')(),
@@ -37,7 +37,8 @@ module.exports = (purge = false) => {
           }
         ],
         whitelist: whitelist.filter(Boolean),
-        whitelistPatterns: whitelistPatterns.filter(Boolean)
+        whitelistPatterns: whitelistPatterns.filter(Boolean),
+        whitelistPatternsChildren: whitelistPatternsChildren.filter(Boolean)
       })
   ].filter(Boolean);
 };
