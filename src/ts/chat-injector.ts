@@ -12,7 +12,7 @@ const chatLoaded = () => {
   document.body.style.minWidth = document.body.style.minHeight = '0px';
   const hyperChatEnabled = localStorage.getItem('HC:ENABLED') !== 'false';
 
-  /** Inject HC button */
+  // Inject HC button
   const ytcPrimaryContent = document.querySelector('#primary-content');
   if (!ytcPrimaryContent) {
     console.error('Failed to find #primary-content');
@@ -23,6 +23,7 @@ const chatLoaded = () => {
     target: ytcPrimaryContent
   });
 
+  // Everything past this point will only run if HC is enabled
   if (!hyperChatEnabled) return;
 
   const ytcItemList = document.querySelector('#chat>#item-list');
@@ -31,7 +32,7 @@ const chatLoaded = () => {
     return;
   }
 
-  /** Inject hyperchat */
+  // Inject hyperchat
   const source = chrome.runtime.getURL('hyperchat.html');
   ytcItemList.outerHTML = `
   <iframe id='hyperchat' src='${source}${(!isAndroid && isLiveTL ? '#isLiveTL' : '')}' style='border: 0px; width: 100%; height: 100%'></iframe>
@@ -57,27 +58,11 @@ const chatLoaded = () => {
   }
   ytcTicker.remove();
 
-  /** Forward theme and yt-player-video-progress to optichat */
-  const html = document.querySelector('html');
   const hyperchatWindow = hyperchat.contentWindow;
-  if (!html || !hyperchatWindow) {
+  if (!hyperchatWindow) {
     console.debug('Failed to get hyperchat contentWindow');
     return;
   }
-  const sendTheme = () => {
-    const theme = html.hasAttribute('dark');
-    hyperchatWindow.postMessage({
-      'yt-live-chat-set-dark-theme': theme
-    }, '*');
-  };
-  new MutationObserver(sendTheme).observe(html, {
-    attributes: true
-  });
-  window.addEventListener('message', d => {
-    if (d.data.type === 'getTheme') {
-      sendTheme();
-    }
-  });
 
   // Note: iframe readyState is always 'complete' even when it shouldn't be
   hyperchat.addEventListener('load', async () => {

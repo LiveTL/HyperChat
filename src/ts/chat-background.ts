@@ -1,5 +1,5 @@
 import { parseChatResponse } from './chat-parser';
-import { isLiveTL } from './chat-utils';
+import { isLiveTL, isValidFrameInfo } from './chat-utils';
 
 const interceptors: Chat.Interceptor[] = [];
 
@@ -7,24 +7,39 @@ const compareFrameInfo = (a: Chat.FrameInfo, b: Chat.FrameInfo) => {
   return a.tabId === b.tabId && a.frameId === b.frameId;
 };
 
-const findInterceptor = (frameInfo: Chat.FrameInfo, debugObject: unknown) => {
-  const interceptor = interceptors.find(
-    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
+const findInterceptorIndex = (frameInfo: Chat.FrameInfo) => {
+  return interceptors.findIndex(
+    (i) => compareFrameInfo(i.frameInfo, frameInfo)
   );
-  if (!interceptor) {
-    console.error('Interceptor not registered', debugObject);
-  }
-  return interceptor;
 };
+
+const findInterceptor = (frameInfo: Chat.FrameInfo, debugObject?: unknown) => {
+  const i = findInterceptorIndex(frameInfo);
+  if (i < 0) {
+    console.error('Interceptor not registered', debugObject);
+    return undefined;
+  }
+  return interceptors[i];
+};
+
+const findSelfInterceptor =
+  (port: Chat.Port, debugObject?: Record<string, unknown>) => {
+    const frameInfo = getPortFrameInfo(port);
+    if (!isValidFrameInfo(frameInfo, port)) return;
+    return findInterceptor(
+      frameInfo,
+      { interceptors, port, ...debugObject }
+    );
+  };
 
 /**
  * If port and clients are empty, removes interceptor from array.
  */
-const cleanupInterceptor = (index: number) => {
-  const interceptor = interceptors[index];
+const cleanupInterceptor = (i: number) => {
+  const interceptor = interceptors[i];
   if (!interceptor.port && interceptor.clients.length < 1) {
     console.debug('Removing empty interceptor', { interceptor, interceptors });
-    interceptors.splice(index, 1);
+    interceptors.splice(i, 1);
   }
 };
 
@@ -37,13 +52,11 @@ const getPortFrameInfo = (port: Chat.Port): Chat.UncheckedFrameInfo => {
 
 const registerInterceptor = (port: Chat.Port) => {
   const frameInfo = getPortFrameInfo(port);
-  if (!Chat.validFrameInfo(frameInfo, port)) return;
+  if (!isValidFrameInfo(frameInfo, port)) return;
 
   // Unregister interceptor when port disconnects
   port.onDisconnect.addListener(() => {
-    const i = interceptors.findIndex(
-      (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
-    );
+    const i = findInterceptorIndex(frameInfo);
     if (i < 0) {
       console.error(
         'Failed to unregister interceptor',
@@ -57,11 +70,9 @@ const registerInterceptor = (port: Chat.Port) => {
   });
 
   // Add interceptor to array
-  const i = interceptors.findIndex(
-    (interceptor) => compareFrameInfo(interceptor.frameInfo, frameInfo)
-  );
+  const i = findInterceptorIndex(frameInfo);
   if (i < 0) {
-    interceptors.push({ frameInfo: frameInfo, port: port, clients: [] });
+    interceptors.push({ frameInfo: frameInfo, port: port, clients: [], dark: false });
     console.debug('New interceptor registered', { port, interceptors });
   } else {
     console.debug(
@@ -121,12 +132,7 @@ const registerClient = (port: Chat.Port, frameInfo: Chat.FrameInfo, getInitialDa
 
 const sendToClients = (senderPort: Chat.Port, message: Chat.ResponseMsg) => {
   const { response, isReplay } = message;
-  const frameInfo = getPortFrameInfo(senderPort);
-  if (!Chat.validFrameInfo(frameInfo, senderPort)) return;
-  const interceptor = findInterceptor(
-    frameInfo,
-    { interceptors, senderPort, frameInfo, response }
-  );
+  const interceptor = findSelfInterceptor(senderPort, { message });
   if (!interceptor) return;
 
   if (interceptor.clients.length < 1) {
@@ -138,7 +144,7 @@ const sendToClients = (senderPort: Chat.Port, message: Chat.ResponseMsg) => {
   if (!payload) {
     console.error(
       'Invalid payload, not sending to clients',
-      { senderPort, frameInfo, payload }
+      { senderPort, payload }
     );
     return;
   }
@@ -148,19 +154,14 @@ const sendToClients = (senderPort: Chat.Port, message: Chat.ResponseMsg) => {
 
 const setInitialData = (senderPort: Chat.Port, message: Chat.ResponseMsg) => {
   const { response, isReplay } = message;
-  const frameInfo = getPortFrameInfo(senderPort);
-  if (!Chat.validFrameInfo(frameInfo, senderPort)) return;
-  const interceptor = findInterceptor(
-    frameInfo,
-    { interceptors, senderPort, frameInfo, response }
-  );
+  const interceptor = findSelfInterceptor(senderPort, { message });
   if (!interceptor) return;
 
   const payload = parseChatResponse(response, isReplay, true);
   if (!payload) {
     console.error(
-      'Invalid payload, not saving initial data',
-      { senderPort, frameInfo, payload }
+      'Invalid payload, not saving as initial data',
+      { senderPort, payload }
     );
     return;
   }
@@ -169,17 +170,33 @@ const setInitialData = (senderPort: Chat.Port, message: Chat.ResponseMsg) => {
 };
 
 const sendPlayerProgress = (senderPort: Chat.Port, playerProgress: number) => {
-  const frameInfo = getPortFrameInfo(senderPort);
-  if (!Chat.validFrameInfo(frameInfo, senderPort)) return;
-  const interceptor = findInterceptor(
-    frameInfo,
-    { interceptors, senderPort, frameInfo, playerProgress }
-  );
+  const interceptor = findSelfInterceptor(senderPort, { playerProgress });
   if (!interceptor) return;
 
   interceptor.clients.forEach(
     (port) => port.postMessage({ type: 'playerProgress', playerProgress })
   );
+};
+
+const setTheme = (senderPort: Chat.Port, dark: boolean) => {
+  const interceptor = findSelfInterceptor(senderPort, { dark });
+  if (!interceptor) return;
+
+  interceptor.dark = dark;
+  interceptor.clients.forEach(
+    (port) => port.postMessage({ type: 'themeUpdate', dark })
+  );
+  console.debug(`Set dark theme to ${dark}`);
+};
+
+const getTheme = (port: Chat.Port, frameInfo: Chat.FrameInfo) => {
+  const interceptor = findInterceptor(
+    frameInfo,
+    { interceptors, port, frameInfo }
+  );
+  if (!interceptor) return;
+
+  port.postMessage({ type: 'themeUpdate', dark: interceptor.dark });
 };
 
 chrome.runtime.onConnect.addListener((port) => {
@@ -199,6 +216,12 @@ chrome.runtime.onConnect.addListener((port) => {
         break;
       case 'sendPlayerProgress':
         sendPlayerProgress(port, message.playerProgress);
+        break;
+      case 'setTheme':
+        setTheme(port, message.dark);
+        break;
+      case 'getTheme':
+        getTheme(port, message.frameInfo);
         break;
       default:
         console.error('Unknown message type', port, message);

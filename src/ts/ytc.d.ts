@@ -218,12 +218,4 @@ declare namespace Ytc {
   type ParsedMisc = ParsedPinned | { type: 'removePinned'}
 
   type Renderers = TextMessageRenderer | PaidMessageRenderer | PaidStickerRenderer;
-  /**
-   * Type predicates
-   */
-  /** Checks if renderer is a PaidMessageRenderer */
-  const isPaidMessageRenderer = (actionItem: AddChatItem, renderer: Renderers): renderer is PaidMessageRenderer => {
-    const r = renderer as PaidMessageRenderer;
-    return actionItem.liveChatPaidMessageRenderer && r.purchaseAmountText && (r.bodyBackgroundColor !== undefined);
-  };
 }

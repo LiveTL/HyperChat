@@ -1,3 +1,5 @@
+import { isPaidMessageRenderer } from './chat-utils';
+
 const formatTimestamp = (timestampUsec: number) => {
   return (new Date(timestampUsec / 1000))
     .toLocaleTimeString(
@@ -85,7 +87,7 @@ const parseAddChatItemAction = (action?: Ytc.AddChatItemAction, isReplay = false
     messageId: renderer.id
   };
   // TODO: Super stickers
-  if (Ytc.isPaidMessageRenderer(actionItem, renderer)) {
+  if (isPaidMessageRenderer(actionItem, renderer)) {
     item.superchat = {
       amount: renderer.purchaseAmountText.simpleText,
       color: colorToHex(renderer.bodyBackgroundColor)

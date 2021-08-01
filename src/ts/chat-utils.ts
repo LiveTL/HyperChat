@@ -32,3 +32,21 @@ export const BROWSER = (() => {
   }
   return Browser.CHROME;
 })();
+
+/**
+ * Type predicates
+ */
+/** Checks if renderer is a PaidMessageRenderer */
+export const isPaidMessageRenderer = (actionItem: Ytc.AddChatItem, renderer: Ytc.Renderers): renderer is Ytc.PaidMessageRenderer => {
+  const r = renderer as Ytc.PaidMessageRenderer;
+  return actionItem.liveChatPaidMessageRenderer !== undefined && r.purchaseAmountText && (r.bodyBackgroundColor !== undefined);
+};
+
+/** Checks if frameInfo values are valid */
+export const isValidFrameInfo = (f: Chat.UncheckedFrameInfo, port: Chat.Port): f is Chat.FrameInfo => {
+  const check = f.tabId !== undefined && f.frameId !== undefined;
+  if (!check) {
+    console.error('Invalid frame info', { port });
+  }
+  return check;
+};

@@ -14,7 +14,12 @@ declare namespace Chat {
     playerProgress: number;
   }
 
-  type Payload = ActionChunk | PlayerProgress;
+  type ThemeUpdate = {
+    type: 'themeUpdate';
+    dark: boolean;
+  }
+
+  type Payload = ActionChunk | PlayerProgress | ThemeUpdate;
 
   type Port = chrome.runtime.Port;
 
@@ -33,14 +38,7 @@ declare namespace Chat {
     port?: Port;
     clients: Port[];
     initialData?: ActionChunk;
-  };
-
-  const validFrameInfo = (f: UncheckedFrameInfo, port: Port): f is FrameInfo => {
-    const check = f.tabId && f.frameId;
-    if (!check) {
-      console.error('Invalid frame info', { port });
-    }
-    return check;
+    dark: boolean;
   };
 
   type RegisterInterceptorMsg = {
@@ -71,5 +69,15 @@ declare namespace Chat {
     playerProgress: number;
   };
 
-  type BackgroundMessage = RegisterInterceptorMsg | RegisterClientMsg | SendToClientsMsg | setInitialDataMsg | sendPlayerProgressMsg
+  type setThemeMsg = {
+    type: 'setTheme';
+    dark: boolean;
+  };
+
+  type getThemeMsg = {
+    type: 'getTheme';
+    frameInfo: FrameInfo;
+  };
+
+  type BackgroundMessage = RegisterInterceptorMsg | RegisterClientMsg | SendToClientsMsg | setInitialDataMsg | sendPlayerProgressMsg | setThemeMsg | getThemeMsg
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Card } from 'smelte';
   import { Browser, BROWSER } from '../ts/chat-utils';
+  import dark from 'smelte/src/dark';
 
   const logo = chrome.runtime.getURL('assets/logo.png');
   const reviewLink = BROWSER === Browser.FIREFOX
@@ -28,9 +29,11 @@
       href: 'https://discord.gg/uJrV3tmthg'
     }
   ];
+
+  dark().subscribe(v => console.debug({ dark: v }));
 </script>
 
-<Card.Card classes={c => c.concat(' bg-blue-900 text-white w-full')}>
+<Card.Card classes={c => c.concat(' bg-blue-400 dark:bg-blue-900 text-black dark:text-white w-full')}>
   <div slot="text" class="p-2.5">
     <div class="mb-2 flex items-center">
       <div>

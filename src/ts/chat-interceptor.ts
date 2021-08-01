@@ -72,6 +72,18 @@ const chatLoaded = async () => {
       });
     }
   });
+
+  const html = document.documentElement;
+  const sendTheme = () => {
+    const isDark = html.hasAttribute('dark');
+    port.postMessage({
+      type: 'setTheme',
+      dark: isDark
+    });
+  };
+  new MutationObserver(sendTheme).observe(html, {
+    attributes: true
+  });
 };
 
 if (document.readyState === 'loading') {
