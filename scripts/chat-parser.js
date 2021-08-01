@@ -197,7 +197,7 @@ export const parseChatResponse = (response, isReplay, isInitial = false) => {
         base.continuations[0].invalidationContinuationData?.timeoutMs;
       parsedAction =
         parseAddChatItemAction(
-          action.addChatItemAction, isReplay, liveTimeoutMs
+          action.addChatItemAction, isReplay, liveTimeoutMs + 2000
         );
     } else if (action.replayChatItemAction) {
       const replayAction = action.replayChatItemAction;
