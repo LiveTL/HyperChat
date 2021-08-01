@@ -1,18 +1,39 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
+const webpack = require('webpack');
 const { preprocess } = require('./svelte.config');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const postcssPlugins = require('./postcss.config.js');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const mode = process.env.NODE_ENV || 'development';
 const prod = mode !== 'development';
 
-module.exports = {
+const cssConfig = {
+  test: /\.(sa|sc|c)ss$/,
+  use: [
+    MiniCssExtractPlugin.loader,
+    'css-loader',
+    {
+      loader: 'postcss-loader',
+      options: {
+        postcssOptions: {
+          extract: true,
+          plugins: postcssPlugins(prod)
+        }
+      }
+    }
+  ]
+};
+
+const options = {
   entry: {
-    chat: path.join(__dirname, 'src', 'submodules', 'chat', 'scripts', 'chat.js'),
-    'chat-interceptor': path.join(__dirname, 'src', 'submodules', 'chat', 'scripts', 'chat-interceptor.js'),
-    'chat-background': path.join(__dirname, 'src', 'submodules', 'chat', 'scripts', 'chat-background.js'),
-    'chat-injector': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-injector.ts')
+    'chat-interceptor': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-interceptor.ts'),
+    'chat-background': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-background.ts'),
+    'chat-injector': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-injector.ts'),
+    hyperchat: path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'hyperchat.ts')
   },
   output: {
     path: path.join(__dirname, 'build'),
@@ -54,23 +75,7 @@ module.exports = {
           fullySpecified: false
         }
       },
-      {
-        test: /\.s?css$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          {
-            loader: 'sass-loader',
-            options: {
-              // Prefer `dart-sass`
-              implementation: require('sass'),
-              sassOptions: {
-                includePaths: ['./src/submodules/chat/src/theme', './node_modules']
-              }
-            }
-          }
-        ]
-      }
+      cssConfig
     ]
   },
   plugins: [
@@ -85,12 +90,32 @@ module.exports = {
           from: 'src/manifest.json'
         }
       ]
+    }),
+    new MiniCssExtractPlugin({ filename: 'tailwind.css' }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'template.html'),
+      filename: 'hyperchat.html',
+      chunks: ['hyperchat'],
+      chunksSortMode: 'manual'
     })
   ],
-  mode,
-  devServer: {
-    host: 'http://localhost:3000/',
-    disableHostCheck: true
-  },
-  devtool: prod ? false : 'eval-cheap-module-source-map'
+  mode
 };
+
+if (prod) {
+  options.devtool = false;
+} else {
+  options.devtool = 'eval-cheap-module-source-map';
+  options.plugins.concat(new webpack.HotModuleReplacementPlugin());
+  options.devServer = {
+    host: 'localhost',
+    port: 6000,
+    hot: true,
+    contentBase: path.join(__dirname, 'build'),
+    headers: { 'Access-Control-Allow-Origin': '*' },
+    writeToDisk: true,
+    disableHostCheck: true
+  };
+}
+
+module.exports = options;
