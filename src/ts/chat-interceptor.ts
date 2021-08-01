@@ -84,6 +84,7 @@ const chatLoaded = async () => {
   new MutationObserver(sendTheme).observe(html, {
     attributes: true
   });
+  sendTheme();
 };
 
 if (document.readyState === 'loading') {

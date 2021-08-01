@@ -33,8 +33,8 @@
   dark().subscribe(v => console.debug({ dark: v }));
 </script>
 
-<Card.Card classes={c => c.concat(' bg-blue-400 dark:bg-blue-900 text-black dark:text-white w-full')}>
-  <div slot="text" class="p-2.5">
+<Card.Card classes={c => c.concat(' bg-blue-400 dark:bg-blue-900 w-full')}>
+  <div slot="text" class="p-2.5 text-black dark:text-white">
     <div class="mb-2 flex items-center">
       <div>
         <img class="rounded-full" width="44" height="44" src="{logo}" alt="logo">

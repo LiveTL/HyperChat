@@ -83,7 +83,7 @@ const parseAddChatItemAction = (action?: Ytc.AddChatItemAction, isReplay = false
     },
     message: runs,
     timestamp: isReplay && timestampText ? timestampText : formatTimestamp(timestampUsec),
-    showtime: isReplay ? offsetMs : (timestampUsec / 1000) + offsetMs,
+    showtime: isReplay ? offsetMs : (timestampUsec / 1000) + offsetMs + 2000,
     messageId: renderer.id
   };
   // TODO: Super stickers
