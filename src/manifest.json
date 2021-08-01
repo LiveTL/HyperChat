@@ -18,11 +18,16 @@
         "https://www.youtube.com/live_chat_replay*"
       ],
       "js": [
+        "chat-interceptor.bundle.js",
         "chat-injector.bundle.js"
       ],
       "all_frames": true
     }
   ],
+  "background": {
+    "scripts": ["chat-background.bundle.js"],
+    "persistent": true
+  },
   "browser_action": {
     "default_icon": {
       "48": "assets/logo-48.png",
