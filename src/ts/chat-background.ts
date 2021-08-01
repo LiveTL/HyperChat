@@ -1,7 +1,5 @@
 import { parseChatResponse } from './chat-parser';
-
-const isLiveTL = false;
-// DO NOT EDIT THE ABOVE LINE. It is updated by webpack.
+import { isLiveTL } from './chat-utils';
 
 const interceptors: Chat.Interceptor[] = [];
 
