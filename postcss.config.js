@@ -11,11 +11,11 @@ const defaultWhitelistPatterns = [
 ];
 
 module.exports = (purge = false) => {
-  const tailwind = {};
+  // const tailwind = {};
   const postcss = [];
   const whitelist = defaultWhitelist;
   const whitelistPatterns = defaultWhitelistPatterns;
-  const tailwindConfig = require('./tailwind.config.js')(tailwind);
+  const tailwindConfig = require('./tailwind.config.js');
   return [
     require('postcss-import')(),
     require('postcss-url')(),

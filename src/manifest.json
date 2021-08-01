@@ -4,6 +4,7 @@
   "homepage_url": "https://livetl.app/en/hyperchat/",
   "description": "YouTube chat, but it's fast and sleek!",
   "version": "42.0.69",
+  "content_security_policy": "script-src 'self' https://www.youtube.com 'unsafe-eval'; object-src 'self'",
   "permissions": [
   ],
   "icons": {
