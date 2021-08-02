@@ -7,31 +7,51 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const postcssPlugins = require('./postcss.config.js');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const smelteTailwind = require('smelte/tailwind.config.js');
 
 const mode = process.env.NODE_ENV || 'development';
 const prod = mode !== 'development';
 
+const defaultSmelteConfig = smelteTailwind({});
 const smelteConfig = {
-  colors: {
-    // Default smelte colors
-    primary: '#b027b0',
-    secondary: '#009688',
-    error: '#f44336',
-    success: '#4caf50',
-    alert: '#ff9800',
-    blue: '#2196f3',
-    dark: '#212121',
-
-    member: '#0E5D10',
-    'member-dark': '#04B301',
-    moderator: '#2441C0',
-    'moderator-dark': '#A0BDFC',
-    owner: '#866518',
-    'owner-dark': '#FFD600',
-    deleted: '#6E6B6B',
-    'deleted-dark': '#898888'
-  },
-  darkMode: true
+  // Uncomment to override smelte default colors
+  // colors: {
+  //   primary: '#b027b0',
+  //   secondary: '#009688',
+  //   error: '#f44336',
+  //   success: '#4caf50',
+  //   alert: '#ff9800',
+  //   blue: '#2196f3',
+  //   dark: '#212121'
+  // },
+  darkMode: true,
+  config: {
+    ...defaultSmelteConfig,
+    theme: {
+      ...defaultSmelteConfig.theme,
+      extend: {
+        ...defaultSmelteConfig.theme.extend,
+        colors: {
+          member: {
+            DEFAULT: '#0E5D10',
+            dark: '#04B301'
+          },
+          moderator: {
+            DEFAULT: '#2441C0',
+            dark: '#A0BDFC'
+          },
+          owner: {
+            DEFAULT: '#866518',
+            dark: '#FFD600'
+          },
+          deleted: {
+            DEFAULT: '#6E6B6B',
+            dark: '#898888'
+          }
+        }
+      }
+    }
+  }
 };
 
 const cssConfig = {
