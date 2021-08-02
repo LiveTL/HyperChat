@@ -10,14 +10,8 @@
 // @grant        none
 // @license      BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
 // ==/UserScript==
-
-export default function () {
-    const interval = setInterval(() => {
-        if (fixLeaks()) clearInterval(interval);
-    }, 3000);
-};
  
-function fixLeaks() {
+export function fixLeaks() {
     'use strict';
     /*
      * Currently (2021-02-23), youtube live chat has a bug that never execute some scheduled tasks.
