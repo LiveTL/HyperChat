@@ -43,10 +43,14 @@ export const isPaidMessageRenderer = (actionItem: Ytc.AddChatItem, renderer: Ytc
 };
 
 /** Checks if frameInfo values are valid */
-export const isValidFrameInfo = (f: Chat.UncheckedFrameInfo, port: Chat.Port): f is Chat.FrameInfo => {
-  const check = f.tabId !== undefined && f.frameId !== undefined;
+export const isValidFrameInfo = (f: Chat.UncheckedFrameInfo, port?: Chat.Port): f is Chat.FrameInfo => {
+  const check = f.tabId != null && f.frameId != null;
   if (!check) {
     console.error('Invalid frame info', { port });
   }
   return check;
+};
+
+export const isFrameInfoMsg = (m: Chat.WindowMessage): m is Chat.FrameInfoMsg => {
+  return m.type === 'frameInfo' && isValidFrameInfo(m.frameInfo);
 };

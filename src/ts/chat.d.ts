@@ -82,4 +82,11 @@ declare namespace Chat {
   type BackgroundMessage = RegisterInterceptorMsg | RegisterClientMsg | SendToClientsMsg | setInitialDataMsg | sendPlayerProgressMsg | setThemeMsg | getThemeMsg
 
   type Message = Ytc.ParsedMessage & { deleted?: boolean }
+
+  type FrameInfoMsg = {
+    type: 'frameInfo';
+    frameInfo: FrameInfo;
+  }
+
+  type WindowMessage = FrameInfoMsg;
 }

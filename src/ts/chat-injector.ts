@@ -28,7 +28,7 @@ const chatLoaded = () => {
 
   const ytcItemList = document.querySelector('#chat>#item-list');
   if (!ytcItemList) {
-    console.debug('Failed to find #chat>#item-list');
+    console.error('Failed to find #chat>#item-list');
     return;
   }
 
@@ -39,7 +39,7 @@ const chatLoaded = () => {
   `;
   const hyperchat = document.querySelector('#hyperchat') as HTMLIFrameElement;
   if (!hyperchat) {
-    console.debug('Failed to find #hyperchat');
+    console.error('Failed to find #hyperchat');
     return;
   }
   if (isFirefox || isLiveTL) {
@@ -53,14 +53,14 @@ const chatLoaded = () => {
 
   const ytcTicker = document.querySelector('#ticker');
   if (!ytcTicker) {
-    console.debug('Failed to find #ticker');
+    console.error('Failed to find #ticker');
     return;
   }
   ytcTicker.remove();
 
   const hyperchatWindow = hyperchat.contentWindow;
   if (!hyperchatWindow) {
-    console.debug('Failed to get hyperchat contentWindow');
+    console.error('Failed to get hyperchat contentWindow');
     return;
   }
 

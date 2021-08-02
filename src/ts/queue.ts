@@ -45,13 +45,16 @@ export class YtcQueue {
   private _previousTime: number;
   private _messages: Chat.Message[];
   private _historySize?: number;
+  private _isReplay: boolean;
+  private _livePolling?: NodeJS.Timeout;
   messagesStore: Writable<Chat.Message[]>;
 
-  constructor (historySize?: number) {
+  constructor (historySize?: number, isReplay = false) {
     this._queue = new Queue();
     this._previousTime = 0;
     this._messages = [];
     this._historySize = historySize;
+    this._isReplay = isReplay;
     this.messagesStore = writable(this._messages);
   }
 
@@ -59,6 +62,10 @@ export class YtcQueue {
     return time == null || Math.abs(this._previousTime - time) > 1;
   }
 
+  /**
+   * Checks if `message` can be found in either of `bonks` or `deletions`.
+   * If it is, its message will be replaced and marked as deleted.
+   */
   private processDeleted (
     message: Chat.Message,
     bonks: Ytc.ParsedBonk[],
@@ -78,6 +85,10 @@ export class YtcQueue {
     }
   }
 
+  /**
+   * Push message into the `_messages` array and the `messagesStore` Writable.
+   * Will also remove old messages if `_historySize` was set.
+   */
   private newMessage (message: Chat.Message) {
     this._messages.push(message);
     if (
@@ -89,6 +100,10 @@ export class YtcQueue {
     this.messagesStore.set(this._messages);
   }
 
+  /**
+   * Continuosly pushes queue messages to store until queue is empty or until
+   * `extraCondition` returns false.
+   */
   private pushQueueToStore (
     extraCondition: (queue: Queue<Chat.Message>) => boolean
   ) {
@@ -99,28 +114,58 @@ export class YtcQueue {
     }
   }
 
+  /**
+   * Push all queued messages to store.
+   */
   private pushAllQueuedToStore () {
     this.pushQueueToStore(() => true);
   }
 
-  private pushTillCurrentToStore (currentTime: number) {
+  /**
+   * Push messages up till the currentTime to store.
+   */
+  private pushTillCurrentToStore (currentTimeMs: number) {
     this.pushQueueToStore((q) => {
       const frontShowtime = q.front?.showtime;
       if (frontShowtime == null) return false;
-      return frontShowtime <= currentTime;
+      return (frontShowtime / 1000) <= currentTimeMs;
     });
   }
 
-  updateVideoProgress (time: number): void {
-    if (time < 0) return;
-    if (this.isScrubbedOrSkipped(time)) {
+  /**
+   * Called when the video progresses to push queued messages to store.
+   */
+  private onVideoProgress (timeMs: number) {
+    if (timeMs < 0) return;
+    if (this.isScrubbedOrSkipped(timeMs)) {
       this.pushAllQueuedToStore();
     } else {
-      this.pushTillCurrentToStore(time);
+      this.pushTillCurrentToStore(timeMs);
     }
-    this._previousTime = time;
+    this._previousTime = timeMs;
   }
 
+  /**
+   * Sets video progress to current time in seconds.
+   * Normally called by the live polling interval that runs every 250 ms.
+   */
+  private updateLiveProgress () {
+    this.onVideoProgress(Date.now() / 1000);
+  }
+
+  /**
+   * Update player progress to given time.
+   * Only effective on VODs.
+   */
+  updatePlayerProgress (timeMs: number): void {
+    if (this._livePolling || this._isReplay) return;
+    this.onVideoProgress(timeMs);
+  }
+
+  /**
+   * Add messages from actionChunk to the queue.
+   * Also handles author bonks and message deletions.
+   */
   addToQueue (actionChunk: Chat.ActionChunk): void {
     const messages = actionChunk.messages;
     const bonks = actionChunk.bonks;
@@ -131,6 +176,19 @@ export class YtcQueue {
       this._queue.push(m);
     });
 
+    if (!this._livePolling && !this._isReplay) {
+      this._livePolling = setInterval(() => this.updateLiveProgress(), 250);
+      this.updateLiveProgress();
+    }
+
     this._messages.forEach((m) => this.processDeleted(m, bonks, deletions));
+  }
+
+  /**
+   * Perform cleanup actions such as clearing live polling interval.
+   */
+  cleanUp (): void {
+    if (!this._livePolling) return;
+    clearInterval(this._livePolling);
   }
 }

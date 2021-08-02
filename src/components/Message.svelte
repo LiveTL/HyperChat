@@ -1,6 +1,6 @@
 <script lang="ts">
-  export let message: Ytc.ParsedMessage;
-  export let deleted = false;
+  export let message: Chat.Message;
+  export let deleted: boolean | undefined;
 
   const member = message.author.types.some((type) => type === 'member');
   const moderator = message.author.types.some((type) => type === 'moderator');
@@ -12,11 +12,12 @@
     <strong>{message.superchat.amount}</strong>
   {/if}
   <strong
-    class="
-      {member ? 'text-member dark:text-member-dark' : ''}
-      {moderator ? 'text-moderator dark:text-moderator-dark' : ''}
-      {owner ? 'text-owner dark:text-owner-dark' : ''}
-    "
+    class:text-member="{member}"
+    class:dark:text-member-dark="{member}"
+    class:text-moderator="{moderator}"
+    class:dark:text-moderator-dark="{moderator}"
+    class:text-owner="{owner}"
+    class:dark:text-owner-dark="{owner}"
   >
     {message.author.name}
   </strong>

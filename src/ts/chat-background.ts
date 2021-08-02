@@ -142,7 +142,7 @@ const sendToClients = (senderPort: Chat.Port, message: Chat.ResponseMsg) => {
 
   const payload = parseChatResponse(response, isReplay);
   if (!payload) {
-    console.error(
+    console.debug(
       'Invalid payload, not sending to clients',
       { senderPort, payload }
     );
@@ -159,7 +159,7 @@ const setInitialData = (senderPort: Chat.Port, message: Chat.ResponseMsg) => {
 
   const payload = parseChatResponse(response, isReplay, true);
   if (!payload) {
-    console.error(
+    console.debug(
       'Invalid payload, not saving as initial data',
       { senderPort, payload }
     );
