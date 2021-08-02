@@ -53,6 +53,3 @@
     </div>
   </div>
 </Card.Card>
-
-<style>
-</style>

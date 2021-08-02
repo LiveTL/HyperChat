@@ -47,14 +47,16 @@ export class YtcQueue {
   private _historySize?: number;
   private _isReplay: boolean;
   private _livePolling?: NodeJS.Timeout;
+  private _newMessageCondition?: () => boolean
   messagesStore: Writable<Chat.Message[]>;
 
-  constructor (historySize?: number, isReplay = false) {
+  constructor (historySize?: number, isReplay = false, newMessageCondition?: () => boolean) {
     this._queue = new Queue();
     this._previousTime = 0;
     this._messages = [];
     this._historySize = historySize;
     this._isReplay = isReplay;
+    this._newMessageCondition = newMessageCondition;
     this.messagesStore = writable(this._messages);
   }
 
@@ -110,7 +112,13 @@ export class YtcQueue {
     while (this._queue.front && extraCondition(this._queue)) {
       const message = this._queue.pop();
       if (!message) return;
-      this.newMessage(message);
+      if (!this._newMessageCondition) {
+        this.newMessage(message);
+        return;
+      }
+      if (this._newMessageCondition()) {
+        this.newMessage(message);
+      }
     }
   }
 

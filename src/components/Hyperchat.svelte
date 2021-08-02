@@ -3,13 +3,24 @@
   import Message from './Message.svelte';
   import dark from 'smelte/src/dark';
   import { YtcQueue } from '../ts/queue';
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { isFrameInfoMsg } from '../ts/chat-utils';
   import type { Writable } from 'svelte/store';
 
   const CHAT_HISTORY_SIZE = 250;
   let queue: YtcQueue | undefined;
   let messages: Writable<Chat.Message[]> | undefined;
+  let div: HTMLElement;
+  let isAtBottom = true;
+
+  const checkAtBottom = () => {
+    isAtBottom =
+      Math.ceil(div.clientHeight + div.scrollTop) >= div.scrollHeight - 2;
+  };
+
+  const scrollToBottom = () => {
+    div.scrollTop = div.scrollHeight;
+  };
 
   const onWindowMessage = (message: MessageEvent<Chat.WindowMessage>) => {
     const data = message.data;
@@ -26,7 +37,7 @@
       switch (payload.type) {
         case 'actionChunk':
           if (!queue) {
-            queue = new YtcQueue(CHAT_HISTORY_SIZE, payload.isReplay);
+            queue = new YtcQueue(CHAT_HISTORY_SIZE, payload.isReplay, () => isAtBottom);
             messages = queue.messagesStore;
           }
           queue.addToQueue(payload);
@@ -54,13 +65,26 @@
     window.addEventListener('message', onWindowMessage);
   });
 
+  afterUpdate(() => {
+    if (isAtBottom) {
+      scrollToBottom();
+    }
+    tick().then(checkAtBottom);
+  });
+
   onDestroy(() => {
     if (!queue) return;
     queue.cleanUp();
   });
 </script>
 
-<div class="content px-2.5 overflow-y-scroll h-screen">
+<svelte:window on:resize="{scrollToBottom}" />
+
+<div
+  class="content px-2.5 overflow-y-scroll h-screen"
+  bind:this={div}
+  on:scroll="{checkAtBottom}"
+>
   <WelcomeMessage />
   {#if messages}
     {#each $messages as message}
