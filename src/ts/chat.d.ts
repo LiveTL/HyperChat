@@ -80,4 +80,6 @@ declare namespace Chat {
   };
 
   type BackgroundMessage = RegisterInterceptorMsg | RegisterClientMsg | SendToClientsMsg | setInitialDataMsg | sendPlayerProgressMsg | setThemeMsg | getThemeMsg
+
+  type Message = Ytc.ParsedMessage & { deleted?: boolean }
 }

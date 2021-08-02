@@ -130,6 +130,7 @@
 </template>
 
 <script>
+//@ts-nocheck
 import CustomLink from './CustomLink.vue';
 import { updates } from './changelog.js';
 class Queue {
