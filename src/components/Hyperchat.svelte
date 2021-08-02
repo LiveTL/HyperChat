@@ -1,11 +1,13 @@
 <script lang="ts">
+  import type { Writable } from 'svelte/store';
+  import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
+  import { fade } from 'svelte/transition';
   import WelcomeMessage from './WelcomeMessage.svelte';
   import Message from './Message.svelte';
   import dark from 'smelte/src/dark';
   import { YtcQueue } from '../ts/queue';
-  import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { isFrameInfoMsg } from '../ts/chat-utils';
-  import type { Writable } from 'svelte/store';
+  import { Button } from 'smelte';
 
   const CHAT_HISTORY_SIZE = 250;
   let queue: YtcQueue | undefined;
@@ -80,18 +82,29 @@
 
 <svelte:window on:resize="{scrollToBottom}" />
 
-<div
-  class="content px-2.5 overflow-y-scroll h-screen"
-  bind:this={div}
-  on:scroll="{checkAtBottom}"
->
-  <WelcomeMessage />
-  {#if messages}
-    {#each $messages as message}
-      <Message message={message} deleted={message.deleted} />
-    {/each}
+<div>
+  <div
+    class="content px-2.5 overflow-y-scroll h-screen absolute"
+    bind:this={div}
+    on:scroll="{checkAtBottom}"
+  >
+    <WelcomeMessage />
+    {#if messages}
+      {#each $messages as message}
+        <Message message={message} deleted={message.deleted} />
+      {/each}
+    {/if}
+  </div>
+  {#if !isAtBottom}
+    <div
+      class="absolute left-1/2 transform -translate-x-1/2 bottom-0 pb-1"
+      transition:fade|local={{ duration: 150 }}
+    >
+      <Button small icon="arrow_downward" on:click="{scrollToBottom}" />
+    </div>
   {/if}
 </div>
+
 
 <style>
   .content {

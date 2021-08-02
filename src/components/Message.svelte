@@ -5,9 +5,10 @@
   const member = message.author.types.some((type) => type === 'member');
   const moderator = message.author.types.some((type) => type === 'moderator');
   const owner = message.author.types.some((type) => type === 'owner');
+
+  // TODO: superchat
 </script>
 
-// TODO: superchat
 <div class="p-1 break-words overflow-hidden " class:my-4={message.superchat}>
   {#if message.superchat}
     <strong class="mr-1 underline">{message.superchat.amount}</strong>
