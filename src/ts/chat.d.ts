@@ -1,13 +1,20 @@
 declare namespace Chat {
-  type ActionChunk = {
-    type: 'actionChunk';
+  type ParsedChunk = {
+    type: 'actionChunk' | 'initialDataChunk';
     messages: Ytc.ParsedMessage[];
     bonks: Ytc.ParsedBonk[];
     deletions: Ytc.ParsedDeleted[];
     miscActions: Ytc.ParsedMisc[];
     isReplay: boolean;
-    isInitial: boolean;
   };
+
+  type ActionChunk = ParsedChunk & {
+    type: 'actionChunk';
+  }
+
+  type InitialDataChunk = ParsedChunk & {
+    type: 'initialDataChunk';
+  }
 
   type PlayerProgress = {
     type: 'playerProgress';
@@ -19,9 +26,7 @@ declare namespace Chat {
     dark: boolean;
   }
 
-  type Payload = ActionChunk | PlayerProgress | ThemeUpdate;
-
-  type Port = chrome.runtime.Port;
+  type BackgroundPayload = ActionChunk | InitialDataChunk | PlayerProgress | ThemeUpdate;
 
   type UncheckedFrameInfo = {
     tabId: number | undefined;
@@ -31,14 +36,6 @@ declare namespace Chat {
   type FrameInfo = {
     tabId: number;
     frameId: number;
-  };
-
-  type Interceptor = {
-    frameInfo: FrameInfo;
-    port?: Port;
-    clients: Port[];
-    initialData?: ActionChunk;
-    dark: boolean;
   };
 
   type RegisterInterceptorMsg = {
@@ -80,6 +77,18 @@ declare namespace Chat {
   };
 
   type BackgroundMessage = RegisterInterceptorMsg | RegisterClientMsg | SendToClientsMsg | setInitialDataMsg | sendPlayerProgressMsg | setThemeMsg | getThemeMsg
+
+  type Port = chrome.runtime.Port & {
+    postMessage: (message: BackgroundMessage | BackgroundPayload) => void;
+  };
+
+  type Interceptor = {
+    frameInfo: FrameInfo;
+    port?: Port;
+    clients: Port[];
+    initialData?: InitialDataChunk;
+    dark: boolean;
+  };
 
   type Message = Ytc.ParsedMessage & { deleted?: boolean }
 

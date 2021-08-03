@@ -138,7 +138,7 @@ const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned
   };
 };
 
-export const parseChatResponse = (response: string, isReplay: boolean, isInitial = false): Chat.ActionChunk | undefined => {
+export const parseChatResponse = (response: string, isReplay: boolean, isInitial = false): Chat.ParsedChunk | undefined => {
   const parsedResponse: Ytc.RawResponse = JSON.parse(response);
   const base =
     parsedResponse.continuationContents?.liveChatContinuation ||
@@ -202,12 +202,11 @@ export const parseChatResponse = (response: string, isReplay: boolean, isInitial
   });
 
   return {
-    type: 'actionChunk',
+    type: isInitial ? 'initialDataChunk' : 'actionChunk',
     messages: addChatItemActions,
     bonks: bonkActions,
     deletions: deletionActions,
     miscActions,
-    isReplay,
-    isInitial
+    isReplay
   };
 };

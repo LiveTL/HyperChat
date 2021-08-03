@@ -1,5 +1,5 @@
 import { parseChatResponse } from './chat-parser';
-import { isLiveTL, isValidFrameInfo } from './chat-utils';
+import { isLiveTL, isValidFrameInfo, isInitialDataChunk } from './chat-utils';
 
 const interceptors: Chat.Interceptor[] = [];
 
@@ -158,7 +158,7 @@ const setInitialData = (senderPort: Chat.Port, message: Chat.ResponseMsg) => {
   if (!interceptor) return;
 
   const payload = parseChatResponse(response, isReplay, true);
-  if (!payload) {
+  if (!payload || !isInitialDataChunk(payload)) {
     console.debug(
       'Invalid payload, not saving as initial data',
       { senderPort, payload }
