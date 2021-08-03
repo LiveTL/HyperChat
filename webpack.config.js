@@ -52,6 +52,16 @@ const smelteConfig = {
   }
 };
 
+const extReloader = new ExtReloader({
+  manifest: path.join(__dirname, 'src', 'manifest.json'),
+  entries: {
+    contentScript: ['chat-interceptor', 'chat-injector'],
+    background: 'chat-background',
+    extensionPage: 'hyperchat'
+  },
+  reloadPage: true
+});
+
 module.exports = (env, options) => {
   const mode = options.mode;
   const prod = mode !== 'development';
@@ -125,15 +135,6 @@ module.exports = (env, options) => {
     },
     plugins: [
       new CleanWebpackPlugin(),
-      new ExtReloader({
-        manifest: path.join(__dirname, 'src', 'manifest.json'),
-        entries: {
-          contentScript: ['chat-interceptor', 'chat-injector'],
-          background: 'chat-background',
-          extensionPage: 'hyperchat'
-        },
-        reloadPage: true
-      }),
       new CopyWebpackPlugin({
         patterns: [
           {
@@ -159,7 +160,7 @@ module.exports = (env, options) => {
     config.devtool = false;
   } else {
     config.devtool = 'eval-cheap-module-source-map';
-    config.plugins.concat(new webpack.HotModuleReplacementPlugin());
+    config.plugins = config.plugins.concat(new webpack.HotModuleReplacementPlugin(), extReloader);
     // config.devServer = {
     //   host: 'localhost',
     //   port: 6000,
