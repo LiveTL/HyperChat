@@ -44,7 +44,7 @@
       <strong>HyperChat can reduce CPU usage by up to 80%!</strong>
     </span>
     <br/>
-    <div class="mt-2 flex flex-wrap">
+    <div class="mt-2 flex flex-wrap w-full">
     {#each badges as { name, src, href }}
       <a {href} class="p-0.5">
         <img alt={name} {src} />

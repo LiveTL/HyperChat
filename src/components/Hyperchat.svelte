@@ -78,6 +78,8 @@
     if (!queue) return;
     queue.cleanUp();
   });
+
+  // TODO: Proper welcome message behaviour
 </script>
 
 <svelte:window on:resize="{scrollToBottom}" />
@@ -91,7 +93,7 @@
     <WelcomeMessage />
     {#if messages}
       {#each $messages as message}
-        <Message message={message} deleted={message.deleted} />
+        <Message message={message} />
       {/each}
     {/if}
   </div>
@@ -104,7 +106,6 @@
     </div>
   {/if}
 </div>
-
 
 <style>
   .content {

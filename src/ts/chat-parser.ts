@@ -83,7 +83,7 @@ const parseAddChatItemAction = (action?: Ytc.AddChatItemAction, isReplay = false
     },
     message: runs,
     timestamp: isReplay && timestampText ? timestampText : formatTimestamp(timestampUsec),
-    showtime: isReplay ? offsetMs : (timestampUsec / 1000) + offsetMs + 2000,
+    showtime: isReplay ? offsetMs : (timestampUsec / 1000) + offsetMs + 2000, // TODO: Figure out how not to hardcode this, it causes delay between LTL and non-HC YTC
     messageId: renderer.id
   };
   // TODO: Super stickers
