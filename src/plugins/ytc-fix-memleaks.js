@@ -10,12 +10,15 @@
 // @grant        none
 // @license      BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
 // ==/UserScript==
+
+export default function () {
+    const interval = setInterval(() => {
+        if (fixLeaks()) clearInterval(interval);
+    }, 3000);
+};
  
-export default function(window) {
+function fixLeaks() {
     'use strict';
-    if (window.$pluginMemLeak) return;
-    window.$pluginMemLeak = 'loading';
- 
     /*
      * Currently (2021-02-23), youtube live chat has a bug that never execute some scheduled tasks.
      * Those tasks are scheduled for each time a new message is added to the chat and hold the memory until being executed.
@@ -47,6 +50,7 @@ export default function(window) {
         scheduler[useRafProp] = true;
         document.addEventListener("visibilitychange", scheduler[visChgProp]);
         console.info("fixSchedulerLeak: leak fixed");
+        return true;
     }
  
     /* Enable the element pool to save memory consumption. */
@@ -62,9 +66,10 @@ export default function(window) {
         }
         ytcfg.set("ELEMENT_POOL_DEFAULT_CAP", 75);
         console.info("enableElementPool: element pool enabled");
+        return true;
     }
  
-    fixSchedulerLeak();
-    enableElementPool();
- 
+    const fixedScheduler = fixSchedulerLeak();
+    const enabledPool = enableElementPool();
+    return fixedScheduler && enabledPool;
 }

@@ -131,10 +131,7 @@
 
 <script>
 import CustomLink from './CustomLink.vue';
-import fixMemLeaks from './plugins/ytc-fix-memleaks.js';
 import { updates } from './changelog.js';
-
-fixMemLeaks(window);
 
 class Queue {
   constructor() {
