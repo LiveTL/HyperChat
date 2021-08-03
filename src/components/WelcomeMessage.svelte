@@ -45,11 +45,11 @@
     </span>
     <br/>
     <div class="mt-2 flex flex-wrap w-full">
-    {#each badges as { name, src, href }}
+    <!-- {#each badges as { name, src, href }} // FIXME: Badge loading messes up first scroll
       <a {href} class="p-0.5">
         <img alt={name} {src} />
       </a>
-    {/each}
+    {/each} -->
     </div>
   </div>
 </Card.Card>

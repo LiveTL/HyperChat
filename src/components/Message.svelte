@@ -13,7 +13,7 @@
   // TODO: superchat color
 </script>
 
-<div class="p-1 break-words overflow-hidden " class:my-4={message.superchat}>
+<div class="p-1 break-words overflow-hidden" class:my-4={message.superchat}>
   {#if message.superchat}
     <strong class="mr-1 underline">{message.superchat.amount}</strong>
   {/if}

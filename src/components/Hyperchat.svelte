@@ -1,17 +1,18 @@
 <script lang="ts">
   import type { Writable } from 'svelte/store';
+  import type { YtcQueueMessage } from '../ts/queue';
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import WelcomeMessage from './WelcomeMessage.svelte';
   import Message from './Message.svelte';
   import dark from 'smelte/src/dark';
-  import { YtcQueue } from '../ts/queue';
+  import { YtcQueue, isChatMessage } from '../ts/queue';
   import { isFrameInfoMsg } from '../ts/chat-utils';
   import { Button } from 'smelte';
 
   const CHAT_HISTORY_SIZE = 250;
   let queue: YtcQueue | undefined;
-  let messages: Writable<Chat.Message[]> | undefined;
+  let messages: Writable<YtcQueueMessage[]> | undefined;
   let div: HTMLElement;
   let isAtBottom = true;
 
@@ -35,14 +36,17 @@
       getInitialData: true
     });
 
-    port.onMessage.addListener((payload: Chat.Payload) => {
+    port.onMessage.addListener((payload: Chat.BackgroundPayload) => {
       switch (payload.type) {
+        case 'initialDataChunk':
+          if (queue) return console.error('Queue already exists at initial data');
+          queue = new YtcQueue(CHAT_HISTORY_SIZE, payload.isReplay, () => isAtBottom);
+          messages = queue.messagesStore;
+          queue.addInitialData(payload);
+          break;
         case 'actionChunk':
-          if (!queue) {
-            queue = new YtcQueue(CHAT_HISTORY_SIZE, payload.isReplay, () => isAtBottom);
-            messages = queue.messagesStore;
-          }
-          queue.addToQueue(payload);
+          if (!queue) return;
+          queue.addActionChunk(payload);
           break;
         case 'playerProgress':
           if (!queue) return;
@@ -78,22 +82,23 @@
     if (!queue) return;
     queue.cleanUp();
   });
-
-  // TODO: Proper welcome message behaviour
 </script>
 
 <svelte:window on:resize="{scrollToBottom}" />
 
 <div>
   <div
-    class="content px-2.5 overflow-y-scroll h-screen absolute"
+    class="content px-2.5 overflow-y-scroll h-screen absolute w-screen"
     bind:this={div}
     on:scroll="{checkAtBottom}"
   >
-    <WelcomeMessage />
     {#if messages}
       {#each $messages as message}
-        <Message message={message} />
+        {#if isChatMessage(message)}
+          <Message message={message} />
+        {:else}
+          <WelcomeMessage />
+        {/if}
       {/each}
     {/if}
   </div>
