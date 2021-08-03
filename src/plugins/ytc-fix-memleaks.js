@@ -13,7 +13,6 @@
  
 export default function(window) {
     'use strict';
-
     if (window.$pluginMemLeak) return;
     window.$pluginMemLeak = 'loading';
  
