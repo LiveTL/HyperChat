@@ -39,8 +39,12 @@
     port.onMessage.addListener((payload: Chat.BackgroundPayload) => {
       switch (payload.type) {
         case 'initialDataChunk':
-          if (queue) return console.error('Queue already exists at initial data');
-          queue = new YtcQueue(CHAT_HISTORY_SIZE, payload.isReplay, () => isAtBottom);
+          if (queue) {
+            return console.error('Queue already exists at initial data');
+          }
+          queue = new YtcQueue(
+            CHAT_HISTORY_SIZE, payload.isReplay, () => isAtBottom
+          );
           messages = queue.messagesStore;
           queue.addInitialData(payload);
           break;
@@ -88,7 +92,7 @@
 
 <div>
   <div
-    class="content px-2.5 overflow-y-scroll h-screen absolute w-screen"
+    class="content px-2.5 overflow-y-scroll h-screen absolute w-screen dark:bg-black dark:bg-opacity-25"
     bind:this={div}
     on:scroll="{checkAtBottom}"
   >
@@ -107,7 +111,12 @@
       class="absolute left-1/2 transform -translate-x-1/2 bottom-0 pb-1"
       transition:fade|local={{ duration: 150 }}
     >
-      <Button small icon="arrow_downward" on:click="{scrollToBottom}" />
+      <Button
+        small
+        icon="arrow_downward"
+        on:click="{scrollToBottom}"
+        color="blue"
+      />
     </div>
   {/if}
 </div>

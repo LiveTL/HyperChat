@@ -30,7 +30,7 @@
   ];
 </script>
 
-<Card.Card classes={c => c.concat(' bg-blue-400 dark:bg-blue-900 w-full')}>
+<Card.Card classes={c => c.concat(' bg-blue-50 dark:bg-blue-900 w-full')}>
   <div slot="text" class="p-2.5 text-black dark:text-white">
     <div class="mb-2 flex items-center">
       <div>
