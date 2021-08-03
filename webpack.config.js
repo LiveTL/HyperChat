@@ -8,9 +8,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const postcssPlugins = require('./postcss.config.js');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const smelteTailwind = require('smelte/tailwind.config.js');
-
-const mode = process.env.NODE_ENV || 'development';
-const prod = mode !== 'development';
+const ExtReloader = require('webpack-ext-reloader');
 
 const defaultSmelteConfig = smelteTailwind({});
 const smelteConfig = {
@@ -54,111 +52,124 @@ const smelteConfig = {
   }
 };
 
-const cssConfig = {
-  test: /\.(sa|sc|c)ss$/,
-  use: [
-    MiniCssExtractPlugin.loader,
-    'css-loader',
-    {
-      loader: 'postcss-loader',
-      options: {
-        postcssOptions: {
-          extract: true,
-          plugins: postcssPlugins(prod, smelteConfig)
-        }
-      }
-    }
-  ]
-};
+module.exports = (env, options) => {
+  const mode = options.mode;
+  const prod = mode !== 'development';
 
-const options = {
-  entry: {
-    'chat-interceptor': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-interceptor.ts'),
-    'chat-background': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-background.ts'),
-    'chat-injector': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-injector.ts'),
-    hyperchat: path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'hyperchat.ts')
-  },
-  output: {
-    path: path.join(__dirname, 'build'),
-    filename: '[name].bundle.js',
-    publicPath: './'
-  },
-  resolve: {
-    alias: {
-      svelte: path.resolve('node_modules', 'svelte')
-    },
-    extensions: ['.mjs', '.js', '.svelte', '.tsx', '.ts'],
-    mainFields: ['svelte', 'browser', 'module', 'main']
-  },
-  module: {
-    rules: [
+  const cssConfig = {
+    test: /\.(sa|sc|c)ss$/,
+    use: [
+      MiniCssExtractPlugin.loader,
+      'css-loader',
       {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.svelte$/,
-        use: {
-          loader: 'svelte-loader',
-          options: {
-            compilerOptions: {
-              dev: !prod // Built-in HMR
-            },
-            emitCss: false,
-            hotReload: !prod,
-            preprocess
+        loader: 'postcss-loader',
+        options: {
+          postcssOptions: {
+            extract: true,
+            plugins: postcssPlugins(prod, smelteConfig)
           }
         }
-      },
-      {
-        // required to prevent errors from Svelte on Webpack 5+
-        test: /node_modules\/svelte\/.*\.mjs$/,
-        resolve: {
-          fullySpecified: false
-        }
-      },
-      cssConfig
+      }
     ]
-  },
-  plugins: [
-    new CleanWebpackPlugin(),
-    new CopyWebpackPlugin({
-      patterns: [
+  };
+
+  const config = {
+    entry: {
+      'chat-interceptor': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-interceptor.ts'),
+      'chat-background': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-background.ts'),
+      'chat-injector': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-injector.ts'),
+      hyperchat: path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'hyperchat.ts')
+    },
+    output: {
+      path: path.join(__dirname, 'build'),
+      filename: '[name].bundle.js',
+      publicPath: './'
+    },
+    resolve: {
+      alias: {
+        svelte: path.resolve('node_modules', 'svelte')
+      },
+      extensions: ['.mjs', '.js', '.svelte', '.tsx', '.ts'],
+      mainFields: ['svelte', 'browser', 'module', 'main']
+    },
+    module: {
+      rules: [
         {
-          from: 'src/submodules/chat/assets',
-          to: 'assets'
+          test: /\.tsx?$/,
+          use: 'ts-loader',
+          exclude: /node_modules/
         },
         {
-          from: 'src/manifest.json'
-        }
+          test: /\.svelte$/,
+          use: {
+            loader: 'svelte-loader',
+            options: {
+              compilerOptions: {
+                dev: !prod // Built-in HMR
+              },
+              emitCss: false,
+              hotReload: !prod,
+              preprocess
+            }
+          }
+        },
+        {
+          // required to prevent errors from Svelte on Webpack 5+
+          test: /node_modules\/svelte\/.*\.mjs$/,
+          resolve: {
+            fullySpecified: false
+          }
+        },
+        cssConfig
       ]
-    }),
-    new MiniCssExtractPlugin({ filename: 'tailwind.css' }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'template.html'),
-      filename: 'hyperchat.html',
-      chunks: ['hyperchat'],
-      chunksSortMode: 'manual'
-    })
-  ],
-  mode
-};
-
-if (prod) {
-  options.devtool = false;
-} else {
-  options.devtool = 'eval-cheap-module-source-map';
-  options.plugins.concat(new webpack.HotModuleReplacementPlugin());
-  options.devServer = {
-    host: 'localhost',
-    port: 6000,
-    hot: true,
-    contentBase: path.join(__dirname, 'build'),
-    headers: { 'Access-Control-Allow-Origin': '*' },
-    writeToDisk: true,
-    disableHostCheck: true
+    },
+    plugins: [
+      new CleanWebpackPlugin(),
+      new ExtReloader({
+        manifest: path.join(__dirname, 'src', 'manifest.json'),
+        entries: {
+          contentScript: ['chat-interceptor', 'chat-injector'],
+          background: 'chat-background',
+          extensionPage: 'hyperchat'
+        },
+        reloadPage: true
+      }),
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: 'src/submodules/chat/assets',
+            to: 'assets'
+          },
+          {
+            from: 'src/manifest.json'
+          }
+        ]
+      }),
+      new MiniCssExtractPlugin({ filename: 'tailwind.css' }),
+      new HtmlWebpackPlugin({
+        template: path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'template.html'),
+        filename: 'hyperchat.html',
+        chunks: ['hyperchat'],
+        chunksSortMode: 'manual'
+      })
+    ]
   };
-}
 
-module.exports = options;
+  if (prod) {
+    config.devtool = false;
+  } else {
+    config.devtool = 'eval-cheap-module-source-map';
+    config.plugins.concat(new webpack.HotModuleReplacementPlugin());
+    // config.devServer = {
+    //   host: 'localhost',
+    //   port: 6000,
+    //   hot: true,
+    //   contentBase: path.join(__dirname, 'build'),
+    //   headers: { 'Access-Control-Allow-Origin': '*' },
+    //   writeToDisk: true,
+    //   disableHostCheck: true
+    // };
+  }
+
+  return config;
+};
