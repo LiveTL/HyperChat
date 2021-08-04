@@ -15,15 +15,12 @@
     "tailwindcss-elevation": "^0.3.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.8",
-    "@babel/preset-env": "^7.14.8",
     "@fullhuman/postcss-purgecss": "^4.0.3",
     "@tsconfig/svelte": "^2.0.1",
     "@types/chrome": "^0.0.149",
     "@typescript-eslint/eslint-plugin": "^4.28.5",
     "@typescript-eslint/parser": "^4.28.5",
     "autoprefixer": "^10.3.1",
-    "babel-loader": "^8.2.2",
     "clean-webpack-plugin": "^4.0.0-alpha.0",
     "copy-webpack-plugin": "^9.0.1",
     "cross-env": "^7.0.3",
