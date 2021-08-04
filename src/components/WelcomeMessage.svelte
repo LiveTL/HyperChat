@@ -28,10 +28,11 @@
       href: 'https://discord.gg/uJrV3tmthg'
     }
   ];
+  const classes = 'rounded inline-flex flex-col overflow-hidden bg-blue-50 dark:bg-blue-900 w-full';
 </script>
 
-<Card.Card classes={c => c.concat(' bg-blue-50 dark:bg-blue-900 w-full')}>
-  <div slot="text" class="p-2.5 text-black dark:text-white">
+<Card.Card classes={classes}>
+  <div slot="text" class="p-2.5">
     <div class="mb-2 flex items-center">
       <div>
         <img class="rounded-full" width="44" height="44" src="{logo}" alt="logo">

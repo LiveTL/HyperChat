@@ -56,6 +56,7 @@ export class YtcQueue {
   private _livePolling?: NodeJS.Timeout;
   private _newMessageCondition?: () => boolean
   readonly messagesStore: Writable<YtcQueueMessage[]>;
+  readonly pinnedMessage: Writable<Ytc.ParsedPinned | null>;
 
   constructor (historySize?: number, isReplay = false, newMessageCondition?: () => boolean) {
     this._queue = new Queue();
@@ -65,6 +66,7 @@ export class YtcQueue {
     this._isReplay = isReplay;
     this._newMessageCondition = newMessageCondition;
     this.messagesStore = writable(this._messages);
+    this.pinnedMessage = writable(null);
   }
 
   /**
@@ -177,6 +179,7 @@ export class YtcQueue {
     const messages = chunk.messages;
     const bonks = chunk.bonks;
     const deletions = chunk.deletions;
+    const misc = chunk.miscActions;
 
     messages.sort((m1, m2) => m1.showtime - m2.showtime).forEach((m) => {
       this.processDeleted(m, bonks, deletions);
@@ -184,6 +187,20 @@ export class YtcQueue {
     });
 
     this._messages.forEach((m) => this.processDeleted(m, bonks, deletions));
+
+    misc.forEach((action) => {
+      switch (action.type) {
+        case 'messagePinned':
+          this.pinnedMessage.set(action);
+          break;
+        case 'removePinned':
+          this.pinnedMessage.set(null);
+          break;
+        default:
+          console.error('Unhandled misc action', { action });
+          break;
+      }
+    });
   }
 
   /**

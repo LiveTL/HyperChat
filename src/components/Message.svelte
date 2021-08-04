@@ -31,7 +31,7 @@
         </span>
       {:else if run.type === 'link'}
         <span>
-          <a class="inline" href={run.url} target="_blank">{run.text}</a>
+          <a class="inline underline" href={run.url} target="_blank">{run.text}</a>
         </span>
       {:else if run.type === 'emote' && run.src}
         <span>

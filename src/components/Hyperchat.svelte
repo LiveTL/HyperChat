@@ -3,16 +3,18 @@
   import type { YtcQueueMessage } from '../ts/queue';
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
+  import { Button } from 'smelte';
+  import dark from 'smelte/src/dark';
   import WelcomeMessage from './WelcomeMessage.svelte';
   import Message from './Message.svelte';
-  import dark from 'smelte/src/dark';
+  import PinnedMessage from './PinnedMessage.svelte';
   import { YtcQueue, isChatMessage } from '../ts/queue';
   import { isFrameInfoMsg } from '../ts/chat-utils';
-  import { Button } from 'smelte';
 
   const CHAT_HISTORY_SIZE = 250;
   let queue: YtcQueue | undefined;
   let messages: Writable<YtcQueueMessage[]> | undefined;
+  let pinned: Writable<Ytc.ParsedPinned | null> | undefined;
   let div: HTMLElement;
   let isAtBottom = true;
 
@@ -46,6 +48,7 @@
             CHAT_HISTORY_SIZE, payload.isReplay, () => isAtBottom
           );
           messages = queue.messagesStore;
+          pinned = queue.pinnedMessage;
           queue.addInitialData(payload);
           break;
         case 'actionChunk':
@@ -90,7 +93,7 @@
 
 <svelte:window on:resize="{scrollToBottom}" />
 
-<div>
+<div class="text-black dark:text-white">
   <div
     class="content px-2.5 overflow-y-scroll h-screen absolute w-screen dark:bg-black dark:bg-opacity-25"
     bind:this={div}
@@ -106,10 +109,15 @@
       {/each}
     {/if}
   </div>
+  {#if pinned && $pinned}
+    <div class="absolute px-2.5 w-screen pt-1" transition:fade={{ duration: 300 }}>
+      <PinnedMessage pinned={$pinned} />
+    </div>
+  {/if}
   {#if !isAtBottom}
     <div
       class="absolute left-1/2 transform -translate-x-1/2 bottom-0 pb-1"
-      transition:fade|local={{ duration: 150 }}
+      transition:fade={{ duration: 150 }}
     >
       <Button
         small
