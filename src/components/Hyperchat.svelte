@@ -110,7 +110,7 @@
     {/if}
   </div>
   {#if pinned && $pinned}
-    <div class="absolute px-2.5 w-screen pt-1" transition:fade={{ duration: 300 }}>
+    <div class="absolute px-2.5 w-screen pt-1">
       <PinnedMessage pinned={$pinned} />
     </div>
   {/if}

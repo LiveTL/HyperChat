@@ -172,10 +172,11 @@ export class YtcQueue {
   }
 
   /**
-   * Add messages from actionChunk to the queue.
-   * Also handles author bonks and message deletions.
+   * Processes actionChunk.
+   * Adds messages to the queue, handles author bonks, message deletions
+   * and pinned messages.
    */
-  private addToQueue (chunk: Chat.ParsedChunk) {
+  private processActionChunk (chunk: Chat.ParsedChunk) {
     const messages = chunk.messages;
     const bonks = chunk.bonks;
     const deletions = chunk.deletions;
@@ -207,7 +208,7 @@ export class YtcQueue {
    * Add initial data to queue.
    */
   addInitialData (initialData: Chat.InitialDataChunk): void {
-    this.addToQueue(initialData);
+    this.processActionChunk(initialData);
     this.pushAllQueuedToStore();
     this.newMessage({ welcomeMessage: true });
 
@@ -221,7 +222,7 @@ export class YtcQueue {
    * Add action chunk to queue.
    */
   addActionChunk (actionChunk: Chat.ActionChunk): void {
-    this.addToQueue(actionChunk);
+    this.processActionChunk(actionChunk);
   }
 
   /**
