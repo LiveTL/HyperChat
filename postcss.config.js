@@ -1,20 +1,25 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const extractor = require('smelte/src/utils/css-extractor.js');
 
-const defaultWhitelist = ['html', 'body', 'stroke-primary', 'mode-dark'];
+const safelistSelectors = [
+  'html',
+  'body',
+  'stroke-primary',
+  'mode-dark'
+  // Components with custom color prop might need to its color to be whitelisted too
+];
 
-const defaultWhitelistPatterns = [
+const safelistPatterns = [
   // for JS ripple
   /ripple/,
   // date picker
-  /w-.\/7/
+  /w-.\/7/,
+  // I'm guessing it doesn't correlate p-2.5 with p-2\.5
+  /^[mphw]\w?-\d\.5$/
 ];
 
 module.exports = (purge = false, tailwind = {}) => {
   const postcss = [];
-  const whitelist = defaultWhitelist;
-  const whitelistPatterns = defaultWhitelistPatterns;
-  const whitelistPatternsChildren = defaultWhitelistPatterns;
   const tailwindConfig = require('./tailwind.config.js')(tailwind);
   return [
     require('postcss-import')(),
@@ -36,9 +41,10 @@ module.exports = (purge = false, tailwind = {}) => {
             extensions: ['svelte']
           }
         ],
-        whitelist: whitelist.filter(Boolean),
-        whitelistPatterns: whitelistPatterns.filter(Boolean),
-        whitelistPatternsChildren: whitelistPatternsChildren.filter(Boolean)
+        safelist: {
+          standard: safelistSelectors,
+          deep: safelistPatterns
+        }
       })
   ].filter(Boolean);
 };
