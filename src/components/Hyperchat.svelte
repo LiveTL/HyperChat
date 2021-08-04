@@ -8,6 +8,7 @@
   import WelcomeMessage from './WelcomeMessage.svelte';
   import Message from './Message.svelte';
   import PinnedMessage from './PinnedMessage.svelte';
+  import PaidMessage from './PaidMessage.svelte';
   import { YtcQueue, isChatMessage } from '../ts/queue';
   import { isFrameInfoMsg } from '../ts/chat-utils';
 
@@ -101,11 +102,15 @@
   >
     {#if messages}
       {#each $messages as message}
-        {#if isChatMessage(message)}
-          <Message message={message} />
-        {:else}
-          <WelcomeMessage />
-        {/if}
+        <div class="my-2.5">
+          {#if isChatMessage(message) && (message.superChat || message.superSticker)}
+            <PaidMessage message={message} />
+          {:else if isChatMessage(message)}
+            <Message message={message} />
+          {:else}
+            <WelcomeMessage />
+          {/if}
+        </div>
       {/each}
     {/if}
   </div>

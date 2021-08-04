@@ -39,7 +39,12 @@ export const BROWSER = (() => {
 /** Checks if renderer is a PaidMessageRenderer */
 export const isPaidMessageRenderer = (actionItem: Ytc.AddChatItem, renderer: Ytc.Renderers): renderer is Ytc.PaidMessageRenderer => {
   const r = renderer as Ytc.PaidMessageRenderer;
-  return actionItem.liveChatPaidMessageRenderer !== undefined && r.purchaseAmountText && (r.bodyBackgroundColor !== undefined);
+  return !!(actionItem.liveChatPaidMessageRenderer) && r.purchaseAmountText && (r.bodyBackgroundColor != null);
+};
+
+export const isPaidStickerRenderer = (actionItem: Ytc.AddChatItem, renderer: Ytc.Renderers): renderer is Ytc.PaidStickerRenderer => {
+  const r = renderer as Ytc.PaidStickerRenderer;
+  return !!(actionItem.liveChatPaidStickerRenderer) && r.purchaseAmountText && (r.moneyChipBackgroundColor != null);
 };
 
 /** Checks if frameInfo values are valid */

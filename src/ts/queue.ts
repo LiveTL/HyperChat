@@ -230,7 +230,7 @@ export class YtcQueue {
    * Only effective on VODs.
    */
   updatePlayerProgress (timeMs: number): void {
-    if (this._livePolling || this._isReplay) return;
+    if (this._livePolling || !this._isReplay) return;
     this.onVideoProgress(timeMs);
   }
 

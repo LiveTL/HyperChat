@@ -104,7 +104,7 @@ declare namespace Ytc {
   };
 
   type TextMessageRenderer = {
-    message: {
+    message?: {
       runs: MessageRun[];
     };
     authorName: SimpleTextObj;
@@ -128,19 +128,26 @@ declare namespace Ytc {
     timestampText?: SimpleTextObj;
   };
 
-  type PaidMessageRenderer = TextMessageRenderer & {
+  type PaidRenderer = TextMessageRenderer & {
     purchaseAmountText: SimpleTextObj;
-    bodyBackgroundColor: number
+    authorNameTextColor: nummber;
+  }
+
+  type PaidMessageRenderer = PaidRenderer & {
+    headerBackgroundColor: number,
+    headerTextColor: number,
+    bodyBackgroundColor: number,
+    bodyTextColor: number,
   };
 
-  type PaidStickerRenderer = TextMessageRenderer & {
+  type PaidStickerRenderer = PaidRenderer & {
     sticker: {
       thumbnails: {
         url: string
       }[];
     };
-    purchaseAmountText: SimpleTextObj;
     moneyChipBackgroundColor: number;
+    moneyChipTextColor: number
   };
 
   type AddChatItem = {
@@ -181,6 +188,13 @@ declare namespace Ytc {
 
   type ParsedRun = ParsedTextRun | ParsedLinkRun | ParsedEmoteRun;
 
+  type PaidDetails = {
+    amount: string;
+    backgroundColor: string;
+    textColor: string;
+    nameColor: string;
+  }
+
   type ParsedMessage = {
     author: {
       name: string;
@@ -191,10 +205,10 @@ declare namespace Ytc {
     timestamp: string;
     showtime: number;
     messageId: string;
-    superchat?: {
-      amount: string;
-      color: string;
-    }
+    superChat?: PaidDetails;
+    superSticker?: PaidDetails & {
+      src: string;
+    };
   };
 
   type ParsedBonk = {

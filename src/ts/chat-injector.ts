@@ -3,9 +3,14 @@ import { getFrameInfoAsync, isLiveTL, isAndroid } from './chat-utils';
 
 const isFirefox = navigator.userAgent.includes('Firefox');
 
+const hcWarning = 'An existing HyperChat button has been detected. This ' +
+  'usually means both LiveTL and standalone HyperChat are enabled. ' +
+  'Please only enable one of them, as having duplicates of the same scripts ' +
+  'running WILL cause problems, such as chat messages not loading.';
+
 const chatLoaded = () => {
   if (document.querySelector('.toggleButton')) {
-    console.debug('HC Button already injected.');
+    console.error(hcWarning);
     return;
   }
 

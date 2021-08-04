@@ -1,4 +1,4 @@
-import { isPaidMessageRenderer } from './chat-utils';
+import { isPaidMessageRenderer, isPaidStickerRenderer } from './chat-utils';
 
 const formatTimestamp = (timestampUsec: number) => {
   return (new Date(timestampUsec / 1000))
@@ -11,23 +11,29 @@ const colorToHex = (color: number) => {
   return color.toString(16).slice(-6);
 };
 
-const parseMessageRuns = (runs: Ytc.MessageRun[]) => {
+const fixUrl = (url: string) => {
+  if (url.startsWith('//')) {
+    return 'https:' + url;
+  } else if (url.startsWith('/')) {
+    return 'https://www.youtube.com' + url;
+  } else {
+    return url;
+  }
+};
+
+const parseMessageRuns = (runs?: Ytc.MessageRun[]) => {
   const parsedRuns: Ytc.ParsedRun[] = [];
   if (!runs) {
     return parsedRuns;
   }
   runs.forEach((run) => {
     if (run.text && run.navigationEndpoint) {
-      let url = run.navigationEndpoint.commandMetadata.webCommandMetadata.url;
-      if (url.startsWith('/')) {
-        url = 'https://www.youtube.com'.concat(url);
-      }
       parsedRuns.push({
         type: 'link',
         text: decodeURIComponent(escape(unescape(encodeURIComponent(
           run.text
         )))),
-        url: url
+        url: fixUrl(run.navigationEndpoint.commandMetadata.webCommandMetadata.url)
       });
     } else if (run.text) {
       parsedRuns.push({
@@ -39,7 +45,7 @@ const parseMessageRuns = (runs: Ytc.MessageRun[]) => {
     } else if (run.emoji) {
       parsedRuns.push({
         type: 'emote',
-        src: run.emoji.image.thumbnails[0].url
+        src: fixUrl(run.emoji.image.thumbnails[0].url)
       });
     }
   });
@@ -86,11 +92,21 @@ const parseAddChatItemAction = (action?: Ytc.AddChatItemAction, isReplay = false
     showtime: isReplay ? offsetMs : (timestampUsec / 1000) + offsetMs + 2000, // TODO: Figure out how not to hardcode this, it causes delay between LTL and non-HC YTC
     messageId: renderer.id
   };
-  // TODO: Super stickers
+
   if (isPaidMessageRenderer(actionItem, renderer)) {
-    item.superchat = {
+    item.superChat = {
       amount: renderer.purchaseAmountText.simpleText,
-      color: colorToHex(renderer.bodyBackgroundColor)
+      backgroundColor: colorToHex(renderer.bodyBackgroundColor),
+      textColor: colorToHex(renderer.bodyTextColor),
+      nameColor: colorToHex(renderer.authorNameTextColor)
+    };
+  } else if (isPaidStickerRenderer(actionItem, renderer)) {
+    item.superSticker = {
+      src: fixUrl(renderer.sticker.thumbnails[0].url),
+      amount: renderer.purchaseAmountText.simpleText,
+      backgroundColor: colorToHex(renderer.moneyChipBackgroundColor),
+      textColor: colorToHex(renderer.moneyChipTextColor),
+      nameColor: colorToHex(renderer.authorNameTextColor)
     };
   }
   return item;
