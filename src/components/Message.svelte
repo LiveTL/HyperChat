@@ -3,6 +3,8 @@
   export let forceDark = false;
   export let hideName = false;
 
+  // FIXME: All these retain previous values when history size reached since its just recycling the same components
+
   const member = message.author.types.some((type) => type === 'member');
   const moderator = message.author.types.some((type) => type === 'moderator');
   const owner = message.author.types.some((type) => type === 'owner');
