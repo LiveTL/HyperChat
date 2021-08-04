@@ -5,8 +5,10 @@ const safelistSelectors = [
   'html',
   'body',
   'stroke-primary',
-  'mode-dark'
-  // Components with custom color prop might need to its color to be whitelisted too
+  'mode-dark',
+  // Components with custom color prop might need its color to be whitelisted too
+  'bg-blue-500',
+  'hover:bg-blue-400'
 ];
 
 const safelistPatterns = [
