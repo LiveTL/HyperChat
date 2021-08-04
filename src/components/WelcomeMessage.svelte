@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Card } from 'smelte';
   import { Browser, BROWSER } from '../ts/chat-utils';
 
   const logo = chrome.runtime.getURL('assets/logo.png');
@@ -28,29 +27,27 @@
       href: 'https://discord.gg/uJrV3tmthg'
     }
   ];
-  const classes = 'rounded inline-flex flex-col overflow-hidden bg-blue-50 dark:bg-blue-900 w-full';
+  const classes = 'p-2 rounded inline-flex flex-col overflow-hidden bg-blue-50 dark:bg-blue-900 w-full';
 </script>
 
-<Card.Card classes={classes}>
-  <div slot="text" class="p-2.5">
-    <div class="mb-2 flex items-center">
-      <div>
-        <img class="rounded-full" width="44" height="44" src="{logo}" alt="logo">
-      </div>
-      <div class="font-bold text-xl pl-2.5">HyperChat by LiveTL</div>
+<div class="{classes}">
+  <div class="mb-2 flex items-center">
+    <div>
+      <img class="rounded-full" width="44" height="44" src="{logo}" alt="logo">
     </div>
-    <span>
-      <i>It may take a few seconds for messages to start appearing.</i>
-      <br/>
-      <strong>HyperChat can reduce CPU usage by up to 80%!</strong>
-    </span>
+    <div class="font-bold text-xl ml-2.5">HyperChat by LiveTL</div>
+  </div>
+  <span>
+    <i>It may take a few seconds for messages to start appearing.</i>
     <br/>
-    <div class="mt-2 flex flex-wrap w-full">
-    <!-- {#each badges as { name, src, href }} // FIXME: Badge loading messes up first scroll
+    <strong>HyperChat can reduce CPU usage by up to 80%!</strong>
+  </span>
+  <!-- <br/>
+  <div class="mt-2 flex flex-wrap w-full">
+    {#each badges as { name, src, href }} // FIXME: Badge loading messes up first scroll
       <a {href} class="p-0.5">
         <img alt={name} {src} />
       </a>
-    {/each} -->
-    </div>
-  </div>
-</Card.Card>
+    {/each}
+  </div> -->
+</div>
