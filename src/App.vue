@@ -133,6 +133,7 @@
 //@ts-nocheck
 import CustomLink from './CustomLink.vue';
 import { updates } from './changelog.js';
+
 class Queue {
   constructor() {
     this.clear();

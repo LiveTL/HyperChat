@@ -55,5 +55,10 @@ exports.updates = [
               'If you know any friends that previously had issues with HyperChat, be sure to ' +
               'let them know that this update may solve all of their problems. ' +
               'Next on our to-do list is support for pinned messages!'
+  },
+  {
+    version: 'v1.3.1',
+    comments: 'We added a script to fix a memory leak in the YouTube chat. Special thanks ' +
+              'to twitter.com/laversheet!'
   }
 ];
