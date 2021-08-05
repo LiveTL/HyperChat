@@ -47,6 +47,11 @@ export const isPaidStickerRenderer = (actionItem: Ytc.AddChatItem, renderer: Ytc
   return !!(actionItem.liveChatPaidStickerRenderer) && r.purchaseAmountText && (r.moneyChipBackgroundColor != null);
 };
 
+export const isMembershipRenderer = (actionItem: Ytc.AddChatItem, renderer: Ytc.Renderers): renderer is Ytc.MembershipRenderer => {
+  const r = renderer as Ytc.MembershipRenderer;
+  return !!(actionItem.liveChatMembershipItemRenderer) && !!(r.headerSubtext);
+};
+
 /** Checks if frameInfo values are valid */
 export const isValidFrameInfo = (f: Chat.UncheckedFrameInfo, port?: Chat.Port): f is Chat.FrameInfo => {
   const check = f.tabId != null && f.frameId != null;

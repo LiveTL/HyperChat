@@ -85,7 +85,7 @@ declare namespace Ytc {
    * Misc
    */
   /** Message run object */
-  type MessageRun ={
+  type MessageRun = {
     text?: string;
     navigationEndpoint?: {
       commandMetadata: {
@@ -130,8 +130,8 @@ declare namespace Ytc {
 
   type PaidRenderer = TextMessageRenderer & {
     purchaseAmountText: SimpleTextObj;
-    authorNameTextColor: nummber;
-  }
+    authorNameTextColor: number;
+  };
 
   type PaidMessageRenderer = PaidRenderer & {
     headerBackgroundColor: number,
@@ -150,10 +150,17 @@ declare namespace Ytc {
     moneyChipTextColor: number
   };
 
+  type MembershipRenderer = TextMessageRenderer & {
+    headerSubtext: {
+      runs: MessageRun[];
+    };
+  };
+
   type AddChatItem = {
     liveChatTextMessageRenderer?: TextMessageRenderer;
     liveChatPaidMessageRenderer?: PaidMessageRenderer;
     liveChatPaidStickerRenderer?: PaidStickerRenderer;
+    liveChatMembershipItemRenderer?: MembershipRenderer;
   };
 
   type IDeleted = {
@@ -173,18 +180,18 @@ declare namespace Ytc {
   type ParsedTextRun = {
     type: 'text';
     text: string;
-  }
+  };
 
   type ParsedLinkRun = {
     type: 'link';
     text: string;
     url: string;
-  }
+  };
 
   type ParsedEmoteRun = {
     type: 'emote';
     src: string;
-  }
+  };
 
   type ParsedRun = ParsedTextRun | ParsedLinkRun | ParsedEmoteRun;
 
@@ -193,7 +200,7 @@ declare namespace Ytc {
     backgroundColor: string;
     textColor: string;
     nameColor: string;
-  }
+  };
 
   type ParsedMessage = {
     author: {
@@ -209,6 +216,7 @@ declare namespace Ytc {
     superSticker?: PaidDetails & {
       src: string;
     };
+    membership?: boolean;
   };
 
   type ParsedBonk = {
@@ -231,5 +239,5 @@ declare namespace Ytc {
 
   type ParsedMisc = ParsedPinned | { type: 'removePinned'}
 
-  type Renderers = TextMessageRenderer | PaidMessageRenderer | PaidStickerRenderer;
+  type Renderers = TextMessageRenderer | PaidMessageRenderer | PaidStickerRenderer | MembershipRenderer;
 }

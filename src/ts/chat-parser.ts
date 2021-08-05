@@ -1,4 +1,4 @@
-import { isPaidMessageRenderer, isPaidStickerRenderer } from './chat-utils';
+import { isPaidMessageRenderer, isPaidStickerRenderer, isMembershipRenderer } from './chat-utils';
 
 const formatTimestamp = (timestampUsec: number) => {
   return (new Date(timestampUsec / 1000))
@@ -59,7 +59,8 @@ const parseAddChatItemAction = (action?: Ytc.AddChatItemAction, isReplay = false
   const actionItem = action.item;
   const renderer = actionItem.liveChatTextMessageRenderer ||
     actionItem.liveChatPaidMessageRenderer ||
-    actionItem.liveChatPaidStickerRenderer;
+    actionItem.liveChatPaidStickerRenderer ||
+    actionItem.liveChatMembershipItemRenderer;
   if (!renderer || !renderer.authorName) {
     return;
   }
@@ -108,6 +109,9 @@ const parseAddChatItemAction = (action?: Ytc.AddChatItemAction, isReplay = false
       textColor: colorToHex(renderer.moneyChipTextColor),
       nameColor: colorToHex(renderer.authorNameTextColor)
     };
+  } else if (isMembershipRenderer(actionItem, renderer)) {
+    item.membership = true;
+    item.message = parseMessageRuns(renderer.headerSubtext.runs);
   }
   return item;
 };

@@ -3,27 +3,28 @@
 
   export let message: Ytc.ParsedMessage;
 
+  $: membership = message.membership;
   $: m = message.superChat || message.superSticker;
   $: amount = m?.amount;
-  $: backgroundColor = m?.backgroundColor;
-  $: textColor = m?.textColor;
-  $: nameColor = m?.nameColor;
+  $: backgroundColor = `background-color: ${membership ? 'var(--color-member-dark)' : '#' + m?.backgroundColor};`;
+  $: textColor = `color: ${membership ? 'var(--color-white)' : '#' + m?.textColor};`;
+  $: nameColor = `${membership ? '' : 'color: #' + m?.nameColor};`;
 
-  const classes = 'p-2.5 inline-flex flex-col rounded break-words overflow-hidden w-full';
-  $: style = `background-color: #${backgroundColor}; color: #${textColor}`;
-  $: nameStyle = `color: #${nameColor}`;
+  const classes = 'p-2 inline-flex flex-col rounded break-words overflow-hidden w-full';
 
-  $: valid = amount && backgroundColor && textColor && nameColor;
+  $: valid = membership || m;
   $: if (!valid) {
     console.error('Not a paid message', { message });
   }
 </script>
 
 {#if valid}
-  <div class="{classes}" style="{style}">
+  <div class="{classes}" style="{backgroundColor + textColor}">
     <div>
-      <span class="mr-1 underline font-bold">{amount}</span>
-      <span class="font-bold tracking-wide" style="{nameStyle}">
+      {#if !membership}
+        <span class="mr-1 underline font-bold">{amount}</span>
+      {/if}
+      <span class="font-bold tracking-wide" style="{nameColor}">
         {message.author.name}
       </span>
       {#if message.superSticker}
@@ -33,7 +34,7 @@
           alt="super-sticker" />
       {/if}
     </div>
-    {#if message.superChat && message.message.length > 0}
+    {#if message.message.length > 0}
       <div class="mt-2">
         <Message message={message} hideName={true} />
       </div>

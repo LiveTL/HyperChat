@@ -103,7 +103,7 @@
     {#if messages}
       {#each $messages as message}
         <div class="my-2.5">
-          {#if isChatMessage(message) && (message.superChat || message.superSticker)}
+          {#if isChatMessage(message) && (message.superChat || message.superSticker || message.membership)}
             <PaidMessage message={message} />
           {:else if isChatMessage(message)}
             <Message message={message} />
