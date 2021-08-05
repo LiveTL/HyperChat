@@ -3,18 +3,18 @@
 
   export let message: Ytc.ParsedMessage;
 
-  const m = message.superChat || message.superSticker;
-  const amount = m?.amount;
-  const backgroundColor = m?.backgroundColor;
-  const textColor = m?.textColor;
-  const nameColor = m?.nameColor;
+  $: m = message.superChat || message.superSticker;
+  $: amount = m?.amount;
+  $: backgroundColor = m?.backgroundColor;
+  $: textColor = m?.textColor;
+  $: nameColor = m?.nameColor;
 
   const classes = 'p-2.5 inline-flex flex-col rounded break-words overflow-hidden w-full';
-  const style = `background-color: #${backgroundColor}; color: #${textColor}`;
-  const nameStyle = `color: #${nameColor}`;
+  $: style = `background-color: #${backgroundColor}; color: #${textColor}`;
+  $: nameStyle = `color: #${nameColor}`;
 
-  const valid = amount && backgroundColor && textColor && nameColor;
-  if (!valid) {
+  $: valid = amount && backgroundColor && textColor && nameColor;
+  $: if (!valid) {
     console.error('Not a paid message', { message });
   }
 </script>
