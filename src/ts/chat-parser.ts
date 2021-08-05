@@ -202,7 +202,7 @@ export const parseChatResponse = (response: string, isReplay: boolean, isInitial
         action.markChatItemAsDeletedAction
       );
       if (parsedAction) deletionActions.push(parsedAction);
-    } else if (action.addBannerToLiveChatCommand) { // TODO: Pinned message UI
+    } else if (action.addBannerToLiveChatCommand) {
       parsedAction = parsePinnedMessageAction(
         action.addBannerToLiveChatCommand
       );

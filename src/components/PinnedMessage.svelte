@@ -14,6 +14,7 @@
 
   $: if (pinned) {
     dismissed = false;
+    shorten = false;
   }
 </script>
 

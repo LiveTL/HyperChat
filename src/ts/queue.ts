@@ -69,8 +69,12 @@ export class YtcQueue {
     this.pinnedMessage = writable(null);
   }
 
+  private updateStore () {
+    this.messagesStore.set(this._messages);
+  }
+
   /**
-   * Push message into the `_messages` array and the `messagesStore` Writable.
+   * Push message into the `_messages` array.
    * Will also remove old messages if `_historySize` was set.
    */
   private newMessage (message: YtcQueueMessage) {
@@ -81,7 +85,6 @@ export class YtcQueue {
     ) {
       this._messages.splice(0, 1);
     }
-    this.messagesStore.set(this._messages);
   }
 
   /**
@@ -102,6 +105,7 @@ export class YtcQueue {
         this.newMessage(message);
       }
     }
+    this.updateStore();
   }
 
   private isScrubbedOrSkipped (time: number) {
@@ -156,19 +160,20 @@ export class YtcQueue {
     bonks: Ytc.ParsedBonk[],
     deletions: Ytc.ParsedDeleted[]
   ) {
-    if (!isChatMessage(message)) return;
+    if (!isChatMessage(message)) return false;
     for (const b of bonks) {
       if (message.author.id !== b.authorId) continue;
       message.message = b.replacedMessage;
       message.deleted = true;
-      return;
+      return true;
     }
     for (const d of deletions) {
       if (message.messageId !== d.messageId) continue;
       message.message = d.replacedMessage;
       message.deleted = true;
-      return;
+      return true;
     }
+    return false;
   }
 
   /**
@@ -187,7 +192,14 @@ export class YtcQueue {
       this._queue.push(m);
     });
 
-    this._messages.forEach((m) => this.processDeleted(m, bonks, deletions));
+    let update = false;
+    this._messages.forEach((m) => {
+      const deleted = this.processDeleted(m, bonks, deletions);
+      if (deleted && !update) {
+        update = true;
+      }
+    });
+    if (update) this.updateStore();
 
     misc.forEach((action) => {
       switch (action.type) {
