@@ -1,4 +1,4 @@
-export {};
+import { fixLeaks } from './ytc-fix-memleaks';
 
 const isReplay = window.location.href.startsWith(
   'https://www.youtube.com/live_chat_replay'
@@ -85,6 +85,10 @@ const chatLoaded = async () => {
     attributes: true
   });
   sendTheme();
+
+  const fixLeakScript = document.createElement('script');
+  fixLeakScript.innerHTML = `(${fixLeaks.toString()})();`;
+  document.body.appendChild(fixLeakScript);
 };
 
 if (document.readyState === 'loading') {
