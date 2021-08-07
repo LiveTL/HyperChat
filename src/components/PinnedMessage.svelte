@@ -24,7 +24,7 @@
     on:click={onShorten}
     transition:fade={{ duration: 250 }}
   >
-    <div class="py-1 font-bold tracking-wide italic">
+    <div class="py-1 font-bold tracking-wide text-gray-400">
       {#each pinned.item.header as run}
         {#if run.type === 'text'}
           <span>

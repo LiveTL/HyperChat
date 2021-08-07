@@ -3,7 +3,7 @@
   export let forceDark = false;
   export let hideName = false;
 
-  const nameClass = 'mr-2 font-bold tracking-wide';
+  const nameClass = 'mr-2 font-bold tracking-wide cursor-auto';
   const generateNameColorClass = (member: boolean, moderator: boolean, owner: boolean, forceDark: boolean) => {
     if (owner && forceDark) {
       return 'text-owner-dark';
@@ -42,13 +42,13 @@
 
 <div class="break-words overflow-hidden">
   {#if !hideName}
-    <span class="{nameClass} {nameColorClass}">
+    <span on:click|stopPropagation class="{nameClass} {nameColorClass}">
       {message.author.name}
     </span>
   {/if}
   {#each message.message as run}
     {#if run.type === 'text'}
-      <span class="inline {deletedClass}">
+      <span on:click|stopPropagation class="inline cursor-auto {deletedClass}">
         {run.text}
       </span>
     {:else if run.type === 'link'}
@@ -57,13 +57,14 @@
           class="inline underline"
           href={run.url}
           target="_blank"
+          on:click|stopPropagation
         >
           {run.text}
         </a>
       </span>
     {:else if run.type === 'emote' && run.src}
       <span>
-        <img class="h-5 w-5 mx-px inline" src={run.src} alt="emote" />
+        <img on:click|stopPropagation class="h-5 w-5 mx-px inline" src={run.src} alt="emote" />
       </span>
     {/if}
   {/each}

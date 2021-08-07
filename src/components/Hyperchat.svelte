@@ -94,7 +94,7 @@
 
 <svelte:window on:resize="{scrollToBottom}" />
 
-<div class="text-black dark:text-white">
+<div class="text-black dark:text-white text-xs">
   <div
     class="content px-2.5 overflow-y-scroll h-screen absolute w-screen dark:bg-black dark:bg-opacity-25"
     bind:this={div}
