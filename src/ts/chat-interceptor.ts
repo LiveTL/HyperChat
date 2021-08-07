@@ -29,15 +29,15 @@ const chatLoaded = async () => {
   document.body.appendChild(script);
 
   // Register interceptor
-  const port = chrome.runtime.connect();
-  port.postMessage({ type: 'registerInterceptor' });
+  const port: Chat.Port = chrome.runtime.connect();
+  port.postMessage({ type: 'registerInterceptor', isReplay });
 
   // Send JSON response to clients
   window.addEventListener('messageReceive', (d) => {
     port.postMessage({
-      type: 'sendToClients',
+      type: 'processJson',
       // @ts-expect-error TS doesn't like CustomEvent
-      response: d.detail,
+      json: d.detail,
       isReplay
     });
   });
@@ -57,7 +57,7 @@ const chatLoaded = async () => {
     const json = text.replace(start, '').slice(0, -1);
     port.postMessage({
       type: 'setInitialData',
-      response: json,
+      json,
       isReplay
     });
     break;
@@ -73,6 +73,7 @@ const chatLoaded = async () => {
     }
   });
 
+  // Update dark theme whenever it changes
   const html = document.documentElement;
   const sendTheme = () => {
     const isDark = html.hasAttribute('dark');
@@ -86,6 +87,7 @@ const chatLoaded = async () => {
   });
   sendTheme();
 
+  // Inject mem leak fix script
   const fixLeakScript = document.createElement('script');
   fixLeakScript.innerHTML = `(${fixLeaks.toString()})();`;
   document.body.appendChild(fixLeakScript);

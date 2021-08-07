@@ -64,7 +64,3 @@ export const isValidFrameInfo = (f: Chat.UncheckedFrameInfo, port?: Chat.Port): 
 export const isFrameInfoMsg = (m: Chat.WindowMessage): m is Chat.FrameInfoMsg => {
   return m.type === 'frameInfo' && isValidFrameInfo(m.frameInfo);
 };
-
-export const isInitialDataChunk = (m: Chat.ParsedChunk): m is Chat.InitialDataChunk => {
-  return m.type === 'initialDataChunk';
-};

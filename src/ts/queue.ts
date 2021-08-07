@@ -40,51 +40,31 @@ export class Queue<T> {
   }
 }
 
-type WelcomeMessage = { welcomeMessage?: boolean };
-export type YtcQueueMessage = Chat.Message | WelcomeMessage;
-
-export const isChatMessage =
-  (message: YtcQueueMessage):message is Chat.Message =>
-    (message as WelcomeMessage).welcomeMessage == null;
-
 export class YtcQueue {
-  private _queue: Queue<Chat.Message>;
+  private _messageQueue: Queue<Chat.MessageAction>;
   private _previousTime: number;
-  private _messages: YtcQueueMessage[];
-  private _historySize?: number;
   private _isReplay: boolean;
   private _livePolling?: NodeJS.Timeout;
-  private _newMessageCondition?: () => boolean
-  readonly messagesStore: Writable<YtcQueueMessage[]>;
-  readonly pinnedMessage: Writable<Ytc.ParsedPinned | null>;
+  readonly latestAction: Writable<Chat.Actions | null>;
 
-  constructor (historySize?: number, isReplay = false, newMessageCondition?: () => boolean) {
-    this._queue = new Queue();
+  constructor (isReplay = false) {
+    this._messageQueue = new Queue();
     this._previousTime = 0;
-    this._messages = [];
-    this._historySize = historySize;
     this._isReplay = isReplay;
-    this._newMessageCondition = newMessageCondition;
-    this.messagesStore = writable(this._messages);
-    this.pinnedMessage = writable(null);
-  }
+    this.latestAction = writable(null);
 
-  private updateStore () {
-    this.messagesStore.set(this._messages);
+    if (!this._livePolling && !isReplay) {
+      this._livePolling = setInterval(() => this.updateLiveProgress(), 250);
+      this.updateLiveProgress();
+    }
   }
 
   /**
-   * Push message into the `_messages` array.
-   * Will also remove old messages if `_historySize` was set.
+   * Sets video progress to current time in seconds.
+   * Normally called by the live polling interval that runs every 250 ms.
    */
-  private newMessage (message: YtcQueueMessage) {
-    this._messages.push(message);
-    if (
-      this._historySize != null &&
-      this._messages.length > this._historySize
-    ) {
-      this._messages.splice(0, 1);
-    }
+  private updateLiveProgress () {
+    this.onVideoProgress(Date.now() / 1000);
   }
 
   /**
@@ -92,20 +72,13 @@ export class YtcQueue {
    * `extraCondition` returns false.
    */
   private pushQueueToStore (
-    extraCondition: (queue: Queue<Chat.Message>) => boolean
+    extraCondition: (queue: Queue<Chat.MessageAction>) => boolean
   ) {
-    while (this._queue.front && extraCondition(this._queue)) {
-      const message = this._queue.pop();
+    while (this._messageQueue.front && extraCondition(this._messageQueue)) {
+      const message = this._messageQueue.pop();
       if (!message) return;
-      if (!this._newMessageCondition) {
-        this.newMessage(message);
-        return;
-      }
-      if (this._newMessageCondition()) {
-        this.newMessage(message);
-      }
+      this.latestAction.set(message);
     }
-    this.updateStore();
   }
 
   private isScrubbedOrSkipped (time: number) {
@@ -124,7 +97,7 @@ export class YtcQueue {
    */
   private pushTillCurrentToStore (currentTimeMs: number) {
     this.pushQueueToStore((q) => {
-      const frontShowtime = q.front?.showtime;
+      const frontShowtime = q.front?.message.showtime;
       if (frontShowtime == null) return false;
       return (frontShowtime / 1000) <= currentTimeMs;
     });
@@ -144,36 +117,25 @@ export class YtcQueue {
   }
 
   /**
-   * Sets video progress to current time in seconds.
-   * Normally called by the live polling interval that runs every 250 ms.
-   */
-  private updateLiveProgress () {
-    this.onVideoProgress(Date.now() / 1000);
-  }
-
-  /**
    * Checks if `message` can be found in either of `bonks` or `deletions`.
    * If it is, its message will be replaced and marked as deleted.
    */
   private processDeleted (
-    message: YtcQueueMessage,
+    messageAction: Chat.MessageAction,
     bonks: Ytc.ParsedBonk[],
     deletions: Ytc.ParsedDeleted[]
   ) {
-    if (!isChatMessage(message)) return false;
+    const message = messageAction.message;
     for (const b of bonks) {
       if (message.author.id !== b.authorId) continue;
-      message.message = b.replacedMessage;
-      message.deleted = true;
-      return true;
+      messageAction.deleted = { replace: b.replacedMessage };
+      return;
     }
     for (const d of deletions) {
       if (message.messageId !== d.messageId) continue;
-      message.message = d.replacedMessage;
-      message.deleted = true;
-      return true;
+      messageAction.deleted = { replace: d.replacedMessage };
+      return;
     }
-    return false;
   }
 
   /**
@@ -181,60 +143,24 @@ export class YtcQueue {
    * Adds messages to the queue, handles author bonks, message deletions
    * and pinned messages.
    */
-  private processActionChunk (chunk: Chat.ParsedChunk) {
+  processActionChunk (chunk: Ytc.ParsedChunk): void {
     const messages = chunk.messages;
     const bonks = chunk.bonks;
     const deletions = chunk.deletions;
     const misc = chunk.miscActions;
 
     messages.sort((m1, m2) => m1.showtime - m2.showtime).forEach((m) => {
-      this.processDeleted(m, bonks, deletions);
-      this._queue.push(m);
+      const messageAction: Chat.MessageAction = {
+        type: 'message',
+        message: m
+      };
+      this.processDeleted(messageAction, bonks, deletions);
+      this._messageQueue.push(messageAction);
     });
 
-    let update = false;
-    this._messages.forEach((m) => {
-      const deleted = this.processDeleted(m, bonks, deletions);
-      if (deleted && !update) {
-        update = true;
-      }
-    });
-    if (update) this.updateStore();
-
-    misc.forEach((action) => {
-      switch (action.type) {
-        case 'messagePinned':
-          this.pinnedMessage.set(action);
-          break;
-        case 'removePinned':
-          this.pinnedMessage.set(null);
-          break;
-        default:
-          console.error('Unhandled misc action', { action });
-          break;
-      }
-    });
-  }
-
-  /**
-   * Add initial data to queue.
-   */
-  addInitialData (initialData: Chat.InitialDataChunk): void {
-    this.processActionChunk(initialData);
-    this.pushAllQueuedToStore();
-    this.newMessage({ welcomeMessage: true });
-
-    if (!this._livePolling && !this._isReplay) {
-      this._livePolling = setInterval(() => this.updateLiveProgress(), 250);
-      this.updateLiveProgress();
-    }
-  }
-
-  /**
-   * Add action chunk to queue.
-   */
-  addActionChunk (actionChunk: Chat.ActionChunk): void {
-    this.processActionChunk(actionChunk);
+    bonks.forEach((bonk) => this.latestAction.set({ type: 'bonk', bonk }));
+    deletions.forEach((deletion) => this.latestAction.set({ type: 'delete', deletion }));
+    misc.forEach((action) => this.latestAction.set(action));
   }
 
   /**

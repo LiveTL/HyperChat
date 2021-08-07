@@ -1,32 +1,23 @@
 declare namespace Chat {
-  type ParsedChunk = {
-    type: 'actionChunk' | 'initialDataChunk';
-    messages: Ytc.ParsedMessage[];
-    bonks: Ytc.ParsedBonk[];
-    deletions: Ytc.ParsedDeleted[];
-    miscActions: Ytc.ParsedMisc[];
-    isReplay: boolean;
+  type MessageAction = {
+    type: 'message';
+    message: Ytc.ParsedMessage;
+    deleted?: {
+      replace: Ytc.ParsedRun[];
+    };
   };
 
-  type ActionChunk = ParsedChunk & {
-    type: 'actionChunk';
-  }
+  type BonkAction = {
+    type: 'bonk';
+    bonk: Ytc.ParsedBonk;
+  };
 
-  type InitialDataChunk = ParsedChunk & {
-    type: 'initialDataChunk';
-  }
+  type DeleteAction = {
+    type: 'delete';
+    deletion: Ytc.ParsedDeleted;
+  };
 
-  type PlayerProgress = {
-    type: 'playerProgress';
-    playerProgress: number;
-  }
-
-  type ThemeUpdate = {
-    type: 'themeUpdate';
-    dark: boolean;
-  }
-
-  type BackgroundPayload = ActionChunk | InitialDataChunk | PlayerProgress | ThemeUpdate;
+  type Actions = MessageAction | BonkAction | DeleteAction | Ytc.ParsedMisc;
 
   type UncheckedFrameInfo = {
     tabId: number | undefined;
@@ -38,8 +29,22 @@ declare namespace Chat {
     frameId: number;
   };
 
+  type PlayerProgress = {
+    type: 'playerProgress';
+    playerProgress: number;
+  }
+
+  type ThemeUpdate = {
+    type: 'themeUpdate';
+    dark: boolean;
+  }
+
+  type BackgroundPayload =
+    Actions | InitialDataChunk | PlayerProgress | ThemeUpdate;
+
   type RegisterInterceptorMsg = {
     type: 'registerInterceptor';
+    isReplay: boolean;
   };
 
   type RegisterClientMsg = {
@@ -48,16 +53,16 @@ declare namespace Chat {
     getInitialData: boolean;
   };
 
-  type ResponseMsg = {
-    response: string;
+  type JsonMsg = {
+    json: string;
     isReplay: boolean;
   };
 
-  type SendToClientsMsg = ResponseMsg & {
-    type: 'sendToClients';
+  type processJsonMsg = JsonMsg & {
+    type: 'processJson';
   };
 
-  type setInitialDataMsg = ResponseMsg & {
+  type setInitialDataMsg = JsonMsg & {
     type: 'setInitialData';
   };
 
@@ -76,9 +81,11 @@ declare namespace Chat {
     frameInfo: FrameInfo;
   };
 
-  type BackgroundMessage = RegisterInterceptorMsg | RegisterClientMsg | SendToClientsMsg | setInitialDataMsg | sendPlayerProgressMsg | setThemeMsg | getThemeMsg
+  type BackgroundMessage =
+    RegisterInterceptorMsg | RegisterClientMsg | processJsonMsg |
+    setInitialDataMsg | sendPlayerProgressMsg | setThemeMsg | getThemeMsg;
 
-  type Port = chrome.runtime.Port & {
+  type Port = Omit<chrome.runtime.Port, 'postMessage'> & {
     postMessage: (message: BackgroundMessage | BackgroundPayload) => void;
   };
 
@@ -88,14 +95,14 @@ declare namespace Chat {
     clients: Port[];
     initialData?: InitialDataChunk;
     dark: boolean;
+    queue: import('./queue').YtcQueue;
+    queueUnsub: import('svelte/store').Unsubscriber;
   };
-
-  type Message = Ytc.ParsedMessage & { deleted?: boolean }
 
   type FrameInfoMsg = {
     type: 'frameInfo';
     frameInfo: FrameInfo;
-  }
+  };
 
   type WindowMessage = FrameInfoMsg;
 }

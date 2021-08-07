@@ -156,6 +156,9 @@ declare namespace Ytc {
     };
   };
 
+  type Renderers = TextMessageRenderer | PaidMessageRenderer |
+    PaidStickerRenderer | MembershipRenderer;
+
   type AddChatItem = {
     liveChatTextMessageRenderer?: TextMessageRenderer;
     liveChatPaidMessageRenderer?: PaidMessageRenderer;
@@ -230,14 +233,20 @@ declare namespace Ytc {
   };
 
   type ParsedPinned = {
-    type: 'messagePinned';
+    type: 'pin';
     item: {
       header: ParsedRun[];
       contents: ParsedMessage;
     }
   };
 
-  type ParsedMisc = ParsedPinned | { type: 'removePinned'}
+  type ParsedMisc = ParsedPinned | { type: 'unpin'}
 
-  type Renderers = TextMessageRenderer | PaidMessageRenderer | PaidStickerRenderer | MembershipRenderer;
+  type ParsedChunk = {
+    messages: ParsedMessage[];
+    bonks: ParsedBonk[];
+    deletions: ParsedDeleted[];
+    miscActions: ParsedMisc[];
+    isReplay: boolean;
+  };
 }

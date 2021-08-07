@@ -148,7 +148,7 @@ const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned
     return;
   }
   return {
-    type: 'messagePinned',
+    type: 'pin',
     item: {
       header: parseMessageRuns(
         baseRenderer.header.liveChatBannerHeaderRenderer.text.runs
@@ -158,7 +158,7 @@ const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned
   };
 };
 
-export const parseChatResponse = (response: string, isReplay: boolean, isInitial = false): Chat.ParsedChunk | undefined => {
+export const parseChatResponse = (response: string, isReplay: boolean): Ytc.ParsedChunk | undefined => {
   const parsedResponse: Ytc.RawResponse = JSON.parse(response);
   const base =
     parsedResponse.continuationContents?.liveChatContinuation ||
@@ -212,7 +212,7 @@ export const parseChatResponse = (response: string, isReplay: boolean, isInitial
       );
       if (parsedAction) miscActions.push(parsedAction);
     } else if (action.removeBannerForLiveChatCommand) {
-      parsedAction = { type: 'removePinned' } as const;
+      parsedAction = { type: 'unpin' } as const;
       miscActions.push(parsedAction);
     }
 
@@ -222,7 +222,6 @@ export const parseChatResponse = (response: string, isReplay: boolean, isInitial
   });
 
   return {
-    type: isInitial ? 'initialDataChunk' : 'actionChunk',
     messages: addChatItemActions,
     bonks: bonkActions,
     deletions: deletionActions,
