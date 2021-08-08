@@ -1,8 +1,9 @@
-const formatTimestamp = (timestamp) => {
-  return (new Date(parseInt(timestamp) / 1000))
-    .toLocaleTimeString(
-      navigator.language, { hour: '2-digit', minute: '2-digit' }
-    );
+/**
+ * @param {number} timestampUsec 
+ */
+const formatTimestamp = (timestampUsec) => {
+  return (new Date(timestampUsec / 1000))
+    .toLocaleTimeString('en-GB');
 };
 
 const colorConversionTable = {
