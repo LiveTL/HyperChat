@@ -1,6 +1,4 @@
 <script lang="ts">
-  import type { Writable } from 'svelte/store';
-  import type { YtcQueueMessage } from '../ts/queue';
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import { Button } from 'smelte';
@@ -9,15 +7,22 @@
   import Message from './Message.svelte';
   import PinnedMessage from './PinnedMessage.svelte';
   import PaidMessage from './PaidMessage.svelte';
-  import { YtcQueue, isChatMessage } from '../ts/queue';
   import { isFrameInfoMsg } from '../ts/chat-utils';
 
+  type Welcome = { welcome: true };
+
   const CHAT_HISTORY_SIZE = 250;
-  let queue: YtcQueue | undefined;
-  let messages: Writable<YtcQueueMessage[]> | undefined;
-  let pinned: Writable<Ytc.ParsedPinned | null> | undefined;
+  let messages: (Ytc.ParsedMessage | Welcome)[] = [];
+  let pinned: Ytc.ParsedPinned | null;
   let div: HTMLElement;
   let isAtBottom = true;
+  let port: Chat.Port;
+
+  const isChatAction = (r: Chat.BackgroundResponse): r is Chat.Actions =>
+    ['message', 'bonk', 'delete', 'pin', 'unpin'].includes(r.type);
+
+  const isWelcome = (m: Ytc.ParsedMessage | Welcome): m is Welcome =>
+    (m as Welcome).welcome;
 
   const checkAtBottom = () => {
     isAtBottom =
@@ -28,46 +33,90 @@
     div.scrollTop = div.scrollHeight;
   };
 
+  const newMessage = (messageAction: Chat.MessageAction) => {
+    if (!isAtBottom) return;
+    const parsedMessage = messageAction.message;
+    if (messageAction.deleted) {
+      parsedMessage.message = messageAction.deleted.replace;
+    }
+    messages.push(parsedMessage);
+    if (messages.length > CHAT_HISTORY_SIZE) {
+      messages.splice(0, 1);
+    }
+    messages = messages;
+  };
+
+  const onBonk = (bonk: Ytc.ParsedBonk) => {
+    messages.forEach((m) => {
+      if (isWelcome(m)) return;
+      if (m.author.id === bonk.authorId) {
+        m.message = bonk.replacedMessage;
+      }
+    });
+  };
+
+  const onDelete = (deletion: Ytc.ParsedDeleted) => {
+    messages.some((m) => {
+      if (isWelcome(m)) return false;
+      if (m.messageId === deletion.messageId) {
+        m.message = deletion.replacedMessage;
+        return true;
+      }
+      return false;
+    });
+  };
+
+  const onChatAction = (action: Chat.Actions) => {
+    switch (action.type) {
+      case 'message':
+        newMessage(action);
+        break;
+      case 'bonk':
+        onBonk(action.bonk);
+        break;
+      case 'delete':
+        onDelete(action.deletion);
+        break;
+      case 'pin':
+        pinned = action;
+        break;
+      case 'unpin':
+        pinned = null;
+        break;
+    }
+  };
+
+  const onPortMessage = (response: Chat.BackgroundResponse) => {
+    if (isChatAction(response)) {
+      onChatAction(response);
+      return;
+    }
+    switch (response.type) {
+      case 'initialData':
+        response.initialData.forEach(onChatAction);
+        messages = [...messages, { welcome: true }];
+        break;
+      case 'themeUpdate':
+        dark().set(response.dark);
+        break;
+      default:
+        console.error('Unknown payload type', { port, response });
+        break;
+    }
+  };
+
   const onWindowMessage = (message: MessageEvent<Chat.WindowMessage>) => {
     const data = message.data;
     if (!isFrameInfoMsg) return;
 
-    const port = chrome.runtime.connect();
+    port = chrome.runtime.connect();
     port.postMessage({
       type: 'registerClient',
       frameInfo: data.frameInfo,
       getInitialData: true
     });
 
-    port.onMessage.addListener((payload: Chat.BackgroundPayload) => {
-      switch (payload.type) {
-        case 'initialDataChunk':
-          if (queue) {
-            return console.error('Queue already exists at initial data');
-          }
-          queue = new YtcQueue(
-            CHAT_HISTORY_SIZE, payload.isReplay, () => isAtBottom
-          );
-          messages = queue.messagesStore;
-          pinned = queue.pinnedMessage;
-          queue.addInitialData(payload);
-          break;
-        case 'actionChunk':
-          if (!queue) return;
-          queue.addActionChunk(payload);
-          break;
-        case 'playerProgress':
-          if (!queue) return;
-          queue.updatePlayerProgress(payload.playerProgress);
-          break;
-        case 'themeUpdate':
-          dark().set(payload.dark);
-          break;
-        default:
-          console.error('Unknown payload type', port, payload);
-          break;
-      }
-    });
+    port.onMessage.addListener(onPortMessage);
 
     port.postMessage({
       type: 'getTheme',
@@ -86,10 +135,7 @@
     tick().then(checkAtBottom);
   });
 
-  onDestroy(() => {
-    if (!queue) return;
-    queue.cleanUp();
-  });
+  onDestroy(() => port.disconnect());
 </script>
 
 <svelte:window on:resize="{scrollToBottom}" />
@@ -100,23 +146,21 @@
     bind:this={div}
     on:scroll="{checkAtBottom}"
   >
-    {#if messages}
-      {#each $messages as message}
-        <div class="my-2.5">
-          {#if isChatMessage(message) && (message.superChat || message.superSticker || message.membership)}
-            <PaidMessage message={message} />
-          {:else if isChatMessage(message)}
-            <Message message={message} />
-          {:else}
-            <WelcomeMessage />
-          {/if}
-        </div>
-      {/each}
-    {/if}
+    {#each messages as message}
+      <div class="my-2.5">
+        {#if isWelcome(message)}
+          <WelcomeMessage />
+        {:else if (message.superChat || message.superSticker || message.membership)}
+          <PaidMessage message={message} />
+        {:else}
+          <Message message={message} />
+        {/if}
+      </div>
+    {/each}
   </div>
-  {#if pinned && $pinned}
+  {#if pinned}
     <div class="absolute px-2.5 w-screen pt-1">
-      <PinnedMessage pinned={$pinned} />
+      <PinnedMessage pinned={pinned} />
     </div>
   {/if}
   {#if !isAtBottom}

@@ -1,3 +1,4 @@
+import type { Unsubscriber } from 'svelte/store';
 import { parseChatResponse } from './chat-parser';
 import { isLiveTL, isValidFrameInfo } from './chat-utils';
 import { YtcQueue } from './queue';
@@ -66,7 +67,7 @@ const cleanupInterceptor = (i: number) => {
   const interceptor = interceptors[i];
   if (!interceptor.port && interceptor.clients.length < 1) {
     console.debug('Removing empty interceptor', { interceptor, interceptors });
-    interceptor.queueUnsub();
+    interceptor.queueUnsub?.();
     interceptors.splice(i, 1);
   }
 };
@@ -80,24 +81,25 @@ const registerInterceptor = (port: Chat.Port, isReplay: boolean) => {
   const frameInfo = getPortFrameInfo(port);
   if (!isValidFrameInfo(frameInfo, port)) return;
 
-  // Create queue along with unsubscriber
-  const queue = new YtcQueue(isReplay);
-  const queueUnsub = queue.latestAction.subscribe((latestAction) => {
-    const interceptor = findInterceptorFromPort(port, { latestAction });
-    if (!interceptor || !latestAction) return;
-    interceptor.clients.forEach((port) => port.postMessage(latestAction));
-  });
-
   // Add interceptor to array
   const i = findInterceptorIndex(frameInfo);
   if (i < 0) {
-    interceptors.push({
+    const queue = new YtcQueue(isReplay);
+    let queueUnsub: Unsubscriber | undefined;
+    const newInterceptor = {
       frameInfo,
       port,
       clients: [],
       dark: false,
       queue,
       queueUnsub
+    };
+    interceptors.push(newInterceptor);
+    newInterceptor.queueUnsub = queue.latestAction.subscribe((latestAction) => {
+      const interceptor = findInterceptorFromPort(port, { latestAction });
+      if (!interceptor || !latestAction) return;
+      console.debug({ latestAction, interceptor });
+      interceptor.clients.forEach((port) => port.postMessage(latestAction));
     });
     console.debug('New interceptor registered', { port, interceptors });
   } else {
@@ -105,7 +107,6 @@ const registerInterceptor = (port: Chat.Port, isReplay: boolean) => {
       'Replacing existing interceptor port',
       { oldPort: interceptors[i].port, port }
     );
-    queueUnsub();
     interceptors[i].port = port;
   }
 
@@ -169,9 +170,13 @@ const registerClient = (
   interceptor.clients.push(port);
   console.debug('Register client successful', { port, interceptor });
 
-  if (getInitialData && interceptor.initialData) {
-    port.postMessage(interceptor.initialData);
-    console.debug('Sent initial data', { port, interceptor });
+  if (getInitialData) {
+    const payload = {
+      type: 'initialData',
+      initialData: interceptor.queue.initialData
+    } as const;
+    port.postMessage(payload);
+    console.debug('Sent initial data', { port, interceptor, payload });
   }
 };
 
@@ -189,16 +194,16 @@ const processJson = (port: Chat.Port, message: Chat.JsonMsg) => {
     return;
   }
 
-  const payload = parseChatResponse(json, isReplay);
-  if (!payload) {
+  const chunk = parseChatResponse(json, isReplay);
+  if (!chunk) {
     console.debug(
-      'Invalid payload, not adding to queue',
-      { port, payload }
+      'Invalid chunk, not adding to queue',
+      { port, chunk }
     );
     return;
   }
 
-  interceptor.queue.processActionChunk(payload);
+  interceptor.queue.addActionChunk(chunk);
 };
 
 /**
@@ -210,16 +215,16 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg) => {
   const interceptor = findInterceptorFromPort(port, { message });
   if (!interceptor) return;
 
-  const payload = parseChatResponse(json, isReplay);
-  if (!payload) {
+  const chunk = parseChatResponse(json, isReplay);
+  if (!chunk) {
     console.debug(
-      'Invalid payload, not saving as initial data',
-      { port, payload }
+      'Invalid chunk, not saving as initial data',
+      { port, chunk }
     );
     return;
   }
-  interceptor.initialData = payload;
-  console.debug('Saved initial data', { interceptor, payload });
+  interceptor.queue.addActionChunk(chunk, true);
+  console.debug('Saved initial data', { interceptor, chunk });
 };
 
 /**
@@ -276,7 +281,7 @@ chrome.runtime.onConnect.addListener((port) => {
       case 'setInitialData':
         setInitialData(port, message);
         break;
-      case 'sendPlayerProgress':
+      case 'updatePlayerProgress':
         updatePlayerProgress(port, message.playerProgress);
         break;
       case 'setTheme':

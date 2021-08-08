@@ -29,9 +29,9 @@ declare namespace Chat {
     frameId: number;
   };
 
-  type PlayerProgress = {
-    type: 'playerProgress';
-    playerProgress: number;
+  type InitialData = {
+    type: 'initialData';
+    initialData: Actions[];
   }
 
   type ThemeUpdate = {
@@ -39,8 +39,7 @@ declare namespace Chat {
     dark: boolean;
   }
 
-  type BackgroundPayload =
-    Actions | InitialDataChunk | PlayerProgress | ThemeUpdate;
+  type BackgroundResponse = Actions | InitialData | ThemeUpdate;
 
   type RegisterInterceptorMsg = {
     type: 'registerInterceptor';
@@ -66,8 +65,8 @@ declare namespace Chat {
     type: 'setInitialData';
   };
 
-  type sendPlayerProgressMsg = {
-    type: 'sendPlayerProgress';
+  type updatePlayerProgressMsg = {
+    type: 'updatePlayerProgress';
     playerProgress: number;
   };
 
@@ -83,20 +82,24 @@ declare namespace Chat {
 
   type BackgroundMessage =
     RegisterInterceptorMsg | RegisterClientMsg | processJsonMsg |
-    setInitialDataMsg | sendPlayerProgressMsg | setThemeMsg | getThemeMsg;
+    setInitialDataMsg | updatePlayerProgressMsg | setThemeMsg | getThemeMsg;
 
-  type Port = Omit<chrome.runtime.Port, 'postMessage'> & {
-    postMessage: (message: BackgroundMessage | BackgroundPayload) => void;
+  type Port = Omit<chrome.runtime.Port, 'postMessage' | 'onMessage'> & {
+    postMessage: (message: BackgroundMessage | BackgroundResponse) => void;
+    onMessage: {
+      addListener: (
+        callback: (message: BackgroundResponse, port: Port) => void
+      ) => void;
+    };
   };
 
   type Interceptor = {
     frameInfo: FrameInfo;
     port?: Port;
     clients: Port[];
-    initialData?: InitialDataChunk;
     dark: boolean;
     queue: import('./queue').YtcQueue;
-    queueUnsub: import('svelte/store').Unsubscriber;
+    queueUnsub?: import('svelte/store').Unsubscriber;
   };
 
   type FrameInfoMsg = {

@@ -67,7 +67,7 @@ const chatLoaded = async () => {
   window.addEventListener('message', (d) => {
     if (d.data['yt-player-video-progress'] != null) {
       port.postMessage({
-        type: 'sendPlayerProgress',
+        type: 'updatePlayerProgress',
         playerProgress: d.data['yt-player-video-progress']
       });
     }

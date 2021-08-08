@@ -46,12 +46,14 @@ export class YtcQueue {
   private _isReplay: boolean;
   private _livePolling?: NodeJS.Timeout;
   readonly latestAction: Writable<Chat.Actions | null>;
+  initialData: Chat.Actions[];
 
   constructor (isReplay = false) {
     this._messageQueue = new Queue();
     this._previousTime = 0;
     this._isReplay = isReplay;
     this.latestAction = writable(null);
+    this.initialData = [];
 
     if (!this._livePolling && !isReplay) {
       this._livePolling = setInterval(() => this.updateLiveProgress(), 250);
@@ -143,20 +145,27 @@ export class YtcQueue {
    * Adds messages to the queue, handles author bonks, message deletions
    * and pinned messages.
    */
-  processActionChunk (chunk: Ytc.ParsedChunk): void {
+  addActionChunk (chunk: Ytc.ParsedChunk, setInitial = false): void {
     const messages = chunk.messages;
     const bonks = chunk.bonks;
     const deletions = chunk.deletions;
     const misc = chunk.miscActions;
 
-    messages.sort((m1, m2) => m1.showtime - m2.showtime).forEach((m) => {
-      const messageAction: Chat.MessageAction = {
-        type: 'message',
-        message: m
-      };
-      this.processDeleted(messageAction, bonks, deletions);
-      this._messageQueue.push(messageAction);
-    });
+    const messageActions =
+      messages.sort((m1, m2) => m1.showtime - m2.showtime).map((m) => {
+        const messageAction: Chat.MessageAction = {
+          type: 'message',
+          message: m
+        };
+        this.processDeleted(messageAction, bonks, deletions);
+        if (!setInitial) this._messageQueue.push(messageAction);
+        return messageAction;
+      });
+
+    if (setInitial) {
+      this.initialData = [...messageActions, ...misc];
+      return;
+    }
 
     bonks.forEach((bonk) => this.latestAction.set({ type: 'bonk', bonk }));
     deletions.forEach((deletion) => this.latestAction.set({ type: 'delete', deletion }));
