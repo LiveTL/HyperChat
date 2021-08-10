@@ -1,6 +1,6 @@
 /* eslint-disable no-use-before-define */
 declare namespace Ytc {
-  /**
+  /*
    * Base JSON
    */
   /** Expected YTC JSON response */
@@ -29,17 +29,21 @@ declare namespace Ytc {
     }
   };
 
-  /** Expected YTC action object */
-  type Action = {
+  type ReplayAction = {
     addChatItemAction?: AddChatItemAction;
+    addBannerToLiveChatCommand?: AddPinnedAction;
+    removeBannerForLiveChatCommand?: unknown;
+    addLiveChatTickerItemAction?: AddTickerAction;
+  }
+
+  /** Expected YTC action object */
+  type Action = ReplayAction & {
     replayChatItemAction?: ReplayChatItemAction;
     markChatItemsByAuthorAsDeletedAction?: AuthorBonkedAction;
     markChatItemAsDeletedAction?: MessageDeletedAction;
-    addBannerToLiveChatCommand?: AddPinnedAction;
-    removeBannerForLiveChatCommand?;
   };
 
-  /**
+  /*
    * Actions
    */
   /** YTC addChatItemAction object */
@@ -49,7 +53,7 @@ declare namespace Ytc {
 
   /** YTC replayChatItemAction object */
   type ReplayChatItemAction = {
-    actions: Action[];
+    actions: ReplayAction[];
     videoOffsetTimeMsec: IntString;
   };
 
@@ -81,7 +85,23 @@ declare namespace Ytc {
     }
   };
 
-  /**
+  type AddTickerAction = {
+    item: {
+      liveChatTickerSponsorItemRenderer?: TickerRenderer & {
+        detailText: {
+          runs: MessageRun[];
+        };
+        detailTextColor: number;
+      },
+      liveChatTickerPaidMessageItemRenderer?: TickerRenderer & {
+        amount: SimpleTextObj;
+        amountTextColor: number;
+      }
+    },
+    durationSec: IntString;
+  };
+
+  /*
    * Misc
    */
   /** Message run object */
@@ -99,6 +119,11 @@ declare namespace Ytc {
         thumbnails: {
           url: string
         }[];
+        accessibility: {
+          accessibilityData: {
+            label: string;
+          };
+        };
       };
     };
   };
@@ -166,6 +191,14 @@ declare namespace Ytc {
     liveChatMembershipItemRenderer?: MembershipRenderer;
   };
 
+  type TickerRenderer = {
+    id: string;
+    startBackgroundColor: number;
+    endBackgroundColor: number;
+    durationSec: number;
+    fullDurationSec: number;
+  }
+
   type IDeleted = {
     /** Message to replace deleted messages. */
     deletedStateMessage: {
@@ -180,6 +213,9 @@ declare namespace Ytc {
     simpleText: string;
   };
 
+  /*
+   * Parsed objects
+   */
   type ParsedTextRun = {
     type: 'text';
     text: string;
@@ -241,6 +277,8 @@ declare namespace Ytc {
   };
 
   type ParsedMisc = ParsedPinned | { type: 'unpin'}
+
+  type ParsedAction = ParsedMessage | ParsedBonk | ParsedDeleted | ParsedMisc;
 
   type ParsedChunk = {
     messages: ParsedMessage[];

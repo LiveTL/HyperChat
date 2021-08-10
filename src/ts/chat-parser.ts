@@ -1,15 +1,17 @@
-import { isPaidMessageRenderer, isPaidStickerRenderer, isMembershipRenderer } from './chat-utils';
+import {
+  isPaidMessageRenderer,
+  isPaidStickerRenderer,
+  isMembershipRenderer,
+  isParsedMessage,
+  isParsedBonk,
+  isParsedDelete
+} from './chat-utils';
 
 const formatTimestamp = (timestampUsec: number) => {
-  return (new Date(timestampUsec / 1000))
-    .toLocaleTimeString(
-      navigator.language, { hour: '2-digit', minute: '2-digit' }
-    );
+  return (new Date(timestampUsec / 1000)).toLocaleTimeString('en-GB');
 };
 
-const colorToHex = (color: number) => {
-  return color.toString(16).slice(-6);
-};
+const colorToHex = (color: number) => color.toString(16).slice(-6);
 
 const fixUrl = (url: string) => {
   if (url.startsWith('//')) {
@@ -52,8 +54,8 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]) => {
   return parsedRuns;
 };
 
-const parseAddChatItemAction = (action?: Ytc.AddChatItemAction, isReplay = false, offsetMs = 0): Ytc.ParsedMessage | undefined => {
-  if (!action || !action.item) {
+const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false, liveTimeoutOrReplayMs = 0): Ytc.ParsedMessage | undefined => {
+  if (!action.item) {
     return;
   }
   const actionItem = action.item;
@@ -90,7 +92,7 @@ const parseAddChatItemAction = (action?: Ytc.AddChatItemAction, isReplay = false
     },
     message: runs,
     timestamp: isReplay && timestampText ? timestampText : formatTimestamp(timestampUsec),
-    showtime: isReplay ? offsetMs : (timestampUsec / 1000) + offsetMs + 2000, // TODO: Figure out how not to hardcode this, it causes delay between LTL and non-HC YTC
+    showtime: isReplay ? liveTimeoutOrReplayMs : (timestampUsec / 1000) + liveTimeoutOrReplayMs + 2000, // TODO: Figure out how not to hardcode this, it causes delay between LTL and non-HC YTC
     messageId: renderer.id
   };
 
@@ -158,6 +160,39 @@ const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned
   };
 };
 
+const processCommonAction = (action: Ytc.ReplayAction, isReplay: boolean, liveTimeoutOrReplayMs?: number): Ytc.ParsedMessage | Ytc.ParsedMisc | undefined => {
+  if (action.addChatItemAction) {
+    return parseAddChatItemAction(action.addChatItemAction, isReplay, liveTimeoutOrReplayMs);
+  } else if (action.addBannerToLiveChatCommand) {
+    return parsePinnedMessageAction(action.addBannerToLiveChatCommand);
+  } else if (action.removeBannerForLiveChatCommand) {
+    return { type: 'unpin' } as const;
+  }
+};
+
+const processLiveAction = (action: Ytc.Action, isReplay: boolean, liveTimeoutMs?: number) => {
+  const common = processCommonAction(action, isReplay, liveTimeoutMs);
+  if (common) {
+    return common;
+  } else if (action.markChatItemsByAuthorAsDeletedAction) {
+    return parseAuthorBonkedAction(action.markChatItemsByAuthorAsDeletedAction);
+  } else if (action.markChatItemAsDeletedAction) {
+    return parseMessageDeletedAction(action.markChatItemAsDeletedAction);
+  }
+};
+
+const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[], bonkArray: Ytc.ParsedBonk[], deleteArray: Ytc.ParsedDeleted[], miscArray: Ytc.ParsedMisc[]) => {
+  if (isParsedMessage(action)) {
+    messageArray.push(action);
+  } else if (isParsedBonk(action)) {
+    bonkArray.push(action);
+  } else if (isParsedDelete(action)) {
+    deleteArray.push(action);
+  } else {
+    miscArray.push(action);
+  }
+};
+
 export const parseChatResponse = (response: string, isReplay: boolean): Ytc.ParsedChunk | undefined => {
   const parsedResponse: Ytc.RawResponse = JSON.parse(response);
   const base =
@@ -169,63 +204,38 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
     return;
   }
 
-  const addChatItemActions: Ytc.ParsedMessage[] = [];
-  const bonkActions: Ytc.ParsedBonk[] = [];
-  const deletionActions: Ytc.ParsedDeleted[] = [];
-  const miscActions: Ytc.ParsedMisc[] = [];
+  const messageArray: Ytc.ParsedMessage[] = [];
+  const bonkArray: Ytc.ParsedBonk[] = [];
+  const deleteArray: Ytc.ParsedDeleted[] = [];
+  const miscArray: Ytc.ParsedMisc[] = [];
+
+  const liveTimeoutMs =
+    base.continuations[0].timedContinuationData?.timeoutMs ||
+    base.continuations[0].invalidationContinuationData?.timeoutMs;
 
   actionsArray.forEach((action) => {
-    let parsedAction;
-    if (action.addChatItemAction) {
-      const liveTimeoutMs =
-        base.continuations[0].timedContinuationData?.timeoutMs ||
-        base.continuations[0].invalidationContinuationData?.timeoutMs;
-      parsedAction =
-        parseAddChatItemAction(
-          action.addChatItemAction, isReplay, liveTimeoutMs
-        );
-    } else if (action.replayChatItemAction) {
-      const replayAction = action.replayChatItemAction;
-      const replayTimeMs = replayAction.videoOffsetTimeMsec;
-      parsedAction = parseAddChatItemAction(
-        replayAction.actions[0]?.addChatItemAction, isReplay, parseInt(replayTimeMs)
-      );
-    }
-    if (parsedAction) {
-      addChatItemActions.push(parsedAction);
-      return;
-    }
+    let parsedAction: Ytc.ParsedAction | undefined;
 
-    if (action.markChatItemsByAuthorAsDeletedAction) {
-      parsedAction = parseAuthorBonkedAction(
-        action.markChatItemsByAuthorAsDeletedAction
-      );
-      if (parsedAction) bonkActions.push(parsedAction);
-    } else if (action.markChatItemAsDeletedAction) {
-      parsedAction = parseMessageDeletedAction(
-        action.markChatItemAsDeletedAction
-      );
-      if (parsedAction) deletionActions.push(parsedAction);
-    } else if (action.addBannerToLiveChatCommand) {
-      parsedAction = parsePinnedMessageAction(
-        action.addBannerToLiveChatCommand
-      );
-      if (parsedAction) miscActions.push(parsedAction);
-    } else if (action.removeBannerForLiveChatCommand) {
-      parsedAction = { type: 'unpin' } as const;
-      miscActions.push(parsedAction);
+    if (action.replayChatItemAction) {
+      const replayAction = action.replayChatItemAction;
+      const replayTimeMs = parseInt(replayAction.videoOffsetTimeMsec);
+      parsedAction = processCommonAction(replayAction.actions[0], isReplay, replayTimeMs);
+    } else {
+      parsedAction = processLiveAction(action, isReplay, liveTimeoutMs);
     }
 
     if (!parsedAction) {
       console.debug('Unparsed action:', action);
+      return;
     }
+    sortAction(parsedAction, messageArray, bonkArray, deleteArray, miscArray);
   });
 
   return {
-    messages: addChatItemActions,
-    bonks: bonkActions,
-    deletions: deletionActions,
-    miscActions,
+    messages: messageArray,
+    bonks: bonkArray,
+    deletions: deleteArray,
+    miscActions: miscArray,
     isReplay
   };
 };

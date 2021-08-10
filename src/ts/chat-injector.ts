@@ -5,12 +5,14 @@ const isFirefox = navigator.userAgent.includes('Firefox');
 
 const hcWarning = 'An existing HyperChat button has been detected. This ' +
   'usually means both LiveTL and standalone HyperChat are enabled. ' +
-  'Please only enable one of them, as having duplicates of the same scripts ' +
-  'running WILL cause problems, such as chat messages not loading.';
+  'LiveTL already includes HyperChat, so please enable only one of them.\n\n' +
+  'Having multiple instances of the same scripts running WILL cause ' +
+  'problems such as chat messages not loading.';
 
 const chatLoaded = () => {
   if (document.querySelector('.toggleButton')) {
     console.error(hcWarning);
+    setTimeout(() => alert(hcWarning), 1000); // Thanks chromium
     return;
   }
 

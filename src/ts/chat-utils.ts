@@ -33,10 +33,9 @@ export const BROWSER = (() => {
   return Browser.CHROME;
 })();
 
-/**
+/*
  * Type predicates
  */
-/** Checks if renderer is a PaidMessageRenderer */
 export const isPaidMessageRenderer = (actionItem: Ytc.AddChatItem, renderer: Ytc.Renderers): renderer is Ytc.PaidMessageRenderer => {
   const r = renderer as Ytc.PaidMessageRenderer;
   return !!(actionItem.liveChatPaidMessageRenderer) && r.purchaseAmountText && (r.bodyBackgroundColor != null);
@@ -63,4 +62,19 @@ export const isValidFrameInfo = (f: Chat.UncheckedFrameInfo, port?: Chat.Port): 
 
 export const isFrameInfoMsg = (m: Chat.WindowMessage): m is Chat.FrameInfoMsg => {
   return m.type === 'frameInfo' && isValidFrameInfo(m.frameInfo);
+};
+
+export const isParsedMessage = (a: Ytc.ParsedAction): a is Ytc.ParsedMessage => {
+  const m = (a as Ytc.ParsedMessage);
+  return !!(m.author) && !!(m.message) && !!(m.messageId);
+};
+
+export const isParsedBonk = (a: Ytc.ParsedAction): a is Ytc.ParsedBonk => {
+  const b = (a as Ytc.ParsedBonk);
+  return !!(b.replacedMessage) && !!(b.authorId);
+};
+
+export const isParsedDelete = (a: Ytc.ParsedAction): a is Ytc.ParsedDeleted => {
+  const b = (a as Ytc.ParsedDeleted);
+  return !!(b.replacedMessage) && !!(b.messageId);
 };
