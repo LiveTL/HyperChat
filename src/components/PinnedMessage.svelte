@@ -8,7 +8,7 @@
   let dismissed = false;
   let shorten = false;
   const classes = 'rounded inline-flex flex-col overflow-hidden ' +
-   'bg-primary-900 p-2 w-full cursor-pointer text-white';
+   'bg-primary-900 p-1.5 w-full cursor-pointer text-white';
 
   const onShorten = () => { shorten = !shorten; };
 

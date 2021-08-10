@@ -47,7 +47,8 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]) => {
     } else if (run.emoji) {
       parsedRuns.push({
         type: 'emote',
-        src: fixUrl(run.emoji.image.thumbnails[0].url)
+        src: fixUrl(run.emoji.image.thumbnails[0].url),
+        alt: run.emoji.image.accessibility.accessibilityData.label
       });
     }
   });
@@ -99,16 +100,18 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
   if (isPaidMessageRenderer(actionItem, renderer)) {
     item.superChat = {
       amount: renderer.purchaseAmountText.simpleText,
-      backgroundColor: colorToHex(renderer.bodyBackgroundColor),
-      textColor: colorToHex(renderer.bodyTextColor),
-      nameColor: colorToHex(renderer.authorNameTextColor)
+      bodyBackgroundColor: colorToHex(renderer.bodyBackgroundColor),
+      bodyTextColor: colorToHex(renderer.bodyTextColor),
+      nameColor: colorToHex(renderer.authorNameTextColor),
+      headerBackgroundColor: colorToHex(renderer.headerBackgroundColor),
+      headerTextColor: colorToHex(renderer.headerTextColor)
     };
   } else if (isPaidStickerRenderer(actionItem, renderer)) {
     item.superSticker = {
       src: fixUrl(renderer.sticker.thumbnails[0].url),
       amount: renderer.purchaseAmountText.simpleText,
-      backgroundColor: colorToHex(renderer.moneyChipBackgroundColor),
-      textColor: colorToHex(renderer.moneyChipTextColor),
+      bodyBackgroundColor: colorToHex(renderer.moneyChipBackgroundColor),
+      bodyTextColor: colorToHex(renderer.moneyChipTextColor),
       nameColor: colorToHex(renderer.authorNameTextColor)
     };
   } else if (isMembershipRenderer(actionItem, renderer)) {

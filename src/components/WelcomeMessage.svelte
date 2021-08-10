@@ -35,7 +35,7 @@
     <div>
       <img class="rounded-full" width="44" height="44" src="{logo}" alt="logo">
     </div>
-    <div class="font-bold text-xl ml-2.5">HyperChat by LiveTL</div>
+    <div class="font-bold text-xl ml-3">HyperChat by LiveTL</div>
   </div>
   <span>
     <i>It may take a few seconds for messages to start appearing.</i>

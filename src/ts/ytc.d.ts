@@ -181,6 +181,11 @@ declare namespace Ytc {
     };
   };
 
+  type PlaceholderRenderer = { // No idea what the purpose of this is
+    id: string;
+    timestampUsec: IntString;
+  }
+
   type Renderers = TextMessageRenderer | PaidMessageRenderer |
     PaidStickerRenderer | MembershipRenderer;
 
@@ -189,9 +194,10 @@ declare namespace Ytc {
     liveChatPaidMessageRenderer?: PaidMessageRenderer;
     liveChatPaidStickerRenderer?: PaidStickerRenderer;
     liveChatMembershipItemRenderer?: MembershipRenderer;
+    liveChatPlaceholderItemRenderer?: PlaceholderRenderer;
   };
 
-  type TickerRenderer = {
+  type TickerRenderer = { // Doesn't have a timestamp but ID is always a paid message id
     id: string;
     startBackgroundColor: number;
     endBackgroundColor: number;
@@ -230,15 +236,25 @@ declare namespace Ytc {
   type ParsedEmoteRun = {
     type: 'emote';
     src: string;
+    alt: string;
   };
 
   type ParsedRun = ParsedTextRun | ParsedLinkRun | ParsedEmoteRun;
 
   type PaidDetails = {
     amount: string;
-    backgroundColor: string;
-    textColor: string;
+    bodyBackgroundColor: string;
+    bodyTextColor: string;
     nameColor: string;
+  };
+
+  type ParsedSuperChat = PaidDetails & {
+    headerBackgroundColor: string;
+    headerTextColor: string;
+  };
+
+  type ParsedSuperSticker = PaidDetails & {
+    src: string;
   };
 
   type ParsedMessage = {
@@ -251,10 +267,8 @@ declare namespace Ytc {
     timestamp: string;
     showtime: number;
     messageId: string;
-    superChat?: PaidDetails;
-    superSticker?: PaidDetails & {
-      src: string;
-    };
+    superChat?: ParsedSuperChat;
+    superSticker?: ParsedSuperSticker;
     membership?: boolean;
   };
 

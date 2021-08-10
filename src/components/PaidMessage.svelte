@@ -3,14 +3,23 @@
 
   export let message: Ytc.ParsedMessage;
 
+  let headerStyle = '';
+
   $: membership = message.membership;
   $: m = message.superChat || message.superSticker;
   $: amount = m?.amount;
-  $: backgroundColor = `background-color: ${membership ? 'var(--color-member-dark)' : '#' + m?.backgroundColor};`;
-  $: textColor = `color: ${membership ? 'var(--color-white)' : '#' + m?.textColor};`;
+  $: backgroundColor = `background-color: ${membership ? '#0f9d58' : '#' + m?.bodyBackgroundColor};`;
+  $: textColor = `color: ${membership ? 'var(--color-white)' : '#' + m?.bodyTextColor};`;
   $: nameColor = `${membership ? '' : 'color: #' + m?.nameColor};`;
+  $: if (message.superChat) {
+    const background = message.superChat.headerBackgroundColor;
+    const text = message.superChat.headerTextColor;
+    headerStyle = `background-color: #${background}; color: #${text}`;
+  } else {
+    headerStyle = '';
+  }
 
-  const classes = 'p-2 inline-flex flex-col rounded break-words overflow-hidden w-full';
+  const classes = 'inline-flex flex-col rounded break-words overflow-hidden w-full';
 
   $: valid = membership || m;
   $: if (!valid) {
@@ -20,7 +29,7 @@
 
 {#if valid}
   <div class="{classes}" style="{backgroundColor + textColor}">
-    <div>
+    <div class="p-2" style="{headerStyle}">
       {#if !membership}
         <span class="mr-1 underline font-bold">{amount}</span>
       {/if}
@@ -35,7 +44,7 @@
       {/if}
     </div>
     {#if message.message.length > 0}
-      <div class="mt-2">
+      <div class="p-2">
         <Message message={message} hideName={true} />
       </div>
     {/if}

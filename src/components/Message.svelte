@@ -71,7 +71,7 @@
       </span>
     {:else if run.type === 'emote' && run.src}
       <span>
-        <img on:click|stopPropagation class="h-5 w-5 mx-px inline" src={run.src} alt="emote" />
+        <img on:click|stopPropagation class="h-5 w-5 mx-px inline" src={run.src} alt={run.alt} />
       </span>
     {/if}
   {/each}
