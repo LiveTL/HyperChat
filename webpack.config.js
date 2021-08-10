@@ -31,19 +31,19 @@ const smelteConfig = {
         ...defaultSmelteConfig.theme.extend,
         colors: {
           member: {
-            DEFAULT: '#0E5D10',
+            light: '#0E5D10',
             dark: '#04B301'
           },
           moderator: {
-            DEFAULT: '#2441C0',
+            light: '#2441C0',
             dark: '#A0BDFC'
           },
           owner: {
-            DEFAULT: '#866518',
+            light: '#866518',
             dark: '#FFD600'
           },
           deleted: {
-            DEFAULT: '#6E6B6B',
+            light: '#6E6B6B',
             dark: '#898888'
           }
         }
