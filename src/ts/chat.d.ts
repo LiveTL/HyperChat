@@ -1,10 +1,12 @@
 declare namespace Chat {
+  type MessageDeletedObj = {
+    replace: Ytc.ParsedRun[];
+  };
+
   type MessageAction = {
     type: 'message';
     message: Ytc.ParsedMessage;
-    deleted?: {
-      replace: Ytc.ParsedRun[];
-    };
+    deleted?: MessageDeletedObj;
   };
 
   type BonkAction = {

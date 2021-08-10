@@ -1,35 +1,29 @@
 <script lang="ts">
-  export let message: Chat.Message;
+  export let message: Ytc.ParsedMessage;
+  export let deleted: Chat.MessageDeletedObj | null = null;
   export let forceDark = false;
   export let hideName = false;
+
+  let deletedClass = '';
 
   const nameClass = 'mr-2 font-bold tracking-wide cursor-auto';
   const generateNameColorClass = (member: boolean, moderator: boolean, owner: boolean, forceDark: boolean) => {
     if (owner && forceDark) {
       return 'text-owner-dark';
     } else if (owner) {
-      return 'text-owner dark:text-owner-dark';
+      return 'text-owner-light dark:text-owner-dark';
     } else if (moderator && forceDark) {
       return 'text-moderator-dark';
     } else if (moderator) {
-      return 'text-moderator dark:text-moderator-dark';
+      return 'text-moderator-light dark:text-moderator-dark';
     } else if (member && forceDark) {
       return 'text-member-dark';
     } else if (member) {
-      return 'text-member dark:text-member-dark';
+      return 'text-member-light dark:text-member-dark';
     } else if (forceDark) {
       return 'text-gray-500';
     } else {
       return 'text-gray-700 dark:text-gray-500';
-    }
-  };
-  const generateDeletedClass = (forceDark: boolean, deleted?: boolean) => {
-    if (deleted && forceDark) {
-      return 'text-deleted-dark italic';
-    } else if (deleted) {
-      return 'text-deleted dark:text-deleted-dark italic';
-    } else {
-      return '';
     }
   };
 
@@ -37,7 +31,20 @@
   $: moderator = message.author.types.some((type) => type === 'moderator');
   $: owner = message.author.types.some((type) => type === 'owner');
   $: nameColorClass = generateNameColorClass(member, moderator, owner, forceDark);
-  $: deletedClass = generateDeletedClass(forceDark, message.deleted);
+
+  const onDeleted = (deleted: Chat.MessageDeletedObj | null, forceDark: boolean) => {
+    if (!deleted) {
+      deletedClass = '';
+      return;
+    }
+    message.message = deleted.replace;
+    if (forceDark) {
+      deletedClass = 'text-deleted-dark italic';
+    } else {
+      deletedClass = 'text-deleted-light dark:text-deleted-dark italic';
+    }
+  };
+  $: onDeleted(deleted, forceDark);
 </script>
 
 <div class="break-words overflow-hidden">

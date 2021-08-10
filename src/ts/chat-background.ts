@@ -98,7 +98,6 @@ const registerInterceptor = (port: Chat.Port, isReplay: boolean) => {
     newInterceptor.queueUnsub = queue.latestAction.subscribe((latestAction) => {
       const interceptor = findInterceptorFromPort(port, { latestAction });
       if (!interceptor || !latestAction) return;
-      console.debug({ latestAction, interceptor });
       interceptor.clients.forEach((port) => port.postMessage(latestAction));
     });
     console.debug('New interceptor registered', { port, interceptors });
@@ -203,6 +202,7 @@ const processJson = (port: Chat.Port, message: Chat.JsonMsg) => {
     return;
   }
 
+  console.debug('Adding chunk to queue', { port, chunk });
   interceptor.queue.addActionChunk(chunk);
 };
 

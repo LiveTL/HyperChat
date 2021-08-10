@@ -12,7 +12,7 @@
   type Welcome = { welcome: true };
 
   const CHAT_HISTORY_SIZE = 250;
-  let messages: (Ytc.ParsedMessage | Welcome)[] = [];
+  let messageActions: (Chat.MessageAction | Welcome)[] = [];
   let pinned: Ytc.ParsedPinned | null;
   let div: HTMLElement;
   let isAtBottom = true;
@@ -21,7 +21,7 @@
   const isChatAction = (r: Chat.BackgroundResponse): r is Chat.Actions =>
     ['message', 'bonk', 'delete', 'pin', 'unpin'].includes(r.type);
 
-  const isWelcome = (m: Ytc.ParsedMessage | Welcome): m is Welcome =>
+  const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
     (m as Welcome).welcome;
 
   const checkAtBottom = () => {
@@ -35,31 +35,27 @@
 
   const newMessage = (messageAction: Chat.MessageAction) => {
     if (!isAtBottom) return;
-    const parsedMessage = messageAction.message;
-    if (messageAction.deleted) {
-      parsedMessage.message = messageAction.deleted.replace;
+    messageActions.push(messageAction);
+    if (messageActions.length > CHAT_HISTORY_SIZE) {
+      messageActions.splice(0, 1);
     }
-    messages.push(parsedMessage);
-    if (messages.length > CHAT_HISTORY_SIZE) {
-      messages.splice(0, 1);
-    }
-    messages = messages;
+    messageActions = messageActions;
   };
 
   const onBonk = (bonk: Ytc.ParsedBonk) => {
-    messages.forEach((m) => {
-      if (isWelcome(m)) return;
-      if (m.author.id === bonk.authorId) {
-        m.message = bonk.replacedMessage;
+    messageActions.forEach((action) => {
+      if (isWelcome(action)) return;
+      if (action.message.author.id === bonk.authorId) {
+        action.deleted = { replace: bonk.replacedMessage };
       }
     });
   };
 
   const onDelete = (deletion: Ytc.ParsedDeleted) => {
-    messages.some((m) => {
-      if (isWelcome(m)) return false;
-      if (m.messageId === deletion.messageId) {
-        m.message = deletion.replacedMessage;
+    messageActions.some((action) => {
+      if (isWelcome(action)) return false;
+      if (action.message.messageId === deletion.messageId) {
+        action.deleted = { replace: deletion.replacedMessage };
         return true;
       }
       return false;
@@ -94,7 +90,7 @@
     switch (response.type) {
       case 'initialData':
         response.initialData.forEach(onChatAction);
-        messages = [...messages, { welcome: true }];
+        messageActions = [...messageActions, { welcome: true }];
         break;
       case 'themeUpdate':
         dark().set(response.dark);
@@ -140,26 +136,26 @@
 
 <svelte:window on:resize="{scrollToBottom}" />
 
-<div class="text-black dark:text-white text-xs">
+<div class="text-black dark:text-white text-xs" style="font-size: 13px">
   <div
-    class="content px-2.5 overflow-y-scroll h-screen absolute w-screen dark:bg-black dark:bg-opacity-25"
+    class="content px-2 overflow-y-scroll h-screen absolute w-screen dark:bg-black dark:bg-opacity-25"
     bind:this={div}
     on:scroll="{checkAtBottom}"
   >
-    {#each messages as message}
-      <div class="my-2.5">
-        {#if isWelcome(message)}
+    {#each messageActions as action}
+      <div class="my-2">
+        {#if isWelcome(action)}
           <WelcomeMessage />
-        {:else if (message.superChat || message.superSticker || message.membership)}
-          <PaidMessage message={message} />
+        {:else if (action.message.superChat || action.message.superSticker || action.message.membership)}
+          <PaidMessage message={action.message} />
         {:else}
-          <Message message={message} />
+          <Message message={action.message} deleted={action.deleted} />
         {/if}
       </div>
     {/each}
   </div>
   {#if pinned}
-    <div class="absolute px-2.5 w-screen pt-1">
+    <div class="absolute px-2 w-screen pt-1">
       <PinnedMessage pinned={pinned} />
     </div>
   {/if}
