@@ -136,16 +136,16 @@
   });
 
   onDestroy(() => port.disconnect());
+
+  const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
+  const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1 px-2';
+  const pinnedClass = 'absolute z-10 top-2 inset-x-2';
 </script>
 
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />
 
-<div class="text-black dark:text-white text-xs" style="font-size: 13px">
-  <div
-    class="content px-2 overflow-y-scroll h-screen absolute w-screen dark:bg-black dark:bg-opacity-25"
-    bind:this={div}
-    on:scroll={checkAtBottom}
-  >
+<div class={containerClass} style="font-size: 13px">
+  <div class={contentClass} bind:this={div} on:scroll={checkAtBottom}>
     {#each messageActions as action}
       <div class="my-2">
         {#if isWelcome(action)}
@@ -161,7 +161,7 @@
     {/each}
   </div>
   {#if pinned}
-    <div class="absolute px-2 w-screen pt-1">
+    <div class={pinnedClass}>
       <PinnedMessage pinned={pinned} />
     </div>
   {/if}
@@ -178,6 +178,7 @@
 <style>
   .content {
     scrollbar-width: thin;
+    scrollbar-color: #888 transparent;
   }
   .content::-webkit-scrollbar {
     width: 4px;

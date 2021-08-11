@@ -3,13 +3,14 @@
   import { mdiClose } from '@mdi/js';
   import Message from './Message.svelte';
   import SvgButton from './SvgButton.svelte';
+  import Tooltip from './Tooltip.svelte';
 
   export let pinned: Ytc.ParsedPinned;
 
   let dismissed = false;
   let shorten = false;
-  const classes = 'rounded inline-flex flex-col overflow-hidden ' +
-   'bg-primary-900 p-1.5 w-full cursor-pointer text-white';
+  const classes = 'rounded inline-flex flex-col overflow-visible ' +
+   'bg-primary-900 p-2 w-full cursor-pointer text-white z-10';
 
   const onShorten = () => { shorten = !shorten; };
 
@@ -25,25 +26,31 @@
     on:click={onShorten}
     transition:fade={{ duration: 250 }}
   >
-    <div class="py-1 font-bold tracking-wide text-gray-400">
+    <div class="font-bold tracking-wide text-gray-400">
       {#each pinned.item.header as run}
         {#if run.type === 'text'}
-          <span>
+          <span class="align-middle">
             {run.text}
           </span>
         {/if}
       {/each}
-      <SvgButton
-        path={mdiClose}
-        transparent
-        color="white"
-        padding="0"
-        add="float-right"
-        on:click={() => { dismissed = true; }}
-      />
+      <div class="float-right">
+        <Tooltip anchor="right">
+          <div slot="activator">
+            <SvgButton
+              path={mdiClose}
+              transparent
+              color="white"
+              padding="0"
+              on:click={() => { dismissed = true; }}
+            />
+          </div>
+          Dismiss
+        </Tooltip>
+      </div>
     </div>
     {#if !shorten && !dismissed}
-      <div transition:slide|local={{ duration: 300 }}>
+      <div class="mt-1" transition:slide|local={{ duration: 300 }}>
         <Message message={pinned.item.contents} forceDark />
       </div>
     {/if}
