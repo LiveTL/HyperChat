@@ -1,6 +1,7 @@
 import type { Unsubscriber } from 'svelte/store';
 import { parseChatResponse } from './chat-parser';
-import { isLiveTL, isValidFrameInfo } from './chat-utils';
+import { isValidFrameInfo } from './chat-utils';
+import { isLiveTL } from './chat-constants';
 import { YtcQueue } from './queue';
 
 const interceptors: Chat.Interceptor[] = [];

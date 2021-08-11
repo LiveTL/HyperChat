@@ -26,10 +26,10 @@
 </script>
 
 {#if paid}
-  <div class="{classes}" style="{backgroundColor + textColor}">
-    <div class="p-2" style="{headerStyle}">
+  <div class={classes} style={backgroundColor + textColor}>
+    <div class="p-2" style={headerStyle}>
       <span class="mr-1 underline font-bold">{amount}</span>
-      <span class="font-bold tracking-wide" style="{nameColor}">
+      <span class="font-bold tracking-wide" style={nameColor}>
         {message.author.name}
       </span>
       {#if message.superSticker}

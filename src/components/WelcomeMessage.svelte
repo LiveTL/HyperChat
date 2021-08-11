@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Browser, BROWSER } from '../ts/chat-utils';
+  import { Browser, BROWSER } from '../ts/chat-constants';
 
   const logo = chrome.runtime.getURL('assets/logo.png');
   const reviewLink = BROWSER === Browser.FIREFOX
@@ -30,10 +30,10 @@
   const classes = 'p-2 rounded inline-flex flex-col overflow-hidden bg-blue-50 dark:bg-blue-900 w-full';
 </script>
 
-<div class="{classes}">
+<div class={classes}>
   <div class="mb-2 flex items-center">
     <div>
-      <img class="rounded-full" width="44" height="44" src="{logo}" alt="logo">
+      <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
     </div>
     <div class="font-bold text-xl ml-3">HyperChat by LiveTL</div>
   </div>

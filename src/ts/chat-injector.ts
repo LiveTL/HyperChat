@@ -1,5 +1,6 @@
 import HcButton from '../components/HyperchatButton.svelte';
-import { getFrameInfoAsync, isLiveTL, isAndroid } from './chat-utils';
+import { getFrameInfoAsync, isValidFrameInfo } from './chat-utils';
+import { isLiveTL } from './chat-constants';
 
 const isFirefox = navigator.userAgent.includes('Firefox');
 
@@ -9,7 +10,7 @@ const hcWarning = 'An existing HyperChat button has been detected. This ' +
   'Having multiple instances of the same scripts running WILL cause ' +
   'problems such as chat messages not loading.';
 
-const chatLoaded = () => {
+const chatLoaded = async () => {
   if (document.querySelector('.toggleButton')) {
     console.error(hcWarning);
     setTimeout(() => alert(hcWarning), 1000); // Thanks chromium
@@ -40,9 +41,17 @@ const chatLoaded = () => {
   }
 
   // Inject hyperchat
-  const source = chrome.runtime.getURL('hyperchat.html');
+  const frameInfo = await getFrameInfoAsync();
+  if (!isValidFrameInfo(frameInfo)) {
+    console.error('Failed to get valid frame info', { frameInfo });
+    return;
+  }
+  const params = new URLSearchParams();
+  params.set('tabid', frameInfo.tabId.toString());
+  params.set('frameid', frameInfo.frameId.toString());
+  const source = chrome.runtime.getURL(`hyperchat.html?${params}`);
   ytcItemList.outerHTML = `
-  <iframe id='hyperchat' src='${source}${(!isAndroid && isLiveTL ? '#isLiveTL' : '')}' style='border: 0px; width: 100%; height: 100%'></iframe>
+  <iframe id="hyperchat" src="${source}" style="border: 0px; width: 100%; height: 100%;"/>
   `;
   const hyperchat = document.querySelector('#hyperchat') as HTMLIFrameElement;
   if (!hyperchat) {
@@ -64,21 +73,6 @@ const chatLoaded = () => {
     return;
   }
   ytcTicker.remove();
-
-  const hyperchatWindow = hyperchat.contentWindow;
-  if (!hyperchatWindow) {
-    console.error('Failed to get hyperchat contentWindow');
-    return;
-  }
-
-  // Note: iframe readyState is always 'complete' even when it shouldn't be
-  hyperchat.addEventListener('load', async () => {
-    /** Forward frameInfo to optichat for background messaging */
-    const frameInfo = await getFrameInfoAsync();
-    hyperchatWindow.postMessage(
-      { type: 'frameInfo', frameInfo }, '*'
-    );
-  });
 };
 
 if (document.readyState === 'loading') {

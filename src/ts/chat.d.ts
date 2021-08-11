@@ -103,11 +103,4 @@ declare namespace Chat {
     queue: import('./queue').YtcQueue;
     queueUnsub?: import('svelte/store').Unsubscriber;
   };
-
-  type FrameInfoMsg = {
-    type: 'frameInfo';
-    frameInfo: FrameInfo;
-  };
-
-  type WindowMessage = FrameInfoMsg;
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
+  import { onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import dark from 'smelte/src/dark';
   import { mdiArrowDown } from '@mdi/js';
@@ -9,7 +9,7 @@
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
   import SvgButton from './SvgButton.svelte';
-  import { isFrameInfoMsg } from '../ts/chat-utils';
+  import { paramsTabId, paramsFrameId } from '../ts/chat-constants';
 
   type Welcome = { welcome: true };
 
@@ -103,28 +103,30 @@
     }
   };
 
-  const onWindowMessage = (message: MessageEvent<Chat.WindowMessage>) => {
-    const data = message.data;
-    if (!isFrameInfoMsg) return;
+  // Doesn't work well with onMount, so onLoad will have to do
+  const onLoad = () => {
+    if (!paramsTabId || !paramsFrameId) {
+      console.error('No tabId or frameId found from params');
+      return;
+    }
 
+    const frameInfo = {
+      tabId: parseInt(paramsTabId),
+      frameId: parseInt(paramsFrameId)
+    };
     port = chrome.runtime.connect();
-    port.postMessage({
-      type: 'registerClient',
-      frameInfo: data.frameInfo,
-      getInitialData: true
-    });
-
     port.onMessage.addListener(onPortMessage);
 
     port.postMessage({
+      type: 'registerClient',
+      frameInfo,
+      getInitialData: true
+    });
+    port.postMessage({
       type: 'getTheme',
-      frameInfo: data.frameInfo
+      frameInfo
     });
   };
-
-  onMount(() => {
-    window.addEventListener('message', onWindowMessage);
-  });
 
   afterUpdate(() => {
     if (isAtBottom) {
@@ -136,13 +138,13 @@
   onDestroy(() => port.disconnect());
 </script>
 
-<svelte:window on:resize="{scrollToBottom}" />
+<svelte:window on:resize={scrollToBottom} on:load={onLoad} />
 
 <div class="text-black dark:text-white text-xs" style="font-size: 13px">
   <div
     class="content px-2 overflow-y-scroll h-screen absolute w-screen dark:bg-black dark:bg-opacity-25"
     bind:this={div}
-    on:scroll="{checkAtBottom}"
+    on:scroll={checkAtBottom}
   >
     {#each messageActions as action}
       <div class="my-2">
