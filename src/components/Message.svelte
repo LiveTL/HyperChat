@@ -69,7 +69,7 @@
           {run.text}
         </a>
       </span>
-    {:else if run.type === 'emote' && run.src}
+    {:else if run.type === 'emoji' && run.src}
       <span>
         <img on:click|stopPropagation class="h-5 w-5 mx-px inline" src={run.src} alt={run.alt} />
       </span>

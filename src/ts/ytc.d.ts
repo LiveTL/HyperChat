@@ -92,18 +92,31 @@ declare namespace Ytc {
           runs: MessageRun[];
         };
         detailTextColor: number;
-      },
+      };
       liveChatTickerPaidMessageItemRenderer?: TickerRenderer & {
         amount: SimpleTextObj;
         amountTextColor: number;
       }
-    },
+    };
     durationSec: IntString;
   };
 
   /*
    * Misc
    */
+  type ThumbnailsWithLabel = {
+    thumbnails: {
+      url: string;
+      width?: number;
+      height?: number;
+    }[];
+    accessibility: {
+      accessibilityData: {
+        label: string;
+      };
+    };
+  };
+
   /** Message run object */
   type MessageRun = {
     text?: string;
@@ -115,16 +128,7 @@ declare namespace Ytc {
       };
     };
     emoji?: {
-      image: {
-        thumbnails: {
-          url: string
-        }[];
-        accessibility: {
-          accessibilityData: {
-            label: string;
-          };
-        };
-      };
+      image: ThumbnailsWithLabel;
     };
   };
 
@@ -138,7 +142,11 @@ declare namespace Ytc {
         /** Changes based on YT language */
         tooltip: string;
         /** Used to check if author is member ignoring YT language */
-        customThumbnail?;
+        customThumbnail?: {
+          thumbnails: {
+            url: string;
+          }[];
+        };
         /** Only available for verified, mods and owner */
         icon?: {
           /** Unlocalized string */
@@ -159,20 +167,16 @@ declare namespace Ytc {
   };
 
   type PaidMessageRenderer = PaidRenderer & {
-    headerBackgroundColor: number,
-    headerTextColor: number,
-    bodyBackgroundColor: number,
-    bodyTextColor: number,
+    headerBackgroundColor: number;
+    headerTextColor: number;
+    bodyBackgroundColor: number;
+    bodyTextColor: number;
   };
 
   type PaidStickerRenderer = PaidRenderer & {
-    sticker: {
-      thumbnails: {
-        url: string
-      }[];
-    };
+    sticker: ThumbnailsWithLabel;
     moneyChipBackgroundColor: number;
-    moneyChipTextColor: number
+    moneyChipTextColor: number;
   };
 
   type MembershipRenderer = TextMessageRenderer & {
@@ -233,13 +237,13 @@ declare namespace Ytc {
     url: string;
   };
 
-  type ParsedEmoteRun = {
-    type: 'emote';
+  type ParsedEmojiRun = {
+    type: 'emoji';
     src: string;
     alt: string;
   };
 
-  type ParsedRun = ParsedTextRun | ParsedLinkRun | ParsedEmoteRun;
+  type ParsedRun = ParsedTextRun | ParsedLinkRun | ParsedEmojiRun;
 
   type PaidDetails = {
     amount: string;
@@ -255,6 +259,7 @@ declare namespace Ytc {
 
   type ParsedSuperSticker = PaidDetails & {
     src: string;
+    alt: string;
   };
 
   type ParsedMessage = {

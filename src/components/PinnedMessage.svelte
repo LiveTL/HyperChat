@@ -44,7 +44,7 @@
     </div>
     {#if !shorten && !dismissed}
       <div transition:slide|local="{{ duration: 300 }}">
-        <Message message={pinned.item.contents} forceDark={true} />
+        <Message message={pinned.item.contents} forceDark />
       </div>
     {/if}
   </div>

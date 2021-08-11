@@ -7,6 +7,7 @@
   import Message from './Message.svelte';
   import PinnedMessage from './PinnedMessage.svelte';
   import PaidMessage from './PaidMessage.svelte';
+  import MembershipItem from './MembershipItem.svelte';
   import { isFrameInfoMsg } from '../ts/chat-utils';
 
   type Welcome = { welcome: true };
@@ -146,8 +147,10 @@
       <div class="my-2">
         {#if isWelcome(action)}
           <WelcomeMessage />
-        {:else if (action.message.superChat || action.message.superSticker || action.message.membership)}
+        {:else if (action.message.superChat || action.message.superSticker)}
           <PaidMessage message={action.message} />
+        {:else if action.message.membership}
+          <MembershipItem message={action.message} />
         {:else}
           <Message message={action.message} deleted={action.deleted} />
         {/if}
