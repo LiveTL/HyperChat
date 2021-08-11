@@ -440,6 +440,10 @@ const chatLoaded = () => {
       { type: 'frameInfo', frameInfo }, '*'
     );
   });
+
+  if (isAndroid) {
+    document.querySelector('#input-panel').style.display = 'none';
+  }
 };
 
 /**
