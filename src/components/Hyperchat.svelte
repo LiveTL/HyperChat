@@ -1,13 +1,14 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { Button } from 'smelte';
   import dark from 'smelte/src/dark';
+  import { mdiArrowDown } from '@mdi/js';
   import WelcomeMessage from './WelcomeMessage.svelte';
   import Message from './Message.svelte';
   import PinnedMessage from './PinnedMessage.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
+  import SvgButton from './SvgButton.svelte';
   import { isFrameInfoMsg } from '../ts/chat-utils';
 
   type Welcome = { welcome: true };
@@ -167,12 +168,7 @@
       class="absolute left-1/2 transform -translate-x-1/2 bottom-0 pb-1"
       transition:fade={{ duration: 150 }}
     >
-      <Button
-        small
-        icon="arrow_downward"
-        on:click="{scrollToBottom}"
-        color="blue"
-      />
+      <SvgButton path={mdiArrowDown} on:click={scrollToBottom} />
     </div>
   {/if}
 </div>

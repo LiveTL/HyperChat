@@ -1,7 +1,8 @@
 <script lang="ts">
   import { slide, fade } from 'svelte/transition';
-  import { Button } from 'smelte';
+  import { mdiClose } from '@mdi/js';
   import Message from './Message.svelte';
+  import SvgButton from './SvgButton.svelte';
 
   export let pinned: Ytc.ParsedPinned;
 
@@ -32,13 +33,12 @@
           </span>
         {/if}
       {/each}
-      <Button
-        icon="close"
-        small
-        text
+      <SvgButton
+        path={mdiClose}
+        transparent
         color="white"
+        padding="0"
         add="float-right"
-        remove="p-4 px-4 pt-1 pb-1 pl-2 pr-2 h-8 w-8 hover:bg-white"
         on:click={() => { dismissed = true; }}
       />
     </div>
