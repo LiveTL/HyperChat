@@ -1,8 +1,8 @@
 import HcButton from '../components/HyperchatButton.svelte';
 import { getFrameInfoAsync, isValidFrameInfo } from './chat-utils';
-import { isLiveTL } from './chat-constants';
+// import { isLiveTL } from './chat-constants';
 
-const isFirefox = navigator.userAgent.includes('Firefox');
+// const isFirefox = navigator.userAgent.includes('Firefox');
 
 const hcWarning = 'An existing HyperChat button has been detected. This ' +
   'usually means both LiveTL and standalone HyperChat are enabled. ' +
@@ -58,15 +58,16 @@ const chatLoaded = async () => {
     console.error('Failed to find #hyperchat');
     return;
   }
-  if (isFirefox || isLiveTL) {
-    const scale = 0.8;
-    const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
-    hyperchat.style.transformOrigin = '0px 0px';
-    hyperchat.style.minWidth = inverse;
-    hyperchat.style.minHeight = inverse;
-    hyperchat.style.transform = `scale(${scale})`;
-  }
+  // if (isFirefox || isLiveTL) {
+  //   const scale = 0.8;
+  //   const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
+  //   hyperchat.style.transformOrigin = '0px 0px';
+  //   hyperchat.style.minWidth = inverse;
+  //   hyperchat.style.minHeight = inverse;
+  //   hyperchat.style.transform = `scale(${scale})`;
+  // }
 
+  // Remove ticker element
   const ytcTicker = document.querySelector('#ticker');
   if (!ytcTicker) {
     console.error('Failed to find #ticker');
