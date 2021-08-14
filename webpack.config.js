@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const webpack = require('webpack');
 const { preprocess } = require('./svelte.config');
@@ -7,50 +6,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const postcssPlugins = require('./postcss.config.js');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const smelteTailwind = require('smelte/tailwind.config.js');
 const ExtReloader = require('webpack-ext-reloader');
-
-const defaultSmelteConfig = smelteTailwind({});
-const smelteConfig = {
-  // Uncomment to override smelte default colors
-  // colors: {
-  //   primary: '#b027b0',
-  //   secondary: '#009688',
-  //   error: '#f44336',
-  //   success: '#4caf50',
-  //   alert: '#ff9800',
-  //   blue: '#2196f3',
-  //   dark: '#212121'
-  // },
-  darkMode: true,
-  config: {
-    ...defaultSmelteConfig,
-    theme: {
-      ...defaultSmelteConfig.theme,
-      extend: {
-        ...defaultSmelteConfig.theme.extend,
-        colors: {
-          member: {
-            light: '#0E5D10',
-            dark: '#04B301'
-          },
-          moderator: {
-            light: '#2441C0',
-            dark: '#A0BDFC'
-          },
-          owner: {
-            light: '#866518',
-            dark: '#FFD600'
-          },
-          deleted: {
-            light: '#6E6B6B',
-            dark: '#898888'
-          }
-        }
-      }
-    }
-  }
-};
 
 const extReloader = new ExtReloader({
   manifest: path.join(__dirname, 'src', 'manifest.json'),
@@ -76,7 +32,7 @@ module.exports = (env, options) => {
         options: {
           postcssOptions: {
             extract: true,
-            plugins: postcssPlugins(prod, smelteConfig)
+            plugins: postcssPlugins(prod)
           }
         }
       }
@@ -160,7 +116,7 @@ module.exports = (env, options) => {
     config.devtool = false;
   } else {
     config.devtool = 'eval-cheap-module-source-map';
-    config.plugins = config.plugins.concat(new webpack.HotModuleReplacementPlugin(), extReloader);
+    config.plugins.push(new webpack.HotModuleReplacementPlugin(), extReloader);
     // config.devServer = {
     //   host: 'localhost',
     //   port: 6000,

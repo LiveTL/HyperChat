@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const extractor = require('smelte/src/utils/css-extractor.js');
+const tailwindConfig = require('./tailwind.config.js');
 
 const safelistSelectors = [
   'html',
@@ -20,9 +21,8 @@ const safelistPatterns = [
   /^[mphw]\w?-\d\.5$/
 ];
 
-module.exports = (purge = false, tailwind = {}) => {
+module.exports = (purge = false) => {
   const postcss = [];
-  const tailwindConfig = require('./tailwind.config.js')(tailwind);
   return [
     require('postcss-import')(),
     require('postcss-url')(),
