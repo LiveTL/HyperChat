@@ -139,7 +139,7 @@
 
   const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
   const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1 px-2';
-  const pinnedClass = 'absolute z-10 top-2 inset-x-2';
+  const pinnedClass = 'absolute top-2 inset-x-2';
 </script>
 
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />

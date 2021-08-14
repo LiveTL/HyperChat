@@ -2,15 +2,17 @@
   import { Tooltip } from 'smelte';
 
   type AnchorValues = 'left' | 'center' | 'right';
-  /** Padding of tooltip in Tailwind units. Default: 1 */
-  export let padding = '1';
-  /** Top margin of tooltip in Tailwind units .Default: 1 */
+  /** Horizontal padding in Tailwind units. Default: '2' */
+  export let xPadding = '2';
+  /** Vertical Padding in Tailwind units. Default: '2' */
+  export let yPadding = '2';
+  /** Top margin in Tailwind units. Default: '1' */
   export let marginTop = '1';
-  /** Background color. Default: gray-600 */
+  /** Background color. Default: 'gray-600' */
   export let bgColor = 'gray-600';
-  /** Text color. Default: gray-50 */
+  /** Text color. Default: 'gray-50' */
   export let textColor = 'gray-50';
-  /** Position to anchor to. Default: center */
+  /** Position to anchor to. Default: 'center' */
   export let anchor: AnchorValues = 'center';
 
   const makeAnchorClass = (anchor: AnchorValues) => {
@@ -28,9 +30,9 @@
   };
 
   $: positionClass = makeAnchorClass(anchor);
-  $: classes = 'whitespace-nowrap text-xs absolute rounded z-50 ' +
-    `mt-${marginTop} bg-${bgColor} text-${textColor} p-${padding} ` +
-    `${positionClass}`;
+  $: classes = 'whitespace-nowrap absolute rounded z-30 shadow ' +
+    `mt-${marginTop} bg-${bgColor} text-${textColor} px-${xPadding} ` +
+    `py-${yPadding} ${positionClass}`;
 </script>
 
 <Tooltip classes={classes}>
