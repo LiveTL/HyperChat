@@ -1,5 +1,5 @@
 /**
- * @param {number} timestampUsec 
+ * @param {number} timestampUsec
  */
 const formatTimestamp = (timestampUsec) => {
   return (new Date(timestampUsec / 1000))

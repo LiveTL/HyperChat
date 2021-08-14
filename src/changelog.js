@@ -62,7 +62,7 @@ exports.updates = [
               'to twitter.com/laversheet!'
   },
   {
-    version: 'v1.3.2',
+    version: 'v1.3.3',
     comments: 'Fixed some timestamp issues and added conflict warnings when using alongside LiveTL.'
   }
 ];
