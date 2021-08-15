@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { Browser, BROWSER } from '../ts/chat-constants';
+  import { Browser, BROWSER, isLiveTL } from '../ts/chat-constants';
 
-  const logo = chrome.runtime.getURL('assets/logo.png');
+  const logo = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo.png');
   const reviewLink = BROWSER === Browser.FIREFOX
     ? 'https://addons.mozilla.org/en-US/firefox/addon/hyperchat/'
     : 'https://chrome.google.com/webstore/detail/hyperchat-optimized-youtu/naipgebhooiiccifflecbffmnjbabdbh';

@@ -1,6 +1,6 @@
 import HcButton from '../components/HyperchatButton.svelte';
 import { getFrameInfoAsync, isValidFrameInfo } from './chat-utils';
-// import { isLiveTL } from './chat-constants';
+import { isLiveTL } from './chat-constants';
 
 // const isFirefox = navigator.userAgent.includes('Firefox');
 
@@ -49,7 +49,7 @@ const chatLoaded = async () => {
   const params = new URLSearchParams();
   params.set('tabid', frameInfo.tabId.toString());
   params.set('frameid', frameInfo.frameId.toString());
-  const source = chrome.runtime.getURL(`hyperchat.html?${params}`);
+  const source = chrome.runtime.getURL((isLiveTL ? 'hyperchat/index.html' : 'hyperchat.html') + `?${params}`);
   ytcItemList.outerHTML = `
   <iframe id="hyperchat" src="${source}" style="border: 0px; width: 100%; height: 100%;"/>
   `;

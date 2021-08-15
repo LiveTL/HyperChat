@@ -1,4 +1,6 @@
 <script lang='ts'>
+  import { isLiveTL } from '../ts/chat-constants';
+
   const disabled = localStorage.getItem('HC:ENABLED') === 'false';
 
   const onClick = () => {
@@ -6,7 +8,7 @@
     location.reload();
   };
 
-  const logo = chrome.runtime.getURL(('assets') + '/logo-48.png');
+  const logo = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png');
 </script>
 
 <div class="toggleButtonContainer tooltip-bottom" data-tooltip="{disabled ? 'Enable' : 'Disable'} HyperChat">
