@@ -18,7 +18,6 @@ const chatLoaded = () => {
 
   if (document.querySelector('.toggleButton')) {
     console.error(hcWarning);
-    setTimeout(() => alert(hcWarning), 1000); // Thanks chromium
     return;
   }
 

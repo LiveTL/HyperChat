@@ -6,6 +6,11 @@ const chatLoaded = async () => {
   /** Workaround for https://github.com/LiveTL/HyperChat/issues/12 */
   if (chrome.windows) return;
 
+  if (document.querySelector('.toggleButton')) {
+    console.error('HC button detected, not injecting interceptor.');
+    return;
+  }
+
   /** Inject interceptor script */
   const script = document.createElement('script');
   script.innerHTML = `
