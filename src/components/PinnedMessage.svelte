@@ -2,8 +2,8 @@
   import { slide, fade } from 'svelte/transition';
   import { mdiClose } from '@mdi/js';
   import Message from './Message.svelte';
-  import SvgButton from './SvgButton.svelte';
-  import Tooltip from './Tooltip.svelte';
+  import SvgButton from './common/SvgButton.svelte';
+  import Tooltip from './common/Tooltip.svelte';
 
   export let pinned: Ytc.ParsedPinned;
 
@@ -47,7 +47,8 @@
               path={mdiClose}
               transparent
               color="white"
-              padding="0"
+              xPadding="0"
+              yPadding="0"
               on:click={() => { dismissed = true; }}
             />
             Dismiss

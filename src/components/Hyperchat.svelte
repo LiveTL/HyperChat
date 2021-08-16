@@ -8,7 +8,7 @@
   import PinnedMessage from './PinnedMessage.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
-  import SvgButton from './SvgButton.svelte';
+  import SvgButton from './common/SvgButton.svelte';
   import { paramsTabId, paramsFrameId } from '../ts/chat-constants';
 
   type Welcome = { welcome: true };
@@ -170,7 +170,7 @@
       class="absolute left-1/2 transform -translate-x-1/2 bottom-0 pb-1"
       transition:fade={{ duration: 150 }}
     >
-      <SvgButton path={mdiArrowDown} on:click={scrollToBottom} />
+      <SvgButton path={mdiArrowDown} on:click={scrollToBottom} color="blue" />
     </div>
   {/if}
 </div>
