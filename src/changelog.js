@@ -64,5 +64,9 @@ exports.updates = [
   {
     version: 'v1.3.3',
     comments: 'Fixed some timestamp issues and added conflict warnings when using alongside LiveTL.'
+  },
+  {
+    version: 'v1.3.4',
+    comments: 'Fixed conflict warnings when installed concurrently with LiveTL.'
   }
 ];
