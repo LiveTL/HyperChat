@@ -10,8 +10,8 @@ module.exports = {
         contentScripts: {
           entries: {
             chat: [
-              'src/submodules/chat/scripts/chat.js',
-              'src/submodules/chat/scripts/chat-interceptor.js'
+              'src/submodules/chat/scripts/chat-interceptor.js',
+              'src/submodules/chat/scripts/chat.js'
             ]
           }
         }
