@@ -170,7 +170,7 @@
       class="absolute left-1/2 transform -translate-x-1/2 bottom-0 pb-1"
       transition:fade={{ duration: 150 }}
     >
-      <SvgButton path={mdiArrowDown} on:click={scrollToBottom} color="blue" />
+      <SvgButton path={mdiArrowDown} on:click={scrollToBottom} />
     </div>
   {/if}
 </div>

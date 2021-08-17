@@ -27,7 +27,7 @@
       href: 'https://discord.gg/uJrV3tmthg'
     }
   ];
-  const classes = 'p-2 rounded inline-flex flex-col overflow-hidden bg-blue-50 dark:bg-blue-900 w-full';
+  const classes = 'p-2 rounded inline-flex flex-col overflow-hidden bg-primary-50 dark:bg-primary-900 w-full';
 </script>
 
 <div class={classes}>
