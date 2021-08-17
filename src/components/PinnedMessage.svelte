@@ -40,15 +40,15 @@
             anchor="right"
             textColor="white"
             bgColor="gray-800"
-            yPadding="1"
+            py="1"
           >
             <SvgButton
               slot="activator"
               path={mdiClose}
               transparent
               color="white"
-              xPadding="0"
-              yPadding="0"
+              px="0"
+              py="0"
               on:click={() => { dismissed = true; }}
             />
             Dismiss

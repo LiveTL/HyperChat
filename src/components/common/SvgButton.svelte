@@ -2,9 +2,9 @@
   import { Button, Icon } from 'smelte';
 
   /** Horizontal padding in Tailwind units. Default: '1.5' */
-  export let xPadding = '1.5';
-  /** Vertical Padding in Tailwind units. Default: '1.5' */
-  export let yPadding = '1.5';
+  export let px = '1.5';
+  /** Vertical padding in Tailwind units. Default: '1.5' */
+  export let py = '1.5';
   /** SVG size. Default: '20px' */
   export let size = '20px';
   /** SVG Path. */
@@ -22,7 +22,7 @@
 </script>
 
 <Button
-  add="py-{yPadding} px-{xPadding} {round ? 'rounded-full' : ''} {add} align-middle"
+  add="py-{py} px-{px} {round ? 'rounded-full' : ''} {add} align-middle"
   remove="py-2 px-4 uppercase text-sm font-medium {round ? 'rounded' : ''} {remove}"
   color={color}
   text={transparent}
