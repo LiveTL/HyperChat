@@ -1,9 +1,8 @@
 <script lang="ts">
   import { slide, fade } from 'svelte/transition';
-  import { mdiClose } from '@mdi/js';
   import Message from './Message.svelte';
-  import SvgButton from './common/SvgButton.svelte';
   import Tooltip from './common/Tooltip.svelte';
+  import Icon from 'smelte/src/components/Icon';
 
   export let pinned: Ytc.ParsedPinned;
 
@@ -27,33 +26,29 @@
     transition:fade={{ duration: 250 }}
   >
     <div class="flex flex-row items-center">
-      <div class="font-medium tracking-wide text-white">
+      <div class="font-medium tracking-wide text-white flex-1">
         {#each pinned.item.header as run}
           {#if run.type === 'text'}
             <span class="align-middle">{run.text}</span>
           {/if}
         {/each}
       </div>
-      <div class="flex-grow">
-        <div class="float-right">
-          <Tooltip
-            anchor="right"
-            textColor="white"
-            bgColor="gray-800"
-            py="1"
+      <div class="flex-none self-end">
+        <Tooltip
+          anchor="right"
+          textColor="white"
+          bgColor="gray-800"
+          py="1"
+        >
+          <Icon
+            slot="activator"
+            class="cursor-pointer text-lg"
+            on:click={() => { dismissed = true; }}
           >
-            <SvgButton
-              slot="activator"
-              path={mdiClose}
-              transparent
-              color="white"
-              px="0"
-              py="0"
-              on:click={() => { dismissed = true; }}
-            />
-            Dismiss
-          </Tooltip>
-        </div>
+            close
+          </Icon>
+          Dismiss
+        </Tooltip>
       </div>
     </div>
     {#if !shorten && !dismissed}

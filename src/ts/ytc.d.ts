@@ -110,7 +110,7 @@ declare namespace Ytc {
       width?: number;
       height?: number;
     }[];
-    accessibility: {
+    accessibility?: {
       accessibilityData: {
         label: string;
       };
@@ -240,7 +240,7 @@ declare namespace Ytc {
   type ParsedEmojiRun = {
     type: 'emoji';
     src: string;
-    alt: string;
+    alt?: string;
   };
 
   type ParsedRun = ParsedTextRun | ParsedLinkRun | ParsedEmojiRun;
@@ -259,7 +259,7 @@ declare namespace Ytc {
 
   type ParsedSuperSticker = PaidDetails & {
     src: string;
-    alt: string;
+    alt?: string;
   };
 
   type ParsedMessage = {

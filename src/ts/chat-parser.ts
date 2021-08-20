@@ -48,7 +48,7 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]) => {
       parsedRuns.push({
         type: 'emoji',
         src: fixUrl(run.emoji.image.thumbnails[0].url),
-        alt: run.emoji.image.accessibility.accessibilityData.label
+        alt: run.emoji.image.accessibility?.accessibilityData.label
       });
     }
   });
@@ -109,7 +109,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
   } else if (isPaidStickerRenderer(actionItem, renderer)) {
     item.superSticker = {
       src: fixUrl(renderer.sticker.thumbnails[0].url),
-      alt: renderer.sticker.accessibility.accessibilityData.label,
+      alt: renderer.sticker.accessibility?.accessibilityData.label,
       amount: renderer.purchaseAmountText.simpleText,
       bodyBackgroundColor: colorToHex(renderer.moneyChipBackgroundColor),
       bodyTextColor: colorToHex(renderer.moneyChipTextColor),
