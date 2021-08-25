@@ -37,5 +37,7 @@
 
 <Tooltip classes={classes}>
   <slot name="activator" slot="activator" />
-  <slot />
+  <div style="font-size: 0.75em;">
+    <slot />
+  </div>
 </Tooltip>
