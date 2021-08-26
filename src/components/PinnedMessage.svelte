@@ -34,12 +34,7 @@
         {/each}
       </div>
       <div class="flex-none self-end">
-        <Tooltip
-          anchor="right"
-          textColor="white"
-          bgColor="gray-800"
-          py="1"
-        >
+        <Tooltip offsetY={0} small>
           <Icon
             slot="activator"
             class="cursor-pointer text-lg"
