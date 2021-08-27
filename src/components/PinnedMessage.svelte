@@ -9,7 +9,7 @@
   let dismissed = false;
   let shorten = false;
   const classes = 'rounded inline-flex flex-col overflow-visible ' +
-   'bg-primary-900 p-2 w-full cursor-pointer text-white z-10 shadow';
+   'bg-secondary-900 p-2 w-full cursor-pointer text-white z-10 shadow';
 
   const onShorten = () => { shorten = !shorten; };
 
