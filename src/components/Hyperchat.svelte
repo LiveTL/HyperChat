@@ -20,7 +20,7 @@
   let port: Chat.Port;
 
   const isChatAction = (r: Chat.BackgroundResponse): r is Chat.Actions =>
-    ['message', 'bonk', 'delete', 'pin', 'unpin'].includes(r.type);
+    ['message', 'bonk', 'delete', 'pin', 'unpin', 'playerProgress'].includes(r.type);
 
   const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
     (m as Welcome).welcome;

@@ -177,6 +177,7 @@ export class YtcQueue {
    * Only effective on VODs.
    */
   updatePlayerProgress (timeMs: number): void {
+    this.latestAction.set({ type: 'playerProgress', playerProgress: timeMs })
     if (this._livePolling || !this._isReplay) return;
     this.onVideoProgress(timeMs);
   }

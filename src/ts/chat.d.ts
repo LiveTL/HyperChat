@@ -19,7 +19,12 @@ declare namespace Chat {
     deletion: Ytc.ParsedDeleted;
   };
 
-  type Actions = MessageAction | BonkAction | DeleteAction | Ytc.ParsedMisc;
+  type PlayerProgressAction = {
+    type: 'playerProgress';
+    playerProgress: number;
+  }
+
+  type Actions = MessageAction | BonkAction | DeleteAction | Ytc.ParsedMisc | PlayerProgressAction;
 
   type UncheckedFrameInfo = {
     tabId: number | undefined;
