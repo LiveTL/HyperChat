@@ -10,7 +10,7 @@ const hcWarning = 'An existing HyperChat button has been detected. This ' +
   'Having multiple instances of the same scripts running WILL cause ' +
   'problems such as chat messages not loading.';
 
-const chatLoaded = async () => {
+const chatLoaded = async(): Promise<void> => {
   if (document.querySelector('.toggleButton')) {
     console.error(hcWarning);
     setTimeout(() => alert(hcWarning), 1000); // Thanks chromium
@@ -49,15 +49,18 @@ const chatLoaded = async () => {
   const params = new URLSearchParams();
   params.set('tabid', frameInfo.tabId.toString());
   params.set('frameid', frameInfo.frameId.toString());
-  const source = chrome.runtime.getURL((isLiveTL ? 'hyperchat/index.html' : 'hyperchat.html') + `?${params}`);
+  const source = chrome.runtime.getURL(
+    (isLiveTL ? 'hyperchat/index.html' : 'hyperchat.html') +
+    `?${params.toString()}`
+  );
   ytcItemList.outerHTML = `
   <iframe id="hyperchat" src="${source}" style="border: 0px; width: 100%; height: 100%;"/>
   `;
-  const hyperchat = document.querySelector('#hyperchat') as HTMLIFrameElement;
-  if (!hyperchat) {
-    console.error('Failed to find #hyperchat');
-    return;
-  }
+  // const hyperchat = document.querySelector('#hyperchat') as HTMLIFrameElement;
+  // if (!hyperchat) {
+  //   console.error('Failed to find #hyperchat');
+  //   return;
+  // }
   // if (isFirefox || isLiveTL) {
   //   const scale = 0.8;
   //   const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
@@ -77,7 +80,7 @@ const chatLoaded = async () => {
 };
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', chatLoaded);
+  document.addEventListener('DOMContentLoaded', () => async() => await chatLoaded());
 } else {
-  chatLoaded();
+  chatLoaded().catch(e => console.error(e));
 }

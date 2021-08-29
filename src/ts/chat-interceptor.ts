@@ -4,7 +4,7 @@ const isReplay = window.location.href.startsWith(
   'https://www.youtube.com/live_chat_replay'
 );
 
-const chatLoaded = async () => {
+const chatLoaded = async(): Promise<void> => {
   // Inject interceptor script
   const script = document.createElement('script');
   script.innerHTML = `
@@ -75,7 +75,7 @@ const chatLoaded = async () => {
 
   // Update dark theme whenever it changes
   const html = document.documentElement;
-  const sendTheme = () => {
+  const sendTheme = (): void => {
     const isDark = html.hasAttribute('dark');
     port.postMessage({
       type: 'setTheme',
@@ -94,7 +94,7 @@ const chatLoaded = async () => {
 };
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', chatLoaded);
+  document.addEventListener('DOMContentLoaded', () => async() => await chatLoaded());
 } else {
-  chatLoaded();
+  chatLoaded().catch(e => console.error(e));
 }

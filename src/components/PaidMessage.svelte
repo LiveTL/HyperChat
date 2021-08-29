@@ -5,7 +5,7 @@
 
   let headerStyle = '';
 
-  $: paid = message.superChat || message.superSticker;
+  $: paid = message.superChat ?? message.superSticker;
   $: amount = paid?.amount;
   $: backgroundColor = `background-color: #${paid?.bodyBackgroundColor};`;
   $: textColor = `color: #${paid?.bodyTextColor};`;

@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 declare global {
   interface Window {
-    ytglobal: any;
-    ytcfg: any;
+    ytglobal: any
+    ytcfg: any
   }
 }
 
@@ -13,7 +12,7 @@ declare global {
  * Original userscript: https://greasyfork.org/en/scripts/422206-workaround-for-youtube-chat-memory-leaks/code
  * @license BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
  */
-export function fixLeaks ():boolean {
+export function fixLeaks(): boolean {
   'use strict';
 
   /*
@@ -21,16 +20,17 @@ export function fixLeaks ():boolean {
    * Those tasks are scheduled for each time a new message is added to the chat and hold the memory until being executed.
    * This script will let the scheduler to execute those tasks so the memory held by those tasks could be freed.
    */
-  function fixSchedulerLeak () {
-    if (!window.requestAnimationFrame) {
-      console.warn('fixSchedulerLeak: window.requestAnimationFrame() is required, but missing');
-      return false;
-    }
-    const scheduler = window.ytglobal && window.ytglobal.schedulerInstanceInstance_;
+  function fixSchedulerLeak(): boolean {
+    // if (!window.requestAnimationFrame) {
+    //   console.warn('fixSchedulerLeak: window.requestAnimationFrame() is required, but missing');
+    //   return false;
+    // }
+    const scheduler = window.ytglobal?.schedulerInstanceInstance_;
     if (!scheduler) {
       console.warn('fixSchedulerLeak: schedulerInstanceInstance_ is missing');
       return false;
     }
+    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     const code = '' + scheduler.constructor;
     const p1 = code.match(/this\.(\w+)\s*=\s*!!\w+\.useRaf/);
     const p2 = code.match(/\("visibilitychange",\s*this\.(\w+)\)/);
@@ -51,7 +51,7 @@ export function fixLeaks ():boolean {
   }
 
   /* Enable the element pool to save memory consumption. */
-  function enableElementPool () {
+  function enableElementPool(): boolean {
     const ytcfg = window.ytcfg;
     if (!ytcfg) {
       console.warn('enableElementPool: ytcfg is missing');

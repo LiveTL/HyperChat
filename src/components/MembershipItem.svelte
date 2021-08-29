@@ -6,7 +6,7 @@
   const classes = 'p-2 inline-flex flex-col rounded break-words overflow-hidden w-full text-white';
 
   $: membership = message.membership;
-  $: if (!membership) {
+  $: if (membership ?? false) {
     console.error('Not a membership item', { message });
   }
 </script>

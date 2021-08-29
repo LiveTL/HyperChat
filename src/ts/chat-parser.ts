@@ -12,13 +12,13 @@ let checkedChunkDelay = false;
 /** Amount of extra delay potentially to be added to the next chunk. */
 let nextChunkDelay = 0;
 
-const formatTimestamp = (timestampUsec: number) => {
+const formatTimestamp = (timestampUsec: number): string => {
   return (new Date(timestampUsec / 1000)).toLocaleTimeString('en-GB');
 };
 
-const colorToHex = (color: number) => color.toString(16).slice(-6);
+const colorToHex = (color: number): string => color.toString(16).slice(-6);
 
-const fixUrl = (url: string) => {
+const fixUrl = (url: string): string => {
   if (url.startsWith('//')) {
     return 'https:' + url;
   } else if (url.startsWith('/')) {
@@ -28,13 +28,13 @@ const fixUrl = (url: string) => {
   }
 };
 
-const parseMessageRuns = (runs?: Ytc.MessageRun[]) => {
+const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
   const parsedRuns: Ytc.ParsedRun[] = [];
   if (!runs) {
     return parsedRuns;
   }
   runs.forEach((run) => {
-    if (run.text && run.navigationEndpoint) {
+    if (run.text != null && run.navigationEndpoint) {
       parsedRuns.push({
         type: 'link',
         text: decodeURIComponent(escape(unescape(encodeURIComponent(
@@ -42,7 +42,7 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]) => {
         )))),
         url: fixUrl(run.navigationEndpoint.commandMetadata.webCommandMetadata.url)
       });
-    } else if (run.text) {
+    } else if (run.text != null) {
       parsedRuns.push({
         type: 'text',
         text: decodeURIComponent(escape(unescape(encodeURIComponent(
@@ -61,15 +61,12 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]) => {
 };
 
 const parseAddChatItemAction = (action: Ytc.AddChatItemAction, skipDelayCheck = false, isReplay = false, liveTimeoutOrReplayMs = 0, extraDelay = 0): Ytc.ParsedMessage | undefined => {
-  if (!action.item) {
-    return;
-  }
   const actionItem = action.item;
-  const renderer = actionItem.liveChatTextMessageRenderer ||
-    actionItem.liveChatPaidMessageRenderer ||
-    actionItem.liveChatPaidStickerRenderer ||
+  const renderer = actionItem.liveChatTextMessageRenderer ??
+    actionItem.liveChatPaidMessageRenderer ??
+    actionItem.liveChatPaidStickerRenderer ??
     actionItem.liveChatMembershipItemRenderer;
-  if (!renderer || !renderer.authorName) {
+  if (!renderer) {
     return;
   }
 
@@ -78,7 +75,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, skipDelayCheck = 
     renderer.authorBadges.forEach((badge) => {
       const badgeRenderer = badge.liveChatAuthorBadgeRenderer;
       const iconType = badgeRenderer.icon?.iconType;
-      if (iconType) {
+      if (iconType != null) {
         authorTypes.push(iconType.toLowerCase());
       } else if (badgeRenderer.customThumbnail) {
         authorTypes.push('member');
@@ -105,7 +102,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, skipDelayCheck = 
     checkedChunkDelay = true;
 
     if (nextChunkDelay > 0 && extraDelay > 0) {
-      console.log('Subsequent late chunks, adding an extra delay of ' + extraDelay);
+      console.log('Subsequent late chunks, adding an extra delay of ' + extraDelay.toString());
     }
   }
 
@@ -116,7 +113,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, skipDelayCheck = 
       types: authorTypes
     },
     message: runs,
-    timestamp: isReplay && timestampText ? timestampText : formatTimestamp(timestampUsec),
+    timestamp: isReplay && timestampText != null ? timestampText : formatTimestamp(timestampUsec),
     showtime: isReplay ? liveTimeoutOrReplayMs : liveShowtimeMs + (nextChunkDelay > 0 ? extraDelay : 0),
     messageId: renderer.id
   };
@@ -147,9 +144,6 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, skipDelayCheck = 
 };
 
 const parseAuthorBonkedAction = (action: Ytc.AuthorBonkedAction): Ytc.ParsedBonk | undefined => {
-  if (!action.deletedStateMessage || !action.externalChannelId) {
-    return;
-  }
   return {
     replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
     authorId: action.externalChannelId
@@ -157,9 +151,6 @@ const parseAuthorBonkedAction = (action: Ytc.AuthorBonkedAction): Ytc.ParsedBonk
 };
 
 const parseMessageDeletedAction = (action: Ytc.MessageDeletedAction): Ytc.ParsedDeleted | undefined => {
-  if (!action.deletedStateMessage || !action.targetItemId) {
-    return;
-  }
   return {
     replacedMessage: parseMessageRuns(action.deletedStateMessage.runs),
     messageId: action.targetItemId
@@ -167,10 +158,7 @@ const parseMessageDeletedAction = (action: Ytc.MessageDeletedAction): Ytc.Parsed
 };
 
 const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned | undefined => {
-  const baseRenderer = action.bannerRenderer?.liveChatBannerRenderer;
-  if (!baseRenderer) {
-    return;
-  }
+  const baseRenderer = action.bannerRenderer.liveChatBannerRenderer;
   const parsedContents = parseAddChatItemAction(
     { item: baseRenderer.contents }, true
   );
@@ -198,7 +186,7 @@ const processCommonAction = (action: Ytc.ReplayAction, isReplay: boolean, skipDe
   }
 };
 
-const processLiveAction = (action: Ytc.Action, isReplay: boolean, skipDelayCheck: boolean, liveTimeoutMs: number, extraDelay: number) => {
+const processLiveAction = (action: Ytc.Action, isReplay: boolean, skipDelayCheck: boolean, liveTimeoutMs: number, extraDelay: number): Ytc.ParsedAction | undefined => {
   const common = processCommonAction(action, isReplay, skipDelayCheck, liveTimeoutMs, extraDelay);
   if (common) {
     return common;
@@ -209,7 +197,7 @@ const processLiveAction = (action: Ytc.Action, isReplay: boolean, skipDelayCheck
   }
 };
 
-const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[], bonkArray: Ytc.ParsedBonk[], deleteArray: Ytc.ParsedDeleted[], miscArray: Ytc.ParsedMisc[]) => {
+const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[], bonkArray: Ytc.ParsedBonk[], deleteArray: Ytc.ParsedDeleted[], miscArray: Ytc.ParsedMisc[]): void => {
   if (isParsedMessage(action)) {
     messageArray.push(action);
   } else if (isParsedBonk(action)) {
@@ -224,7 +212,7 @@ const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[],
 export const parseChatResponse = (response: string, isReplay: boolean, isInitial = false): Ytc.ParsedChunk | undefined => {
   const parsedResponse: Ytc.RawResponse = JSON.parse(response);
   const base =
-    parsedResponse.continuationContents?.liveChatContinuation ||
+    parsedResponse.continuationContents?.liveChatContinuation ??
     parsedResponse.contents?.liveChatRenderer;
   const actionsArray = base?.actions;
   if (!base || !actionsArray) {
@@ -238,9 +226,9 @@ export const parseChatResponse = (response: string, isReplay: boolean, isInitial
   const miscArray: Ytc.ParsedMisc[] = [];
 
   const liveTimeoutMs =
-    base.continuations[0].timedContinuationData?.timeoutMs ||
-    base.continuations[0].invalidationContinuationData?.timeoutMs || 0;
-  
+    base.continuations[0].timedContinuationData?.timeoutMs ??
+    base.continuations[0].invalidationContinuationData?.timeoutMs ?? 0;
+
   checkedChunkDelay = false;
   const extraDelay = nextChunkDelay;
 

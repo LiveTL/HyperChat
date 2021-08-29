@@ -16,7 +16,7 @@ const getPortFrameInfo = (port: Chat.Port): Chat.UncheckedFrameInfo => {
 /**
  * Returns true if both FrameInfos are the same frame.
  */
-const compareFrameInfo = (a: Chat.FrameInfo, b: Chat.FrameInfo) => {
+const compareFrameInfo = (a: Chat.FrameInfo, b: Chat.FrameInfo): boolean => {
   return a.tabId === b.tabId && a.frameId === b.frameId;
 };
 
@@ -24,7 +24,7 @@ const compareFrameInfo = (a: Chat.FrameInfo, b: Chat.FrameInfo) => {
  * Returns the index of the interceptor with a matching FrameInfo.
  * Will return `-1` if no interceptor is found.
  */
-const findInterceptorIndex = (frameInfo: Chat.FrameInfo) => {
+const findInterceptorIndex = (frameInfo: Chat.FrameInfo): number => {
   return interceptors.findIndex(
     (i) => compareFrameInfo(i.frameInfo, frameInfo)
   );
@@ -34,7 +34,7 @@ const findInterceptorIndex = (frameInfo: Chat.FrameInfo) => {
  * Finds and returns the interceptor with a matching FrameInfo.
  * Will return `undefined` if no interceptor is found.
  */
-const findInterceptor = (frameInfo: Chat.FrameInfo, debugObject?: unknown) => {
+const findInterceptor = (frameInfo: Chat.FrameInfo, debugObject?: unknown): Chat.Interceptor | undefined => {
   const i = findInterceptorIndex(frameInfo);
   if (i < 0) {
     console.error('Interceptor not registered', debugObject);
@@ -51,7 +51,7 @@ const findInterceptor = (frameInfo: Chat.FrameInfo, debugObject?: unknown) => {
 const findInterceptorFromPort = (
   port: Chat.Port,
   errorObject?: Record<string, unknown>
-) => {
+): Chat.Interceptor | undefined => {
   const frameInfo = getPortFrameInfo(port);
   if (!isValidFrameInfo(frameInfo, port)) return;
   return findInterceptor(
@@ -64,7 +64,7 @@ const findInterceptorFromPort = (
  * If both port and clients are empty, removes interceptor from array.
  * Also runs the queue unsubscribe function.
  */
-const cleanupInterceptor = (i: number) => {
+const cleanupInterceptor = (i: number): void => {
   const interceptor = interceptors[i];
   if (!interceptor.port && interceptor.clients.length < 1) {
     console.debug('Removing empty interceptor', { interceptor, interceptors });
@@ -78,7 +78,7 @@ const cleanupInterceptor = (i: number) => {
  * If an interceptor with the same FrameInfo already exists, its port will be
  * replaced with the given port instead.
  */
-const registerInterceptor = (port: Chat.Port, isReplay: boolean) => {
+const registerInterceptor = (port: Chat.Port, isReplay: boolean): void => {
   const frameInfo = getPortFrameInfo(port);
   if (!isValidFrameInfo(frameInfo, port)) return;
 
@@ -133,7 +133,7 @@ const registerClient = (
   port: Chat.Port,
   frameInfo: Chat.FrameInfo,
   getInitialData = false
-) => {
+): void => {
   const interceptor = findInterceptor(
     frameInfo,
     { interceptors, port, frameInfo }
@@ -184,7 +184,7 @@ const registerClient = (
  * Parses the given YTC json response, and adds it to the queue of the
  * interceptor that sent it.
  */
-const processJson = (port: Chat.Port, message: Chat.JsonMsg) => {
+const processJson = (port: Chat.Port, message: Chat.JsonMsg): void => {
   const { json, isReplay } = message;
   const interceptor = findInterceptorFromPort(port, { message });
   if (!interceptor) return;
@@ -211,7 +211,7 @@ const processJson = (port: Chat.Port, message: Chat.JsonMsg) => {
  * Parses the givevn YTC json response, and sets it as the initial data of
  * the interceptor that sent it.
  */
-const setInitialData = (port: Chat.Port, message: Chat.JsonMsg) => {
+const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
   const { json, isReplay } = message;
   const interceptor = findInterceptorFromPort(port, { message });
   if (!interceptor) return;
@@ -231,7 +231,7 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg) => {
 /**
  * Updates the player progress of the queue of the interceptor.
  */
-const updatePlayerProgress = (port: Chat.Port, playerProgress: number) => {
+const updatePlayerProgress = (port: Chat.Port, playerProgress: number): void => {
   const interceptor = findInterceptorFromPort(port, { playerProgress });
   if (!interceptor) return;
 
@@ -242,7 +242,7 @@ const updatePlayerProgress = (port: Chat.Port, playerProgress: number) => {
  * Sets the theme of the interceptor, and sends the new theme to any currently
  * registered clients.
  */
-const setTheme = (port: Chat.Port, dark: boolean) => {
+const setTheme = (port: Chat.Port, dark: boolean): void => {
   const interceptor = findInterceptorFromPort(port, { dark });
   if (!interceptor) return;
 
@@ -250,14 +250,14 @@ const setTheme = (port: Chat.Port, dark: boolean) => {
   interceptor.clients.forEach(
     (port) => port.postMessage({ type: 'themeUpdate', dark })
   );
-  console.debug(`Set dark theme to ${dark}`);
+  console.debug(`Set dark theme to ${dark.toString()}`);
 };
 
 /**
  * Returns a message with the theme of the interceptor with a matching
  * FrameInfo.
  */
-const getTheme = (port: Chat.Port, frameInfo: Chat.FrameInfo) => {
+const getTheme = (port: Chat.Port, frameInfo: Chat.FrameInfo): void => {
   const interceptor = findInterceptor(
     frameInfo,
     { interceptors, port, frameInfo }
@@ -300,9 +300,9 @@ chrome.runtime.onConnect.addListener((port) => {
 
 chrome.browserAction.onClicked.addListener(() => {
   if (isLiveTL) {
-    chrome.tabs.create({ url: 'https://livetl.app' });
+    chrome.tabs.create({ url: 'https://livetl.app' }).catch(e => console.error(e));
   } else {
-    chrome.tabs.create({ url: 'https://livetl.app/en/hyperchat/' });
+    chrome.tabs.create({ url: 'https://livetl.app/en/hyperchat/' }).catch(e => console.error(e));
   }
 });
 
@@ -315,6 +315,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       type: 'popup',
       height: 300,
       width: 600
-    });
+    }).catch(e => console.error(e));
   }
 });
