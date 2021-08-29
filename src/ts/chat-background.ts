@@ -216,7 +216,7 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg) => {
   const interceptor = findInterceptorFromPort(port, { message });
   if (!interceptor) return;
 
-  const chunk = parseChatResponse(json, isReplay);
+  const chunk = parseChatResponse(json, isReplay, true);
   if (!chunk) {
     console.debug(
       'Invalid chunk, not saving as initial data',

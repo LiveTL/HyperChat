@@ -7,6 +7,11 @@ import {
   isParsedDelete
 } from './chat-utils';
 
+/** Whether the current chunk has been checked for delays. */
+let checkedChunkDelay = false;
+/** Amount of extra delay potentially to be added to the next chunk. */
+let nextChunkDelay = 0;
+
 const formatTimestamp = (timestampUsec: number) => {
   return (new Date(timestampUsec / 1000)).toLocaleTimeString('en-GB');
 };
@@ -55,7 +60,7 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]) => {
   return parsedRuns;
 };
 
-const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false, liveTimeoutOrReplayMs = 0): Ytc.ParsedMessage | undefined => {
+const parseAddChatItemAction = (action: Ytc.AddChatItemAction, skipDelayCheck = false, isReplay = false, liveTimeoutOrReplayMs = 0, extraDelay = 0): Ytc.ParsedMessage | undefined => {
   if (!action.item) {
     return;
   }
@@ -85,6 +90,25 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
   const runs = parseMessageRuns(renderer.message?.runs);
   const timestampUsec = parseInt(renderer.timestampUsec);
   const timestampText = renderer.timestampText?.simpleText;
+  const liveShowtimeMs = (timestampUsec / 1000) + liveTimeoutOrReplayMs;
+
+  /**
+   * Extra delay is calculated based on previous chunk delay, and will only
+   * be applied if the current chunk is also delayed.
+   * Hopefully this reduces chat freezing for subsequent late chunks, while
+   * not adding extra delay when chunks arrive normally.
+   */
+  if (!skipDelayCheck && !isReplay && !checkedChunkDelay) {
+    const diff = Date.now() - liveShowtimeMs;
+
+    nextChunkDelay = diff > 0 ? Math.round(diff / 1000) * 1000 : 0;
+    checkedChunkDelay = true;
+
+    if (nextChunkDelay > 0 && extraDelay > 0) {
+      console.log('Subsequent late chunks, adding an extra delay of ' + extraDelay);
+    }
+  }
+
   const item: Ytc.ParsedMessage = {
     author: {
       name: renderer.authorName.simpleText,
@@ -93,7 +117,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     },
     message: runs,
     timestamp: isReplay && timestampText ? timestampText : formatTimestamp(timestampUsec),
-    showtime: isReplay ? liveTimeoutOrReplayMs : (timestampUsec / 1000) + liveTimeoutOrReplayMs + 2000, // TODO: Figure out how not to hardcode this, it causes delay between LTL and non-HC YTC
+    showtime: isReplay ? liveTimeoutOrReplayMs : liveShowtimeMs + (nextChunkDelay > 0 ? extraDelay : 0),
     messageId: renderer.id
   };
 
@@ -148,7 +172,7 @@ const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned
     return;
   }
   const parsedContents = parseAddChatItemAction(
-    { item: baseRenderer.contents }
+    { item: baseRenderer.contents }, true
   );
   if (!parsedContents) {
     return;
@@ -164,9 +188,9 @@ const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned
   };
 };
 
-const processCommonAction = (action: Ytc.ReplayAction, isReplay: boolean, liveTimeoutOrReplayMs?: number): Ytc.ParsedMessage | Ytc.ParsedMisc | undefined => {
+const processCommonAction = (action: Ytc.ReplayAction, isReplay: boolean, skipDelayCheck: boolean, liveTimeoutOrReplayMs: number, extraDelay = 0): Ytc.ParsedMessage | Ytc.ParsedMisc | undefined => {
   if (action.addChatItemAction) {
-    return parseAddChatItemAction(action.addChatItemAction, isReplay, liveTimeoutOrReplayMs);
+    return parseAddChatItemAction(action.addChatItemAction, skipDelayCheck, isReplay, liveTimeoutOrReplayMs, extraDelay);
   } else if (action.addBannerToLiveChatCommand) {
     return parsePinnedMessageAction(action.addBannerToLiveChatCommand);
   } else if (action.removeBannerForLiveChatCommand) {
@@ -174,8 +198,8 @@ const processCommonAction = (action: Ytc.ReplayAction, isReplay: boolean, liveTi
   }
 };
 
-const processLiveAction = (action: Ytc.Action, isReplay: boolean, liveTimeoutMs?: number) => {
-  const common = processCommonAction(action, isReplay, liveTimeoutMs);
+const processLiveAction = (action: Ytc.Action, isReplay: boolean, skipDelayCheck: boolean, liveTimeoutMs: number, extraDelay: number) => {
+  const common = processCommonAction(action, isReplay, skipDelayCheck, liveTimeoutMs, extraDelay);
   if (common) {
     return common;
   } else if (action.markChatItemsByAuthorAsDeletedAction) {
@@ -197,7 +221,7 @@ const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[],
   }
 };
 
-export const parseChatResponse = (response: string, isReplay: boolean): Ytc.ParsedChunk | undefined => {
+export const parseChatResponse = (response: string, isReplay: boolean, isInitial = false): Ytc.ParsedChunk | undefined => {
   const parsedResponse: Ytc.RawResponse = JSON.parse(response);
   const base =
     parsedResponse.continuationContents?.liveChatContinuation ||
@@ -215,7 +239,10 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
 
   const liveTimeoutMs =
     base.continuations[0].timedContinuationData?.timeoutMs ||
-    base.continuations[0].invalidationContinuationData?.timeoutMs;
+    base.continuations[0].invalidationContinuationData?.timeoutMs || 0;
+  
+  checkedChunkDelay = false;
+  const extraDelay = nextChunkDelay;
 
   actionsArray.forEach((action) => {
     let parsedAction: Ytc.ParsedAction | undefined;
@@ -223,9 +250,9 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
     if (action.replayChatItemAction) {
       const replayAction = action.replayChatItemAction;
       const replayTimeMs = parseInt(replayAction.videoOffsetTimeMsec);
-      parsedAction = processCommonAction(replayAction.actions[0], isReplay, replayTimeMs);
+      parsedAction = processCommonAction(replayAction.actions[0], isReplay, isInitial, replayTimeMs);
     } else {
-      parsedAction = processLiveAction(action, isReplay, liveTimeoutMs);
+      parsedAction = processLiveAction(action, isReplay, isInitial, liveTimeoutMs, extraDelay);
     }
 
     if (!parsedAction) {
