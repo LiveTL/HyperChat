@@ -98,7 +98,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, skipDelayCheck = 
   if (!skipDelayCheck && !isReplay && !checkedChunkDelay) {
     const diff = Date.now() - liveShowtimeMs;
 
-    nextChunkDelay = diff > 0 ? Math.round(diff / 1000) * 1000 : 0;
+    nextChunkDelay = diff > 0 ? Math.min(Math.round(diff / 1000) * 1000, 5000) : 0;
     checkedChunkDelay = true;
 
     if (nextChunkDelay > 0 && extraDelay > 0) {
