@@ -44,7 +44,7 @@
 
   $: onShowChange(show);
   $: classes = 'whitespace-nowrap absolute bg-gray-800 text-gray-50 z-30 ' +
-    `rounded ${offsetX} ${$$props.class ? $$props.class : ''} ` +
+    `rounded shadow-lg ${offsetX} ${$$props.class ? $$props.class : ''} ` +
     (small ? 'text-xs py-1 px-2' : 'text-sm py-2 px-3');
 </script>
 
