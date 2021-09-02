@@ -13,7 +13,8 @@ let checkedChunkDelay = false;
 let nextChunkDelay = 0;
 
 const formatTimestamp = (timestampUsec: number): string => {
-  return (new Date(timestampUsec / 1000)).toLocaleTimeString('en-GB');
+  return (new Date(timestampUsec / 1000))
+    .toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 };
 
 const colorToHex = (color: number): string => color.toString(16).slice(-6);

@@ -1,6 +1,6 @@
 import HcButton from '../components/HyperchatButton.svelte';
 import { getFrameInfoAsync, isValidFrameInfo } from './chat-utils';
-import { isLiveTL } from './chat-constants';
+import { isLiveTL, isAndroid } from './chat-constants';
 
 // const isFirefox = navigator.userAgent.includes('Firefox');
 
@@ -13,7 +13,6 @@ const hcWarning = 'An existing HyperChat button has been detected. This ' +
 const chatLoaded = async (): Promise<void> => {
   if (document.querySelector('.toggleButton')) {
     console.error(hcWarning);
-    setTimeout(() => alert(hcWarning), 1000); // Thanks chromium
     return;
   }
 
@@ -77,6 +76,13 @@ const chatLoaded = async (): Promise<void> => {
     return;
   }
   ytcTicker.remove();
+
+  // Hide input panel on android
+  if (isAndroid) {
+    const inputPanel = document.querySelector('#input-panel');
+    if (!inputPanel) return;
+    (inputPanel as HTMLElement).style.display = 'none';
+  }
 };
 
 if (document.readyState === 'loading') {

@@ -5,6 +5,11 @@ const isReplay = window.location.href.startsWith(
 );
 
 const chatLoaded = async (): Promise<void> => {
+  if (document.querySelector('.toggleButton')) {
+    console.error('HC button detected, not injecting interceptor.');
+    return;
+  }
+
   // Inject interceptor script
   const script = document.createElement('script');
   script.innerHTML = `
