@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
-export const getFrameInfoAsync = async(): Promise<Chat.UncheckedFrameInfo> => {
+export const getFrameInfoAsync = async (): Promise<Chat.UncheckedFrameInfo> => {
   return await new Promise(
     (resolve) =>
       chrome.runtime.sendMessage({ type: 'getFrameInfo' }, resolve)

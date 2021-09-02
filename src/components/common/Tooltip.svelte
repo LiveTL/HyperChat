@@ -15,7 +15,7 @@
   let offsetX = '';
   let offsetYStyle = '';
 
-  const onShowChange = async(show: boolean) => {
+  const onShowChange = async (show: boolean) => {
     if (!show) return;
     await tick();
     if (!activator || !tooltipDiv) {

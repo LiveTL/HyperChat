@@ -1,132 +1,150 @@
-import { writable, Writable } from 'svelte/store';
-
 interface QueueItem<T> { data: T, next?: QueueItem<T> }
-
-export class Queue<T> {
-  private _first?: QueueItem<T>;
-  private _last?: QueueItem<T>;
-
-  constructor() {
-    this.clear();
-  }
-
-  get front(): T | undefined {
-    return this._first?.data;
-  }
-
-  clear(): void {
-    this._first = undefined;
-    this._last = undefined;
-  }
-
-  pop(): T | undefined {
-    const oldFront = this._first;
-    this._first = oldFront?.next;
-    if (oldFront === this._last) {
-      this._last = undefined;
-    }
-    return oldFront?.data;
-  }
-
-  push(item: T): void {
-    const newItem = { data: item };
-    if (!this._last) {
-      this._first = newItem;
-      this._last = this._first;
-    } else {
-      this._last.next = newItem;
-      this._last = newItem;
-    }
-  }
+export interface Queue<T> {
+  clear: () => void
+  front: () => T | undefined
+  pop: () => T | undefined
+  push: (item: T) => void
 }
 
-export class YtcQueue {
-  private readonly _messageQueue: Queue<Chat.MessageAction>;
-  private _previousTime: number;
-  private readonly _isReplay: boolean;
-  private readonly _livePolling?: NodeJS.Timeout;
-  readonly latestAction: Writable<Chat.Actions | null>;
-  initialData: Chat.Actions[];
+export function queue<T>(): Queue<T> {
+  let first: QueueItem<T> | undefined;
+  let last: QueueItem<T> | undefined;
 
-  constructor(isReplay = false) {
-    this._messageQueue = new Queue();
-    this._previousTime = 0;
-    this._isReplay = isReplay;
-    this.latestAction = writable(null);
-    this.initialData = [];
+  const clear = (): void => {
+    first = undefined;
+    last = undefined;
+  };
 
-    if (!this._livePolling && !isReplay) {
-      this._livePolling = setInterval(() => this.updateLiveProgress(), 250);
-      this.updateLiveProgress();
+  const front = (): T | undefined => {
+    return first?.data;
+  };
+
+  const pop = (): T | undefined => {
+    const oldFront = first;
+    first = oldFront?.next;
+    if (oldFront === last) {
+      last = undefined;
     }
-  }
+    return oldFront?.data;
+  };
 
-  /**
-   * Sets video progress to current time in seconds.
-   * Normally called by the live polling interval that runs every 250 ms.
-   */
-  private updateLiveProgress(): void {
-    this.onVideoProgress(Date.now() / 1000);
-  }
+  const push = (item: T): void => {
+    const newItem = { data: item };
+    if (!last) {
+      first = newItem;
+      last = first;
+    } else {
+      last.next = newItem;
+      last = newItem;
+    }
+  };
+
+  return { clear, front, pop, push };
+}
+
+type Callback<T> = (t: T) => void;
+export type Unsubscriber = () => void;
+export interface Subscribable<T> {
+  set: (value: T) => void
+  subscribe: (callback: Callback<T>) => Unsubscriber
+}
+
+export function subscribable<T>(): Subscribable<T> {
+  const subscribers: Array<(t: T) => void> = [];
+
+  const set = (value: T): void => {
+    subscribers.forEach((cb) => cb(value));
+  };
+
+  const subscribe = (callback: Callback<T>): Unsubscriber => {
+    subscribers.push(callback);
+    const i = subscribers.length - 1;
+
+    return () => subscribers.splice(i, 1);
+  };
+
+  return { set, subscribe };
+}
+
+type QueueCondition = (queue: Queue<Chat.MessageAction>) => boolean;
+export interface YtcQueue {
+  latestAction: Subscribable<Chat.Actions | null>
+  getInitialData: () => Chat.Actions[]
+  addActionChunk: (chunk: Ytc.ParsedChunk, setInitial?: boolean) => void
+  updatePlayerProgress: (timeMs: number) => void
+  cleanUp: () => void
+}
+
+export function ytcQueue(isReplay = false): YtcQueue {
+  const messageQueue = queue<Chat.MessageAction>();
+  let previousTime = 0;
+  let livePolling: NodeJS.Timeout | undefined;
+
+  const latestAction = subscribable<Chat.Actions | null>();
+  let initialData: Chat.Actions[] = [];
 
   /**
    * Continuosly pushes queue messages to store until queue is empty or until
    * `extraCondition` returns false.
    */
-  private pushQueueToStore(
-    extraCondition: (queue: Queue<Chat.MessageAction>) => boolean
-  ): void {
-    while (this._messageQueue.front && extraCondition(this._messageQueue)) {
-      const message = this._messageQueue.pop();
+  const pushQueueToStore = (extraCondition: QueueCondition): void => {
+    while (messageQueue.front() && extraCondition(messageQueue)) {
+      const message = messageQueue.pop();
       if (!message) return;
-      this.latestAction.set(message);
+      latestAction.set(message);
     }
-  }
+  };
 
-  private isScrubbedOrSkipped(time: number): boolean {
-    return time == null || Math.abs(this._previousTime - time) > 1;
-  }
+  const isScrubbedOrSkipped = (time: number): boolean => {
+    return time == null || Math.abs(previousTime - time) > 1;
+  };
 
   /**
    * Push all queued messages to store.
    */
-  private pushAllQueuedToStore(): void {
-    this.pushQueueToStore(() => true);
-  }
+  const pushAllQueuedToStore = (): void => pushQueueToStore(() => true);
 
   /**
    * Push messages up till the currentTime to store.
    */
-  private pushTillCurrentToStore(currentTimeMs: number): void {
-    this.pushQueueToStore((q) => {
-      const frontShowtime = q.front?.message.showtime;
+  const pushTillCurrentToStore = (currentTimeMs: number): void => {
+    pushQueueToStore((q) => {
+      const frontShowtime = q.front()?.message.showtime;
       if (frontShowtime == null) return false;
       return (frontShowtime / 1000) <= currentTimeMs;
     });
-  }
+  };
 
   /**
    * Called when the video progresses to push queued messages to store.
    */
-  private onVideoProgress(timeMs: number): void {
+  const onVideoProgress = (timeMs: number): void => {
     if (timeMs < 0) return;
-    if (this.isScrubbedOrSkipped(timeMs)) {
-      this.pushAllQueuedToStore();
+    if (isScrubbedOrSkipped(timeMs)) {
+      pushAllQueuedToStore();
     } else {
-      this.pushTillCurrentToStore(timeMs);
+      pushTillCurrentToStore(timeMs);
     }
-    this._previousTime = timeMs;
-  }
+    previousTime = timeMs;
+  };
+
+  /**
+   * Sets video progress to current time in seconds.
+   * Normally called by the live polling interval that runs every 250 ms.
+   */
+  const updateLiveProgress = (): void => {
+    onVideoProgress(Date.now() / 1000);
+  };
 
   /**
    * Checks if `message` can be found in either of `bonks` or `deletions`.
    * If it is, its message will be replaced and marked as deleted.
    */
-  private processDeleted(
+  const processDeleted = (
     messageAction: Chat.MessageAction,
     bonks: Ytc.ParsedBonk[],
     deletions: Ytc.ParsedDeleted[]
-  ): void {
+  ): void => {
     const message = messageAction.message;
     for (const b of bonks) {
       if (message.author.id !== b.authorId) continue;
@@ -138,14 +156,14 @@ export class YtcQueue {
       messageAction.deleted = { replace: d.replacedMessage };
       return;
     }
-  }
+  };
 
   /**
    * Processes actionChunk.
    * Adds messages to the queue, handles author bonks, message deletions
    * and pinned messages.
    */
-  addActionChunk(chunk: Ytc.ParsedChunk, setInitial = false): void {
+  const addActionChunk = (chunk: Ytc.ParsedChunk, setInitial = false): void => {
     const messages = chunk.messages;
     const bonks = chunk.bonks;
     const deletions = chunk.deletions;
@@ -157,36 +175,52 @@ export class YtcQueue {
           type: 'message',
           message: m
         };
-        this.processDeleted(messageAction, bonks, deletions);
-        if (!setInitial) this._messageQueue.push(messageAction);
+        processDeleted(messageAction, bonks, deletions);
+        if (!setInitial) messageQueue.push(messageAction);
         return messageAction;
       });
 
     if (setInitial) {
-      this.initialData = [...messageActions, ...misc];
+      initialData = [...messageActions, ...misc];
       return;
     }
 
-    bonks.forEach((bonk) => this.latestAction.set({ type: 'bonk', bonk }));
-    deletions.forEach((deletion) => this.latestAction.set({ type: 'delete', deletion }));
-    misc.forEach((action) => this.latestAction.set(action));
-  }
+    bonks.forEach((bonk) => latestAction.set({ type: 'bonk', bonk }));
+    deletions.forEach((deletion) => latestAction.set({ type: 'delete', deletion }));
+    misc.forEach((action) => latestAction.set(action));
+  };
 
   /**
    * Update player progress to given time.
    * Only effective on VODs.
    */
-  updatePlayerProgress(timeMs: number): void {
-    this.latestAction.set({ type: 'playerProgress', playerProgress: timeMs });
-    if (this._livePolling || !this._isReplay) return;
-    this.onVideoProgress(timeMs);
-  }
+  const updatePlayerProgress = (timeMs: number): void => {
+    latestAction.set({ type: 'playerProgress', playerProgress: timeMs });
+    if (livePolling || !isReplay) return;
+    onVideoProgress(timeMs);
+  };
 
   /**
    * Perform cleanup actions such as clearing live polling interval.
    */
-  cleanUp(): void {
-    if (!this._livePolling) return;
-    clearInterval(this._livePolling);
+  const cleanUp = (): void => {
+    if (!livePolling) return;
+    clearInterval(livePolling);
+  };
+
+  const getInitialData = (): Chat.Actions[] => initialData;
+
+  /** Start live polling if not VOD. */
+  if (!isReplay) {
+    livePolling = setInterval(updateLiveProgress, 250);
+    updateLiveProgress();
   }
+
+  return {
+    latestAction,
+    getInitialData,
+    addActionChunk,
+    updatePlayerProgress,
+    cleanUp
+  };
 }

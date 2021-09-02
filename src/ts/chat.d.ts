@@ -106,6 +106,6 @@ declare namespace Chat {
     clients: Port[]
     dark: boolean
     queue: import('./queue').YtcQueue
-    queueUnsub?: import('svelte/store').Unsubscriber
+    queueUnsub?: import('./queue').Unsubscriber
   }
 }

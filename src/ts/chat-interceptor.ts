@@ -4,7 +4,7 @@ const isReplay = window.location.href.startsWith(
   'https://www.youtube.com/live_chat_replay'
 );
 
-const chatLoaded = async(): Promise<void> => {
+const chatLoaded = async (): Promise<void> => {
   // Inject interceptor script
   const script = document.createElement('script');
   script.innerHTML = `
@@ -94,7 +94,7 @@ const chatLoaded = async(): Promise<void> => {
 };
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => async() => await chatLoaded());
+  document.addEventListener('DOMContentLoaded', () => async () => await chatLoaded());
 } else {
   chatLoaded().catch(e => console.error(e));
 }

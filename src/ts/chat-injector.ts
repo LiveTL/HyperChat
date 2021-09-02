@@ -10,7 +10,7 @@ const hcWarning = 'An existing HyperChat button has been detected. This ' +
   'Having multiple instances of the same scripts running WILL cause ' +
   'problems such as chat messages not loading.';
 
-const chatLoaded = async(): Promise<void> => {
+const chatLoaded = async (): Promise<void> => {
   if (document.querySelector('.toggleButton')) {
     console.error(hcWarning);
     setTimeout(() => alert(hcWarning), 1000); // Thanks chromium
@@ -80,7 +80,7 @@ const chatLoaded = async(): Promise<void> => {
 };
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => async() => await chatLoaded());
+  document.addEventListener('DOMContentLoaded', () => async () => await chatLoaded());
 } else {
   chatLoaded().catch(e => console.error(e));
 }

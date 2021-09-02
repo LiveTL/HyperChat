@@ -1,8 +1,8 @@
-import type { Unsubscriber } from 'svelte/store';
+import type { Unsubscriber } from './queue';
 import { parseChatResponse } from './chat-parser';
 import { isValidFrameInfo } from './chat-utils';
 import { isLiveTL } from './chat-constants';
-import { YtcQueue } from './queue';
+import { ytcQueue } from './queue';
 
 const interceptors: Chat.Interceptor[] = [];
 
@@ -85,7 +85,7 @@ const registerInterceptor = (port: Chat.Port, isReplay: boolean): void => {
   // Add interceptor to array
   const i = findInterceptorIndex(frameInfo);
   if (i < 0) {
-    const queue = new YtcQueue(isReplay);
+    const queue = ytcQueue(isReplay);
     let queueUnsub: Unsubscriber | undefined;
     const newInterceptor = {
       frameInfo,
@@ -173,7 +173,7 @@ const registerClient = (
   if (getInitialData) {
     const payload = {
       type: 'initialData',
-      initialData: interceptor.queue.initialData
+      initialData: interceptor.queue.getInitialData()
     } as const;
     port.postMessage(payload);
     console.debug('Sent initial data', { port, interceptor, payload });
