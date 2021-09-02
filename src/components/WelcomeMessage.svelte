@@ -1,53 +1,51 @@
 <script lang="ts">
   import { Browser, BROWSER, isLiveTL } from '../ts/chat-constants';
+  import { updates } from '../changelog.js';
 
-  const logo = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo.png');
+  const latest = updates[updates.length - 1];
+  const logo = chrome.runtime.getURL(
+    (isLiveTL ? 'hyperchat' : 'assets') + '/logo.png'
+  );
   const reviewLink = BROWSER === Browser.FIREFOX
     ? 'https://addons.mozilla.org/en-US/firefox/addon/hyperchat/'
     : 'https://chrome.google.com/webstore/detail/hyperchat-optimized-youtu/naipgebhooiiccifflecbffmnjbabdbh';
-  const badges = [
-    {
-      name: 'Leave a review',
-      src: 'https://img.shields.io/badge/Leave a review-5%20stars-blue?style=flat',
-      href: reviewLink
-    },
-    {
-      name: 'Star on GitHub',
-      src: 'https://img.shields.io/github/stars/LiveTL/HyperChat?style=flat&logo=github&label=Star on GitHub',
-      href: 'https://github.com/LiveTL/HyperChat/'
-    },
-    {
-      name: 'Donators and supporters',
-      src: 'https://img.shields.io/opencollective/all/livetl?color=blue&label=Donators%20and%20supporters&logo=dollar&style=flat',
-      href: 'https://opencollective.com/livetl'
-    },
-    {
-      name: 'Discord',
-      src: 'https://img.shields.io/discord/780938154437640232.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2&style=flat',
-      href: 'https://discord.gg/uJrV3tmthg'
-    }
-  ];
-  const classes = 'p-2 rounded inline-flex flex-col overflow-hidden bg-secondary-50 dark:bg-secondary-600 w-full';
+  const classes = 'p-2 rounded inline-flex flex-col gap-2 overflow-hidden ' +
+   'bg-secondary-50 dark:bg-secondary-600 w-full';
 </script>
 
 <div class={classes}>
-  <div class="mb-2 flex items-center">
+  <div class="flex items-center">
     <div>
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
     </div>
-    <div class="font-bold text-xl ml-3">HyperChat by LiveTL</div>
+    <h5 class="font-bold ml-3">HyperChat by LiveTL</h5>
   </div>
-  <span>
+  <div>
     <i>It may take a few seconds for messages to start appearing.</i>
     <br/>
     <strong>HyperChat can reduce CPU usage by up to 80%!</strong>
-  </span>
-  <!-- <br/>
-  <div class="mt-2 flex flex-wrap w-full">
-    {#each badges as { name, src, href }} // FIXME: Badge loading messes up first scroll
-      <a {href} class="p-0.5">
-        <img alt={name} {src} />
-      </a>
-    {/each}
-  </div> -->
+  </div>
+  <div>
+    <span>Don't forget to </span>
+    <a href={reviewLink} target="_blank" class="underline">
+      drop a 5-star review,
+    </a>
+    <a href="https://livetl.app/hyperchat" target="_blank" class="underline">
+      share with your friends,
+    </a>
+    <a href="https://discord.gg/uJrV3tmthg" target="_blank" class="underline">
+      join our Discord server,
+    </a>
+    <a href="https://github.com/LiveTL/HyperChat" target="_blank" class="underline">
+      star the GitHub repository,
+    </a>
+    <span>and</span>
+    <a href="https://opencollective.com/livetl" target="_blank" class="underline">
+      chip in a few dollars to help fund future projects (stay tuned)!
+    </a>
+  </div>
+  <div>
+    <strong>NEW IN {latest?.version}:</strong>
+    <span>{latest?.comments}</span>
+  </div>
 </div>
