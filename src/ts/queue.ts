@@ -1,9 +1,9 @@
 interface QueueItem<T> { data: T, next?: QueueItem<T> }
 export interface Queue<T> {
-  clear: () => void
-  front: () => T | undefined
-  pop: () => T | undefined
-  push: (item: T) => void
+  clear: () => void;
+  front: () => T | undefined;
+  pop: () => T | undefined;
+  push: (item: T) => void;
 }
 
 export function queue<T>(): Queue<T> {
@@ -45,8 +45,8 @@ export function queue<T>(): Queue<T> {
 type Callback<T> = (t: T) => void;
 export type Unsubscriber = () => void;
 export interface Subscribable<T> {
-  set: (value: T) => void
-  subscribe: (callback: Callback<T>) => Unsubscriber
+  set: (value: T) => void;
+  subscribe: (callback: Callback<T>) => Unsubscriber;
 }
 
 export function subscribable<T>(): Subscribable<T> {
@@ -68,11 +68,11 @@ export function subscribable<T>(): Subscribable<T> {
 
 type QueueCondition = (queue: Queue<Chat.MessageAction>) => boolean;
 export interface YtcQueue {
-  latestAction: Subscribable<Chat.Actions | null>
-  getInitialData: () => Chat.Actions[]
-  addActionChunk: (chunk: Ytc.ParsedChunk, setInitial?: boolean) => void
-  updatePlayerProgress: (timeMs: number) => void
-  cleanUp: () => void
+  latestAction: Subscribable<Chat.Actions | null>;
+  getInitialData: () => Chat.Actions[];
+  addActionChunk: (chunk: Ytc.ParsedChunk, setInitial?: boolean) => void;
+  updatePlayerProgress: (timeMs: number) => void;
+  cleanUp: () => void;
 }
 
 export function ytcQueue(isReplay = false): YtcQueue {

@@ -1,90 +1,90 @@
 declare namespace Chat {
   interface MessageDeletedObj {
-    replace: Ytc.ParsedRun[]
+    replace: Ytc.ParsedRun[];
   }
 
   interface MessageAction {
-    type: 'message'
-    message: Ytc.ParsedMessage
-    deleted?: MessageDeletedObj
+    type: 'message';
+    message: Ytc.ParsedMessage;
+    deleted?: MessageDeletedObj;
   }
 
   interface BonkAction {
-    type: 'bonk'
-    bonk: Ytc.ParsedBonk
+    type: 'bonk';
+    bonk: Ytc.ParsedBonk;
   }
 
   interface DeleteAction {
-    type: 'delete'
-    deletion: Ytc.ParsedDeleted
+    type: 'delete';
+    deletion: Ytc.ParsedDeleted;
   }
 
   interface PlayerProgressAction {
-    type: 'playerProgress'
-    playerProgress: number
+    type: 'playerProgress';
+    playerProgress: number;
   }
 
   type Actions = MessageAction | BonkAction | DeleteAction | Ytc.ParsedMisc | PlayerProgressAction;
 
   interface UncheckedFrameInfo {
-    tabId: number | undefined
-    frameId: number | undefined
+    tabId: number | undefined;
+    frameId: number | undefined;
   }
 
   interface FrameInfo {
-    tabId: number
-    frameId: number
+    tabId: number;
+    frameId: number;
   }
 
   interface InitialData {
-    type: 'initialData'
-    initialData: Actions[]
+    type: 'initialData';
+    initialData: Actions[];
   }
 
   interface ThemeUpdate {
-    type: 'themeUpdate'
-    dark: boolean
+    type: 'themeUpdate';
+    dark: boolean;
   }
 
   type BackgroundResponse = Actions | InitialData | ThemeUpdate;
 
   interface RegisterInterceptorMsg {
-    type: 'registerInterceptor'
-    isReplay: boolean
+    type: 'registerInterceptor';
+    isReplay: boolean;
   }
 
   interface RegisterClientMsg {
-    type: 'registerClient'
-    frameInfo: FrameInfo
-    getInitialData: boolean
+    type: 'registerClient';
+    frameInfo: FrameInfo;
+    getInitialData: boolean;
   }
 
   interface JsonMsg {
-    json: string
-    isReplay: boolean
+    json: string;
+    isReplay: boolean;
   }
 
   type processJsonMsg = JsonMsg & {
-    type: 'processJson'
+    type: 'processJson';
   };
 
   type setInitialDataMsg = JsonMsg & {
-    type: 'setInitialData'
+    type: 'setInitialData';
   };
 
   interface updatePlayerProgressMsg {
-    type: 'updatePlayerProgress'
-    playerProgress: number
+    type: 'updatePlayerProgress';
+    playerProgress: number;
   }
 
   interface setThemeMsg {
-    type: 'setTheme'
-    dark: boolean
+    type: 'setTheme';
+    dark: boolean;
   }
 
   interface getThemeMsg {
-    type: 'getTheme'
-    frameInfo: FrameInfo
+    type: 'getTheme';
+    frameInfo: FrameInfo;
   }
 
   type BackgroundMessage =
@@ -92,20 +92,20 @@ declare namespace Chat {
     setInitialDataMsg | updatePlayerProgressMsg | setThemeMsg | getThemeMsg;
 
   type Port = Omit<chrome.runtime.Port, 'postMessage' | 'onMessage'> & {
-    postMessage: (message: BackgroundMessage | BackgroundResponse) => void
+    postMessage: (message: BackgroundMessage | BackgroundResponse) => void;
     onMessage: {
       addListener: (
         callback: (message: BackgroundResponse, port: Port) => void
-      ) => void
-    }
+      ) => void;
+    };
   };
 
   interface Interceptor {
-    frameInfo: FrameInfo
-    port?: Port
-    clients: Port[]
-    dark: boolean
-    queue: import('./queue').YtcQueue
-    queueUnsub?: import('./queue').Unsubscriber
+    frameInfo: FrameInfo;
+    port?: Port;
+    clients: Port[];
+    dark: boolean;
+    queue: import('./queue').YtcQueue;
+    queueUnsub?: import('./queue').Unsubscriber;
   }
 }

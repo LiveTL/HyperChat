@@ -1,7 +1,7 @@
 declare global {
   interface Window {
-    ytglobal: any
-    ytcfg: any
+    ytglobal: any;
+    ytcfg: any;
   }
 }
 
