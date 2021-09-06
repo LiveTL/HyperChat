@@ -104,6 +104,8 @@
 
   // Doesn't work well with onMount, so onLoad will have to do
   const onLoad = () => {
+    document.body.classList.add('overflow-hidden');
+
     if (paramsTabId == null || paramsFrameId == null || paramsTabId.length < 1 || paramsFrameId.length < 1) {
       console.error('No tabId or frameId found from params');
       return;

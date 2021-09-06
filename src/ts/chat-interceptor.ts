@@ -79,13 +79,16 @@ const chatLoaded = async (): Promise<void> => {
   });
 
   // Update dark theme whenever it changes
+  let wasDark: boolean | undefined;
   const html = document.documentElement;
   const sendTheme = (): void => {
     const isDark = html.hasAttribute('dark');
+    if (isDark === wasDark) return;
     port.postMessage({
       type: 'setTheme',
       dark: isDark
     });
+    wasDark = isDark;
   };
   new MutationObserver(sendTheme).observe(html, {
     attributes: true
