@@ -10,6 +10,8 @@ YouTube chat, but it's fast and sleek!
 [![Commit Activity](https://img.shields.io/github/commit-activity/w/LiveTL/HyperChat)](https://github.com/LiveTL/HyperChat/commits/)
 [![Discord](https://img.shields.io/discord/780938154437640232.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/uJrV3tmthg)
 
+## ⚠ A MASSIVE REWRITE IS TAKING PLACE IN THE [smelte-ts branch](https://github.com/LiveTL/HyperChat/tree/smelte-ts)!
+
 ## Building from Source
 Clone the repository recursively:
 ```bash
