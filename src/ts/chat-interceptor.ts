@@ -42,8 +42,7 @@ const chatLoaded = async (): Promise<void> => {
     port.postMessage({
       type: 'processJson',
       // @ts-expect-error TS doesn't like CustomEvent
-      json: d.detail,
-      isReplay
+      json: d.detail
     });
   });
 
@@ -62,8 +61,7 @@ const chatLoaded = async (): Promise<void> => {
     const json = text.replace(start, '').slice(0, -1);
     port.postMessage({
       type: 'setInitialData',
-      json,
-      isReplay
+      json
     });
     break;
   }

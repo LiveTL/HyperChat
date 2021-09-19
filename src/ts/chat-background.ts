@@ -1,5 +1,4 @@
 import type { Unsubscriber } from './queue';
-import { parseChatResponse } from './chat-parser';
 import { isValidFrameInfo } from './chat-utils';
 import { isLiveTL } from './chat-constants';
 import { ytcQueue } from './queue';
@@ -185,7 +184,7 @@ const registerClient = (
  * interceptor that sent it.
  */
 const processJson = (port: Chat.Port, message: Chat.JsonMsg): void => {
-  const { json, isReplay } = message;
+  const json = message.json;
   const interceptor = findInterceptorFromPort(port, { message });
   if (!interceptor) return;
 
@@ -194,17 +193,7 @@ const processJson = (port: Chat.Port, message: Chat.JsonMsg): void => {
     return;
   }
 
-  const chunk = parseChatResponse(json, isReplay);
-  if (!chunk) {
-    console.debug(
-      'Invalid chunk, not adding to queue',
-      { port, chunk }
-    );
-    return;
-  }
-
-  console.debug('Adding chunk to queue', { port, chunk });
-  interceptor.queue.addActionChunk(chunk);
+  interceptor.queue.addJsonToQueue(json, false, interceptor);
 };
 
 /**
@@ -212,20 +201,11 @@ const processJson = (port: Chat.Port, message: Chat.JsonMsg): void => {
  * the interceptor that sent it.
  */
 const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
-  const { json, isReplay } = message;
+  const json = message.json;
   const interceptor = findInterceptorFromPort(port, { message });
   if (!interceptor) return;
 
-  const chunk = parseChatResponse(json, isReplay, true);
-  if (!chunk) {
-    console.debug(
-      'Invalid chunk, not saving as initial data',
-      { port, chunk }
-    );
-    return;
-  }
-  interceptor.queue.addActionChunk(chunk, true);
-  console.debug('Saved initial data', { interceptor, chunk });
+  interceptor.queue.addJsonToQueue(json, true, interceptor);
 };
 
 /**

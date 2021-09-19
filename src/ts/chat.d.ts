@@ -61,7 +61,6 @@ declare namespace Chat {
 
   interface JsonMsg {
     json: string;
-    isReplay: boolean;
   }
 
   type processJsonMsg = JsonMsg & {

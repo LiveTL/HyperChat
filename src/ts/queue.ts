@@ -1,3 +1,5 @@
+import { parseChatResponse } from './chat-parser';
+
 interface QueueItem<T> { data: T, next?: QueueItem<T> }
 export interface Queue<T> {
   clear: () => void;
@@ -70,7 +72,7 @@ type QueueCondition = (queue: Queue<Chat.MessageAction>) => boolean;
 export interface YtcQueue {
   latestAction: Subscribable<Chat.Actions | null>;
   getInitialData: () => Chat.Actions[];
-  addActionChunk: (chunk: Ytc.ParsedChunk, setInitial?: boolean) => void;
+  addJsonToQueue: (json: string, isInitial: boolean, interceptor: Chat.Interceptor) => void;
   updatePlayerProgress: (timeMs: number) => void;
   cleanUp: () => void;
 }
@@ -78,7 +80,8 @@ export interface YtcQueue {
 export function ytcQueue(isReplay = false): YtcQueue {
   const messageQueue = queue<Chat.MessageAction>();
   let previousTime = 0;
-  let livePolling: NodeJS.Timeout | undefined;
+  let livePolling: number | undefined;
+  let nextChunkDelay = 0;
 
   const latestAction = subscribable<Chat.Actions | null>();
   let initialData: Chat.Actions[] = [];
@@ -168,9 +171,31 @@ export function ytcQueue(isReplay = false): YtcQueue {
     const bonks = chunk.bonks;
     const deletions = chunk.deletions;
     const misc = chunk.miscActions;
+    const currentChunkDelay = nextChunkDelay;
+
+    /**
+     * Extra delay is calculated based on previous chunk delay, and will only
+     * be applied if the current chunk is also delayed.
+     * Hopefully this reduces chat freezing for subsequent late chunks, while
+     * not adding extra delay when chunks arrive normally.
+     */
+    if (!isReplay && !setInitial) {
+      const diff = Date.now() - messages[0].showtime;
+      console.debug({ now: Date.now(), shotime: messages[0].showtime, diff });
+      nextChunkDelay = (diff > 0) ? Math.min(Math.round(diff / 1000) * 1000, 3000) : 0;
+    }
+
+    if (currentChunkDelay > 0 && nextChunkDelay > 0) {
+      console.log('Subsequent late chunks, adding an extra delay of ' + currentChunkDelay.toString());
+    }
 
     const messageActions =
       messages.sort((m1, m2) => m1.showtime - m2.showtime).map((m) => {
+        if (currentChunkDelay > 0 && nextChunkDelay > 0) {
+          console.debug('old ', m.showtime);
+          m.showtime += currentChunkDelay;
+          console.debug('new ', m.showtime);
+        }
         const messageAction: Chat.MessageAction = {
           type: 'message',
           message: m
@@ -190,13 +215,29 @@ export function ytcQueue(isReplay = false): YtcQueue {
     misc.forEach((action) => latestAction.set(action));
   };
 
+  const addJsonToQueue = (json: string, isInitial: boolean, interceptor: Chat.Interceptor): void => {
+    const chunk = parseChatResponse(json, isReplay);
+    if (!chunk) {
+      console.debug(
+        'Invalid json',
+        { interceptor, json, isReplay, isInitial }
+      );
+      return;
+    }
+    addActionChunk(chunk, isInitial);
+    console.debug(
+      isInitial ? 'Saved initial data' : 'Added chunk to queue',
+      { interceptor, chunk }
+    );
+  };
+
   /**
    * Update player progress to given time.
    * Only effective on VODs.
    */
   const updatePlayerProgress = (timeMs: number): void => {
     latestAction.set({ type: 'playerProgress', playerProgress: timeMs });
-    if (livePolling || !isReplay) return;
+    if (livePolling != null || !isReplay) return;
     onVideoProgress(timeMs);
   };
 
@@ -204,22 +245,22 @@ export function ytcQueue(isReplay = false): YtcQueue {
    * Perform cleanup actions such as clearing live polling interval.
    */
   const cleanUp = (): void => {
-    if (!livePolling) return;
-    clearInterval(livePolling);
+    if (livePolling != null) return;
+    window.clearInterval(livePolling);
   };
 
   const getInitialData = (): Chat.Actions[] => initialData;
 
   /** Start live polling if not VOD. */
   if (!isReplay) {
-    livePolling = setInterval(updateLiveProgress, 250);
+    livePolling = window.setInterval(updateLiveProgress, 250);
     updateLiveProgress();
   }
 
   return {
     latestAction,
     getInitialData,
-    addActionChunk,
+    addJsonToQueue,
     updatePlayerProgress,
     cleanUp
   };
