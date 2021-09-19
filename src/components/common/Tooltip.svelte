@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { tick } from 'svelte';
   import { scale, fade } from 'svelte/transition';
 
   /** Vertical offset in px. Default: 5 */
@@ -14,11 +14,9 @@
   let windowInnerWidth = 0;
   let offsetX = '';
   let offsetYStyle = '';
-  let recalculatingOffset = false;
 
-  const recalculateOffset = async () => {
-    recalculatingOffset = true;
-    show = true;
+  const onShowChange = async (show: boolean) => {
+    if (!show) return;
     await tick();
     if (!activator || !tooltipDiv) {
       console.error('Tooltip activator or tooltipDiv undefined');
@@ -42,17 +40,12 @@
     } else {
       offsetYStyle = `bottom: -${tooltipHeightOffset}px`;
     }
-
-    show = false;
-    recalculatingOffset = false;
   };
 
-  onMount(recalculateOffset);
-
+  $: onShowChange(show);
   $: classes = 'whitespace-nowrap absolute bg-gray-800 text-gray-50 z-30 ' +
     `rounded shadow-lg ${offsetX} ${$$props.class ? $$props.class : ''} ` +
-    `${small ? 'text-xs py-1 px-2' : 'text-sm py-2 px-3'} ` +
-    (recalculatingOffset ? 'opacity-0' : '');
+    (small ? 'text-xs py-1 px-2' : 'text-sm py-2 px-3');
 </script>
 
 <svelte:window
