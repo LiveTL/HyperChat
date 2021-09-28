@@ -1,10 +1,7 @@
 import {
   isPaidMessageRenderer,
   isPaidStickerRenderer,
-  isMembershipRenderer,
-  isParsedMessage,
-  isParsedBonk,
-  isParsedDelete
+  isMembershipRenderer
 } from './chat-utils';
 
 const formatTimestamp = (timestampUsec: number): string => {
@@ -97,7 +94,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     messageId: renderer.id
   };
 
-  if (isPaidMessageRenderer(actionItem, renderer)) {
+  if (isPaidMessageRenderer(renderer)) {
     item.superChat = {
       amount: renderer.purchaseAmountText.simpleText,
       bodyBackgroundColor: colorToHex(renderer.bodyBackgroundColor),
@@ -106,7 +103,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
       headerBackgroundColor: colorToHex(renderer.headerBackgroundColor),
       headerTextColor: colorToHex(renderer.headerTextColor)
     };
-  } else if (isPaidStickerRenderer(actionItem, renderer)) {
+  } else if (isPaidStickerRenderer(renderer)) {
     item.superSticker = {
       src: fixUrl(renderer.sticker.thumbnails[0].url),
       alt: renderer.sticker.accessibility?.accessibilityData.label,
@@ -115,7 +112,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
       bodyTextColor: colorToHex(renderer.moneyChipTextColor),
       nameColor: colorToHex(renderer.authorNameTextColor)
     };
-  } else if (isMembershipRenderer(actionItem, renderer)) {
+  } else if (isMembershipRenderer(renderer)) {
     item.membership = {
       headerPrimaryText: parseMessageRuns(renderer.headerPrimaryText?.runs),
       headerSubtext: 'simpleText' in renderer.headerSubtext
@@ -186,11 +183,11 @@ const processLiveAction = (action: Ytc.Action, isReplay: boolean, liveTimeoutMs:
 };
 
 const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[], bonkArray: Ytc.ParsedBonk[], deleteArray: Ytc.ParsedDeleted[], miscArray: Ytc.ParsedMisc[]): void => {
-  if (isParsedMessage(action)) {
+  if ('message' in action) {
     messageArray.push(action);
-  } else if (isParsedBonk(action)) {
+  } else if ('replacedMessage' in action && 'authorId' in action) {
     bonkArray.push(action);
-  } else if (isParsedDelete(action)) {
+  } else if ('replacedMessage' in action && 'messageId' in action) {
     deleteArray.push(action);
   } else {
     miscArray.push(action);

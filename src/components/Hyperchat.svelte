@@ -23,7 +23,7 @@
     ['message', 'bonk', 'delete', 'pin', 'unpin', 'playerProgress'].includes(r.type);
 
   const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
-    (m as Welcome).welcome;
+    'welcome' in m;
 
   const checkAtBottom = () => {
     isAtBottom =
