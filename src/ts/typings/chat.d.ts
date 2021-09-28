@@ -104,7 +104,7 @@ declare namespace Chat {
     port?: Port;
     clients: Port[];
     dark: boolean;
-    queue: import('./queue').YtcQueue;
-    queueUnsub?: import('./queue').Unsubscriber;
+    queue: import('../queuee').YtcQueue;
+    queueUnsub?: import('../queuee').Unsubscriber;
   }
 }
