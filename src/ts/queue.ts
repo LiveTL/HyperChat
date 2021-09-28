@@ -181,7 +181,6 @@ export function ytcQueue(isReplay = false): YtcQueue {
      */
     if (!isReplay && !setInitial) {
       const diff = Date.now() - messages[0].showtime;
-      console.debug({ now: Date.now(), shotime: messages[0].showtime, diff });
       nextChunkDelay = (diff > 0) ? Math.min(Math.round(diff / 1000) * 1000, 3000) : 0;
     }
 
@@ -192,9 +191,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
     const messageActions =
       messages.sort((m1, m2) => m1.showtime - m2.showtime).map((m) => {
         if (currentChunkDelay > 0 && nextChunkDelay > 0) {
-          console.debug('old ', m.showtime);
           m.showtime += currentChunkDelay;
-          console.debug('new ', m.showtime);
         }
         const messageAction: Chat.MessageAction = {
           type: 'message',
