@@ -37,11 +37,11 @@ declare namespace Ytc {
   }
 
   /** Expected YTC action object */
-  type Action = ReplayAction & {
+  interface Action extends ReplayAction {
     replayChatItemAction?: ReplayChatItemAction;
     markChatItemsByAuthorAsDeletedAction?: AuthorBonkedAction;
     markChatItemAsDeletedAction?: MessageDeletedAction;
-  };
+  }
 
   /*
    * Actions
@@ -58,16 +58,16 @@ declare namespace Ytc {
   }
 
   /** YTC markChatItemsByAuthorAsDeletedAction object */
-  type AuthorBonkedAction = IDeleted & {
+  interface AuthorBonkedAction extends IDeleted {
     /** ID of channel that was bonked */
     externalChannelId: string;
-  };
+  }
 
   /** YTC markChatItemAsDeletedAction object. */
-  type MessageDeletedAction = IDeleted & {
+  interface MessageDeletedAction extends IDeleted {
     /** ID of message to be deleted */
     targetItemId: string;
-  };
+  }
 
   /** YTC addBannerToLiveChatCommand object */
   interface AddPinnedAction {
@@ -76,9 +76,7 @@ declare namespace Ytc {
         contents: AddChatItem;
         header: {
           liveChatBannerHeaderRenderer: {
-            text: {
-              runs: MessageRun[];
-            };
+            text: RunsObj;
           };
         };
       };
@@ -88,9 +86,7 @@ declare namespace Ytc {
   interface AddTickerAction {
     item: {
       liveChatTickerSponsorItemRenderer?: TickerRenderer & {
-        detailText: {
-          runs: MessageRun[];
-        };
+        detailText: RunsObj;
         detailTextColor: number;
       };
       liveChatTickerPaidMessageItemRenderer?: TickerRenderer & {
@@ -128,14 +124,13 @@ declare namespace Ytc {
       };
     };
     emoji?: {
+      emojiId?: string;
       image: ThumbnailsWithLabel;
     };
   }
 
   interface TextMessageRenderer {
-    message?: {
-      runs: MessageRun[];
-    };
+    message?: RunsObj;
     authorName: SimpleTextObj;
     authorBadges?: Array<{
       liveChatAuthorBadgeRenderer: {
@@ -161,29 +156,28 @@ declare namespace Ytc {
     timestampText?: SimpleTextObj;
   }
 
-  type PaidRenderer = TextMessageRenderer & {
+  interface PaidRenderer extends TextMessageRenderer {
     purchaseAmountText: SimpleTextObj;
     authorNameTextColor: number;
-  };
+  }
 
-  type PaidMessageRenderer = PaidRenderer & {
+  interface PaidMessageRenderer extends PaidRenderer {
     headerBackgroundColor: number;
     headerTextColor: number;
     bodyBackgroundColor: number;
     bodyTextColor: number;
-  };
+  }
 
-  type PaidStickerRenderer = PaidRenderer & {
+  interface PaidStickerRenderer extends PaidRenderer {
     sticker: ThumbnailsWithLabel;
     moneyChipBackgroundColor: number;
     moneyChipTextColor: number;
-  };
+  }
 
-  type MembershipRenderer = TextMessageRenderer & {
-    headerSubtext: {
-      runs: MessageRun[];
-    };
-  };
+  interface MembershipRenderer extends TextMessageRenderer {
+    headerPrimaryText?: RunsObj;
+    headerSubtext: SimpleTextObj | RunsObj;
+  }
 
   interface PlaceholderRenderer { // No idea what the purpose of this is
     id: string;
@@ -211,9 +205,7 @@ declare namespace Ytc {
 
   interface IDeleted {
     /** Message to replace deleted messages. */
-    deletedStateMessage: {
-      runs: MessageRun[];
-    };
+    deletedStateMessage: RunsObj;
   }
 
   /** Integer formatted as string for whatever reason */
@@ -221,6 +213,10 @@ declare namespace Ytc {
 
   interface SimpleTextObj {
     simpleText: string;
+  }
+
+  interface RunsObj {
+    runs: MessageRun[];
   }
 
   /*
@@ -252,15 +248,20 @@ declare namespace Ytc {
     nameColor: string;
   }
 
-  type ParsedSuperChat = PaidDetails & {
+  interface ParsedSuperChat extends PaidDetails {
     headerBackgroundColor: string;
     headerTextColor: string;
-  };
+  }
 
-  type ParsedSuperSticker = PaidDetails & {
+  interface ParsedSuperSticker extends PaidDetails {
     src: string;
     alt?: string;
-  };
+  }
+
+  interface ParsedMembership {
+    headerPrimaryText: ParsedRun[];
+    headerSubtext: ParsedRun[];
+  }
 
   interface ParsedMessage {
     author: {
@@ -274,7 +275,7 @@ declare namespace Ytc {
     messageId: string;
     superChat?: ParsedSuperChat;
     superSticker?: ParsedSuperSticker;
-    membership?: boolean;
+    membership?: ParsedMembership;
   }
 
   interface ParsedBonk {

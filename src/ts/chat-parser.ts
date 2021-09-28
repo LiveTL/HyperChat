@@ -49,7 +49,7 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
       parsedRuns.push({
         type: 'emoji',
         src: fixUrl(run.emoji.image.thumbnails[0].url),
-        alt: run.emoji.image.accessibility?.accessibilityData.label
+        alt: run.emoji.emojiId ?? run.emoji.image.accessibility?.accessibilityData.label
       });
     }
   });
@@ -116,8 +116,17 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
       nameColor: colorToHex(renderer.authorNameTextColor)
     };
   } else if (isMembershipRenderer(actionItem, renderer)) {
-    item.membership = true;
-    item.message = parseMessageRuns(renderer.headerSubtext.runs);
+    item.membership = {
+      headerPrimaryText: parseMessageRuns(renderer.headerPrimaryText?.runs),
+      headerSubtext: 'simpleText' in renderer.headerSubtext
+        ? [
+            {
+              type: 'text',
+              text: renderer.headerSubtext.simpleText
+            }
+          ]
+        : parseMessageRuns(renderer.headerSubtext.runs)
+    };
   }
   return item;
 };
