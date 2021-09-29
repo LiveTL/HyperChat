@@ -30,5 +30,6 @@ Build or serve the extension:
 
 ```bash
 yarn start # hot reload mode
-yarn build-prod # production mode
+yarn build:prod # production mode
+yarn build:prod --env version=x.x.x
 ```

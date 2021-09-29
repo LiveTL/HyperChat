@@ -7,6 +7,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const postcssPlugins = require('./postcss.config.js');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtReloader = require('webpack-ext-reloader');
+const { version } = require('./package.json');
 
 const extReloader = new ExtReloader({
   manifest: path.join(__dirname, 'src', 'manifest.json'),
@@ -18,9 +19,21 @@ const extReloader = new ExtReloader({
   reloadPage: true
 });
 
+const transformManifest = (manifestString, version, isChrome = false) => {
+  const newManifest = {
+    ...JSON.parse(manifestString),
+    version
+  };
+  if (isChrome) newManifest.incognito = 'split';
+  return JSON.stringify(newManifest);
+};
+
 module.exports = (env, options) => {
   const mode = options.mode;
   const prod = mode !== 'development';
+
+  const envVersion = env.version;
+  const hasEnvVersion = (envVersion != null && typeof envVersion === 'string');
 
   const cssConfig = {
     test: /\.(sa|sc|c)ss$/,
@@ -98,7 +111,17 @@ module.exports = (env, options) => {
             to: 'assets'
           },
           {
-            from: 'src/manifest.json'
+            from: 'src/manifest.json',
+            transform: (content) => {
+              return transformManifest(content, hasEnvVersion ? envVersion : version);
+            }
+          },
+          {
+            from: 'src/manifest.json',
+            to: 'manifest.chrome.json',
+            transform: (content) => {
+              return transformManifest(content, hasEnvVersion ? envVersion : version, true);
+            }
           }
         ]
       }),

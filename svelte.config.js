@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const sveltePreprocess = require('svelte-preprocess');
 const postcssPlugins = require('./postcss.config.js');
 

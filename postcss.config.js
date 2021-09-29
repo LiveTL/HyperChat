@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const extractor = require('smelte/src/utils/css-extractor.js');
 const tailwindConfig = require('./tailwind.config.js');
 

@@ -8,7 +8,9 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   extends: 'standard-with-typescript',
   parserOptions: {
-    sourceType: 'module'
+    sourceType: 'module',
+    project: './tsconfig.json',
+    extraFileExtensions: ['.svelte']
   },
   plugins: [
     'svelte3',
@@ -25,7 +27,10 @@ module.exports = {
         'no-multiple-empty-lines': [
           'error',
           { max: 2 }
-        ]
+        ],
+        '@typescript-eslint/prefer-nullish-coalescing': 'off',
+        // Causes false positives with reactive and auto subscriptions
+        '@typescript-eslint/strict-boolean-expressions': 'off'
       }
     }
   ],
@@ -34,11 +39,54 @@ module.exports = {
       'error',
       'unix'
     ],
-    semi: [
+    semi: 'off',
+    '@typescript-eslint/semi': [
       'error',
       'always'
     ],
-    'no-extra-semi': 'error'
+    'no-extra-semi': 'off',
+    '@typescript-eslint/no-extra-semi': 'error',
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_'
+      }
+    ],
+    'space-before-function-paren': 'off',
+    '@typescript-eslint/space-before-function-paren': [
+      'error',
+      {
+        named: 'never'
+      }
+    ],
+    '@typescript-eslint/strict-boolean-expressions': [
+      'error',
+      {
+        allowString: true,
+        allowNumber: true,
+        allowNullableObject: true,
+        allowNullableBoolean: false,
+        allowNullableString: false,
+        allowNullableNumber: false,
+        allowAny: true
+      }
+    ],
+    '@typescript-eslint/prefer-nullish-coalescing': [
+      'error',
+      {
+        ignoreConditionalTests: true,
+        ignoreMixedLogicalExpressions: false
+      }
+    ],
+    '@typescript-eslint/member-delimiter-style': [
+      'error',
+      {
+        multiline: { delimiter: 'semi', requireLast: true },
+        singleline: { delimiter: 'comma', requireLast: false }
+      }
+    ]
   },
   settings: {
     'svelte3/typescript': () => require('typescript')
