@@ -179,7 +179,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
      * Hopefully this reduces chat freezing for subsequent late chunks, while
      * not adding extra delay when chunks arrive normally.
      */
-    if (!isReplay && !setInitial) {
+    if (!isReplay && !setInitial && messages.length > 0) {
       const diff = Date.now() - messages[0].showtime;
       nextChunkDelay = (diff > 0) ? Math.min(Math.round(diff / 1000) * 1000, 3000) : 0;
     }
