@@ -280,9 +280,11 @@ chrome.runtime.onConnect.addListener((port) => {
 
 chrome.browserAction.onClicked.addListener(() => {
   if (isLiveTL) {
-    chrome.tabs.create({ url: 'https://livetl.app' }).catch(e => console.error(e));
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    chrome.tabs.create({ url: 'https://livetl.app' });
   } else {
-    chrome.tabs.create({ url: 'https://livetl.app/en/hyperchat/' }).catch(e => console.error(e));
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    chrome.tabs.create({ url: 'https://livetl.app/en/hyperchat/' });
   }
 });
 
@@ -290,11 +292,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'getFrameInfo') {
     sendResponse({ tabId: sender.tab?.id, frameId: sender.frameId });
   } else if (request.type === 'createPopup') {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     chrome.windows.create({
       url: request.url,
       type: 'popup',
       height: 300,
       width: 600
-    }).catch(e => console.error(e));
+    });
   }
 });
