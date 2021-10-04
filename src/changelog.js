@@ -60,5 +60,13 @@ exports.updates = [
     version: 'v1.3.1',
     comments: 'We added a script to fix a memory leak in the YouTube chat. Special thanks ' +
               'to twitter.com/laversheet!'
+  },
+  {
+    version: 'v1.3.3',
+    comments: 'Fixed some timestamp issues and added conflict warnings when using alongside LiveTL.'
+  },
+  {
+    version: 'v1.3.4',
+    comments: 'Fixed conflict warnings when installed concurrently with LiveTL.'
   }
 ];
