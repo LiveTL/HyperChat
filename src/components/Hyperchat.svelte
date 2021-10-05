@@ -20,7 +20,7 @@
   let port: Chat.Port;
 
   const isChatAction = (r: Chat.BackgroundResponse): r is Chat.Actions =>
-    ['message', 'bonk', 'delete', 'pin', 'unpin', 'playerProgress'].includes(r.type);
+    ['message', 'bonk', 'delete', 'pin', 'unpin', 'playerProgress', 'forceUpdate'].includes(r.type);
 
   const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
     'welcome' in m;
@@ -79,6 +79,9 @@
         break;
       case 'unpin':
         pinned = null;
+        break;
+      case 'forceUpdate':
+        messageActions = [...action.messages];
         break;
     }
   };

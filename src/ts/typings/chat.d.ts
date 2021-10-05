@@ -24,7 +24,12 @@ declare namespace Chat {
     playerProgress: number;
   }
 
-  type Actions = MessageAction | BonkAction | DeleteAction | Ytc.ParsedMisc | PlayerProgressAction;
+  interface ForceUpdate {
+    type: 'forceUpdate';
+    messages: MessageAction[];
+  }
+
+  type Actions = MessageAction | BonkAction | DeleteAction | Ytc.ParsedMisc | PlayerProgressAction | ForceUpdate;
 
   interface UncheckedFrameInfo {
     tabId: number | undefined;

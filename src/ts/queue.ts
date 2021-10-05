@@ -105,7 +105,16 @@ export function ytcQueue(isReplay = false): YtcQueue {
   /**
    * Push all queued messages to store.
    */
-  const pushAllQueuedToStore = (): void => pushQueueToStore(() => true);
+  const pushAllQueuedToStore = (): void => {
+    // pushQueueToStore(() => true);
+    const messages: Chat.MessageAction[] = [];
+    while (messageQueue.front()) {
+      const message = messageQueue.pop();
+      if (!message) return;
+      messages.push(message);
+    }
+    latestAction.set({ type: 'forceUpdate', messages });
+  };
 
   /**
    * Push messages up till the currentTime to store.
