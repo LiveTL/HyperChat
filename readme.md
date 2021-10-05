@@ -13,23 +13,23 @@ YouTube chat, but it's fast and sleek!
 
 ## Building from Source
 
-Clone the repository recursively:
+Clone the repository:
 
 ```bash
-git clone https://github.com/LiveTL/HyperChat --recursive
+git clone https://github.com/LiveTL/HyperChat
 ```
 
 Open the repository and npm install:
 
 ```bash
 cd hyperchat
-yarn # install dependancies
+yarn # install dependencies
 ```
 
 Build or serve the extension:
 
 ```bash
-yarn start # hot reload mode
-yarn build:prod # production mode
-yarn build:prod --env version=x.x.x
+yarn start # hot extension reload
+yarn build:production # production mode
+yarn build:production --env version=x.x.x
 ```

@@ -54,10 +54,10 @@ module.exports = (env, options) => {
 
   const config = {
     entry: {
-      'chat-interceptor': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-interceptor.ts'),
-      'chat-background': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-background.ts'),
-      'chat-injector': path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'ts', 'chat-injector.ts'),
-      hyperchat: path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'hyperchat.ts')
+      'chat-interceptor': path.join(__dirname, 'src', 'ts', 'chat-interceptor.ts'),
+      'chat-background': path.join(__dirname, 'src', 'ts', 'chat-background.ts'),
+      'chat-injector': path.join(__dirname, 'src', 'ts', 'chat-injector.ts'),
+      hyperchat: path.join(__dirname, 'src', 'hyperchat.ts')
     },
     output: {
       path: path.join(__dirname, 'build'),
@@ -107,7 +107,7 @@ module.exports = (env, options) => {
       new CopyWebpackPlugin({
         patterns: [
           {
-            from: 'src/submodules/chat/assets',
+            from: 'assets',
             to: 'assets'
           },
           {
@@ -127,7 +127,7 @@ module.exports = (env, options) => {
       }),
       new MiniCssExtractPlugin({ filename: 'tailwind.css' }),
       new HtmlWebpackPlugin({
-        template: path.join(__dirname, 'src', 'submodules', 'chat', 'src', 'template.html'),
+        template: path.join(__dirname, 'src', 'template.html'),
         filename: 'hyperchat.html',
         chunks: ['hyperchat'],
         chunksSortMode: 'manual'

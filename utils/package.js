@@ -6,11 +6,11 @@ const shouldBeInRoot = process.argv.indexOf('firefox') != -1;
 const cmds = [
   'mkdir -p dist',
   'cd build',
-  'zip -9r ../dist/LiveTL-Firefox.zip .',
-  'cp ../dist/LiveTL-Firefox.zip ../dist/LiveTL-Chrome.zip',
-  'zip -d ../dist/LiveTL-Chrome.zip manifest.json',
-  'printf "@ manifest.chrome.json\\n@=manifest.json\\n" | zipnote -w ../dist/LiveTL-Chrome.zip',
-  'zip -d ../dist/LiveTL-Firefox.zip manifest.chrome.json'
+  'zip -9r ../dist/HyperChat-Firefox.zip .',
+  'cp ../dist/HyperChat-Firefox.zip ../dist/HyperChat-Chrome.zip',
+  'zip -d ../dist/HyperChat-Chrome.zip manifest.json',
+  'printf "@ manifest.chrome.json\\n@=manifest.json\\n" | zipnote -w ../dist/HyperChat-Chrome.zip',
+  'zip -d ../dist/HyperChat-Firefox.zip manifest.chrome.json'
 ];
 
 spawn(
