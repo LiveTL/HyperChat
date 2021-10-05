@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, afterUpdate, tick } from 'svelte';
+  import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import dark from 'smelte/src/dark';
   import WelcomeMessage from './WelcomeMessage.svelte';
@@ -18,6 +18,7 @@
   let div: HTMLElement;
   let isAtBottom = true;
   let port: Chat.Port;
+  let truncateInterval: number;
 
   const isChatAction = (r: Chat.BackgroundResponse): r is Chat.Actions =>
     ['message', 'bonk', 'delete', 'pin', 'unpin', 'playerProgress', 'forceUpdate'].includes(r.type);
@@ -34,12 +35,17 @@
     div.scrollTop = div.scrollHeight;
   };
 
+  const truncateMessages = (): void => {
+    if (!isAtBottom) return;
+    const diff = messageActions.length - CHAT_HISTORY_SIZE;
+    if (diff < 0) return;
+    messageActions.splice(0, diff);
+    messageActions = messageActions;
+  };
+
   const newMessage = (messageAction: Chat.MessageAction) => {
     if (!isAtBottom) return;
     messageActions.push(messageAction);
-    if (messageActions.length > CHAT_HISTORY_SIZE) {
-      messageActions.splice(0, 1);
-    }
     messageActions = messageActions;
   };
 
@@ -132,6 +138,10 @@
     });
   };
 
+  onMount(() => {
+    truncateInterval = window.setInterval(truncateMessages, 10000);
+  });
+
   afterUpdate(() => {
     if (isAtBottom) {
       scrollToBottom();
@@ -139,7 +149,10 @@
     tick().then(checkAtBottom);
   });
 
-  onDestroy(() => port.disconnect());
+  onDestroy(() => {
+    port.disconnect();
+    if (truncateInterval) window.clearInterval(truncateInterval);
+  });
 
   const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
   const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1 px-2';
