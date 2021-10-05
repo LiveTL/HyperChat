@@ -189,7 +189,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
     }
 
     const messageActions =
-      messages.sort((m1, m2) => m1.showtime - m2.showtime).map((m) => {
+      messages.sort((m1, m2) => m1.showtime - m2.showtime).reduce((result: Chat.MessageAction[], m) => {
         if (currentChunkDelay > 0 && nextChunkDelay > 0) {
           m.showtime += currentChunkDelay;
         }
@@ -198,9 +198,12 @@ export function ytcQueue(isReplay = false): YtcQueue {
           message: m
         };
         processDeleted(messageAction, bonks, deletions);
-        if (!setInitial) messageQueue.push(messageAction);
-        return messageAction;
-      });
+        if (!setInitial || (setInitial && isReplay && m.showtime > 0)) {
+          messageQueue.push(messageAction);
+        }
+        result.push(messageAction);
+        return result;
+      }, []);
 
     if (setInitial) {
       initialData = [...messageActions, ...misc];
