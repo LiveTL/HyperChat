@@ -68,5 +68,11 @@ exports.updates = [
   {
     version: 'v1.3.4',
     comments: 'Fixed conflict warnings when installed concurrently with LiveTL.'
+  },
+  {
+    version: 'v2.0.0',
+    comments: 'HyperChat has been rewritten to be lighter, faster, and even more feature-rich! ' +
+              'Pinned messages, Super Stickers, Membership Items and Member Milestone Chats ' +
+              'are now all supported!'
   }
 ];
