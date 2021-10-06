@@ -10,7 +10,8 @@
   import { paramsTabId, paramsFrameId } from '../ts/chat-constants';
   import Button from 'smelte/src/components/Button';
 
-  type Welcome = { welcome: true };
+  const welcome = { welcome: true, message: { messageId: 'welcome' } };
+  type Welcome = typeof welcome;
 
   const CHAT_HISTORY_SIZE = 250;
   let messageActions: (Chat.MessageAction | Welcome)[] = [];
@@ -100,7 +101,7 @@
     switch (response.type) {
       case 'initialData':
         response.initialData.forEach(onChatAction);
-        messageActions = [...messageActions, { welcome: true }];
+        messageActions = [...messageActions, welcome];
         break;
       case 'themeUpdate':
         dark().set(response.dark);
@@ -163,7 +164,7 @@
 
 <div class={containerClass} style="font-size: 13px">
   <div class={contentClass} bind:this={div} on:scroll={checkAtBottom}>
-    {#each messageActions as action}
+    {#each messageActions as action (action.message.messageId)}
       <div class="my-2">
         {#if isWelcome(action)}
           <WelcomeMessage />
