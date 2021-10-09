@@ -8,6 +8,7 @@
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
   import { paramsTabId, paramsFrameId } from '../ts/chat-constants';
+  import { responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -20,9 +21,6 @@
   let isAtBottom = true;
   let port: Chat.Port;
   let truncateInterval: number;
-
-  const isChatAction = (r: Chat.BackgroundResponse): r is Chat.Actions =>
-    ['message', 'bonk', 'delete', 'pin', 'unpin', 'playerProgress', 'forceUpdate'].includes(r.type);
 
   const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
     'welcome' in m;
@@ -94,7 +92,7 @@
   };
 
   const onPortMessage = (response: Chat.BackgroundResponse) => {
-    if (isChatAction(response)) {
+    if (responseIsAction(response)) {
       onChatAction(response);
       return;
     }

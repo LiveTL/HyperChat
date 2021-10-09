@@ -52,17 +52,19 @@ export interface Subscribable<T> {
 }
 
 export function subscribable<T>(): Subscribable<T> {
-  const subscribers: Array<(t: T) => void> = [];
+  const subscribers: Map<number, (t: T) => void> = new Map();
+  let count = 0;
 
   const set = (value: T): void => {
     subscribers.forEach((cb) => cb(value));
   };
 
   const subscribe = (callback: Callback<T>): Unsubscriber => {
-    subscribers.push(callback);
-    const i = subscribers.length - 1;
+    const id = count;
+    subscribers.set(id, callback);
+    count++;
 
-    return () => subscribers.splice(i, 1);
+    return () => subscribers.delete(id);
   };
 
   return { set, subscribe };

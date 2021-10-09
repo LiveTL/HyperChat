@@ -27,9 +27,9 @@
     }
   };
 
-  $: member = message.author.types.some((type) => type === 'member');
-  $: moderator = message.author.types.some((type) => type === 'moderator');
-  $: owner = message.author.types.some((type) => type === 'owner');
+  $: member = message.author.types.includes('member');
+  $: moderator = message.author.types.includes('moderator');
+  $: owner = message.author.types.includes('owner');
   $: nameColorClass = generateNameColorClass(member, moderator, owner, forceDark);
 
   $: if (deleted != null) {
