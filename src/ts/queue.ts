@@ -52,7 +52,7 @@ export interface Subscribable<T> {
 }
 
 export function subscribable<T>(): Subscribable<T> {
-  const subscribers: Map<number, (t: T) => void> = new Map();
+  const subscribers: Map<number, Callback<T>> = new Map();
   let count = 0;
   let value: T;
 
