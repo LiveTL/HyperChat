@@ -1,4 +1,5 @@
 # HyperChat - Optimized YouTube Chat
+
 YouTube chat, but it's fast and sleek!
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
@@ -10,23 +11,25 @@ YouTube chat, but it's fast and sleek!
 [![Commit Activity](https://img.shields.io/github/commit-activity/w/LiveTL/HyperChat)](https://github.com/LiveTL/HyperChat/commits/)
 [![Discord](https://img.shields.io/discord/780938154437640232.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/uJrV3tmthg)
 
-## ⚠ A MASSIVE REWRITE IS TAKING PLACE IN THE [smelte-ts branch](https://github.com/LiveTL/HyperChat/tree/smelte-ts)!
-
 ## Building from Source
-Clone the repository recursively:
+
+Clone the repository:
+
 ```bash
-git clone https://github.com/LiveTL/HyperChat --recursive
+git clone https://github.com/LiveTL/HyperChat
 ```
+
 Open the repository and npm install:
+
 ```bash
 cd hyperchat
-npm install
-```
-Build or serve the extension:
-```bash
-npm run serve # hot reload mode
-npm run build # production mode
+yarn # install dependencies
 ```
 
-## Additional Info
-* The extension may *eventually* be rewritten in Svelte. However, we have not started the process in the interest of time. If you would like to contribute to porting the components to Svelte, please check out the `svelte` branch.
+Build or serve the extension:
+
+```bash
+yarn start # hot extension reload
+yarn build:production # production mode
+yarn build:production --env version=x.x.x
+```

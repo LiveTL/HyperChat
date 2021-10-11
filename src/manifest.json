@@ -1,20 +1,15 @@
 {
   "manifest_version": 2,
-  "name": "__MSG_extName__",
-  "homepage_url": "http://localhost:8080/",
+  "name": "HyperChat by LiveTL",
+  "homepage_url": "https://livetl.app/en/hyperchat/",
   "description": "YouTube chat, but it's fast and sleek!",
-  "default_locale": "en",
+  "version": "42.0.69",
+  "content_security_policy": "script-src 'self' https://www.youtube.com 'unsafe-eval'; object-src 'self'",
   "permissions": [
   ],
   "icons": {
-    "32": "icons/32x32.png",
-    "128": "icons/128x128.png"
-  },
-  "background": {
-    "scripts": [
-      "js/background.js"
-    ],
-    "persistent": true
+    "48": "assets/logo-48.png",
+    "128": "assets/logo-128.png"
   },
   "content_scripts": [
     {
@@ -23,16 +18,20 @@
         "https://www.youtube.com/live_chat_replay*"
       ],
       "js": [
-        "js/chat.js"
+        "chat-interceptor.bundle.js",
+        "chat-injector.bundle.js"
       ],
       "all_frames": true
     }
   ],
+  "background": {
+    "scripts": ["chat-background.bundle.js"],
+    "persistent": true
+  },
   "browser_action": {
-    "default_title": "__MSG_extName__",
     "default_icon": {
-      "32": "icons/32x32.png",
-      "128": "icons/128x128.png"
+      "48": "assets/logo-48.png",
+      "128": "assets/logo-128.png"
     }
   },
   "web_accessible_resources": [

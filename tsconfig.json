@@ -1,0 +1,29 @@
+{
+  "extends": "@tsconfig/svelte/tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "outDir": "./build/",
+    "baseUrl": "./src",
+    "allowJs": true,
+    "checkJs": false,
+    "strict": true,
+    "lib": [
+      "DOM"
+    ],
+    "target": "ES6",
+    "resolveJsonModule": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/submodules/chat/src/ts/typings"
+    ]
+  },
+  "include": [
+    "src/**/*",
+    ".eslintrc.js",
+    "*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "build"
+  ]
+}
