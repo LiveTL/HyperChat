@@ -19,7 +19,6 @@
   },
   "include": [
     "src/**/*",
-    ".eslintrc.js",
     "*.js"
   ],
   "exclude": [
