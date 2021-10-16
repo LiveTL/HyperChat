@@ -92,7 +92,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
   let initialData: Chat.Actions[] = [];
 
   /**
-   * Continuosly pushes queue messages to store until queue is empty or until
+   * Continuously pushes queue messages to store until queue is empty or until
    * `extraCondition` returns false.
    */
   const pushQueueToStore = (extraCondition: QueueCondition): void => {
@@ -108,12 +108,14 @@ export function ytcQueue(isReplay = false): YtcQueue {
   };
 
   /**
-   * Push all queued messages to store.
+   * Pushes messages up till previousTime as forced update.
    */
-  const pushAllQueuedToStore = (): void => {
-    // pushQueueToStore(() => true);
+  const forceUpdateTillPrevious = (): void => {
     const messages: Chat.MessageAction[] = [];
     while (messageQueue.front()) {
+      const showtime = messageQueue.front()?.message.showtime;
+      if (showtime != null && (showtime / 1000) > previousTime) break;
+
       const message = messageQueue.pop();
       if (!message) return;
       messages.push(message);
@@ -138,7 +140,8 @@ export function ytcQueue(isReplay = false): YtcQueue {
   const onVideoProgress = (timeMs: number): void => {
     if (timeMs < 0) return;
     if (isScrubbedOrSkipped(timeMs)) {
-      pushAllQueuedToStore();
+      messageQueue.clear();
+      latestAction.set({ type: 'forceUpdate', messages: [] });
     } else {
       pushTillCurrentToStore(timeMs);
     }
@@ -202,6 +205,8 @@ export function ytcQueue(isReplay = false): YtcQueue {
       console.log('Subsequent late chunks, adding an extra delay of ' + currentChunkDelay.toString());
     }
 
+    if (chunk.refresh) messageQueue.clear();
+
     const messageActions =
       messages.sort((m1, m2) => m1.showtime - m2.showtime).reduce((result: Chat.MessageAction[], m) => {
         if (currentChunkDelay > 0 && nextChunkDelay > 0) {
@@ -223,6 +228,8 @@ export function ytcQueue(isReplay = false): YtcQueue {
       initialData = [...messageActions, ...misc];
       return;
     }
+
+    if (chunk.refresh) forceUpdateTillPrevious();
 
     bonks.forEach((bonk) => latestAction.set({ type: 'bonk', bonk }));
     deletions.forEach((deletion) => latestAction.set({ type: 'delete', deletion }));

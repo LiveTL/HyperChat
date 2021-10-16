@@ -17,6 +17,8 @@ declare namespace Ytc {
   interface BaseData {
     continuations: ContinuationData[];
     actions?: Action[];
+    /** Only present on supposed YTC refresh, e.g. when toggling Top/Live Chat. */
+    clientMessages?: unknown;
   }
 
   /** Expected YTC continuation data object */
@@ -306,5 +308,6 @@ declare namespace Ytc {
     deletions: ParsedDeleted[];
     miscActions: ParsedMisc[];
     isReplay: boolean;
+    refresh: boolean;
   }
 }

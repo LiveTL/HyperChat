@@ -46,7 +46,7 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
       parsedRuns.push({
         type: 'emoji',
         src: fixUrl(run.emoji.image.thumbnails[0].url),
-        alt: run.emoji.emojiId ?? run.emoji.image.accessibility?.accessibilityData.label
+        alt: run.emoji.image.accessibility?.accessibilityData.label ?? run.emoji.emojiId ?? ''
       });
     }
   });
@@ -237,6 +237,7 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
     bonks: bonkArray,
     deletions: deleteArray,
     miscActions: miscArray,
-    isReplay
+    isReplay,
+    refresh: base.clientMessages != null
   };
 };
