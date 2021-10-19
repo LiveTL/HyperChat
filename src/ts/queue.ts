@@ -139,7 +139,8 @@ export function ytcQueue(isReplay = false): YtcQueue {
    */
   const onVideoProgress = (timeMs: number): void => {
     if (timeMs < 0) return;
-    if (isScrubbedOrSkipped(timeMs)) {
+    if (isScrubbedOrSkipped(timeMs) && isReplay) {
+      console.log('Video scrubbed or skipped, forcing chat clear');
       messageQueue.clear();
       latestAction.set({ type: 'forceUpdate', messages: [] });
     } else {
@@ -205,7 +206,10 @@ export function ytcQueue(isReplay = false): YtcQueue {
       console.log('Subsequent late chunks, adding an extra delay of ' + currentChunkDelay.toString());
     }
 
-    if (chunk.refresh) messageQueue.clear();
+    if (chunk.refresh) {
+      console.log('Chunk refresh detected.');
+      messageQueue.clear();
+    }
 
     const messageActions =
       messages.sort((m1, m2) => m1.showtime - m2.showtime).reduce((result: Chat.MessageAction[], m) => {
