@@ -46,7 +46,7 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
       parsedRuns.push({
         type: 'emoji',
         src: fixUrl(run.emoji.image.thumbnails[0].url),
-        alt: run.emoji.image.accessibility?.accessibilityData.label ?? run.emoji.emojiId ?? ''
+        alt: run.emoji.image.accessibility?.accessibilityData.label ?? run.emoji.emojiId ?? 'emoji'
       });
     }
   });
@@ -64,6 +64,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
   }
 
   const authorTypes: string[] = [];
+  let customBadge: Ytc.ParsedImage | undefined;
   if (renderer.authorBadges) {
     renderer.authorBadges.forEach((badge) => {
       const badgeRenderer = badge.liveChatAuthorBadgeRenderer;
@@ -72,6 +73,10 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
         authorTypes.push(iconType.toLowerCase());
       } else if (badgeRenderer.customThumbnail) {
         authorTypes.push('member');
+        customBadge = {
+          src: fixUrl(badgeRenderer.customThumbnail.thumbnails[0].url),
+          alt: badgeRenderer.accessibility?.accessibilityData.label ?? 'member'
+        };
       } else {
         authorTypes.push(badgeRenderer.tooltip.toLowerCase());
       }
@@ -86,7 +91,8 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     author: {
       name: renderer.authorName.simpleText,
       id: renderer.authorExternalChannelId,
-      types: authorTypes
+      types: authorTypes,
+      customBadge
     },
     message: runs,
     timestamp: isReplay && timestampText != null ? timestampText : formatTimestamp(timestampUsec),
@@ -106,7 +112,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
   } else if (isPaidStickerRenderer(renderer)) {
     item.superSticker = {
       src: fixUrl(renderer.sticker.thumbnails[0].url),
-      alt: renderer.sticker.accessibility?.accessibilityData.label,
+      alt: renderer.sticker.accessibility?.accessibilityData.label ?? 'sticker',
       amount: renderer.purchaseAmountText.simpleText,
       bodyBackgroundColor: colorToHex(renderer.moneyChipBackgroundColor),
       bodyTextColor: colorToHex(renderer.moneyChipTextColor),

@@ -149,6 +149,11 @@ declare namespace Ytc {
           /** Unlocalized string */
           iconType: string;
         };
+        accessibility?: {
+          accessibilityData: {
+            label: string;
+          };
+        };
       };
     }>;
     id: string;
@@ -224,6 +229,11 @@ declare namespace Ytc {
   /*
    * Parsed objects
    */
+  interface ParsedImage {
+    src: string;
+    alt: string;
+  }
+
   interface ParsedTextRun {
     type: 'text';
     text: string;
@@ -235,10 +245,8 @@ declare namespace Ytc {
     url: string;
   }
 
-  interface ParsedEmojiRun {
+  interface ParsedEmojiRun extends ParsedImage {
     type: 'emoji';
-    src: string;
-    alt?: string;
   }
 
   type ParsedRun = ParsedTextRun | ParsedLinkRun | ParsedEmojiRun;
@@ -255,10 +263,7 @@ declare namespace Ytc {
     headerTextColor: string;
   }
 
-  interface ParsedSuperSticker extends PaidDetails {
-    src: string;
-    alt?: string;
-  }
+  interface ParsedSuperSticker extends PaidDetails, ParsedImage { }
 
   interface ParsedMembership {
     headerPrimaryText: ParsedRun[];
@@ -270,6 +275,7 @@ declare namespace Ytc {
       name: string;
       id: string;
       types: string[];
+      customBadge?: ParsedImage;
     };
     message: ParsedRun[];
     timestamp: string;

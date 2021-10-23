@@ -14,7 +14,7 @@
   }
 </script>
 
-<span class={$$props.class ?? ''}>
+<span class="align-middle {$$props.class ?? ''}">
   {#each runs as run}
     {#if run.type === 'text'}
       <span
@@ -35,7 +35,7 @@
     {:else if run.type === 'emoji' && run.src}
       <img
         on:click|stopPropagation
-        class="h-5 w-5 inline mx-px align-middle"
+        class="h-5 w-5 inline mx-0.5 align-middle"
         src={run.src}
         alt={run.alt}
       />

@@ -40,7 +40,15 @@
 <div class="break-words overflow-hidden">
   {#if !hideName}
     <span on:click|stopPropagation class="{nameClass} {nameColorClass}">
-      {message.author.name}
+      <span class="align-middle">{message.author.name}</span>
+      {#if message.author.customBadge}
+        <img
+          on:click|stopPropagation
+          class="h-4 w-4 inline align-middle"
+          src={message.author.customBadge.src}
+          alt={message.author.customBadge.alt}
+        />
+      {/if}
     </span>
   {/if}
   <MessageRun runs={message.message} {forceDark} deleted={deleted != null} />
