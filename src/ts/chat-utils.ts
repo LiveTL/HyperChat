@@ -9,6 +9,10 @@ export const createPopup = (url: string): void => {
   chrome.runtime.sendMessage({ type: 'createPopup', url });
 };
 
+export const frameIsReplay = window.location.href.startsWith(
+  'https://www.youtube.com/live_chat_replay'
+);
+
 /*
  * Type predicates
  */

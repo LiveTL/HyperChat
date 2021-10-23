@@ -1,5 +1,5 @@
 import HcButton from '../components/HyperchatButton.svelte';
-import { getFrameInfoAsync, isValidFrameInfo } from './chat-utils';
+import { getFrameInfoAsync, isValidFrameInfo, frameIsReplay } from './chat-utils';
 import { isLiveTL, isAndroid } from './chat-constants';
 
 // const isFirefox = navigator.userAgent.includes('Firefox');
@@ -48,6 +48,7 @@ const chatLoaded = async (): Promise<void> => {
   const params = new URLSearchParams();
   params.set('tabid', frameInfo.tabId.toString());
   params.set('frameid', frameInfo.frameId.toString());
+  if (frameIsReplay) params.set('isReplay', 'true');
   const source = chrome.runtime.getURL(
     (isLiveTL ? 'hyperchat/index.html' : 'hyperchat.html') +
     `?${params.toString()}`

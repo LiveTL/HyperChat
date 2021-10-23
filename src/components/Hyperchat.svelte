@@ -7,7 +7,11 @@
   import PinnedMessage from './PinnedMessage.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
-  import { paramsTabId, paramsFrameId } from '../ts/chat-constants';
+  import {
+    paramsTabId,
+    paramsFrameId,
+    paramsIsReplay
+  } from '../ts/chat-constants';
   import { responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
 
@@ -21,6 +25,7 @@
   let isAtBottom = true;
   let port: Chat.Port;
   let truncateInterval: number;
+  const isReplay = paramsIsReplay;
 
   const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
     'welcome' in m;
@@ -98,7 +103,14 @@
     }
     switch (response.type) {
       case 'initialData':
-        response.initialData.forEach(onChatAction);
+        response.initialData.forEach((action) => {
+          if (
+            isReplay &&
+            action.type === 'message' &&
+            !action.message.timestamp.startsWith('-')
+          ) return;
+          onChatAction(action);
+        });
         messageActions = [...messageActions, welcome];
         break;
       case 'themeUpdate':

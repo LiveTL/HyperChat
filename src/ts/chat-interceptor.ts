@@ -1,8 +1,5 @@
 import { fixLeaks } from './ytc-fix-memleaks';
-
-const isReplay = window.location.href.startsWith(
-  'https://www.youtube.com/live_chat_replay'
-);
+import { frameIsReplay as isReplay } from './chat-utils';
 
 const chatLoaded = async (): Promise<void> => {
   if (document.querySelector('.toggleButton')) {
