@@ -1,5 +1,6 @@
 <script lang="ts">
   import MessageRun from './MessageRuns.svelte';
+  import Icon from './common/Icon.svelte';
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
@@ -27,9 +28,16 @@
     }
   };
 
-  $: member = message.author.types.includes('member');
-  $: moderator = message.author.types.includes('moderator');
-  $: owner = message.author.types.includes('owner');
+  let member = false;
+  let verified = false;
+  let moderator = false;
+  let owner = false;
+  $: message.author.types.forEach((type) => {
+    if (type === 'member') member = true;
+    else if (type === 'verified') verified = true;
+    else if (type === 'moderator') moderator = true;
+    else if (type === 'owner') owner = true;
+  });
   $: nameColorClass = generateNameColorClass(member, moderator, owner, forceDark);
 
   $: if (deleted != null) {
@@ -41,7 +49,16 @@
   {#if !hideName}
     <span on:click|stopPropagation class="{nameClass} {nameColorClass}">
       <span class="align-middle">{message.author.name}</span>
-      {#if message.author.customBadge}
+      {#if moderator}
+        <Icon class="inline align-middle" small>build</Icon>
+      {:else if verified}
+        <Icon
+          class="inline align-middle text-gray-700 dark:text-gray-500"
+          small
+        >
+          verified
+        </Icon>
+      {:else if member && message.author.customBadge}
         <img
           on:click|stopPropagation
           class="h-4 w-4 inline align-middle"
