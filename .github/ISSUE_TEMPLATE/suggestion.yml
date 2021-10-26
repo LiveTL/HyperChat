@@ -14,7 +14,7 @@ body:
           required: true
         - label: I am not reporting a bug. If I am, I will use the bug report issue template.
           required: true
-        - label: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/LiveTL/HyperChat/blob/develop/CODE_OF_CONDUCT.md)
+        - label: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/LiveTL/HyperChat/blob/master/CODE_OF_CONDUCT.md)
           required: true
   - type: textarea
     attributes:
