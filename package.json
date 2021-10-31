@@ -6,7 +6,8 @@
     "build": "webpack --mode development",
     "build:production": "webpack --mode production",
     "package": "node utils/package.js",
-    "start": "webpack --mode development --watch"
+    "start": "webpack --mode development --watch",
+    "format:check": "eslint ."
   },
   "dependencies": {
     "@mdi/js": "^5.9.55",

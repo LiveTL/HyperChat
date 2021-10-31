@@ -19,7 +19,8 @@
   },
   "include": [
     "src/**/*",
-    "*.js"
+    "*.js",
+    "utils/**/*"
   ],
   "exclude": [
     "node_modules",
