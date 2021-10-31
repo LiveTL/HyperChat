@@ -74,5 +74,11 @@ exports.updates = [
     comments: 'HyperChat has been rewritten to be lighter, faster, and even more feature-rich! ' +
               'Pinned messages, Super Stickers, Membership Items and Member Milestone Chats ' +
               'are now all supported!'
+  },
+  {
+    version: 'v2.0.1',
+    comments: 'HyperChat has been rewritten to be lighter, faster, and even more feature-rich! ' +
+              'Pinned messages, super stickers, membership items and member milestone chats ' +
+              'are now all supported!'
   }
 ];
