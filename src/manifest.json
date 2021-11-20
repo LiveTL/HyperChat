@@ -17,11 +17,23 @@
         "https://www.youtube.com/live_chat*",
         "https://www.youtube.com/live_chat_replay*"
       ],
+      "all_frames": true,
       "js": [
         "chat-interceptor.bundle.js",
         "chat-injector.bundle.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/live_chat*",
+        "https://www.youtube.com/live_chat_replay*"
       ],
-      "all_frames": true
+      "all_frames": true,
+      "match_about_blank": true,
+      "js": [
+        "hyperchat-frame.js"
+      ],
+      "run_at": "document_end"
     }
   ],
   "background": {

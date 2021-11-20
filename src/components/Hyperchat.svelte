@@ -7,11 +7,6 @@
   import PinnedMessage from './PinnedMessage.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
-  import {
-    paramsTabId,
-    paramsFrameId,
-    paramsIsReplay
-  } from '../ts/chat-constants';
   import { responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
 
@@ -25,7 +20,13 @@
   let isAtBottom = true;
   let port: Chat.Port;
   let truncateInterval: number;
-  const isReplay = paramsIsReplay;
+
+  console.log('HyperChat frame', frameElement);
+  const frame = frameElement as HTMLIFrameElement;
+  const tabId = parseInt(frame.dataset.tabId ?? '');
+  const frameId = parseInt(frame.dataset.frameId ?? '');
+  const isReplay = 'isReplay' in frame.dataset;
+  console.log('HyperChat args', tabId, frameId, isReplay);
 
   const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
     'welcome' in m;
@@ -124,17 +125,13 @@
 
   // Doesn't work well with onMount, so onLoad will have to do
   const onLoad = () => {
-    document.body.classList.add('overflow-hidden');
-
-    if (paramsTabId == null || paramsFrameId == null || paramsTabId.length < 1 || paramsFrameId.length < 1) {
-      console.error('No tabId or frameId found from params');
+    if (isNaN(tabId) || isNaN(frameId)) {
+      console.error('No tabId or frameId found from frame data attributes');
       return;
     }
 
-    const frameInfo = {
-      tabId: parseInt(paramsTabId),
-      frameId: parseInt(paramsFrameId)
-    };
+    console.log('HyperChat onload', chrome, chrome.runtime);
+    const frameInfo = { tabId, frameId };
     port = chrome.runtime.connect();
     port.onMessage.addListener(onPortMessage);
 
@@ -164,6 +161,8 @@
     port.disconnect();
     if (truncateInterval) window.clearInterval(truncateInterval);
   });
+
+  document.body.classList.add('overflow-hidden');
 
   const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
   const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1 px-2';

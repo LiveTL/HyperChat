@@ -21,8 +21,3 @@ export const BROWSER = (() => {
   }
   return Browser.CHROME;
 })();
-
-const params = new URLSearchParams(window.location.search);
-export const paramsTabId = params.get('tabid');
-export const paramsFrameId = params.get('frameid');
-export const paramsIsReplay = params.get('isReplay');

@@ -36,6 +36,7 @@
     "eslint-plugin-svelte3": "^3.2.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.3.2",
+    "html-webpack-skip-assets-plugin": "^1.0.3",
     "mini-css-extract-plugin": "^2.1.0",
     "postcss": "^8.3.6",
     "postcss-extend": "^1.0.5",

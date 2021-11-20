@@ -6,15 +6,15 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const postcssPlugins = require('./postcss.config.js');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { HtmlWebpackSkipAssetsPlugin } = require('html-webpack-skip-assets-plugin');
 const ExtReloader = require('webpack-ext-reloader');
 const { version } = require('./package.json');
 
 const extReloader = new ExtReloader({
   manifest: path.join(__dirname, 'src', 'manifest.json'),
   entries: {
-    contentScript: ['chat-interceptor', 'chat-injector'],
-    background: 'chat-background',
-    extensionPage: 'hyperchat'
+    contentScript: ['chat-interceptor', 'chat-injector', 'hyperchat'],
+    background: 'chat-background'
   },
   reloadPage: true
 });
@@ -111,15 +111,20 @@ module.exports = (env, options) => {
             to: 'assets'
           },
           {
+            // Explicitly not an entry point so that the import it contains uses browser's dynamic import.
+            from: 'src/hyperchat-frame.js',
+            to: '.'
+          },
+          {
             from: 'src/manifest.json',
-            transform: (content) => {
+            transform(content) {
               return transformManifest(content, hasEnvVersion ? envVersion : version);
             }
           },
           {
             from: 'src/manifest.json',
             to: 'manifest.chrome.json',
-            transform: (content) => {
+            transform(content) {
               return transformManifest(content, hasEnvVersion ? envVersion : version, true);
             }
           }
@@ -130,8 +135,18 @@ module.exports = (env, options) => {
         template: path.join(__dirname, 'src', 'template.html'),
         filename: 'hyperchat.html',
         chunks: ['hyperchat'],
-        chunksSortMode: 'manual'
-      })
+        chunksSortMode: 'manual',
+        // The generated page will be included as an about:blank (or rather, about:srcdoc) to avoid
+        // cross origin issues issues (so that e.g. Google Translate extension can access its contents).
+        // Since this page includes extension stylesheets and scripts, a <base> tag is added, which URL
+        // is substituted in at runtime with the actual chrome extension base URL.
+        // While stylesheets can be included directly in the HTML just fine, our scripts require access to
+        // chrome.runtime, so they're excluded from the HTML here, and indirectly added as content scripts
+        // via manifest.json and hyperchat-frame.js.
+        base: '{HYPERCHAT_BASE_URL}',
+        skipAssets: [asset => asset.tagName === 'script'],
+      }),
+      new HtmlWebpackSkipAssetsPlugin()
     ]
   };
 

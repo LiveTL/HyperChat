@@ -45,17 +45,33 @@ const chatLoaded = async (): Promise<void> => {
     console.error('Failed to get valid frame info', { frameInfo });
     return;
   }
-  const params = new URLSearchParams();
-  params.set('tabid', frameInfo.tabId.toString());
-  params.set('frameid', frameInfo.frameId.toString());
-  if (frameIsReplay) params.set('isReplay', 'true');
-  const source = chrome.runtime.getURL(
-    (isLiveTL ? 'hyperchat/index.html' : 'hyperchat.html') +
-    `?${params.toString()}`
-  );
-  ytcItemList.outerHTML = `
-  <iframe id="hyperchat" src="${source}" style="border: 0px; width: 100%; height: 100%;"/>
-  `;
+  const url = chrome.runtime.getURL(isLiveTL ? 'hyperchat/index.html' : 'hyperchat.html');
+  // hyperchat.html will be loaded in an about:srcdoc iframe so that it has same origin as parent YT livechat frame
+  // to avoid cross-origin issues. Due to this, hyperchat(.bundle.js) is indirectly inserted as a content script
+  // (see manifest.json and hyperchat-frame.js) so that it has access to chrome.runtime.
+  const templateHtml = await(await fetch(url)).text();
+  const hyperchatHtml = templateHtml
+    .replace(/\{HYPERCHAT_BASE_URL\}/g, url.substr(0, url.lastIndexOf('/')));
+    // Hack to remove the hyperchat.bundle.js script element.
+    //.replace(/\s*<\s*script\s+[^>]*src\s*=\s*(?:['"](?:.\/)?hyperchat\.bundle\.js['"])[^>]*>\s*(?:<\s*\/\s*script\s*>\s*)?/i, '');
+  console.log(hyperchatHtml, new DOMParser().parseFromString(hyperchatHtml, 'text/html'));
+  const frame = document.createElement('iframe');
+  frame.id = 'hyperchat';
+  frame.dataset.tabId = frameInfo.tabId.toString();
+  frame.dataset.frameId = frameInfo.frameId.toString();
+  if (frameIsReplay) frame.dataset.isReplay = ''; // sets data-is-replay attr
+  frame.style.cssText = "border: 0px; width: 100%; height: 100%;";
+  // Using srcdoc attribute instead of document.open/write/close after insertion since
+  // the latter sets the frame's location to same as parent frame's rather than about:blank,
+  // which causes our content scripts to erroneously match against it again.
+  //frame.src = 'about:blank';
+  frame.srcdoc = hyperchatHtml;
+  ytcItemList.replaceWith(frame);
+  console.log('created hyperchat frame', frame);
+  //const frameDoc = frame.contentDocument!;
+  //frameDoc.open();
+  //frameDoc.write(hyperchatHtml);
+  //frameDoc.close();
   // const hyperchat = document.querySelector('#hyperchat') as HTMLIFrameElement;
   // if (!hyperchat) {
   //   console.error('Failed to find #hyperchat');
