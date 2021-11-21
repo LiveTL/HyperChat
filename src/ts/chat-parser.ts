@@ -223,14 +223,19 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
   actionsArray.forEach((action) => {
     let parsedAction: Ytc.ParsedAction | undefined;
 
-    if (action.replayChatItemAction) {
-      const replayAction = action.replayChatItemAction;
-      const replayTimeMs = parseInt(replayAction.videoOffsetTimeMsec);
-      parsedAction = processCommonAction(replayAction.actions[0], isReplay, replayTimeMs);
-    } else {
-      parsedAction = processLiveAction(action, isReplay, liveTimeoutMs);
+    try {
+      if (action.replayChatItemAction) {
+        const replayAction = action.replayChatItemAction;
+        const replayTimeMs = parseInt(replayAction.videoOffsetTimeMsec);
+        parsedAction = processCommonAction(replayAction.actions[0], isReplay, replayTimeMs);
+      } else {
+        parsedAction = processLiveAction(action, isReplay, liveTimeoutMs);
+      }
+    } catch (error) {
+      console.error('Failed to parse action:', action);
+      throw error;
     }
-
+  
     if (!parsedAction) {
       console.debug('Unparsed action:', action);
       return;
