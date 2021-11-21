@@ -32,6 +32,13 @@
         >
           {run.text}
         </a>
+    {:else if run.type === 'emoji' && run.standardEmoji}
+      <span
+        on:click|stopPropagation
+        class="cursor-auto align-middle text-base"
+      >
+        {run.alt}
+      </span>
     {:else if run.type === 'emoji' && run.src}
       <img
         on:click|stopPropagation
