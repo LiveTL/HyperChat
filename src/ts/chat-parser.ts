@@ -89,7 +89,8 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
 
   const item: Ytc.ParsedMessage = {
     author: {
-      name: renderer.authorName.simpleText,
+      // It's apparently possible for there to be no author name (and only an author photo).
+      name: renderer.authorName?.simpleText ?? '',
       id: renderer.authorExternalChannelId,
       types: authorTypes,
       customBadge
