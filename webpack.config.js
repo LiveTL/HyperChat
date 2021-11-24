@@ -57,6 +57,7 @@ module.exports = (env, options) => {
 
   const envVersion = env.version;
   const hasEnvVersion = (envVersion != null && typeof envVersion === 'string');
+  const watch = env.WEBPACK_WATCH;
 
   const cssConfig = {
     test: /\.(sa|sc|c)ss$/,
@@ -111,7 +112,7 @@ module.exports = (env, options) => {
                 dev: !prod // Built-in HMR
               },
               emitCss: false,
-              hotReload: !prod,
+              hotReload: !prod && watch,
               preprocess
             }
           }
@@ -188,16 +189,18 @@ module.exports = (env, options) => {
     config.devtool = false;
   } else {
     config.devtool = 'eval-cheap-module-source-map';
-    config.plugins.push(new webpack.HotModuleReplacementPlugin(), extReloader);
-    // config.devServer = {
-    //   host: 'localhost',
-    //   port: 6000,
-    //   hot: true,
-    //   contentBase: path.join(__dirname, 'build'),
-    //   headers: { 'Access-Control-Allow-Origin': '*' },
-    //   writeToDisk: true,
-    //   disableHostCheck: true
-    // };
+    if (watch) {
+      config.plugins.push(new webpack.HotModuleReplacementPlugin(), extReloader);
+      // config.devServer = {
+      //   host: 'localhost',
+      //   port: 6000,
+      //   hot: true,
+      //   contentBase: path.join(__dirname, 'build'),
+      //   headers: { 'Access-Control-Allow-Origin': '*' },
+      //   writeToDisk: true,
+      //   disableHostCheck: true
+      // };
+    }
   }
 
   return config;
