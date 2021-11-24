@@ -28,6 +28,29 @@ const transformManifest = (manifestString, version, prod, isChrome = false) => {
   return JSON.stringify(newManifest, null, prod ? 0 : 2);
 };
 
+const contentScriptFrameFilterPlugin = (include, condition) => {
+  return new webpack.BannerPlugin({
+    banner:
+// Our extension content scripts are injected to any frame that matches URLs given in manifest,
+// and if match_about_blank is true, also any child about:blank/about:srcdoc frames.
+// This little snippet both enforces the scripts are run in an extension script namespace
+// (namely that chrome.runtime exists) and allows further DOM-based filtering for a specific frame
+// via given condition string.
+// While the condition could go in the content script source itself, webpack produces a lot of
+// boilerplate that all needs to be ran before the actual script code (and this condition) run,
+// so this provides a way to check the condition early before all that boilerplate.
+`
+console.log('contentScriptFrameFilterPlugin("${include}", "${condition.replace(/["']/g, "\\$&")}"):',
+  '\\nlocation:', location, '\\nframeElement:', frameElement);
+if (!chrome.runtime)
+  console.error('chrome.runtime not found - script needs to run as an extension content script');
+else if (${condition})
+`.trim(), // original code must be a single statement (e.g. an IIFE) for above else-if to work
+    raw: true, // don't wrap above banner in comment
+    include,
+  });
+};
+
 module.exports = (env, options) => {
   const mode = options.mode;
   const prod = mode !== 'development';
@@ -62,7 +85,8 @@ module.exports = (env, options) => {
     output: {
       path: path.join(__dirname, 'build'),
       filename: '[name].bundle.js',
-      publicPath: './'
+      publicPath: './',
+      iife: true // should already be true - must be enabled for contentScriptFrameFilterPlugin to work
     },
     resolve: {
       alias: {
@@ -114,11 +138,6 @@ module.exports = (env, options) => {
             to: 'assets'
           },
           {
-            // Explicitly not an entry point so that the import it contains uses browser's dynamic import.
-            from: 'src/hyperchat-frame.js',
-            to: '.'
-          },
-          {
             from: 'src/manifest.json',
             transform(content) {
               return transformManifest(content, hasEnvVersion ? envVersion : version, prod);
@@ -134,6 +153,19 @@ module.exports = (env, options) => {
         ]
       }),
       new MiniCssExtractPlugin({ filename: 'tailwind.css' }),
+      // Following is a workaround for:
+      // a) The HyperChat frame needing to be about:blank/about:srcdoc to avoid cross origin issues so that
+      //    e.g. Google Translate extension can access its contents.
+      // b) hyperchat.bundle.js needing to be in extension's namespace for chrome.runtime access.
+      //    If that frame's document simply uses a <script> element to import hyperchat.bundle.js,
+      //    it would be in the page's namespace rather than the extension's content script namespace.
+      // c) manifest.json's built-in matching functionality cannot match ONLY the about:blank/about:srcdoc
+      //    frame we want without matching the parent https://www.youtube.com/live_chat* frame,
+      //    hence the need for the frameElement check below.
+      // d) While this check could go in hyperchat.ts itself, the following allows the check to run before
+      //    all the boilerplate that webpack produces.
+      contentScriptFrameFilterPlugin('hyperchat.bundle.js',
+        "frameElement && frameElement.id === 'hyperchat'"),
       new HtmlWebpackPlugin({
         template: path.join(__dirname, 'src', 'template.html'),
         filename: 'hyperchat.html',
@@ -143,9 +175,8 @@ module.exports = (env, options) => {
         // cross origin issues issues (so that e.g. Google Translate extension can access its contents).
         // Since this page includes extension stylesheets and scripts, a <base> tag is added, which URL
         // is substituted in at runtime with the actual chrome extension base URL.
-        // While stylesheets can be included directly in the HTML just fine, our scripts require access to
-        // chrome.runtime, so they're excluded from the HTML here, and indirectly added as content scripts
-        // via manifest.json and hyperchat-frame.js.
+        // While stylesheets can be included directly in the HTML just fine, our scripts need to be
+        // injected as extension content scripts (see above).
         base: '{HYPERCHAT_BASE_URL}',
         skipAssets: [asset => asset.tagName === 'script'],
       }),

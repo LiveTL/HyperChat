@@ -31,7 +31,7 @@
       "all_frames": true,
       "match_about_blank": true,
       "js": [
-        "hyperchat-frame.js"
+        "hyperchat.bundle.js"
       ],
       "run_at": "document_end"
     }
