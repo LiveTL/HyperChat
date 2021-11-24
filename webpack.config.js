@@ -19,13 +19,13 @@ const extReloader = new ExtReloader({
   reloadPage: true
 });
 
-const transformManifest = (manifestString, version, isChrome = false) => {
+const transformManifest = (manifestString, version, prod, isChrome = false) => {
   const newManifest = {
     ...JSON.parse(manifestString),
     version
   };
   if (isChrome) newManifest.incognito = 'split';
-  return JSON.stringify(newManifest);
+  return JSON.stringify(newManifest, null, prod ? 0 : 2);
 };
 
 module.exports = (env, options) => {
@@ -102,6 +102,9 @@ module.exports = (env, options) => {
         cssConfig
       ]
     },
+    optimization: {
+      concatenateModules: true // concatenate modules even in development mode for cleaner output
+    },
     plugins: [
       new CleanWebpackPlugin(),
       new CopyWebpackPlugin({
@@ -118,14 +121,14 @@ module.exports = (env, options) => {
           {
             from: 'src/manifest.json',
             transform(content) {
-              return transformManifest(content, hasEnvVersion ? envVersion : version);
+              return transformManifest(content, hasEnvVersion ? envVersion : version, prod);
             }
           },
           {
             from: 'src/manifest.json',
             to: 'manifest.chrome.json',
             transform(content) {
-              return transformManifest(content, hasEnvVersion ? envVersion : version, true);
+              return transformManifest(content, hasEnvVersion ? envVersion : version, prod, true);
             }
           }
         ]
