@@ -47,10 +47,17 @@
     messageActions = messageActions;
   };
 
-  const newMessages = (messagesAction: Chat.MessagesAction) => {
+  const newMessages = (
+    messagesAction: Chat.MessagesAction, isInitial: boolean
+  ) => {
     if (!isAtBottom) return;
-    messageActions.push(...messagesAction.messages);
-    messageActions = messageActions;
+    // Filter out initial messages on replays that aren't negative timestamped
+    messageActions.push(...messagesAction.messages.filter(
+      (action) => !(
+        isInitial && isReplay && !action.message.timestamp.startsWith('-')
+      )
+    ));
+    if (!isInitial) messageActions = messageActions;
   };
 
   const onBonk = (bonk: Ytc.ParsedBonk) => {
@@ -73,10 +80,10 @@
     });
   };
 
-  const onChatAction = (action: Chat.Actions) => {
+  const onChatAction = (action: Chat.Actions, isInitial = false) => {
     switch (action.type) {
       case 'messages':
-        newMessages(action);
+        newMessages(action, isInitial);
         break;
       case 'bonk':
         onBonk(action.bonk);
@@ -104,12 +111,7 @@
     switch (response.type) {
       case 'initialData':
         response.initialData.forEach((action) => {
-          if (
-            isReplay &&
-            action.type === 'message' &&
-            !action.message.timestamp.startsWith('-')
-          ) return;
-          onChatAction(action);
+          onChatAction(action, true);
         });
         messageActions = [...messageActions, welcome];
         break;

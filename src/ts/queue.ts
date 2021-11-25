@@ -96,13 +96,13 @@ export function ytcQueue(isReplay = false): YtcQueue {
    * `extraCondition` returns false.
    */
   const pushQueueToStore = (extraCondition: QueueCondition): void => {
-    const messages: Chat.MessageAction[];
+    const messages: Chat.MessageAction[] = [];
     while (messageQueue.front() && extraCondition(messageQueue)) {
       const message = messageQueue.pop();
       if (!message) return;
       messages.push(message);
     }
-    latestAction.set({ type: 'messages', messages })
+    latestAction.set({ type: 'messages', messages });
   };
 
   const isScrubbedOrSkipped = (time: number): boolean => {
@@ -230,7 +230,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
       }, []);
 
     if (setInitial) {
-      initialData = [...messageActions, ...misc];
+      initialData = [{ type: 'messages', messages: messageActions }, ...misc];
       return;
     }
 

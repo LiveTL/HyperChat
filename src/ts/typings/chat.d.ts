@@ -10,7 +10,7 @@ declare namespace Chat {
 
   interface MessagesAction {
     type: 'messages';
-    messages: MessageAction[]
+    messages: MessageAction[];
   }
 
   interface BonkAction {
