@@ -96,11 +96,13 @@ export function ytcQueue(isReplay = false): YtcQueue {
    * `extraCondition` returns false.
    */
   const pushQueueToStore = (extraCondition: QueueCondition): void => {
+    const messages: Chat.MessageAction[];
     while (messageQueue.front() && extraCondition(messageQueue)) {
       const message = messageQueue.pop();
       if (!message) return;
-      latestAction.set(message);
+      messages.push(message);
     }
+    latestAction.set({ type: 'messages', messages })
   };
 
   const isScrubbedOrSkipped = (time: number): boolean => {
@@ -217,7 +219,6 @@ export function ytcQueue(isReplay = false): YtcQueue {
           m.showtime += currentChunkDelay;
         }
         const messageAction: Chat.MessageAction = {
-          type: 'message',
           message: m
         };
         processDeleted(messageAction, bonks, deletions);

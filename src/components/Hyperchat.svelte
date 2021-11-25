@@ -47,9 +47,9 @@
     messageActions = messageActions;
   };
 
-  const newMessage = (messageAction: Chat.MessageAction) => {
+  const newMessages = (messagesAction: Chat.MessagesAction) => {
     if (!isAtBottom) return;
-    messageActions.push(messageAction);
+    messageActions.push(...messagesAction.messages);
     messageActions = messageActions;
   };
 
@@ -75,8 +75,8 @@
 
   const onChatAction = (action: Chat.Actions) => {
     switch (action.type) {
-      case 'message':
-        newMessage(action);
+      case 'messages':
+        newMessages(action);
         break;
       case 'bonk':
         onBonk(action.bonk);
