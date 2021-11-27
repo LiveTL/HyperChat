@@ -102,6 +102,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
       if (!message) return;
       messages.push(message);
     }
+    if (messages.length < 1) return;
     latestAction.set({ type: 'messages', messages });
   };
 

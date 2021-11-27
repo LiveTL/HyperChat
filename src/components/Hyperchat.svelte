@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
+  import { onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import dark from 'smelte/src/dark';
   import WelcomeMessage from './WelcomeMessage.svelte';
@@ -18,7 +18,8 @@
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
 
-  const CHAT_HISTORY_SIZE = 250;
+  const CHAT_HISTORY_SIZE = 150;
+  const TRUNCATE_SIZE = 20;
   let messageActions: (Chat.MessageAction | Welcome)[] = [];
   let pinned: Ytc.ParsedPinned | null;
   let div: HTMLElement;
@@ -39,11 +40,9 @@
     div.scrollTop = div.scrollHeight;
   };
 
-  const truncateMessages = (): void => {
-    if (!isAtBottom) return;
+  const checkTruncateMessages = (): void => {
     const diff = messageActions.length - CHAT_HISTORY_SIZE;
-    if (diff < 0) return;
-    messageActions.splice(0, diff);
+    if (diff > TRUNCATE_SIZE) messageActions.splice(0, diff);
     messageActions = messageActions;
   };
 
@@ -52,12 +51,14 @@
   ) => {
     if (!isAtBottom) return;
     // Filter out initial messages on replays that aren't negative timestamped
-    messageActions.push(...messagesAction.messages.filter(
-      (action) => !(
-        isInitial && isReplay && !action.message.timestamp.startsWith('-')
-      )
+    messageActions.push(...(
+      isInitial && isReplay
+        ? messagesAction.messages.filter(
+          (a) => a.message.timestamp.startsWith('-')
+        )
+        : messagesAction.messages
     ));
-    if (!isInitial) messageActions = messageActions;
+    if (!isInitial) checkTruncateMessages();
   };
 
   const onBonk = (bonk: Ytc.ParsedBonk) => {
@@ -104,6 +105,7 @@
   };
 
   const onPortMessage = (response: Chat.BackgroundResponse) => {
+    // console.debug({ response });
     if (responseIsAction(response)) {
       onChatAction(response);
       return;
@@ -150,10 +152,6 @@
       frameInfo
     });
   };
-
-  onMount(() => {
-    truncateInterval = window.setInterval(truncateMessages, 10000);
-  });
 
   afterUpdate(() => {
     if (isAtBottom) {
