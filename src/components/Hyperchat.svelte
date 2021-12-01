@@ -21,12 +21,10 @@
   let port: Chat.Port;
   let truncateInterval: number;
 
-  console.log('HyperChat frame', frameElement);
   const frame = frameElement as HTMLIFrameElement;
   const tabId = parseInt(frame.dataset.tabId ?? '');
   const frameId = parseInt(frame.dataset.frameId ?? '');
   const isReplay = 'isReplay' in frame.dataset;
-  console.log('HyperChat args', tabId, frameId, isReplay);
 
   const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
     'welcome' in m;
@@ -130,7 +128,6 @@
       return;
     }
 
-    console.log('HyperChat onload', chrome, chrome.runtime);
     const frameInfo = { tabId, frameId };
     port = chrome.runtime.connect();
     port.onMessage.addListener(onPortMessage);

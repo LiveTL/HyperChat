@@ -65,11 +65,7 @@ const chatLoaded = async (): Promise<void> => {
   const url = chrome.runtime.getURL(isLiveTL ? 'hyperchat/index.html' : 'hyperchat.html');
   const templateHtml = await(await fetch(url)).text();
   const hyperchatHtml = templateHtml
-    .replace('</body>', "<script>console.log('hyperchat frame end body')</script></body>")
     .replace(/\{HYPERCHAT_BASE_URL\}/g, url.substr(0, url.lastIndexOf('/')));
-    // Hack to remove the hyperchat.bundle.js script element.
-    //.replace(/\s*<\s*script\s+[^>]*src\s*=\s*(?:['"](?:.\/)?hyperchat\.bundle\.js['"])[^>]*>\s*(?:<\s*\/\s*script\s*>\s*)?/i, '');
-  console.log(hyperchatHtml, new DOMParser().parseFromString(hyperchatHtml, 'text/html'));
   const frame = document.createElement('iframe');
   frame.id = 'hyperchat';
   frame.dataset.tabId = frameInfo.tabId.toString();
@@ -77,7 +73,6 @@ const chatLoaded = async (): Promise<void> => {
   if (frameIsReplay) frame.dataset.isReplay = ''; // sets data-is-replay attr
   frame.style.cssText = "border: 0px; width: 100%; height: 100%;";
   ytcItemList.replaceWith(frame);
-  console.log('created hyperchat frame', frame);
   const frameDoc = frame.contentDocument!; // only exists after inserted into DOM
   frameDoc.open();
   frameDoc.write(hyperchatHtml);

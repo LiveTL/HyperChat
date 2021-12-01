@@ -40,8 +40,6 @@ const contentScriptFrameFilterPlugin = (include, condition) => {
 // boilerplate that all needs to be ran before the actual script code (and this condition) run,
 // so this provides a way to check the condition early before all that boilerplate.
 `
-console.log('contentScriptFrameFilterPlugin("${include}", "${condition.replace(/["']/g, "\\$&")}"):',
-  '\\nlocation:', location, '\\nframeElement:', frameElement);
 if (!chrome.runtime)
   console.error('chrome.runtime not found - script needs to run as an extension content script');
 else if (${condition})
