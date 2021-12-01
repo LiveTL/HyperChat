@@ -155,16 +155,25 @@ module.exports = (env, options) => {
       }),
       new MiniCssExtractPlugin({ filename: 'tailwind.css' }),
       // Following is a workaround for:
-      // a) The HyperChat frame needing to be about:blank/about:srcdoc to avoid cross origin issues so that
-      //    e.g. Google Translate extension can access its contents.
-      // b) hyperchat.bundle.js needing to be in extension's namespace for chrome.runtime access.
+      // 1) The HyperChat frame needs to have the same origin as the parent frame ("chatframe") so
+      //    that e.g. Google Translate extension can access its contents.
+      // 2) hyperchat.bundle.js needs to be in the extension's namespace for chrome.runtime access.
       //    If that frame's document simply uses a <script> element to import hyperchat.bundle.js,
       //    it would be in the page's namespace rather than the extension's content script namespace.
-      // c) manifest.json's built-in matching functionality cannot match ONLY the about:blank/about:srcdoc
-      //    frame we want without matching the parent https://www.youtube.com/live_chat* frame,
-      //    hence the need for the frameElement check below.
-      // d) While this check could go in hyperchat.ts itself, the following allows the check to run before
-      //    all the boilerplate that webpack produces.
+      // 3) The HyperChat frame inherits the location (and thus origin) of the parent chatframe via
+      //    chat-injector (itself injected into the parent chatframe as an extension content script)
+      //    using document.write into the HyperChat frame.
+      //    (The alternative approach of using srcdoc attribute along with match_about_blank should
+      //    also inherit chat-injector's origin, but Google Translate is unable to access such a
+      //    frame's contents for some reason.)
+      // 4) manifest.json's built-in matching functionality is limited to URL patterns, and so with the
+      //    location of both chatframe and the HyperChat frame being the same, we need frame filtering
+      //    checks in the scripts themselves.
+      // 5) While such checks could go in the source scripts themselves, contentScriptFrameFilterPlugin
+      //    allows the check to run before all the boilerplate that webpack produces.
+      contentScriptFrameFilterPlugin(['chat-interceptor.bundle.js', 'chat-injector.bundle.js'],
+        // either top-level frame (popout or embedded chat) or 'chatframe' iframe (watch page)
+        "!frameElement || frameElement.id === 'chatframe'"),
       contentScriptFrameFilterPlugin('hyperchat.bundle.js',
         "frameElement && frameElement.id === 'hyperchat'"),
       new HtmlWebpackPlugin({
@@ -172,8 +181,8 @@ module.exports = (env, options) => {
         filename: 'hyperchat.html',
         chunks: ['hyperchat'],
         chunksSortMode: 'manual',
-        // The generated page will be included as an about:blank (or rather, about:srcdoc) to avoid
-        // cross origin issues issues (so that e.g. Google Translate extension can access its contents).
+        // The generated page will be included as a document.write'd iframe via hyperchat-injector to
+        // avoid cross origin issues, so that e.g. Google Translate extension can access its contents.
         // Since this page includes extension stylesheets and scripts, a <base> tag is added, which URL
         // is substituted in at runtime with the actual chrome extension base URL.
         // While stylesheets can be included directly in the HTML just fine, our scripts need to be

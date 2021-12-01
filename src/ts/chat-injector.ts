@@ -39,18 +39,33 @@ const chatLoaded = async (): Promise<void> => {
     return;
   }
 
-  // Inject hyperchat
+  // HyperChat frame injection notes:
+  // The HyperChat frame needs to have the same origin as the parent frame ("chatframe") so
+  // that e.g. Google Translate extension can access its contents.
+  // At the same time, the script that the Hyperchat frame loads (hyperchat.bundle.js) needs
+  // to be in the extension's namespace for chrome.runtime access.
+  // If that frame's document simply uses a <script> element to import hyperchat.bundle.js,
+  // it would be in the page's namespace rather than the extension's content script namespace.
+  // Thus, hyperchat.bundle.js is injected as an extension content script via manifest.json,
+  // while the below document.write into the HyperChat frame makes it inherit the location
+  // (and thus origin) of the parent chatframe.
+  // (The alternative approach of using srcdoc attribute along with match_about_blank should
+  // also inherit chat-injector's origin, but Google Translate is unable to access such a
+  // frame's contents for some reason.)
+  // This does result in some complications regarding content script matching, but those are
+  // handled in the webpack config (see contentScriptFrameFilterPlugin there).
+  // Note on manifest.json config: the content script must run at document_idle (default)
+  // time rather than document_start or document_end time, or else it won't actually run
+  // after the document.write/close below.
   const frameInfo = await getFrameInfoAsync();
   if (!isValidFrameInfo(frameInfo)) {
     console.error('Failed to get valid frame info', { frameInfo });
     return;
   }
   const url = chrome.runtime.getURL(isLiveTL ? 'hyperchat/index.html' : 'hyperchat.html');
-  // hyperchat.html will be loaded in an about:srcdoc iframe so that it has same origin as parent YT livechat frame
-  // to avoid cross-origin issues. Due to this, hyperchat(.bundle.js) is indirectly inserted as a content script
-  // (see manifest.json and hyperchat-frame.js) so that it has access to chrome.runtime.
   const templateHtml = await(await fetch(url)).text();
   const hyperchatHtml = templateHtml
+    .replace('</body>', "<script>console.log('hyperchat frame end body')</script></body>")
     .replace(/\{HYPERCHAT_BASE_URL\}/g, url.substr(0, url.lastIndexOf('/')));
     // Hack to remove the hyperchat.bundle.js script element.
     //.replace(/\s*<\s*script\s+[^>]*src\s*=\s*(?:['"](?:.\/)?hyperchat\.bundle\.js['"])[^>]*>\s*(?:<\s*\/\s*script\s*>\s*)?/i, '');
@@ -61,17 +76,12 @@ const chatLoaded = async (): Promise<void> => {
   frame.dataset.frameId = frameInfo.frameId.toString();
   if (frameIsReplay) frame.dataset.isReplay = ''; // sets data-is-replay attr
   frame.style.cssText = "border: 0px; width: 100%; height: 100%;";
-  // Using srcdoc attribute instead of document.open/write/close after insertion since
-  // the latter sets the frame's location to same as parent frame's rather than about:blank,
-  // which causes our content scripts to erroneously match against it again.
-  //frame.src = 'about:blank';
-  frame.srcdoc = hyperchatHtml;
   ytcItemList.replaceWith(frame);
   console.log('created hyperchat frame', frame);
-  //const frameDoc = frame.contentDocument!;
-  //frameDoc.open();
-  //frameDoc.write(hyperchatHtml);
-  //frameDoc.close();
+  const frameDoc = frame.contentDocument!; // only exists after inserted into DOM
+  frameDoc.open();
+  frameDoc.write(hyperchatHtml);
+  frameDoc.close();
   // const hyperchat = document.querySelector('#hyperchat') as HTMLIFrameElement;
   // if (!hyperchat) {
   //   console.error('Failed to find #hyperchat');
