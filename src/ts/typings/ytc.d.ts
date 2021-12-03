@@ -133,7 +133,7 @@ declare namespace Ytc {
 
   interface TextMessageRenderer {
     message?: RunsObj;
-    authorName: SimpleTextObj;
+    authorName?: SimpleTextObj;
     authorBadges?: Array<{
       liveChatAuthorBadgeRenderer: {
         /** Changes based on YT language */
