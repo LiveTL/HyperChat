@@ -80,5 +80,10 @@ exports.updates = [
     comments: 'HyperChat has been rewritten to be lighter, faster, and even more feature-rich! ' +
               'Pinned messages, super stickers, membership items, and member milestone chats ' +
               'are now all supported!'
+  },
+  {
+    version: 'v2.0.3',
+    comments: 'The extension was temporarily taken down on Firefox due to store regulations.' +
+              'We\'ve fixed all of these issues, so it should be available on Firefox again!'
   }
 ];
