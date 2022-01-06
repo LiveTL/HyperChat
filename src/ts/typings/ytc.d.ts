@@ -247,6 +247,7 @@ declare namespace Ytc {
 
   interface ParsedEmojiRun extends ParsedImage {
     type: 'emoji';
+    standardEmoji?: boolean;
   }
 
   type ParsedRun = ParsedTextRun | ParsedLinkRun | ParsedEmojiRun;

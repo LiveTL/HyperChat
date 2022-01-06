@@ -4,6 +4,10 @@ import {
   isMembershipRenderer
 } from './chat-utils';
 
+// Source: https://stackoverflow.com/a/64396666
+const standardEmoji =
+  /^[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{1F9B0}-\u{1F9B3}]$/u;
+
 const formatTimestamp = (timestampUsec: number): string => {
   return (new Date(timestampUsec / 1000))
     .toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -43,11 +47,13 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
         ))))
       });
     } else if (run.emoji) {
-      parsedRuns.push({
+      const parsed: Ytc.ParsedEmojiRun = {
         type: 'emoji',
         src: fixUrl(run.emoji.image.thumbnails[0].url),
         alt: run.emoji.image.accessibility?.accessibilityData.label ?? run.emoji.emojiId ?? 'emoji'
-      });
+      };
+      if (standardEmoji.test(parsed.alt)) parsed.standardEmoji = true;
+      parsedRuns.push(parsed);
     }
   });
   return parsedRuns;
