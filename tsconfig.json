@@ -11,10 +11,7 @@
       "DOM"
     ],
     "target": "ES6",
-    "resolveJsonModule": true,
-    "typeRoots": [
-      "./node_modules/@types"
-    ]
+    "resolveJsonModule": true
   },
   "include": [
     "src/**/*",

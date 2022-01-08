@@ -1,10 +1,11 @@
 <script lang='ts'>
   import { isLiveTL } from '../ts/chat-constants';
+  import { hcEnabled } from '../ts/storage';
 
-  const disabled = localStorage.getItem('HC:ENABLED') === 'false';
+  $: disabled = !$hcEnabled;
 
   const onClick = () => {
-    localStorage.setItem('HC:ENABLED', disabled ? 'true' : 'false');
+    $hcEnabled = !$hcEnabled;
     location.reload();
   };
 
