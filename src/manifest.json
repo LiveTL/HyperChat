@@ -20,6 +20,9 @@
         "ts/chat-interceptor.ts",
         "ts/chat-injector.ts"
       ],
+      "css": [
+        "generated:ts/style.css"
+      ],
       "all_frames": true
     }
   ],
