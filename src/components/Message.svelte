@@ -1,13 +1,14 @@
 <script lang="ts">
   import MessageRun from './MessageRuns.svelte';
   import Icon from './common/Icon.svelte';
+  import { showProfileIcons, showUsernames, showTimestamps } from '../ts/storage';
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
   export let forceDark = false;
   export let hideName = false;
 
-  const nameClass = 'mr-2 font-bold tracking-wide cursor-auto align-middle';
+  const nameClass = 'font-bold tracking-wide cursor-auto align-middle';
   const generateNameColorClass = (member: boolean, moderator: boolean, owner: boolean, forceDark: boolean) => {
     if (owner && forceDark) {
       return 'text-owner-dark';
@@ -45,10 +46,29 @@
   }
 </script>
 
-<div class="break-words overflow-hidden">
+<div on:click|stopPropagation class="inline-flex flex-row gap-2">
   {#if !hideName}
-    <span on:click|stopPropagation class="{nameClass} {nameColorClass}">
-      <span class="align-middle">{message.author.name}</span>
+    <img
+      class="h-5 w-5 inline align-middle rounded-full cursor-auto flex-none"
+      class:hidden={$showProfileIcons}
+      src={message.author.profileIcon.src}
+      alt={message.author.profileIcon.alt}
+    />
+  {/if}
+  <div>
+    {#if !hideName}
+      <span
+        class="text-xs mr-1 text-gray-700 dark:text-gray-600 align-middle"
+        class:hidden={$showTimestamps}
+      >
+        {message.timestamp}
+      </span>
+      <span
+        class="{nameClass} {nameColorClass}"
+        class:hidden={!$showUsernames}
+      >
+        {message.author.name}
+      </span>
       {#if moderator}
         <Icon class="inline align-middle" small>build</Icon>
       {:else if verified}
@@ -60,13 +80,13 @@
         </Icon>
       {:else if member && message.author.customBadge}
         <img
-          on:click|stopPropagation
           class="h-4 w-4 inline align-middle"
           src={message.author.customBadge.src}
           alt={message.author.customBadge.alt}
         />
       {/if}
-    </span>
-  {/if}
-  <MessageRun runs={message.message} {forceDark} deleted={deleted != null} />
+      <span class="mr-1.5" />
+    {/if}
+    <MessageRun runs={message.message} {forceDark} deleted={deleted != null} />
+  </div>
 </div>

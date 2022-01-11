@@ -92,6 +92,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
   const timestampUsec = parseInt(renderer.timestampUsec);
   const timestampText = renderer.timestampText?.simpleText;
   const liveShowtimeMs = (timestampUsec / 1000) + liveTimeoutOrReplayMs;
+  const profileIcon = { src: fixUrl(renderer.authorPhoto?.thumbnails[0].url ?? ''), alt: renderer.authorName?.simpleText ?? '' };
 
   const item: Ytc.ParsedMessage = {
     author: {
@@ -99,7 +100,8 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
       name: renderer.authorName?.simpleText ?? '',
       id: renderer.authorExternalChannelId,
       types: authorTypes,
-      customBadge
+      customBadge,
+      profileIcon
     },
     message: runs,
     timestamp: isReplay && timestampText != null ? timestampText : formatTimestamp(timestampUsec),
