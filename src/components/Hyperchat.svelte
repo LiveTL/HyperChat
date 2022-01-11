@@ -50,14 +50,14 @@
     messagesAction: Chat.MessagesAction, isInitial: boolean
   ) => {
     if (!isAtBottom) return;
-    // Filter out initial messages on replays that aren't negative timestamped
-    messageActions.push(...(
-      isInitial && isReplay
-        ? messagesAction.messages.filter(
-          (a) => a.message.timestamp.startsWith('-')
-        )
-        : messagesAction.messages
-    ));
+    // On replays' initial data, only show messages with negative timestamp
+    if (isInitial && isReplay) {
+      messageActions.push(...messagesAction.messages.filter(
+        (a) => a.message.timestamp.startsWith('-')
+      ));
+    } else {
+      messageActions.push(...messagesAction.messages);
+    }
     if (!isInitial) checkTruncateMessages();
   };
 
