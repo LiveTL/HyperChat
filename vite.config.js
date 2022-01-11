@@ -22,7 +22,8 @@ export default defineConfig({
 
     }),
     svelte({
-      configFile: path.resolve(__dirname, 'svelte.config.js')
+      configFile: path.resolve(__dirname, 'svelte.config.js'),
+      emitCss: false
     })
   ]
 });
