@@ -5,6 +5,7 @@
   "description": "YouTube chat, but it's fast and sleek!",
   "version": "42.0.69",
   "permissions": [
+    "storage"
   ],
   "icons": {
     "48": "assets/logo-48.png",
