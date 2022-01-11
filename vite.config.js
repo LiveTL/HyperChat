@@ -19,7 +19,6 @@ export default defineConfig({
       additionalInputs: [
         'hyperchat.html'
       ]
-
     }),
     svelte({
       configFile: path.resolve(__dirname, 'svelte.config.js'),
