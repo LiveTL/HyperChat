@@ -36,6 +36,6 @@ export const isValidFrameInfo = (f: Chat.UncheckedFrameInfo, port?: Chat.Port): 
   return check;
 };
 
-const actionTypes = new Set(['message', 'bonk', 'delete', 'pin', 'unpin', 'playerProgress', 'forceUpdate']);
+const actionTypes = new Set(['messages', 'bonk', 'delete', 'pin', 'unpin', 'playerProgress', 'forceUpdate']);
 export const responseIsAction = (r: Chat.BackgroundResponse): r is Chat.Actions =>
   actionTypes.has(r.type);
