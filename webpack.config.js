@@ -59,7 +59,8 @@ module.exports = (env, options) => {
       'chat-interceptor': path.join(__dirname, 'src', 'ts', 'chat-interceptor.ts'),
       'chat-background': path.join(__dirname, 'src', 'ts', 'chat-background.ts'),
       'chat-injector': path.join(__dirname, 'src', 'ts', 'chat-injector.ts'),
-      hyperchat: path.join(__dirname, 'src', 'hyperchat.ts')
+      hyperchat: path.join(__dirname, 'src', 'hyperchat.ts'),
+      gtrans: path.join(__dirname, 'src', 'gtrans.ts')
     },
     output: {
       path: path.join(__dirname, 'build'),
@@ -134,7 +135,7 @@ module.exports = (env, options) => {
       new HtmlWebpackPlugin({
         template: path.join(__dirname, 'src', 'template.html'),
         filename: 'hyperchat.html',
-        chunks: ['hyperchat'],
+        chunks: ['hyperchat', 'gtrans'],
         chunksSortMode: 'manual'
       })
     ]

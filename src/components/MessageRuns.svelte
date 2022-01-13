@@ -1,7 +1,10 @@
 <script lang="ts">
+  import { commentTranslateTargetLang } from '../ts/storage';
+  import TranslatedMessage from './TranslatedMessage.svelte';
   export let runs: Ytc.ParsedRun[];
   export let forceDark = false;
   export let deleted = false;
+  export let id: string;
 
   let deletedClass = '';
 
@@ -22,6 +25,10 @@
         class="cursor-auto align-middle {deletedClass}"
       >
         {run.text}
+        <br />
+        {#if $commentTranslateTargetLang}
+          <TranslatedMessage id={id} text={run.text} />
+        {/if}
       </span>
     {:else if run.type === 'link'}
         <a

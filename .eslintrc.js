@@ -5,6 +5,7 @@ module.exports = {
     node: true,
     webextensions: true
   },
+  ignorePatterns: ['**/*.min.js'],
   parser: '@typescript-eslint/parser',
   extends: 'standard-with-typescript',
   parserOptions: {
