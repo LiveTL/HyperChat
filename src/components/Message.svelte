@@ -8,12 +8,7 @@
   export let hideName = false;
 
   const nameClass = 'mr-2 font-bold tracking-wide cursor-auto align-middle';
-  const generateNameColorClass = (
-    member: boolean,
-    moderator: boolean,
-    owner: boolean,
-    forceDark: boolean
-  ) => {
+  const generateNameColorClass = (member: boolean, moderator: boolean, owner: boolean, forceDark: boolean) => {
     if (owner && forceDark) {
       return 'text-owner-dark';
     } else if (owner) {
@@ -43,12 +38,7 @@
     else if (type === 'moderator') moderator = true;
     else if (type === 'owner') owner = true;
   });
-  $: nameColorClass = generateNameColorClass(
-    member,
-    moderator,
-    owner,
-    forceDark
-  );
+  $: nameColorClass = generateNameColorClass(member, moderator, owner, forceDark);
 
   $: if (deleted != null) {
     message.message = deleted.replace;
@@ -78,10 +68,5 @@
       {/if}
     </span>
   {/if}
-  <MessageRun
-    runs={message.message}
-    id={message.messageId}
-    {forceDark}
-    deleted={deleted != null}
-  />
+  <MessageRun runs={message.message} {forceDark} deleted={deleted != null} />
 </div>
