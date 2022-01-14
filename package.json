@@ -5,7 +5,7 @@
   "scripts": {
     "build": "vite build",
     "package": "node utils/package.js",
-    "start": "vite build --watch",
+    "start": "cross-env MINIFY=false vite build --watch",
     "format:check": "eslint ."
   },
   "devDependencies": {
@@ -13,23 +13,28 @@
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.34",
     "@tsconfig/svelte": "^2.0.1",
     "@types/chrome": "^0.0.149",
+    "@types/download": "8.0.1",
     "@typescript-eslint/eslint-plugin": "4",
     "@typescript-eslint/parser": "^4.28.5",
     "autoprefixer": "^10.3.1",
+    "body-parser": "1.19.0",
     "cross-env": "^7.0.3",
     "cssnano": "^5.0.7",
+    "download": "8.0.0",
     "eslint": "7",
     "eslint-config-standard-with-typescript": "^20.0.0",
     "eslint-plugin-import": "2",
     "eslint-plugin-node": "11",
     "eslint-plugin-promise": "4",
     "eslint-plugin-svelte3": "^3.2.0",
+    "express": "4.17.1",
     "postcss": "^8.3.6",
     "postcss-extend": "^1.0.5",
     "postcss-import": "^14.0.2",
     "postcss-input-range": "^4.0.0",
     "postcss-preset-env": "^6.7.0",
     "postcss-url": "^10.1.3",
+    "safe-compare": "1.1.4",
     "smelte": "^1.1.6",
     "svelte": "^3.45.0",
     "svelte-check": "^2.2.3",
@@ -38,6 +43,6 @@
     "tailwindcss": "^2.2.7",
     "typescript": "^4.3.5",
     "vite": "2.7.10",
-    "vite-plugin-web-extension": "^1.0.3"
+    "vite-plugin-web-extension": "^1.0.4"
   }
 }
