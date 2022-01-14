@@ -5,7 +5,6 @@
   export let runs: Ytc.ParsedRun[];
   export let forceDark = false;
   export let deleted = false;
-  export let id: string;
 
   let deletedClass = '';
 
@@ -27,7 +26,7 @@
       >
         {run.text}
         {#if $translateTargetLanguage}
-          <TranslatedMessage messageID={id} text={run.text} />
+          <TranslatedMessage text={run.text} />
         {/if}
       </span>
     {:else if run.type === 'link'}

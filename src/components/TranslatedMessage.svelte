@@ -1,23 +1,27 @@
 <script lang="ts">
-  import { translateMessage, translateTargetLanguage, refreshScroll } from '../ts/storage';
+import { onMount, tick } from 'svelte';
+
+  import { messageTranslationQueue, translateTargetLanguage, refreshScroll } from '../ts/storage';
 
   export let text: string;
-  export let messageID: string;
-  let translatedMessage: string;
+  let translatedMessage = '';
 
-  $translateMessage = {
-    messageID,
-    targetLanguage: $translateTargetLanguage,
-    text,
-    callback: (response) => {
-      translatedMessage = response.text;
-      $refreshScroll = true;
-    }
-  }
+  onMount(() => {
+    $messageTranslationQueue.push({
+      messageID: `message-${Math.random().toString()}`,
+      targetLanguage: $translateTargetLanguage,
+      text,
+      callback: (response) => {
+        translatedMessage = response.text;
+        $refreshScroll = true;
+      }
+    });
+    $messageTranslationQueue = $messageTranslationQueue;
+  });
 </script>
 
 {#if translatedMessage}
-  <div>
+  <span class="p-1 bg-primary-400">
     {translatedMessage}  
-  </div>
+  </span>
 {/if}

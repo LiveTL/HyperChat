@@ -1,41 +1,51 @@
 <script lang="ts">
-  import { translateMessage } from '../ts/storage';
+  import { onDestroy, onMount } from 'svelte';
+  import { messageTranslationQueue } from '../ts/storage';
 
   let iframe: HTMLIFrameElement;
 
   const callbacks: { [key: string]: (data: any) => void } = {};
 
-  $: if ($translateMessage) {
-    callbacks[$translateMessage.messageID] = $translateMessage.callback;
-    iframe.contentWindow?.postMessage(JSON.stringify({
-      messageID: $translateMessage.messageID,
-      targetLanguage: $translateMessage.targetLanguage,
-      text: $translateMessage.text,
-      type: 'request'
-    } as GTL.TranslatePacket), '*');
-    setTimeout(() => {
-      if (callbacks && callbacks[$translateMessage.messageID]) {
-        delete callbacks[$translateMessage.messageID];
-      }
-    }, 5000);
-  }
-  window.addEventListener('message', payload => {
-    try {
-      const data = JSON.parse(payload.data) as GTL.TranslatePacket;
-      if (data.type === 'response') {
-        if (callbacks && callbacks[data.messageID]) {
-          callbacks[data.messageID](data);
-          delete callbacks[data.messageID];
-        }
-      }
-    } catch (e) {
+  $: if ($messageTranslationQueue) {
+    while (1) {
+      console.log($messageTranslationQueue);
+      const front = $messageTranslationQueue.pop();
+      if (!front) break;
+      callbacks[front.messageID] = front.callback;
+      iframe.contentWindow?.postMessage(JSON.stringify({
+        messageID: front.messageID,
+        targetLanguage: front.targetLanguage,
+        text: front.text,
+        type: 'request'
+      } as GTL.TranslatePacket), '*');
     }
+  }
+
+  function onMessage(event: MessageEvent) {
+    const data: GTL.TranslatePacket | null = JSON.parse(event.data);
+    if (data && data.type === 'response') {
+      if (callbacks && callbacks[data.messageID]) {
+        callbacks[data.messageID](data);
+        delete callbacks[data.messageID];
+      }
+    }
+  }
+
+  onMount(() => {
+    window.addEventListener('message', onMessage);
   });
+
+  onDestroy(() => {
+    window.removeEventListener('message', onMessage);
+  });
+
+  // const host = 'https://livetl.github.io';
+  const host = 'http://localhost:42069';
 </script>
 
 <iframe
   class="hidden-frame"
-  src="https://livetl.github.io/iframe-translator/"
+  src="{host}/iframe-translator/"
   bind:this={iframe}
   title="Hidden translation frame"
 />
