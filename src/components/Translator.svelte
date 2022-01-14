@@ -8,7 +8,6 @@
 
   $: if ($messageTranslationQueue) {
     while (1) {
-      console.log($messageTranslationQueue);
       const front = $messageTranslationQueue.pop();
       if (!front) break;
       callbacks[front.messageID] = front.callback;
@@ -39,8 +38,8 @@
     window.removeEventListener('message', onMessage);
   });
 
-  // const host = 'https://livetl.github.io';
-  const host = 'http://localhost:42069';
+  const host = 'https://livetl.github.io';
+  // const host = 'http://localhost:42069';
 </script>
 
 <iframe
