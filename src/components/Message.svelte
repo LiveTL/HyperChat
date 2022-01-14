@@ -68,5 +68,5 @@
       {/if}
     </span>
   {/if}
-  <MessageRun runs={message.message} {forceDark} deleted={deleted != null} />
+  <MessageRun runs={message.message} id={message.messageId} {forceDark} deleted={deleted != null} />
 </div>
