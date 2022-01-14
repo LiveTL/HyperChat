@@ -4,7 +4,8 @@ Run the following:
 
 ```bash
 yarn
-yarn build:production --env version=1.0.0 # replace with extension version
+VERSION=1.0.0 yarn build
+# replace with extension version
 yarn package
 ```
 
