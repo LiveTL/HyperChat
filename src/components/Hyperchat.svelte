@@ -16,15 +16,6 @@
   import Button from 'smelte/src/components/Button';
   import { translateTargetLanguage, refreshScroll } from '../ts/storage';
 
-  let translatorComponent: any = null;
-  $: if ($translateTargetLanguage) {
-    import('./Translator.svelte').then(module => {
-      translatorComponent = module.default;
-    });
-  } else {
-    translatorComponent = null;
-  }
-
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
 
@@ -219,9 +210,6 @@
     </div>
   {/if}
 </div>
-{#if translatorComponent}
-  <svelte:component this={translatorComponent} />
-{/if}
 
 <style>
   .content {
