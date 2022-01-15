@@ -8,17 +8,24 @@ export const stores = webExtStores();
 export const hcEnabled = stores.addSyncStore('hc.enabled', true);
 export const translateTargetLanguage = stores.addSyncStore('hc.translateTargetLanguage', Language.English);
 export const translatorClient = readable(null as (null | IframeTranslatorClient), (set) => {
-  return translateTargetLanguage.subscribe(($translateTargetLanguage) => {
+  const destroyIf = (): void => {
+    const val = get(translatorClient);
+    if (val !== null) {
+      val.destroy();
+    }
+  };
+  const unsub = translateTargetLanguage.subscribe(($translateTargetLanguage) => {
     if ($translateTargetLanguage === Language.None) {
-      const val = get(translatorClient);
-      if (val !== null) {
-        val.destroy();
-      }
+      destroyIf();
       set(null);
       return;
     }
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     getClient().then(set);
   });
+  return () => {
+    unsub();
+    destroyIf();
+  };
 });
 export const refreshScroll = writable(false);

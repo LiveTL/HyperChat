@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { translateTargetLanguage } from '../ts/storage';
   import TranslatedMessage from './TranslatedMessage.svelte';
 
   export let runs: Ytc.ParsedRun[];
@@ -15,6 +14,8 @@
   } else if (!deleted) {
     deletedClass = '';
   }
+
+  export let hovered = false;
 </script>
 
 <span class="align-middle {$$props.class ?? ''}">
@@ -24,10 +25,7 @@
         on:click|stopPropagation
         class="cursor-auto align-middle {deletedClass}"
       >
-        {run.text}
-        {#if $translateTargetLanguage}
-          <TranslatedMessage text={run.text} />
-        {/if}
+        <TranslatedMessage bind:showOriginal={hovered} text={run.text} />
       </span>
     {:else if run.type === 'link'}
         <a

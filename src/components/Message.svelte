@@ -43,9 +43,15 @@
   $: if (deleted != null) {
     message.message = deleted.replace;
   }
+
+  let hovered = false;
 </script>
 
-<div class="break-words overflow-hidden">
+<!-- svelte-ignore a11y-mouse-events-have-key-events -->
+<div class="break-words overflow-hidden"
+  on:mouseover={() => (hovered = true)}
+  on:mouseout={() => (hovered = false)}
+>
   {#if !hideName}
     <span on:click|stopPropagation class="{nameClass} {nameColorClass}">
       <span class="align-middle">{message.author.name}</span>
@@ -68,5 +74,5 @@
       {/if}
     </span>
   {/if}
-  <MessageRun runs={message.message} {forceDark} deleted={deleted != null} />
+  <MessageRun runs={message.message} {forceDark} deleted={deleted != null} bind:hovered />
 </div>
