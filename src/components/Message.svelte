@@ -50,7 +50,7 @@
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div class="break-words overflow-hidden"
   on:mouseover={() => (hovered = true)}
-  on:mouseout={() => (hovered = false)}
+  on:mouseleave={() => (hovered = false)}
 >
   {#if !hideName}
     <span on:click|stopPropagation class="{nameClass} {nameColorClass}">
