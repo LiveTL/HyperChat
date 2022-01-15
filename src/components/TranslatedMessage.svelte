@@ -21,9 +21,10 @@
 
 <span 
   class="{
-    showTL ? 'p-1 dark:bg-secondary-600 bg-secondary-50' : ''
+    showTL ? 'dark:bg-secondary-600 bg-secondary-50' : ''
   } text-black dark:text-white"
   class:entrance-animation={translatedMessage}
+  class:p-1={translatedMessage}
 >
   {#if !showTL}
     <span in:fade={{duration: translatedMessage ? duration : 0}}>
@@ -36,10 +37,16 @@
     </span>
   {/if}
   {#if translatedMessage}
-    <span style="transform: translateY(2px);">
+    <span class="shifted-icon">
       <Icon xs={true} block={false}>
         translate
       </Icon>
     </span>
   {/if}
 </span>
+
+<style>
+  .shifted-icon  :global(.material-icons) {
+    transform: translateY(1px);
+  }  
+</style>
