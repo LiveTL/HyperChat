@@ -15,7 +15,13 @@
   } from '../ts/chat-constants';
   import { responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
-  import { theme, showProfileIcons, showUsernames, showTimestamps } from '../ts/storage';
+  import {
+    theme,
+    showProfileIcons,
+    showUsernames,
+    showTimestamps,
+    showUserBadges
+  } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
@@ -181,7 +187,7 @@
   $: updateTheme($theme, ytDark);
   // Scroll to bottom when any of these settings change
   $: ((..._a: any[]) => scrollToBottom())(
-    $showProfileIcons, $showUsernames, $showTimestamps
+    $showProfileIcons, $showUsernames, $showTimestamps, $showUserBadges
   );
 
   const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';

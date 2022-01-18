@@ -1,7 +1,12 @@
 <script lang="ts">
   import MessageRun from './MessageRuns.svelte';
   import Icon from './common/Icon.svelte';
-  import { showProfileIcons, showUsernames, showTimestamps } from '../ts/storage';
+  import {
+    showProfileIcons,
+    showUsernames,
+    showTimestamps,
+    showUserBadges
+  } from '../ts/storage';
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
@@ -44,6 +49,9 @@
   $: if (deleted != null) {
     message.message = deleted.replace;
   }
+
+  $: showUserMargin = $showProfileIcons || $showUsernames || $showTimestamps ||
+    ($showUserBadges && (moderator || verified || member));
 </script>
 
 <div on:click|stopPropagation class="inline-flex flex-row gap-2">
@@ -69,7 +77,7 @@
       >
         {message.author.name}
       </span>
-      <span class="align-middle">
+      <span class="align-middle" class:hidden={!$showUserBadges}>
         {#if moderator}
           <Icon class="inline align-middle" small>build</Icon>
         {:else if verified}
@@ -87,7 +95,7 @@
           />
         {/if}
       </span>
-      <span class="mr-1.5" />
+      <span class="mr-1.5" class:hidden={!showUserMargin} />
     {/if}
     <MessageRun runs={message.message} {forceDark} deleted={deleted != null} />
   </div>

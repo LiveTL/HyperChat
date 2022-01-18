@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { theme, showProfileIcons, showTimestamps, showUsernames } from '../../ts/storage';
+  import {
+    theme,
+    showProfileIcons,
+    showTimestamps,
+    showUsernames,
+    showUserBadges
+  } from '../../ts/storage';
   import { themeItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
   import Radio from '../common/RadioGroupStore.svelte';
@@ -24,4 +30,5 @@
   <Checkbox name="Show profile icons" store={showProfileIcons} />
   <Checkbox name="Show timestamps" store={showTimestamps} />
   <Checkbox name="Show usernames" store={showUsernames} />
+  <Checkbox name="Show user badges" store={showUserBadges} />
 </Card>
