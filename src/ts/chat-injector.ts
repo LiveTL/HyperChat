@@ -1,6 +1,7 @@
 import HcButton from '../components/HyperchatButton.svelte';
 import { getFrameInfoAsync, isValidFrameInfo, frameIsReplay } from './chat-utils';
 import { isLiveTL, isAndroid } from './chat-constants';
+import { hcEnabled } from './storage';
 
 // const isFirefox = navigator.userAgent.includes('Firefox');
 
@@ -17,7 +18,7 @@ const chatLoaded = async (): Promise<void> => {
   }
 
   document.body.style.minWidth = document.body.style.minHeight = '0px';
-  const hyperChatEnabled = localStorage.getItem('HC:ENABLED') !== 'false';
+  const hyperChatEnabled = await hcEnabled.get();
 
   // Inject HC button
   const ytcPrimaryContent = document.querySelector('#primary-content');

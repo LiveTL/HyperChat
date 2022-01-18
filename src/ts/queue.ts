@@ -86,7 +86,6 @@ export function ytcQueue(isReplay = false): YtcQueue {
   const messageQueue = queue<Chat.MessageAction>();
   let previousTime = 0;
   let livePolling: number | undefined;
-  let nextChunkDelay = 0;
 
   const latestAction = subscribable<Chat.Actions | null>();
   let initialData: Chat.Actions[] = [];
@@ -96,11 +95,14 @@ export function ytcQueue(isReplay = false): YtcQueue {
    * `extraCondition` returns false.
    */
   const pushQueueToStore = (extraCondition: QueueCondition): void => {
+    const messages: Chat.MessageAction[] = [];
     while (messageQueue.front() && extraCondition(messageQueue)) {
       const message = messageQueue.pop();
       if (!message) return;
-      latestAction.set(message);
+      messages.push(message);
     }
+    if (messages.length < 1) return;
+    latestAction.set({ type: 'messages', messages });
   };
 
   const isScrubbedOrSkipped = (time: number): boolean => {
@@ -189,22 +191,6 @@ export function ytcQueue(isReplay = false): YtcQueue {
     const bonks = chunk.bonks;
     const deletions = chunk.deletions;
     const misc = chunk.miscActions;
-    const currentChunkDelay = nextChunkDelay;
-
-    /**
-     * Extra delay is calculated based on previous chunk delay, and will only
-     * be applied if the current chunk is also delayed.
-     * Hopefully this reduces chat freezing for subsequent late chunks, while
-     * not adding extra delay when chunks arrive normally.
-     */
-    if (!isReplay && !setInitial && messages.length > 0) {
-      const diff = Date.now() - messages[0].showtime;
-      nextChunkDelay = (diff > 0) ? Math.min(Math.round(diff / 1000) * 1000, 3000) : 0;
-    }
-
-    if (currentChunkDelay > 0 && nextChunkDelay > 0) {
-      console.log('Subsequent late chunks, adding an extra delay of ' + currentChunkDelay.toString());
-    }
 
     if (chunk.refresh) {
       console.log('Chunk refresh detected.');
@@ -213,11 +199,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
 
     const messageActions =
       messages.sort((m1, m2) => m1.showtime - m2.showtime).reduce((result: Chat.MessageAction[], m) => {
-        if (currentChunkDelay > 0 && nextChunkDelay > 0) {
-          m.showtime += currentChunkDelay;
-        }
         const messageAction: Chat.MessageAction = {
-          type: 'message',
           message: m
         };
         processDeleted(messageAction, bonks, deletions);
@@ -229,7 +211,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
       }, []);
 
     if (setInitial) {
-      initialData = [...messageActions, ...misc];
+      initialData = [{ type: 'messages', messages: messageActions }, ...misc];
       return;
     }
 

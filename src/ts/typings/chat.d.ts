@@ -4,9 +4,13 @@ declare namespace Chat {
   }
 
   interface MessageAction {
-    type: 'message';
     message: Ytc.ParsedMessage;
     deleted?: MessageDeletedObj;
+  }
+
+  interface MessagesAction {
+    type: 'messages';
+    messages: MessageAction[];
   }
 
   interface BonkAction {
@@ -29,7 +33,7 @@ declare namespace Chat {
     messages: MessageAction[];
   }
 
-  type Actions = MessageAction | BonkAction | DeleteAction | Ytc.ParsedMisc | PlayerProgressAction | ForceUpdate;
+  type Actions = MessagesAction | BonkAction | DeleteAction | Ytc.ParsedMisc | PlayerProgressAction | ForceUpdate;
 
   interface UncheckedFrameInfo {
     tabId: number | undefined;

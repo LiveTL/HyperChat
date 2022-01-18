@@ -85,5 +85,13 @@ export const updates = [
     version: 'v2.0.3',
     comments: 'The extension was temporarily taken down on Firefox due to store regulations.' +
               'We\'ve fixed all of these issues, so it should be available on Firefox again!'
+  },
+  {
+    version: 'v2.1.0',
+    comments: 'HyperChat now stores settings in extension storage! This update is a precursor ' +
+              'to the next major update, which will include a HyperChat-specific settings menu. ' +
+              'We also improved chat message timing mechanics, so messages should be a little less delayed. ' +
+              'PS. We heard that Kiara (my personal oshi) got HyperChat -- ' +
+              'thank you, and we hope you like it!'
   }
 ];

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
+  import { onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import dark from 'smelte/src/dark';
   import WelcomeMessage from './WelcomeMessage.svelte';
@@ -18,7 +18,8 @@
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
 
-  const CHAT_HISTORY_SIZE = 250;
+  const CHAT_HISTORY_SIZE = 150;
+  const TRUNCATE_SIZE = 20;
   let messageActions: (Chat.MessageAction | Welcome)[] = [];
   let pinned: Ytc.ParsedPinned | null;
   let div: HTMLElement;
@@ -39,18 +40,25 @@
     div.scrollTop = div.scrollHeight;
   };
 
-  const truncateMessages = (): void => {
-    if (!isAtBottom) return;
+  const checkTruncateMessages = (): void => {
     const diff = messageActions.length - CHAT_HISTORY_SIZE;
-    if (diff < 0) return;
-    messageActions.splice(0, diff);
+    if (diff > TRUNCATE_SIZE) messageActions.splice(0, diff);
     messageActions = messageActions;
   };
 
-  const newMessage = (messageAction: Chat.MessageAction) => {
+  const newMessages = (
+    messagesAction: Chat.MessagesAction, isInitial: boolean
+  ) => {
     if (!isAtBottom) return;
-    messageActions.push(messageAction);
-    messageActions = messageActions;
+    // On replays' initial data, only show messages with negative timestamp
+    if (isInitial && isReplay) {
+      messageActions.push(...messagesAction.messages.filter(
+        (a) => a.message.timestamp.startsWith('-')
+      ));
+    } else {
+      messageActions.push(...messagesAction.messages);
+    }
+    if (!isInitial) checkTruncateMessages();
   };
 
   const onBonk = (bonk: Ytc.ParsedBonk) => {
@@ -73,10 +81,10 @@
     });
   };
 
-  const onChatAction = (action: Chat.Actions) => {
+  const onChatAction = (action: Chat.Actions, isInitial = false) => {
     switch (action.type) {
-      case 'message':
-        newMessage(action);
+      case 'messages':
+        newMessages(action, isInitial);
         break;
       case 'bonk':
         onBonk(action.bonk);
@@ -97,6 +105,7 @@
   };
 
   const onPortMessage = (response: Chat.BackgroundResponse) => {
+    // console.debug({ response });
     if (responseIsAction(response)) {
       onChatAction(response);
       return;
@@ -104,12 +113,7 @@
     switch (response.type) {
       case 'initialData':
         response.initialData.forEach((action) => {
-          if (
-            isReplay &&
-            action.type === 'message' &&
-            !action.message.timestamp.startsWith('-')
-          ) return;
-          onChatAction(action);
+          onChatAction(action, true);
         });
         messageActions = [...messageActions, welcome];
         break;
@@ -148,10 +152,6 @@
       frameInfo
     });
   };
-
-  onMount(() => {
-    truncateInterval = window.setInterval(truncateMessages, 10000);
-  });
 
   afterUpdate(() => {
     if (isAtBottom) {
