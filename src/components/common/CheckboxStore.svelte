@@ -9,6 +9,7 @@
   /** Checkbox disabled state. */
   export let disabled = false;
 
+  // FIXME: cyclic dependency (how did this work on LTL in the first place lol)
   $: value = $store;
   $: store.set(value);
 </script>

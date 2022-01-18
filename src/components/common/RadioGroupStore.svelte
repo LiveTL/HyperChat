@@ -24,6 +24,7 @@
   $: if (map) {
     items = mapToRadioItem(map);
   }
+  // FIXME: cyclic dependency (how did this work on LTL in the first place lol)
   $: selected = $store as string;
   $: store.set(selected);
 

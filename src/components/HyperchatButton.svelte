@@ -1,27 +1,38 @@
 <script lang='ts'>
   import { isLiveTL } from '../ts/chat-constants';
   import { hcEnabled } from '../ts/storage';
+  import { createPopup } from '../ts/chat-utils';
 
   $: disabled = !$hcEnabled;
 
-  const onClick = () => {
+  const toggleHc = () => {
     $hcEnabled = !$hcEnabled;
     location.reload();
+  };
+
+  const openSettings = () => {
+    createPopup(chrome.runtime.getURL('options.html'));
   };
 
   const logo = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png');
 </script>
 
-<div class="toggleButtonContainer tooltip-bottom" data-tooltip="{disabled ? 'Enable' : 'Disable'} HyperChat">
-  <div class="toggleButton" class:disabled on:click={onClick} >
-    <img src={logo} alt="hc-logo"/>
-    <span>HC</span>
+<div id="hc-buttons">
+  <div class="tooltip-bottom" data-tooltip="{disabled ? 'Enable' : 'Disable'} HyperChat">
+    <div class="toggleButton" class:disabled on:click={toggleHc} >
+      <img src={logo} alt="hc-logo"/>
+      <span>HC</span>
+    </div>
+  </div>
+  <div class="toggleButton" class:disabled on:click={openSettings} >
+    <span>Set</span>
   </div>
 </div>
 
 <style>
-  .toggleButtonContainer {
+  #hc-buttons {
     float: right;
+    display: flex;
   }
 
   .toggleButton {
@@ -33,7 +44,7 @@
     border-radius: 4px;
     padding: 4px 10px;
     margin: -2px 0;
-    min-width: 64px;
+    /* min-width: 64px; */
     height: 28px;
     text-align: center;
     text-overflow: ellipsis;

@@ -4,6 +4,13 @@
   import Card from '../common/Card.svelte';
   import Radio from '../common/RadioGroupStore.svelte';
   import Checkbox from '../common/CheckboxStore.svelte';
+
+  $: console.debug({
+    theme: $theme,
+    showProfileIcons: $showProfileIcons,
+    showTimestamps: $showTimestamps,
+    showUsernames: $showUsernames
+  });
 </script>
 
 <Card title="General" icon="tune">

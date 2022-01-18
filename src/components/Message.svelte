@@ -50,7 +50,7 @@
   {#if !hideName}
     <img
       class="h-5 w-5 inline align-middle rounded-full cursor-auto flex-none"
-      class:hidden={$showProfileIcons}
+      class:hidden={!$showProfileIcons}
       src={message.author.profileIcon.src}
       alt={message.author.profileIcon.alt}
     />
@@ -59,7 +59,7 @@
     {#if !hideName}
       <span
         class="text-xs mr-1 text-gray-700 dark:text-gray-600 align-middle"
-        class:hidden={$showTimestamps}
+        class:hidden={!$showTimestamps}
       >
         {message.timestamp}
       </span>
@@ -69,22 +69,24 @@
       >
         {message.author.name}
       </span>
-      {#if moderator}
-        <Icon class="inline align-middle" small>build</Icon>
-      {:else if verified}
-        <Icon
-          class="inline align-middle text-gray-700 dark:text-gray-500"
-          small
-        >
-          verified
-        </Icon>
-      {:else if member && message.author.customBadge}
-        <img
-          class="h-4 w-4 inline align-middle"
-          src={message.author.customBadge.src}
-          alt={message.author.customBadge.alt}
-        />
-      {/if}
+      <span class="align-middle">
+        {#if moderator}
+          <Icon class="inline align-middle" small>build</Icon>
+        {:else if verified}
+          <Icon
+            class="inline align-middle text-gray-700 dark:text-gray-500"
+            small
+          >
+            verified
+          </Icon>
+        {:else if member && message.author.customBadge}
+          <img
+            class="h-4 w-4 inline align-middle"
+            src={message.author.customBadge.src}
+            alt={message.author.customBadge.alt}
+          />
+        {/if}
+      </span>
       <span class="mr-1.5" />
     {/if}
     <MessageRun runs={message.message} {forceDark} deleted={deleted != null} />
