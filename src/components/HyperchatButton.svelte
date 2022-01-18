@@ -2,6 +2,7 @@
   import { isLiveTL } from '../ts/chat-constants';
   import { hcEnabled } from '../ts/storage';
   import { createPopup } from '../ts/chat-utils';
+  import { mdiCogOutline } from '@mdi/js';
 
   $: disabled = !$hcEnabled;
 
@@ -24,9 +25,13 @@
       <span>HC</span>
     </div>
   </div>
-  <div class="toggleButton" class:disabled on:click={openSettings} >
-    <span>Set</span>
-  </div>
+  {#if $hcEnabled}
+    <div class="toggleButton" class:disabled on:click={openSettings} >
+      <svg viewBox="0 0 24 24" style="height: 20px">
+        <path d={mdiCogOutline} style="fill: var(--yt-live-chat-header-button-color)" />
+      </svg>
+    </div>
+  {/if}
 </div>
 
 <style>
