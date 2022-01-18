@@ -35,6 +35,7 @@
   let truncateInterval: number;
   const isReplay = paramsIsReplay;
   let ytDark = false;
+  const smelteDark = dark();
 
   const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
     'welcome' in m;
@@ -107,12 +108,13 @@
   };
 
   const updateTheme = (theme: Theme, ytDark = false) => {
-    const smelteDark = dark();
     if (theme === Theme.YOUTUBE) {
       smelteDark.set(ytDark);
       return;
     }
     smelteDark.set(theme === Theme.DARK);
+    if (theme === Theme.LIGHT) document.body.classList.add('bg-gray-50');
+    else document.body.classList.remove('bg-gray-50');
   };
 
   const onPortMessage = (response: Chat.BackgroundResponse) => {

@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import Interface from './settings/InterfaceSettings.svelte';
-  import dark from 'smelte/src/dark';
 
-  dark().set(true);
+  onMount(() => {
+    document.body.classList.add('bg-gray-300');
+  });
 </script>
 
 <svelte:head>

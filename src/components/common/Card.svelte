@@ -22,11 +22,11 @@
   class="rounded {margin ? 'my-2' : ''} {clearBg
     ? ''
     : nested
-    ? 'bg-dark-500'
-    : 'bg-dark-600'}"
+    ? 'dark:bg-dark-500'
+    : 'dark:bg-dark-600 bg-white'}"
 >
   <div
-    class="rounded-t p-2 flex flex-row items-center {bgColor || 'bg-dark-400'} {addHeaderClasses}"
+    class="rounded-t p-2 flex flex-row items-center {bgColor || 'dark:bg-dark-400 bg-dark-50'} {addHeaderClasses}"
     on:click={headerOnClick}
   >
     <div class="flex-1 pl-2 flex gap-3 items-center">

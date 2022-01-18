@@ -6,10 +6,27 @@
     showUsernames,
     showUserBadges
   } from '../../ts/storage';
-  import { themeItems } from '../../ts/chat-constants';
+  import { Theme, themeItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
   import Radio from '../common/RadioGroupStore.svelte';
   import Checkbox from '../common/CheckboxStore.svelte';
+  import dark from 'smelte/src/dark';
+
+  const darkStore = dark();
+  $: switch ($theme) {
+    case Theme.DARK:
+      darkStore.set(true);
+      break;
+    case Theme.LIGHT:
+      darkStore.set(false);
+      break;
+    case Theme.YOUTUBE:
+      if (window.location.search.includes('dark')) darkStore.set(true);
+      else darkStore.set(false);
+      break;
+    default:
+      break;
+  }
 
   $: console.debug({
     theme: $theme,
