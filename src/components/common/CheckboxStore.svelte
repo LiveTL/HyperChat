@@ -9,9 +9,13 @@
   /** Checkbox disabled state. */
   export let disabled = false;
 
-  // FIXME: cyclic dependency (how did this work on LTL in the first place lol)
+  function updateStore(value: boolean) {
+    if (value === $store) return;
+    $store = value;
+  }
+
   $: value = $store;
-  $: store.set(value);
+  $: updateStore(value);
 </script>
 
 <Checkbox bind:checked={value} label={name} {disabled} />

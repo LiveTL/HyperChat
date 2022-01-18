@@ -15,7 +15,7 @@
   } from '../ts/chat-constants';
   import { responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
-  import { theme } from '../ts/storage';
+  import { theme, showProfileIcons, showUsernames, showTimestamps } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
@@ -39,6 +39,7 @@
   };
 
   const scrollToBottom = () => {
+    if (div == null) return;
     div.scrollTop = div.scrollHeight;
   };
 
@@ -178,6 +179,10 @@
   });
 
   $: updateTheme($theme, ytDark);
+  // Scroll to bottom when any of these settings change
+  $: ((..._a: any[]) => scrollToBottom())(
+    $showProfileIcons, $showUsernames, $showTimestamps
+  );
 
   const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
   const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1 px-2';

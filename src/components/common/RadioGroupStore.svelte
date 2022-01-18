@@ -21,12 +21,16 @@
     return items;
   };
 
+  function updateStore(value: string | boolean) {
+    if (value === $store) return;
+    $store = value;
+  }
+
   $: if (map) {
     items = mapToRadioItem(map);
   }
-  // FIXME: cyclic dependency (how did this work on LTL in the first place lol)
   $: selected = $store as string;
-  $: store.set(selected);
+  $: updateStore(selected);
 
   const classes = `flex ${vertical ? 'flex-col' : 'gap-3 flex-wrap'}`;
   const buttonClasses = 'inline-flex block items-center cursor-pointer z-0';
