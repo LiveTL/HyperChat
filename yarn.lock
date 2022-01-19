@@ -6803,7 +6803,7 @@ svelte-webext-stores@^0.0.10:
   resolved "https://registry.yarnpkg.com/svelte-webext-stores/-/svelte-webext-stores-0.0.10.tgz#2bc14b93541bb91904348e51e0bf37e87cb0c4dd"
   integrity sha512-jBbFMcZHxVQ9gEQpaOa0QBZei2rZjNhHvYNtiiphdMVQ/67y6Kl6R++6HUFKMLjeFDkTSWQa5kQAXQds2lqvlA==
 
-svelte@^3.31.2, svelte@^3.41.0:
+svelte@^3.31.2:
   version "3.41.0"
   resolved "https://registry.npmjs.org/svelte/-/svelte-3.41.0.tgz"
   integrity sha512-X9/lnTcRBCrMdyFBVjfmqy1T2vyN8ejUE1OfbWSccc2Z42Amn3ab3XdBgVl+oDkZvzPfPMoxo6CEbWca7pXOew==
@@ -7253,10 +7253,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vite-plugin-web-extension@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/vite-plugin-web-extension/-/vite-plugin-web-extension-1.0.4.tgz#9f8571dd809b295861809e7da870def1fc30f53f"
-  integrity sha512-oNliSyVx1HfaWRknlKjTJNjUbkXazNoP3pHhQr9YEcwujMDiC43UQ8lgHd5PBg865jT17AMH8G2FmUv28GKDng==
+vite-plugin-web-extension@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/vite-plugin-web-extension/-/vite-plugin-web-extension-1.0.5.tgz#cb39d0766d82303549c6d2dc2c31807513508db4"
+  integrity sha512-0C/iyYLDo/QxBlW2CwPjLEqkpOA/KJfz9Eb2ndcak7nvv7mYX9KrUfGD5MvVmIShwuffSJL5U5zCPOa8RDoRJA==
   dependencies:
     ajv "^8.8.1"
     web-ext "^6.5.0"
