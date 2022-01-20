@@ -28,7 +28,10 @@ export default defineConfig({
       additionalInputs: [
         'hyperchat.html'
       ],
-      browser: process.env.BROWSER === 'firefox' ? 'firefox' : 'chrome'
+      browser: process.env.BROWSER === 'firefox' ? 'firefox' : 'chrome',
+      webExtConfig: {
+        startUrl: 'https://www.youtube.com/watch?v=5qap5aO4i9A'
+      }
     }),
     svelte({
       configFile: path.resolve(__dirname, 'svelte.config.js'),
