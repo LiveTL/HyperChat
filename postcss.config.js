@@ -20,35 +20,6 @@ const safelistPatterns = [
   /^[mphw]\w?-\d\.5$/
 ];
 
-// module.exports = (minify = false) => {
-//   const postcss = [];
-//   return [
-//     require('postcss-import')(),
-//     require('postcss-url')(),
-//     require('postcss-input-range')(),
-//     require('autoprefixer')(),
-//     require('tailwindcss')(tailwindConfig),
-//     ...postcss,
-//     minify && require('cssnano')({
-//       preset: 'default'
-//     }),
-//     // Always tree shake CSS even in development mode for ~99% size reduction
-//     require('@fullhuman/postcss-purgecss')({
-//       content: ['./**/*.svelte'],
-//       extractors: [
-//         {
-//           extractor,
-//           extensions: ['svelte']
-//         }
-//       ],
-//       safelist: {
-//         standard: safelistSelectors,
-//         deep: safelistPatterns
-//       }
-//     })
-//   ].filter(Boolean);
-// };
-
 module.exports = {
   plugins: {
     'postcss-import': {},
