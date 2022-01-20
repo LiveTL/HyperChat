@@ -18,6 +18,7 @@
   };
 
   const logo = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png');
+  const simplified = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/simplified.png');
 </script>
 
 <div id="hc-buttons">
@@ -29,6 +30,7 @@
   </div>
   {#if $hcEnabled}
     <div class="toggleButton" class:disabled on:click={openSettings} >
+      <img src={simplified} class="floating-icon" alt="hc-settings-float" />
       <svg viewBox="0 0 24 24" style="height: 20px">
         <path d={mdiCogOutline} style="fill: var(--yt-live-chat-header-button-color)" />
       </svg>
@@ -64,6 +66,13 @@
     outline: none;
     cursor: pointer;
     transition: box-shadow 0.2s;
+  }
+  .toggleButton .floating-icon {
+    position: absolute;
+    bottom: 5px;
+    right: 3px;
+    width: 15px;
+    height: 15px;
   }
 
   .toggleButton.disabled {
