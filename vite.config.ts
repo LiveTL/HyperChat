@@ -27,7 +27,8 @@ export default defineConfig({
       ],
       additionalInputs: [
         'hyperchat.html'
-      ]
+      ],
+      browser: process.env.BROWSER === 'firefox' ? 'firefox' : 'chrome'
     }),
     svelte({
       configFile: path.resolve(__dirname, 'svelte.config.js'),

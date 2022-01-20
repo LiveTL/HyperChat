@@ -6,6 +6,7 @@
     "build": "vite build",
     "package": "node utils/package.js",
     "start": "cross-env MINIFY=false vite build --watch",
+    "start:firefox": "cross-env MINIFY=false BROWSER=firefox vite build --watch",
     "format:check": "eslint ."
   },
   "devDependencies": {
