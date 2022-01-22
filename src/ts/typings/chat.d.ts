@@ -55,17 +55,30 @@ declare namespace Chat {
     dark: boolean;
   }
 
-  type BackgroundResponse = Actions | InitialData | ThemeUpdate;
+  interface LtlMessageResponse {
+    type: 'ltlMessage';
+    message: LtlMessage;
+  }
+
+  type BackgroundResponse = Actions | InitialData | ThemeUpdate | LtlMessageResponse;
+
+  type InterceptorSource = 'ytc' | 'ltlMessage';
 
   interface RegisterInterceptorMsg {
     type: 'registerInterceptor';
+    source: InterceptorSource;
+    isReplay?: boolean;
+  }
+
+  interface RegisterYtcInterceptorMsg extends RegisterInterceptorMsg {
+    source: 'ytc';
     isReplay: boolean;
   }
 
   interface RegisterClientMsg {
     type: 'registerClient';
     frameInfo: FrameInfo;
-    getInitialData: boolean;
+    getInitialData?: boolean;
   }
 
   interface JsonMsg {
@@ -95,9 +108,15 @@ declare namespace Chat {
     frameInfo: FrameInfo;
   }
 
+  interface sendLtlMessageMsg {
+    type: 'sendLtlMessage';
+    message: LtlMessage;
+  }
+
   type BackgroundMessage =
     RegisterInterceptorMsg | RegisterClientMsg | processJsonMsg |
-    setInitialDataMsg | updatePlayerProgressMsg | setThemeMsg | getThemeMsg;
+    setInitialDataMsg | updatePlayerProgressMsg | setThemeMsg | getThemeMsg |
+    RegisterYtcInterceptorMsg | sendLtlMessageMsg;
 
   type Port = Omit<chrome.runtime.Port, 'postMessage' | 'onMessage'> & {
     postMessage: (message: BackgroundMessage | BackgroundResponse) => void;
@@ -112,8 +131,25 @@ declare namespace Chat {
     frameInfo: FrameInfo;
     port?: Port;
     clients: Port[];
+    source: InterceptorSource;
+  }
+
+  interface YtcInterceptor extends Interceptor {
+    source: 'ytc';
     dark: boolean;
-    queue: import('../queuee').YtcQueue;
-    queueUnsub?: import('../queuee').Unsubscriber;
+    queue: import('../queue').YtcQueue;
+    queueUnsub?: import('../queue').Unsubscriber;
+  }
+
+  type Interceptors = Interceptor | YtcInterceptor;
+
+  interface LtlMessage {
+    text: string;
+    messageArray: Ytc.ParsedRun[];
+    author: string;
+    timestamp: string;
+    types: number;
+    authorId: string;
+    messageId: string;
   }
 }
