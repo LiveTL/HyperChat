@@ -93,5 +93,11 @@ exports.updates = [
               'We also improved chat message timing mechanics, so messages should be a little less delayed. ' +
               'PS. We heard that Kiara (my personal oshi) got HyperChat -- ' +
               'thank you, and we hope you like it!'
+  },
+  {
+    version: 'v2.2.0',
+    comments: 'HyperChat\'s standalone settings menu is finally here! You can now easily change the ' +
+              'color theme (looking at you, Kiwawa) and toggle options like profile pictures, ' +
+              'timestamps, usernames, badges, and more!'
   }
 ];
