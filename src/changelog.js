@@ -96,8 +96,8 @@ exports.updates = [
   },
   {
     version: 'v2.2.0',
-    comments: 'HyperChat\'s standalone settings menu is finally here! You can now easily change the ' +
-              'color theme (looking at you, Kiwawa) and toggle options like profile pictures, ' +
-              'timestamps, usernames, badges, and more!'
+    comments: 'HyperChat\'s standalone settings menu is finally here! You can now easily toggle ' +
+              'options like profile pictures, timestamps, usernames, badges, and color themes ' +
+              '(inspired by Kiwawa having trouble with turning on dark mode).'
   }
 ];
