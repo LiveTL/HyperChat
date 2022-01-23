@@ -1,7 +1,7 @@
 import HcButton from '../components/HyperchatButton.svelte';
-import { getFrameInfoAsync, isValidFrameInfo, frameIsReplay } from './chat-utils';
-import { isLiveTL, isAndroid } from './chat-constants';
-import { hcEnabled } from './storage';
+import { getFrameInfoAsync, isValidFrameInfo, frameIsReplay } from '../ts/chat-utils';
+import { isLiveTL, isAndroid } from '../ts/chat-constants';
+import { hcEnabled } from '../ts/storage';
 
 // const isFirefox = navigator.userAgent.includes('Firefox');
 

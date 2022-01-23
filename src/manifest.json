@@ -18,14 +18,14 @@
         "https://www.youtube.com/live_chat_replay*"
       ],
       "js": [
-        "ts/chat-interceptor.ts",
-        "ts/chat-injector.ts"
+        "scripts/chat-interceptor.ts",
+        "scripts/chat-injector.ts"
       ],
       "all_frames": true
     }
   ],
   "background": {
-    "scripts": ["ts/chat-background.ts"],
+    "scripts": ["scripts/chat-background.ts"],
     "persistent": true
   },
   "browser_action": {
