@@ -59,7 +59,8 @@ module.exports = (env, options) => {
       'chat-interceptor': path.join(__dirname, 'src', 'ts', 'chat-interceptor.ts'),
       'chat-background': path.join(__dirname, 'src', 'ts', 'chat-background.ts'),
       'chat-injector': path.join(__dirname, 'src', 'ts', 'chat-injector.ts'),
-      hyperchat: path.join(__dirname, 'src', 'hyperchat.ts')
+      hyperchat: path.join(__dirname, 'src', 'hyperchat.ts'),
+      options: path.join(__dirname, 'src', 'options.ts')
     },
     output: {
       path: path.join(__dirname, 'build'),
@@ -136,6 +137,12 @@ module.exports = (env, options) => {
         filename: 'hyperchat.html',
         chunks: ['hyperchat'],
         chunksSortMode: 'manual'
+      }),
+      new HtmlWebpackPlugin({
+        template: path.join(__dirname, 'src', 'template.html'),
+        filename: 'options.html',
+        chunks: ['options'],
+        chunksSortMode: 'manual'
       })
     ]
   };
@@ -146,15 +153,6 @@ module.exports = (env, options) => {
     config.devtool = 'eval-cheap-module-source-map';
     if (watch) {
       config.plugins.push(new webpack.HotModuleReplacementPlugin(), extReloader);
-      // config.devServer = {
-      //   host: 'localhost',
-      //   port: 6000,
-      //   hot: true,
-      //   contentBase: path.join(__dirname, 'build'),
-      //   headers: { 'Access-Control-Allow-Origin': '*' },
-      //   writeToDisk: true,
-      //   disableHostCheck: true
-      // };
     }
   }
 

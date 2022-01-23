@@ -14,34 +14,30 @@
   }
 </script>
 
-<span class="align-middle {$$props.class ?? ''}">
+<span
+  on:click|stopPropagation
+  class="cursor-auto align-middle {deletedClass} {$$props.class ?? ''}"
+  style="word-break: break-word"
+>
   {#each runs as run}
     {#if run.type === 'text'}
-      <span
-        on:click|stopPropagation
-        class="cursor-auto align-middle {deletedClass}"
+      {run.text}
+    {:else if run.type === 'link'}
+      <a
+        class="inline underline align-middle"
+        href={run.url}
+        target="_blank"
       >
         {run.text}
-      </span>
-    {:else if run.type === 'link'}
-        <a
-          class="inline underline align-middle"
-          href={run.url}
-          target="_blank"
-          on:click|stopPropagation
-        >
-          {run.text}
-        </a>
+      </a>
     {:else if run.type === 'emoji' && run.standardEmoji}
       <span
-        on:click|stopPropagation
         class="cursor-auto align-middle text-base"
       >
         {run.alt}
       </span>
     {:else if run.type === 'emoji' && run.src}
       <img
-        on:click|stopPropagation
         class="h-5 w-5 inline mx-0.5 align-middle"
         src={run.src}
         alt={run.alt}

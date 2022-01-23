@@ -102,12 +102,15 @@ declare namespace Ytc {
   /*
    * Misc
    */
-  interface ThumbnailsWithLabel {
+  interface Thumbnails {
     thumbnails: Array<{
       url: string;
       width?: number;
       height?: number;
     }>;
+  }
+
+  interface ThumbnailsWithLabel extends Thumbnails {
     accessibility?: {
       accessibilityData: {
         label: string;
@@ -134,16 +137,13 @@ declare namespace Ytc {
   interface TextMessageRenderer {
     message?: RunsObj;
     authorName?: SimpleTextObj;
+    authorPhoto?: Thumbnails;
     authorBadges?: Array<{
       liveChatAuthorBadgeRenderer: {
         /** Changes based on YT language */
         tooltip: string;
         /** Used to check if author is member ignoring YT language */
-        customThumbnail?: {
-          thumbnails: Array<{
-            url: string;
-          }>;
-        };
+        customThumbnail?: Thumbnails;
         /** Only available for verified, mods and owner */
         icon?: {
           /** Unlocalized string */
@@ -276,6 +276,7 @@ declare namespace Ytc {
       name: string;
       id: string;
       types: string[];
+      profileIcon: ParsedImage;
       customBadge?: ParsedImage;
     };
     message: ParsedRun[];
