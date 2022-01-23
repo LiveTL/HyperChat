@@ -10,10 +10,18 @@
   import {
     paramsTabId,
     paramsFrameId,
-    paramsIsReplay
+    paramsIsReplay,
+    Theme
   } from '../ts/chat-constants';
   import { responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
+  import {
+    theme,
+    showProfileIcons,
+    showUsernames,
+    showTimestamps,
+    showUserBadges
+  } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
@@ -27,6 +35,8 @@
   let port: Chat.Port;
   let truncateInterval: number;
   const isReplay = paramsIsReplay;
+  let ytDark = false;
+  const smelteDark = dark();
 
   const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
     'welcome' in m;
@@ -37,6 +47,7 @@
   };
 
   const scrollToBottom = () => {
+    if (div == null) return;
     div.scrollTop = div.scrollHeight;
   };
 
@@ -104,6 +115,16 @@
     }
   };
 
+  const updateTheme = (theme: Theme, ytDark = false) => {
+    if (theme === Theme.YOUTUBE) {
+      smelteDark.set(ytDark);
+      return;
+    }
+    smelteDark.set(theme === Theme.DARK);
+    if (theme === Theme.LIGHT) document.body.classList.add('bg-gray-50');
+    else document.body.classList.remove('bg-gray-50');
+  };
+
   const onPortMessage = (response: Chat.BackgroundResponse) => {
     // console.debug({ response });
     if (responseIsAction(response)) {
@@ -118,7 +139,7 @@
         messageActions = [...messageActions, welcome];
         break;
       case 'themeUpdate':
-        dark().set(response.dark);
+        ytDark = response.dark;
         break;
       default:
         console.error('Unknown payload type', { port, response });
@@ -164,6 +185,12 @@
     port.disconnect();
     if (truncateInterval) window.clearInterval(truncateInterval);
   });
+
+  $: updateTheme($theme, ytDark);
+  // Scroll to bottom when any of these settings change
+  $: ((..._a: any[]) => scrollToBottom())(
+    $showProfileIcons, $showUsernames, $showTimestamps, $showUserBadges
+  );
 
   const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
   const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1 px-2';
