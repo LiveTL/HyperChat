@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^4.0.3",
+    "@mdi/js": "^6.5.95",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.34",
     "@tsconfig/svelte": "^2.0.1",
     "@types/chrome": "^0.0.149",
@@ -46,6 +47,6 @@
     "tailwindcss": "^2.2.7",
     "typescript": "^4.3.5",
     "vite": "2.7.10",
-    "vite-plugin-web-extension": "^1.0.5"
+    "vite-plugin-web-extension": "^1.0.6"
   }
 }

@@ -127,6 +127,11 @@
   resolved "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-1.2.0.tgz"
   integrity sha512-wdppn25U8z/2yiaT6YGquE6X8sSv7hNMWSXYSSU1jGv/yd6XqjXgTDJ8KP4NgjTXfJ3GbRjeeb8RTV7a/VpM+w==
 
+"@mdi/js@^6.5.95":
+  version "6.5.95"
+  resolved "https://registry.yarnpkg.com/@mdi/js/-/js-6.5.95.tgz#2d895b013408f213252b77c30e0fdaaba6dc8b4b"
+  integrity sha512-x/bwEoAGP+Mo10Dfk5audNIPi7Yz8ZBrILcbXLW3ShOI/njpgodzpgpC2WYK3D2ZSC392peRRemIFb/JsyzzYQ==
+
 "@mdn/browser-compat-data@4.0.11":
   version "4.0.11"
   resolved "https://registry.npmjs.org/@mdn/browser-compat-data/-/browser-compat-data-4.0.11.tgz"
@@ -7253,10 +7258,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vite-plugin-web-extension@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/vite-plugin-web-extension/-/vite-plugin-web-extension-1.0.5.tgz#cb39d0766d82303549c6d2dc2c31807513508db4"
-  integrity sha512-0C/iyYLDo/QxBlW2CwPjLEqkpOA/KJfz9Eb2ndcak7nvv7mYX9KrUfGD5MvVmIShwuffSJL5U5zCPOa8RDoRJA==
+vite-plugin-web-extension@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/vite-plugin-web-extension/-/vite-plugin-web-extension-1.0.6.tgz#b9c61c7754f2441c45ab98b6680885232100abcc"
+  integrity sha512-2J6DcPkG1lJ9bnc+FziuFlm3Vt2SYZac3f50AFsSE6ule+9M0yjuMlZHS5hrd8eh2R3/Tsaoxyjri9BPNjnwJA==
   dependencies:
     ajv "^8.8.1"
     web-ext "^6.5.0"
