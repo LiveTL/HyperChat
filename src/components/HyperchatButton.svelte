@@ -14,7 +14,7 @@
   const isDark = () => document.documentElement.getAttribute('dark') === '';
 
   const openSettings = () => {
-    createPopup(chrome.runtime.getURL(`options.html${isDark() ? '?dark' : ''}`));
+    createPopup(chrome.runtime.getURL(`${isLiveTL ? 'hyperchat/' : ''}options.html${isDark() ? '?dark' : ''}`));
   };
 
   const logo = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png');
