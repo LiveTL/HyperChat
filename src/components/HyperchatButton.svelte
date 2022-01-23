@@ -230,7 +230,7 @@
     text-align: center;
     z-index: 1000;
     padding: 8px;
-    width: 120px;
+    width: max-content;
     background-color: #000;
     background-color: hsla(0, 0%, 20%, 0.9);
     color: #fff;
