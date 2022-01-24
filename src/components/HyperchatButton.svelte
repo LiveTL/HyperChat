@@ -1,27 +1,49 @@
 <script lang='ts'>
   import { isLiveTL } from '../ts/chat-constants';
   import { hcEnabled } from '../ts/storage';
+  import { createPopup } from '../ts/chat-utils';
+  import { mdiCogOutline } from '@mdi/js';
 
   $: disabled = !$hcEnabled;
 
-  const onClick = () => {
+  const toggleHc = () => {
     $hcEnabled = !$hcEnabled;
     location.reload();
   };
 
+  const isDark = () => document.documentElement.getAttribute('dark') === '';
+
+  const openSettings = () => {
+    createPopup(chrome.runtime.getURL(`${isLiveTL ? 'hyperchat/' : ''}options.html${isDark() ? '?dark' : ''}`));
+  };
+
   const logo = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png');
+  const simplified = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/simplified.png');
 </script>
 
-<div class="toggleButtonContainer tooltip-bottom" data-tooltip="{disabled ? 'Enable' : 'Disable'} HyperChat">
-  <div class="toggleButton" class:disabled on:click={onClick} >
-    <img src={logo} alt="hc-logo"/>
-    <span>HC</span>
+<div id="hc-buttons">
+  <div class="tooltip-bottom" data-tooltip="{disabled ? 'Enable' : 'Disable'} HyperChat">
+    <div class="toggleButton" class:disabled on:click={toggleHc} >
+      <img src={logo} alt="hc-logo"/>
+      <span>HC</span>
+    </div>
   </div>
+  {#if $hcEnabled}
+    <div class="tooltip-bottom" data-tooltip="HyperChat Settings">
+      <div class="toggleButton" class:disabled on:click={openSettings} >
+        <img src={simplified} class="floating-icon" alt="hc-settings-float" />
+        <svg viewBox="0 0 24 24" style="height: 20px">
+          <path d={mdiCogOutline} style="fill: var(--yt-live-chat-header-button-color)" />
+        </svg>
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
-  .toggleButtonContainer {
+  #hc-buttons {
     float: right;
+    display: flex;
   }
 
   .toggleButton {
@@ -33,7 +55,7 @@
     border-radius: 4px;
     padding: 4px 10px;
     margin: -2px 0;
-    min-width: 64px;
+    /* min-width: 64px; */
     height: 28px;
     text-align: center;
     text-overflow: ellipsis;
@@ -46,6 +68,13 @@
     outline: none;
     cursor: pointer;
     transition: box-shadow 0.2s;
+  }
+  .toggleButton .floating-icon {
+    position: absolute;
+    bottom: 5px;
+    right: 3px;
+    width: 15px;
+    height: 15px;
   }
 
   .toggleButton.disabled {
@@ -201,7 +230,7 @@
     text-align: center;
     z-index: 1000;
     padding: 8px;
-    width: 120px;
+    width: max-content;
     background-color: #000;
     background-color: hsla(0, 0%, 20%, 0.9);
     color: #fff;

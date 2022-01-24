@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { Browser, BROWSER, isLiveTL } from '../ts/chat-constants';
+  import { Browser, getBrowser, isLiveTL } from '../ts/chat-constants';
   import { updates } from '../changelog.js';
 
   const latest = updates[updates.length - 1];
   const logo = chrome.runtime.getURL(
     (isLiveTL ? 'hyperchat' : 'assets') + '/logo.png'
   );
-  const reviewLink = BROWSER === Browser.FIREFOX
+  const reviewLink = getBrowser() === Browser.FIREFOX
     ? 'https://addons.mozilla.org/en-US/firefox/addon/hyperchat/'
     : 'https://chrome.google.com/webstore/detail/hyperchat-optimized-youtu/naipgebhooiiccifflecbffmnjbabdbh';
   const classes = 'p-2 rounded inline-flex flex-col gap-2 overflow-hidden ' +
