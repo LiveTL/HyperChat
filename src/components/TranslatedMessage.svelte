@@ -5,11 +5,13 @@
 
   export let text: string;
   let translatedMessage = '';
+  let translatedLanguage = '';
   export let showOriginal = false;
 
   $: if ($translateTargetLanguage && $translatorClient) {
     $translatorClient.translate(text, $translateTargetLanguage).then(result => {
       if (result != text) {
+        translatedLanguage = $translateTargetLanguage;
         translatedMessage = result;
         $refreshScroll = true;
       }
@@ -18,8 +20,9 @@
 
   $: showTL = Boolean(translatedMessage && !showOriginal);
 
-  $: if (!$translateTargetLanguage) {
+  $: if ($translateTargetLanguage != translatedLanguage) {
     translatedMessage = '';
+    translatedLanguage = '';
   }
 
   const duration = 100;
