@@ -10,7 +10,7 @@
 
   $: if ($translateTargetLanguage && $translatorClient) {
     $translatorClient.translate(text, $translateTargetLanguage).then(result => {
-      if (result != text) {
+      if (result !== text) {
         translatedLanguage = $translateTargetLanguage;
         translatedMessage = result;
         $refreshScroll = true;
@@ -20,7 +20,7 @@
 
   $: showTL = Boolean(translatedMessage && !showOriginal);
 
-  $: if ($translateTargetLanguage != translatedLanguage) {
+  $: if ($translateTargetLanguage !== translatedLanguage) {
     translatedMessage = '';
     translatedLanguage = '';
   }
@@ -36,12 +36,12 @@
   class:p-1={translatedMessage}
 >
   {#if !showTL}
-    <span in:fade={{duration: translatedMessage ? duration : 0}}>
+    <span in:fade={{ duration: translatedMessage ? duration : 0 }}>
       {text}
     </span>
   {/if}
   {#if showTL}
-    <span in:fade={{duration}}>
+    <span in:fade={{ duration }}>
       {translatedMessage}
     </span>
   {/if}

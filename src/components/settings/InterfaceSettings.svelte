@@ -4,7 +4,7 @@
     showProfileIcons,
     showTimestamps,
     showUsernames,
-    showUserBadges,
+    showUserBadges
   } from '../../ts/storage';
   import { Theme, themeItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';

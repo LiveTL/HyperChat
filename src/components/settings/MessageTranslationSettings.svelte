@@ -8,11 +8,11 @@
   import { AvailableLanguages } from 'iframe-translator';
   import { writable } from 'svelte/store';
   import { onMount } from 'svelte';
-  let enabled = writable(true);
+  const enabled = writable(true);
   $: if (!$enabled) {
     $translateTargetLanguage = '';
   }
-  onMount(() =>{
+  onMount(() => {
     const unsub = translateTargetLanguage.subscribe(value => {
       $enabled = Boolean(value);
       setTimeout(() => unsub(), 0);
