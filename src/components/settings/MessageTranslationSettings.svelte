@@ -24,9 +24,10 @@
     'Indonesian',
     'Korean',
     'Spanish',
-    'Chinese',
     'Russian',
     'French',
+    'Chinese (Traditional)',
+    'Chinese (Simplified)'
   ];
 </script>
 
