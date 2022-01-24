@@ -6,18 +6,19 @@ import { Theme } from './chat-constants';
 export const stores = webExtStores();
 
 export const hcEnabled = stores.addSyncStore('hc.enabled', true);
-export const translateTargetLanguage = stores.addSyncStore('hc.translateTargetLanguage', null as string | null);
+export const translateTargetLanguage = stores.addSyncStore('hc.translateTargetLanguage', '');
 export const translatorClient = readable(null as (null | IframeTranslatorClient), (set) => {
   let client: IframeTranslatorClient | null = null;
   const destroyIf = (): void => {
     if (client !== null) {
       client.destroy();
+      client = null;
     }
     set(null);
   };
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   const unsub = translateTargetLanguage.subscribe(async ($translateTargetLanguage) => {
-    if ($translateTargetLanguage == null) {
+    if (!$translateTargetLanguage) {
       destroyIf();
       return;
     }

@@ -2154,10 +2154,10 @@ icss-utils@^5.0.0, icss-utils@^5.1.0:
   resolved "https://registry.yarnpkg.com/icss-utils/-/icss-utils-5.1.0.tgz#c6be6858abd013d768e98366ae47e25d5887b1ae"
   integrity sha512-soFhflCVWLfRNOPU3iv5Z9VUdT44xFRbzjLsEzSr5AQmgqPMTHdU3PMT1Cf1ssx8fLNJDA1juftYl+PUcv3MqA==
 
-iframe-translator@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/iframe-translator/-/iframe-translator-0.2.0.tgz#10d41fab839f2b05a2895adec3937e7517d18e76"
-  integrity sha512-E0c2TXqXiOID0pf5D/ila65aBU0LhjDZsgETMp8cYnH6exPqUVLxzmGRZm5Hpaih72A10z77xt5nqexeZkKNMw==
+iframe-translator@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/iframe-translator/-/iframe-translator-0.2.2.tgz#467f3c24836f78f20aff61d138047a1c78140b72"
+  integrity sha512-/1yYDJG/TEGwGNySsW9q+bMXNmIgRp/befLy6C6UItBEQyGQGq4irHSBLorXRN7d/nuu/kr+7sTT5ZAL58WFvg==
 
 ignore@^4.0.6:
   version "4.0.6"

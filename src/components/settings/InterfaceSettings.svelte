@@ -4,13 +4,14 @@
     showProfileIcons,
     showTimestamps,
     showUsernames,
-    showUserBadges
+    showUserBadges,
   } from '../../ts/storage';
   import { Theme, themeItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
   import Radio from '../common/RadioGroupStore.svelte';
   import Checkbox from '../common/CheckboxStore.svelte';
   import dark from 'smelte/src/dark';
+  import MessageTranslationSettings from './MessageTranslationSettings.svelte';
 
   const darkStore = dark();
   $: switch ($theme) {
@@ -49,3 +50,5 @@
   <Checkbox name="Show usernames" store={showUsernames} />
   <Checkbox name="Show user badges" store={showUserBadges} />
 </Card>
+
+<MessageTranslationSettings />

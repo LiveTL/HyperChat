@@ -25,14 +25,14 @@
 >
   {#each runs as run}
     {#if run.type === 'text'}
-      {run.text}
+      <TranslatedMessage bind:showOriginal={hovered} text={run.text} />
     {:else if run.type === 'link'}
       <a
         class="inline underline align-middle"
         href={run.url}
         target="_blank"
       >
-        <TranslatedMessage bind:showOriginal={hovered} text={run.text} />
+        {run.text}
       </a>
     {:else if run.type === 'emoji' && run.standardEmoji}
       <span

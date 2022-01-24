@@ -9,12 +9,18 @@
 
   $: if ($translateTargetLanguage && $translatorClient) {
     $translatorClient.translate(text, $translateTargetLanguage).then(result => {
-      translatedMessage = result;
-      $refreshScroll = true;
+      if (result != text) {
+        translatedMessage = result;
+        $refreshScroll = true;
+      }
     });
   }
 
   $: showTL = Boolean(translatedMessage && !showOriginal);
+
+  $: if (!$translateTargetLanguage) {
+    translatedMessage = '';
+  }
 
   const duration = 100;
 </script>
