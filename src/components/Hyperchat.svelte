@@ -14,7 +14,7 @@
   } from '../ts/chat-constants';
   import { responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
-  import { translateTargetLanguage, refreshScroll } from '../ts/storage';
+  import { refreshScroll } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;

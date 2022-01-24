@@ -1,4 +1,3 @@
-import { Language } from './enums';
 import { webExtStores } from 'svelte-webext-stores';
 import { readable, writable } from 'svelte/store';
 import { getClient, IframeTranslatorClient } from 'iframe-translator';
@@ -6,7 +5,7 @@ import { getClient, IframeTranslatorClient } from 'iframe-translator';
 export const stores = webExtStores();
 
 export const hcEnabled = stores.addSyncStore('hc.enabled', true);
-export const translateTargetLanguage = stores.addSyncStore('hc.translateTargetLanguage', Language.English);
+export const translateTargetLanguage = stores.addSyncStore('hc.translateTargetLanguage', '');
 export const translatorClient = readable(null as (null | IframeTranslatorClient), (set) => {
   let client: IframeTranslatorClient | null = null;
   const destroyIf = (): void => {
@@ -17,7 +16,7 @@ export const translatorClient = readable(null as (null | IframeTranslatorClient)
   };
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   const unsub = translateTargetLanguage.subscribe(async ($translateTargetLanguage) => {
-    if ($translateTargetLanguage === Language.None) {
+    if (!$translateTargetLanguage) {
       destroyIf();
       return;
     }

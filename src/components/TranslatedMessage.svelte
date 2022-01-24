@@ -8,7 +8,7 @@
   export let showOriginal = false;
 
   $: if ($translateTargetLanguage && $translatorClient) {
-    $translatorClient.translate(text).then(result => {
+    $translatorClient.translate(text, $translateTargetLanguage).then(result => {
       translatedMessage = result;
       $refreshScroll = true;
     });
