@@ -34,7 +34,7 @@
 <Card title="Additional Options" icon="tune">
   <Checkbox name="Translate chat messages with Google Translate" store={enabled} />
   {#if $enabled}
-    <DropdownStore name="Language"
+    <DropdownStore name="Target language"
     store={translateTargetLanguage}
     items={[
       ...priority,
