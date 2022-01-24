@@ -213,10 +213,15 @@
   resolved "https://registry.yarnpkg.com/@types/source-list-map/-/source-list-map-0.1.2.tgz#0078836063ffaf17412349bba364087e0ac02ec9"
   integrity sha512-K5K+yml8LTo9bWJI/rECfIPrGgxdpeNbj+d53lwN4QjW1MCwlkhUms+gtdzigTeUyBr09+u8BwOIY3MXvHdcsA==
 
-"@types/webpack-sources@^2.1.0":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@types/webpack-sources/-/webpack-sources-2.1.1.tgz#6af17e3a3ded71eec2b98008d7c12f498a0a4506"
-  integrity sha512-MjM1R6iuw8XaVbtkCBz0N349cyqBjJHCbQiOeppe3VBeFvxqs74RKHAVt9LkxTnUWc7YLZOEsUfPUnmK6SBPKQ==
+"@types/webextension-polyfill@^0.8.2":
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/@types/webextension-polyfill/-/webextension-polyfill-0.8.2.tgz#d909371d332ce3e1a94684624deb0a8693eee900"
+  integrity sha512-Pd+p5AQx6s78jr4gDC2p3vbw+uxP2DLLqE9iAJJpZ+OUqDm3txr6uN2wUBEwjVgZTNdBHPsxawGvPCTipF2s6w==
+
+"@types/webpack-sources@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@types/webpack-sources/-/webpack-sources-3.2.0.tgz#16d759ba096c289034b26553d2df1bf45248d38b"
+  integrity sha512-Ft7YH3lEVRQ6ls8k4Ff1oB4jN6oy/XmU6tQISKdhfh+1mR+viZFphS6WL0IrtDOzvefmJg5a0s7ZQoRXwqTEFg==
   dependencies:
     "@types/node" "*"
     "@types/source-list-map" "*"
@@ -852,6 +857,13 @@ clean-css@^4.2.3:
   integrity sha512-VcMWDN54ZN/DS+g58HYL5/n4Zrqe8vHJpGA8KdgUXFU4fuP/aHNw8eld9SyEIyabIMJX/0RaY/fplOo5hYLSFA==
   dependencies:
     source-map "~0.6.0"
+
+clean-webpack-plugin@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/clean-webpack-plugin/-/clean-webpack-plugin-4.0.0.tgz#72947d4403d452f38ed61a9ff0ada8122aacd729"
+  integrity sha512-WuWE1nyTNAyW5T7oNyys2EN0cfP2fdRxhxnIQWiAp0bMabPdHhoGxM8A6YL2GhqwgrPnnaemVE7nv5XJ2Fhh2w==
+  dependencies:
+    del "^4.1.1"
 
 clean-webpack-plugin@^4.0.0-alpha.0:
   version "4.0.0-alpha.0"
@@ -4476,11 +4488,6 @@ smelte@^1.1.6:
     tailwindcss "^2.0.3"
     tinycolor2 "^1.4.2"
 
-source-list-map@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/source-list-map/-/source-list-map-2.0.1.tgz#3993bd873bfc48479cca9ea3a547835c7c154b34"
-  integrity sha512-qnQ7gVMxGNxsiL4lEuJwe/To8UnK7fAnmbGEEH8RpLouuKbeEm0lhbQVFIrNSuB+G7tVrAlVsZgETT5nljf+Iw==
-
 source-map-js@^0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-0.6.2.tgz#0bb5de631b41cfbda6cfba8bd05a80efdfd2385e"
@@ -5069,20 +5076,23 @@ webpack-cli@^4.7.2:
     v8-compile-cache "^2.2.0"
     webpack-merge "^5.7.3"
 
-webpack-ext-reloader@^1.1.8:
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/webpack-ext-reloader/-/webpack-ext-reloader-1.1.8.tgz#2281a6cdcd560017f5508b0f29c64597b32d3eb2"
-  integrity sha512-kO9b6u3i3UrwIbWz95DsbqLCi1Fady/oKmOqCHiNlCqFRivnP7rT6GxQfmPmkcnQNnvodhBOWm4SlYokP+Q0yQ==
+webpack-ext-reloader@^1.1.9:
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/webpack-ext-reloader/-/webpack-ext-reloader-1.1.9.tgz#7d4145c459ba3ec6e377b0e87065f7ea68686a73"
+  integrity sha512-6AVXGrjcVHKtIQn4yGGghJpiIV2h9F7hNKLsh1oP8m+d6H3QLF3jTNu3vNdKu/8Lab3J/gwb7Bm7tjZLa+DS6g==
   dependencies:
+    "@types/webextension-polyfill" "^0.8.2"
     "@types/webpack" "^5.28.0"
-    "@types/webpack-sources" "^2.1.0"
+    "@types/webpack-sources" "^3.2.0"
+    clean-webpack-plugin "^4.0.0"
     colors "^1.4.0"
+    cross-env "^7.0.3"
     lodash "^4.17.21"
     minimist "^1.2.5"
     useragent "^2.3.0"
     webextension-polyfill "^0.8.0"
-    webpack-sources "^2.3.0"
-    ws "^7.5.1"
+    webpack-sources "^3.2.3"
+    ws "^8.4.2"
 
 webpack-merge@^5.7.3:
   version "5.8.0"
@@ -5091,14 +5101,6 @@ webpack-merge@^5.7.3:
   dependencies:
     clone-deep "^4.0.1"
     wildcard "^2.0.0"
-
-webpack-sources@^2.3.0:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-2.3.1.tgz#570de0af163949fe272233c2cefe1b56f74511fd"
-  integrity sha512-y9EI9AO42JjEcrTJFOYmVywVZdKVUfOvDUPsJea5GIr1JOEGFVqwlY2K098fFoIjOkDzHn2AjRvM8dsBZu+gCA==
-  dependencies:
-    source-list-map "^2.0.1"
-    source-map "^0.6.1"
 
 webpack-sources@^3.1.1:
   version "3.1.2"
@@ -5109,6 +5111,11 @@ webpack-sources@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-3.2.0.tgz#b16973bcf844ebcdb3afde32eda1c04d0b90f89d"
   integrity sha512-fahN08Et7P9trej8xz/Z7eRu8ltyiygEo/hnRi9KqBUs80KeDcnf96ZJo++ewWd84fEf3xSX9bp4ZS9hbw0OBw==
+
+webpack-sources@^3.2.3:
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-3.2.3.tgz#2d4daab8451fd4b240cc27055ff6a0c2ccea0cde"
+  integrity sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==
 
 webpack@^5:
   version "5.48.0"
@@ -5202,10 +5209,10 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
 
-ws@^7.5.1:
-  version "7.5.3"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.3.tgz#160835b63c7d97bfab418fc1b8a9fced2ac01a74"
-  integrity sha512-kQ/dHIzuLrS6Je9+uv81ueZomEwH0qVYstcAQ4/Z93K8zeko9gtAbttJWzoC5ukqXY1PpoouV3+VSOqEAFt5wg==
+ws@^8.4.2:
+  version "8.4.2"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.4.2.tgz#18e749868d8439f2268368829042894b6907aa0b"
+  integrity sha512-Kbk4Nxyq7/ZWqr/tarI9yIt/+iNNFOjBXEWgTb4ydaNHBNGgvf2QHbS9fdfsndfjFlFwEd4Al+mw83YkaD10ZA==
 
 xtend@^4.0.2:
   version "4.0.2"
