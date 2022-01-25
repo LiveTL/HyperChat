@@ -29,11 +29,13 @@
     </div>
   </div>
   {#if $hcEnabled}
-    <div class="toggleButton" class:disabled on:click={openSettings} >
-      <img src={simplified} class="floating-icon" alt="hc-settings-float" />
-      <svg viewBox="0 0 24 24" style="height: 20px">
-        <path d={mdiCogOutline} style="fill: var(--yt-live-chat-header-button-color)" />
-      </svg>
+    <div class="tooltip-bottom" data-tooltip="HyperChat Settings">
+      <div class="toggleButton" class:disabled on:click={openSettings} >
+        <img src={simplified} class="floating-icon" alt="hc-settings-float" />
+        <svg viewBox="0 0 24 24" style="height: 20px">
+          <path d={mdiCogOutline} style="fill: var(--yt-live-chat-header-button-color)" />
+        </svg>
+      </div>
     </div>
   {/if}
 </div>
@@ -228,7 +230,7 @@
     text-align: center;
     z-index: 1000;
     padding: 8px;
-    width: 120px;
+    width: max-content;
     background-color: #000;
     background-color: hsla(0, 0%, 20%, 0.9);
     color: #fff;
