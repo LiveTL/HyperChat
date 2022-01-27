@@ -7258,10 +7258,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vite-plugin-web-extension@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/vite-plugin-web-extension/-/vite-plugin-web-extension-1.0.6.tgz#b9c61c7754f2441c45ab98b6680885232100abcc"
-  integrity sha512-2J6DcPkG1lJ9bnc+FziuFlm3Vt2SYZac3f50AFsSE6ule+9M0yjuMlZHS5hrd8eh2R3/Tsaoxyjri9BPNjnwJA==
+vite-plugin-web-extension@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/vite-plugin-web-extension/-/vite-plugin-web-extension-1.0.7.tgz#b0fd05da2e09c96293f84aeac9cc75fcf84fc93e"
+  integrity sha512-LoG1/6ixWKj7v51ygrLpXOUpEgonXnzn+mHmWONf3BNfT0q94an6+qJceQZNuhhvojVtsCgrEB+ONMVPTx+3iA==
   dependencies:
     ajv "^8.8.1"
     web-ext "^6.5.0"
