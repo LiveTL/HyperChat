@@ -3274,15 +3274,15 @@ icss-utils@^5.0.0:
   resolved "https://registry.npmjs.org/icss-utils/-/icss-utils-5.1.0.tgz"
   integrity sha512-soFhflCVWLfRNOPU3iv5Z9VUdT44xFRbzjLsEzSr5AQmgqPMTHdU3PMT1Cf1ssx8fLNJDA1juftYl+PUcv3MqA==
 
-iframe-translator@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/iframe-translator/-/iframe-translator-0.2.2.tgz#467f3c24836f78f20aff61d138047a1c78140b72"
-  integrity sha512-/1yYDJG/TEGwGNySsW9q+bMXNmIgRp/befLy6C6UItBEQyGQGq4irHSBLorXRN7d/nuu/kr+7sTT5ZAL58WFvg==
-
 ieee754@^1.1.13:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
   integrity sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==
+
+iframe-translator@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/iframe-translator/-/iframe-translator-0.2.2.tgz#467f3c24836f78f20aff61d138047a1c78140b72"
+  integrity sha512-/1yYDJG/TEGwGNySsW9q+bMXNmIgRp/befLy6C6UItBEQyGQGq4irHSBLorXRN7d/nuu/kr+7sTT5ZAL58WFvg==
 
 ignore@^4.0.6:
   version "4.0.6"
