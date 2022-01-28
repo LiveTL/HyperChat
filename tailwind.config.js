@@ -31,6 +31,10 @@ const smelteConfig = {
         deleted: {
           light: '#6E6B6B',
           dark: '#898888'
+        },
+        translated: {
+          light: '#4787ed',
+          dark: '#8bb7ff'
         }
       }
     }

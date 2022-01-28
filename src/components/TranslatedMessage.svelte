@@ -3,6 +3,8 @@
   import Icon from './common/Icon.svelte';
   import { fade } from 'svelte/transition';
 
+  export let forceDark = false;
+
   export let text: string;
   let translatedMessage = '';
   let translatedLanguage = '';
@@ -26,14 +28,16 @@
   }
 
   const duration = 100;
+
+  $: translatedColor = forceDark ? 'dark:text-translated-dark' : 'text-translated-light';
+  $: stockTextColor = forceDark ? 'dark:text-white' : 'text-black';
 </script>
 
 <span 
-  class="{
-    showTL ? 'dark:bg-secondary-600 bg-secondary-50' : ''
-  } text-black dark:text-white"
+  class={
+    showTL ? translatedColor : stockTextColor
+  }
   class:entrance-animation={translatedMessage}
-  class:p-1={translatedMessage}
 >
   {#if !showTL}
     <span in:fade={{ duration: translatedMessage ? duration : 0 }}>
