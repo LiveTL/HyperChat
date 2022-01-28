@@ -15,7 +15,7 @@ jobs:
         run: yarn
       - name: Build extensions
         run: |
-          yarn build:production --env version=$(echo -n ${{ github.ref }} | sed 's/[refs\/tagv]//g')
+          VERSION=$(echo -n ${{ github.ref }} | sed 's/[refs\/tagv]//g') yarn build
           yarn package
       - name: Upload Chrome package to release
         uses: svenstaro/upload-release-action@v2

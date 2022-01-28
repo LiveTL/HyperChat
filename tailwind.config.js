@@ -38,7 +38,8 @@ const smelteConfig = {
         }
       }
     }
-  }
+  },
+  purge: false
 };
 
 module.exports = smelteTailwind(smelteConfig);
