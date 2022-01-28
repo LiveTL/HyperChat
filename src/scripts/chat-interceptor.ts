@@ -1,5 +1,5 @@
-import { fixLeaks } from './ytc-fix-memleaks';
-import { frameIsReplay as isReplay } from './chat-utils';
+import { fixLeaks } from '../ts/ytc-fix-memleaks';
+import { frameIsReplay as isReplay } from '../ts/chat-utils';
 
 const chatLoaded = async (): Promise<void> => {
   if (document.querySelector('.toggleButton')) {

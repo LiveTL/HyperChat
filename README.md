@@ -29,7 +29,7 @@ yarn # install dependencies
 Build or serve the extension:
 
 ```bash
-yarn start # hot extension reload
-yarn build:production # production mode
-yarn build:production --env version=x.x.x
+yarn start # watch mode
+yarn build # production mode
+VERSION=x.x.x yarn build
 ```

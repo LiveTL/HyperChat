@@ -10,13 +10,14 @@
     "lib": [
       "DOM"
     ],
-    "target": "ES6",
+    "target": "ES2017",
     "resolveJsonModule": true
   },
   "include": [
     "src/**/*",
     "*.js",
-    "utils/**/*"
+    "utils/**/*",
+    "vite.config.ts"
   ],
   "exclude": [
     "node_modules",
