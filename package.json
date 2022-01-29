@@ -8,7 +8,8 @@
     "start": "cross-env MINIFY=false vite build --watch",
     "start:none": "cross-env MINIFY=false BROWSER=none vite build --watch",
     "start:firefox": "cross-env MINIFY=false BROWSER=firefox vite build --watch",
-    "format:check": "eslint ."
+    "format:check": "eslint .",
+    "format:fix": "eslint --cache --fix ."
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^4.0.3",

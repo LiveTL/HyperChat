@@ -39,7 +39,7 @@
   }
   class:cursor-pointer={translatedMessage}
   class:entrance-animation={translatedMessage}
-  on:click|stopPropagation={() => {
+  on:click={() => {
     if (translatedMessage) {
       showOriginal = !showOriginal;
       $refreshScroll = true;
