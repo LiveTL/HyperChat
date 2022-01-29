@@ -28,3 +28,9 @@ pnpm-debug.log*
 *.pub
 *.zip
 artifacts
+
+# e2e tests
+failure-*.png
+geckodriver.log
+__pycache__/
+.pytest_cache/
