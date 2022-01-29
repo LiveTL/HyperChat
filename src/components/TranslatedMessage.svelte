@@ -29,8 +29,8 @@
 
   const duration = 100;
 
-  $: translatedColor = forceDark ? 'dark:text-translated-dark' : 'text-translated-light';
-  $: stockTextColor = forceDark ? 'dark:text-white' : 'text-black';
+  $: translatedColor = forceDark ? 'text-translated-dark' : 'dark:text-translated-dark text-translated-light';
+  $: stockTextColor = forceDark ? 'text-white' : 'dark:text-white text-black';
 </script>
 
 <span 
