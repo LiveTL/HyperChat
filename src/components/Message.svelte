@@ -50,7 +50,6 @@
     message.message = deleted.replace;
   }
 
-  let hovered = false;
   $: showUserMargin = $showProfileIcons || $showUsernames || $showTimestamps ||
     ($showUserBadges && (moderator || verified || member));
 </script>
@@ -59,8 +58,6 @@
 <div 
   class="inline-flex flex-row gap-2 break-words overflow-hidden w-full"
   on:click|stopPropagation
-  on:mouseover={() => (hovered = true)}
-  on:mouseleave={() => (hovered = false)}
 >
   {#if !hideName && $showProfileIcons}
     <img
@@ -103,6 +100,6 @@
       </span>
       <span class="mr-1.5" class:hidden={!showUserMargin} />
     {/if}
-    <MessageRun runs={message.message} {forceDark} deleted={deleted != null} bind:hovered />
+    <MessageRun runs={message.message} {forceDark} deleted={deleted != null} />
   </div>
 </div>

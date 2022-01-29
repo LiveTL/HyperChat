@@ -14,8 +14,6 @@
   } else if (!deleted) {
     deletedClass = '';
   }
-
-  export let hovered = false;
 </script>
 
 <span
@@ -25,7 +23,7 @@
 >
   {#each runs as run}
     {#if run.type === 'text'}
-      <TranslatedMessage bind:showOriginal={hovered} text={run.text} {forceDark} />
+      <TranslatedMessage text={run.text} {forceDark} />
     {:else if run.type === 'link'}
       <a
         class="inline underline align-middle"

@@ -260,6 +260,6 @@
     background-color: transparent;
   }
   .hover-highlight:hover {
-    background-color: #80808080;
+    background-color: #80808040;
   }
 </style>

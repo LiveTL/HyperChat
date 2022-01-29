@@ -8,7 +8,7 @@
   export let text: string;
   let translatedMessage = '';
   let translatedLanguage = '';
-  export let showOriginal = false;
+  let showOriginal = false;
 
   $: if ($translateTargetLanguage && $translatorClient) {
     $translatorClient.translate(text, $translateTargetLanguage).then(result => {
@@ -37,7 +37,14 @@
   class={
     showTL ? translatedColor : stockTextColor
   }
+  class:cursor-pointer={translatedMessage}
   class:entrance-animation={translatedMessage}
+  on:click|stopPropagation={() => {
+    if (translatedMessage) {
+      showOriginal = !showOriginal;
+      $refreshScroll = true;
+    }
+  }}
 >
   {#if !showTL}
     <span in:fade={{ duration: translatedMessage ? duration : 0 }}>
