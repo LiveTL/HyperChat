@@ -5,6 +5,8 @@ import path from 'path';
 import copy from 'rollup-plugin-copy';
 import manifest from './src/manifest.json';
 
+const open = process.env.BROWSER !== 'none';
+
 export default defineConfig({
   root: 'src',
   build: {
@@ -28,10 +30,14 @@ export default defineConfig({
       additionalInputs: [
         'hyperchat.html'
       ],
-      browser: process.env.BROWSER === 'firefox' ? 'firefox' : 'chrome',
-      webExtConfig: {
-        startUrl: 'https://www.youtube.com/watch?v=5qap5aO4i9A'
-      }
+      ...(open
+        ? {
+            browser: process.env.BROWSER === 'firefox' || !open ? 'firefox' : 'chrome',
+            webExtConfig: {
+              startUrl: 'https://www.youtube.com/watch?v=5qap5aO4i9A'
+            }
+          }
+        : {})
     }),
     svelte({
       configFile: path.resolve(__dirname, 'svelte.config.js'),
@@ -50,5 +56,8 @@ export default defineConfig({
         rename: 'manifest.chrome.json'
       }]
     })
-  ]
+  ],
+  server: {
+    open
+  }
 });
