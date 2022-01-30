@@ -29,7 +29,9 @@ yarn # install dependencies
 Build or serve the extension:
 
 ```bash
-yarn start # watch mode
+yarn start:none # watch mode, no auto-install
+yarn start # watch mode, auto-install on chrome
+yarn start:firefox # watch mode, auto-install on firefox
 yarn build # production mode
 VERSION=x.x.x yarn build
 ```
