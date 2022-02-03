@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Browser, getBrowser, isLiveTL } from '../ts/chat-constants';
   import { updates } from '../changelog.js';
+  import { fade } from 'svelte/transition';
 
   const latest = updates[updates.length - 1];
   const logo = chrome.runtime.getURL(
@@ -9,43 +10,49 @@
   const reviewLink = getBrowser() === Browser.FIREFOX
     ? 'https://addons.mozilla.org/en-US/firefox/addon/hyperchat/'
     : 'https://chrome.google.com/webstore/detail/hyperchat-optimized-youtu/naipgebhooiiccifflecbffmnjbabdbh';
-  const classes = 'p-2 rounded inline-flex flex-col gap-2 overflow-hidden ' +
+  const classes = 'p-2 rounded inline-flex flex-col overflow-hidden ' +
    'bg-secondary-50 dark:bg-secondary-600 w-full';
+
+  const badges = [
+    {
+      name: 'Review',
+      href: reviewLink
+    },
+    {
+      name: 'GitHub',
+      href: 'https://github.com/LiveTL/LiveTL/'
+    },
+    {
+      name: 'Discord',
+      href: 'https://discord.gg/uJrV3tmthg'
+    },
+    {
+      name: 'Donate',
+      href: 'https://opencollective.com/livetl'
+    },
+  ];
 </script>
 
 <div class={classes}>
-  <div class="flex items-center">
+  <div class="flex items-center w-full">
     <div>
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
     </div>
-    <h5 class="font-bold ml-3">HyperChat by LiveTL</h5>
+    <span class="ml-3 leading-tight">
+      <h5 class="font-bold">HyperChat by LiveTL</h5>
+      <p>Optimized YouTube Chat</p>
+    </span>
   </div>
-  <div>
-    <i>It may take a few seconds for messages to start appearing.</i>
-    <br/>
-    <strong>HyperChat can reduce CPU usage by up to 80%!</strong>
-  </div>
-  <div>
-    <span>Don't forget to </span>
-    <a href={reviewLink} target="_blank" class="underline">
-      drop a 5-star review,
-    </a>
-    <a href="https://livetl.app/hyperchat" target="_blank" class="underline">
-      share with your friends,
-    </a>
-    <a href="https://discord.gg/uJrV3tmthg" target="_blank" class="underline">
-      join our Discord server,
-    </a>
-    <a href="https://github.com/LiveTL/HyperChat" target="_blank" class="underline">
-      star the GitHub repository,
-    </a>
-    <span>and</span>
-    <a href="https://opencollective.com/livetl" target="_blank" class="underline">
-      chip in a few dollars to help fund future projects (stay tuned)!
-    </a>
-  </div>
-  <div>
-    <strong>NEW IN {latest?.version}:</strong>
-    <span>{latest?.comments}</span>
+  <div class="flex flex-wrap leading-tight">
+    {#each badges as { name, href }, i}
+      <p class="mr-1 mt-1">
+        <a {href} class="underline" target="_blank">
+          {name}
+        </a>
+        {#if i != badges.length - 1}
+          /
+        {/if}
+      </p>
+    {/each}
   </div>
 </div>
