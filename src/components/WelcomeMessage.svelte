@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { lastClosedVersion } from '../ts/storage';
   import { Browser, getBrowser, isLiveTL } from '../ts/chat-constants';
-  import { updates } from '../changelog.js';
-  import { fade } from 'svelte/transition';
+  import Changelog from './changelog/Changelog.svelte';
+  import { version } from '../manifest.json';
+  import Icon from './common/Icon.svelte';
 
-  const latest = updates[updates.length - 1];
   const logo = chrome.runtime.getURL(
     (isLiveTL ? 'hyperchat' : 'assets') + '/logo.png'
   );
@@ -46,7 +47,7 @@
   <div class="flex flex-wrap leading-tight">
     {#each badges as { name, href }, i}
       <p class="mr-1 mt-1">
-        <a {href} class="underline" target="_blank">
+        <a {href} class="underline text-primary-50" target="_blank">
           {name}
         </a>
         {#if i != badges.length - 1}
@@ -55,4 +56,23 @@
       </p>
     {/each}
   </div>
+    <strong>
+      <p class="leading-tight mt-1 flex items-center">
+        {#if $lastClosedVersion !== version}
+          New in v{version}:
+          <Changelog />
+          <Icon on:click={(e) => {
+            $lastClosedVersion = version;
+            e.preventDefault();
+          }} class="text-sm cursor-pointer">close</Icon>
+        {:else}
+          <a href="/" on:click={(e) => {
+            $lastClosedVersion = '';
+            e.preventDefault();
+          }} class="underline">
+              See what's new in v{version}
+          </a>
+        {/if}
+      </p>
+    </strong>
 </div>

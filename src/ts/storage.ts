@@ -10,3 +10,4 @@ export const showProfileIcons = stores.addSyncStore('hc.messages.showProfileIcon
 export const showUsernames = stores.addSyncStore('hc.messages.showUsernames', true);
 export const showTimestamps = stores.addSyncStore('hc.messages.showTimestamps', false);
 export const showUserBadges = stores.addSyncStore('hc.messages.showUserBadges', true);
+export const lastClosedVersion = stores.addSyncStore('hc.lastClosedVersion', '');
