@@ -1,4 +1,6 @@
 <script lang="ts">
+  import TranslatedMessage from './TranslatedMessage.svelte';
+
   export let runs: Ytc.ParsedRun[];
   export let forceDark = false;
   export let deleted = false;
@@ -21,7 +23,7 @@
 >
   {#each runs as run}
     {#if run.type === 'text'}
-      {run.text}
+      <TranslatedMessage text={run.text} {forceDark} />
     {:else if run.type === 'link'}
       <a
         class="inline underline align-middle"

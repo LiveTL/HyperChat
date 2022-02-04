@@ -54,11 +54,14 @@
     ($showUserBadges && (moderator || verified || member));
 </script>
 
-<div on:click|stopPropagation class="inline-flex flex-row gap-2">
-  {#if !hideName}
+<!-- svelte-ignore a11y-mouse-events-have-key-events -->
+<div 
+  class="inline-flex flex-row gap-2 break-words overflow-hidden w-full"
+  on:click|stopPropagation
+>
+  {#if !hideName && $showProfileIcons}
     <img
       class="h-5 w-5 inline align-middle rounded-full cursor-auto flex-none"
-      class:hidden={!$showProfileIcons}
       src={message.author.profileIcon.src}
       alt={message.author.profileIcon.alt}
     />
@@ -82,7 +85,7 @@
           <Icon class="inline align-middle" small>build</Icon>
         {:else if verified}
           <Icon
-            class="inline align-middle text-gray-700 dark:text-gray-500"
+            class="inline align-middle text-gray-500"
             small
           >
             verified

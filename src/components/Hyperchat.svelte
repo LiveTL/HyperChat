@@ -20,7 +20,8 @@
     showProfileIcons,
     showUsernames,
     showTimestamps,
-    showUserBadges
+    showUserBadges,
+    refreshScroll
   } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -174,12 +175,19 @@
     });
   };
 
-  afterUpdate(() => {
+  const onRefresh = () => {
     if (isAtBottom) {
       scrollToBottom();
     }
     tick().then(checkAtBottom);
-  });
+  };
+
+  $: if ($refreshScroll) {
+    onRefresh();
+    $refreshScroll = false;
+  }
+
+  afterUpdate(onRefresh);
 
   onDestroy(() => {
     port.disconnect();
@@ -193,7 +201,7 @@
   );
 
   const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
-  const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1 px-2';
+  const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1';
   const pinnedClass = 'absolute top-2 inset-x-2';
 </script>
 
@@ -202,7 +210,7 @@
 <div class={containerClass} style="font-size: 13px">
   <div class={contentClass} bind:this={div} on:scroll={checkAtBottom}>
     {#each messageActions as action (action.message.messageId)}
-      <div class="my-2">
+      <div class={isWelcome(action) ? 'm-2' : 'p-1 m-1 hover-highlight flex rounded'}>
         {#if isWelcome(action)}
           <WelcomeMessage />
         {:else if (action.message.superChat || action.message.superSticker)}
@@ -246,5 +254,12 @@
   }
   .content::-webkit-scrollbar-thumb:hover {
     background: #555;
+  }
+  .hover-highlight {
+    transition: 0.1s;
+    background-color: transparent;
+  }
+  .hover-highlight:hover {
+    background-color: #80808040;
   }
 </style>

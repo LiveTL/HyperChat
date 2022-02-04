@@ -28,3 +28,4 @@ pnpm-debug.log*
 *.pub
 *.zip
 artifacts
+.eslintcache
