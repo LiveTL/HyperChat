@@ -1,6 +1,6 @@
 {
   "name": "HyperChat",
-  "version": "2.3.0",
+  "version": "69.42.0",
   "private": true,
   "scripts": {
     "build": "vite build",

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { lastClosedVersion } from '../ts/storage';
+  import { lastClosedVersion, refreshScroll } from '../ts/storage';
   import { Browser, getBrowser, isLiveTL } from '../ts/chat-constants';
   import Changelog from './changelog/Changelog.svelte';
   import { version } from '../manifest.json';
@@ -32,6 +32,8 @@
       href: 'https://opencollective.com/livetl'
     },
   ];
+
+  $: showChangelog = $lastClosedVersion !== version;
 </script>
 
 <div class={classes}>
@@ -39,40 +41,36 @@
     <div>
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
     </div>
-    <span class="ml-3 leading-tight">
+    <span class="ml-2 leading-tight">
       <h5 class="font-bold">HyperChat by LiveTL</h5>
       <p>Optimized YouTube Chat</p>
+      <div class="flex flex-wrap">
+        {#each badges as { name, href }, i}
+          <p class="mr-1">
+            <a {href} class="underline text-primary-50" target="_blank">
+              {name}
+            </a>
+            {#if i != badges.length - 1}
+              /
+            {/if}
+          </p>
+        {/each}
+      </div>
     </span>
   </div>
-  <div class="flex flex-wrap leading-tight">
-    {#each badges as { name, href }, i}
-      <p class="mr-1 mt-1">
-        <a {href} class="underline text-primary-50" target="_blank">
-          {name}
-        </a>
-        {#if i != badges.length - 1}
-          /
-        {/if}
-      </p>
-    {/each}
-  </div>
-    <strong>
-      <p class="leading-tight mt-1 flex items-center">
-        {#if $lastClosedVersion !== version}
-          New in v{version}:
-          <Changelog />
-          <Icon on:click={(e) => {
-            $lastClosedVersion = version;
-            e.preventDefault();
-          }} class="text-sm cursor-pointer">close</Icon>
-        {:else}
-          <a href="/" on:click={(e) => {
-            $lastClosedVersion = '';
-            e.preventDefault();
-          }} class="underline">
-              See what's new in v{version}
-          </a>
-        {/if}
-      </p>
-    </strong>
+  <p class="leading-tight mt-1.5">
+    {#if showChangelog}
+      <strong class="mr-0.5">
+        New in v{version}:
+      </strong>
+      <Changelog />
+    {:else}
+      <a href="/" on:click={(e) => {
+        $lastClosedVersion = '';
+        e.preventDefault();
+      }} class="underline">
+        See what's new in v{version}
+      </a>
+    {/if}
+  </p>
 </div>
