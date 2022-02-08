@@ -1,6 +1,7 @@
 import { webExtStores } from 'svelte-webext-stores';
 import { readable, writable } from 'svelte/store';
-import { getClient, IframeTranslatorClient } from 'iframe-translator';
+import { getClient } from 'iframe-translator';
+import type { IframeTranslatorClient } from 'iframe-translator';
 import { Theme } from './chat-constants';
 
 export const stores = webExtStores();
