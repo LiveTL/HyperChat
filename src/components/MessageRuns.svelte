@@ -24,7 +24,7 @@
   {#each runs as run}
     {#if run.type === 'text'}
       {#if deleted}
-        {run.text}
+        <span>{run.text}</span>
       {:else}
         <TranslatedMessage text={run.text} {forceDark} />
       {/if}
