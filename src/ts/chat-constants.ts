@@ -35,6 +35,6 @@ export const enum Theme {
 
 export const themeItems = [
   { value: Theme.YOUTUBE, label: 'Use YouTube theme' },
-  { value: Theme.LIGHT, label: 'Force light theme' },
-  { value: Theme.DARK, label: 'Force dark theme' }
+  { value: Theme.LIGHT, label: 'Light theme' },
+  { value: Theme.DARK, label: 'Dark theme' }
 ];
