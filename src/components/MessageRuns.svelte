@@ -23,7 +23,11 @@
 >
   {#each runs as run}
     {#if run.type === 'text'}
-      <TranslatedMessage text={run.text} {forceDark} />
+      {#if deleted}
+        <span>{run.text}</span>
+      {:else}
+        <TranslatedMessage text={run.text} {forceDark} />
+      {/if}
     {:else if run.type === 'link'}
       <a
         class="inline underline align-middle"
