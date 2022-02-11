@@ -14,7 +14,10 @@
   const classes = 'p-2 rounded inline-flex flex-col overflow-hidden ' +
    'bg-secondary-50 dark:bg-secondary-600 w-full';
 
-  const badges = [
+  const badges: {
+    name: string;
+    href: string;
+  }[] = [
     {
       name: 'Review',
       href: reviewLink
@@ -30,7 +33,7 @@
     {
       name: 'Donate',
       href: 'https://opencollective.com/livetl'
-    },
+    }
   ];
 
   $: showChangelog = $lastClosedVersion !== version;
@@ -43,34 +46,55 @@
     </div>
     <span class="ml-2 leading-tight">
       <h5 class="font-bold">HyperChat by LiveTL</h5>
-      <p>Optimized YouTube Chat</p>
+      <p>
+        Optimized YouTube Chat
+        /
+        {#if !showChangelog}
+          <a href="/" on:click={(e) => {
+            $lastClosedVersion = '';
+            $refreshScroll = true;
+            e.preventDefault();
+          }} class="underline dark:text-primary-50 text-primary-900">
+            v{version}
+          </a>
+        {:else}
+          v{version}
+        {/if}
+      </p>
       <div class="flex flex-wrap">
-        {#each badges as { name, href }, i}
-          <p class="mr-1">
-            <a {href} class="underline text-primary-50" target="_blank">
-              {name}
+        {#each badges as badge, i}
+          <p>
+            <a 
+              href={badge.href}
+              class="underline dark:text-primary-50 text-primary-900"
+              target="_blank"
+            >
+              {badge.name}
             </a>
-            {#if i != badges.length - 1}
-              /
-            {/if}
           </p>
+          {#if i !== badges.length - 1}
+            <span style="margin: 0px 0.2em;">/</span>
+          {/if}
         {/each}
       </div>
     </span>
   </div>
-  <p class="leading-tight mt-1.5">
-    {#if showChangelog}
+  {#if showChangelog}
+    <p class="leading-tight mt-1.5">
+      <span href="/" on:click={(e) => {
+        $lastClosedVersion = version;
+        $refreshScroll = true;
+        e.preventDefault();
+      }}
+      class="inline-block align-middle cursor-pointer">
+        <Icon xs>
+          close
+        </Icon>
+      </span>
       <strong class="mr-0.5">
         New in v{version}:
       </strong>
       <Changelog />
-    {:else}
-      <a href="/" on:click={(e) => {
-        $lastClosedVersion = '';
-        e.preventDefault();
-      }} class="underline">
-        See what's new in v{version}
-      </a>
-    {/if}
-  </p>
+    </p>
+  {/if}
 </div>
