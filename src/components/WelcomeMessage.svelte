@@ -1,51 +1,100 @@
 <script lang="ts">
+  import { lastClosedVersion, refreshScroll } from '../ts/storage';
   import { Browser, getBrowser, isLiveTL } from '../ts/chat-constants';
-  import { updates } from '../changelog.js';
+  import Changelog from './changelog/Changelog.svelte';
+  import { version } from '../manifest.json';
+  import Icon from './common/Icon.svelte';
 
-  const latest = updates[updates.length - 1];
   const logo = chrome.runtime.getURL(
     (isLiveTL ? 'hyperchat' : 'assets') + '/logo.png'
   );
   const reviewLink = getBrowser() === Browser.FIREFOX
     ? 'https://addons.mozilla.org/en-US/firefox/addon/hyperchat/'
     : 'https://chrome.google.com/webstore/detail/hyperchat-optimized-youtu/naipgebhooiiccifflecbffmnjbabdbh';
-  const classes = 'p-2 rounded inline-flex flex-col gap-2 overflow-hidden ' +
+  const classes = 'p-2 rounded inline-flex flex-col overflow-hidden ' +
    'bg-secondary-50 dark:bg-secondary-600 w-full';
+
+  const badges: {
+    name: string;
+    href: string;
+  }[] = [
+    {
+      name: 'Review',
+      href: reviewLink
+    },
+    {
+      name: 'GitHub',
+      href: 'https://github.com/LiveTL/LiveTL/'
+    },
+    {
+      name: 'Discord',
+      href: 'https://discord.gg/uJrV3tmthg'
+    },
+    {
+      name: 'Donate',
+      href: 'https://opencollective.com/livetl'
+    }
+  ];
+
+  $: showChangelog = $lastClosedVersion !== version;
 </script>
 
 <div class={classes}>
-  <div class="flex items-center">
+  <div class="flex items-center w-full">
     <div>
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
     </div>
-    <h5 class="font-bold ml-3">HyperChat by LiveTL</h5>
+    <span class="ml-2 leading-tight">
+      <h5 class="font-bold">HyperChat by LiveTL</h5>
+      <p>
+        Optimized YouTube Chat
+        /
+        {#if !showChangelog}
+          <a href="/" on:click={(e) => {
+            $lastClosedVersion = '';
+            $refreshScroll = true;
+            e.preventDefault();
+          }} class="underline dark:text-primary-50 text-primary-900">
+            v{version}
+          </a>
+        {:else}
+          v{version}
+        {/if}
+      </p>
+      <div class="flex flex-wrap">
+        {#each badges as badge, i}
+          <p>
+            <a 
+              href={badge.href}
+              class="underline dark:text-primary-50 text-primary-900"
+              target="_blank"
+            >
+              {badge.name}
+            </a>
+          </p>
+          {#if i !== badges.length - 1}
+            <span style="margin: 0px 0.2em;">/</span>
+          {/if}
+        {/each}
+      </div>
+    </span>
   </div>
-  <div>
-    <i>It may take a few seconds for messages to start appearing.</i>
-    <br/>
-    <strong>HyperChat can reduce CPU usage by up to 80%!</strong>
-  </div>
-  <div>
-    <span>Don't forget to </span>
-    <a href={reviewLink} target="_blank" class="underline">
-      drop a 5-star review,
-    </a>
-    <a href="https://livetl.app/hyperchat" target="_blank" class="underline">
-      share with your friends,
-    </a>
-    <a href="https://discord.gg/uJrV3tmthg" target="_blank" class="underline">
-      join our Discord server,
-    </a>
-    <a href="https://github.com/LiveTL/HyperChat" target="_blank" class="underline">
-      star the GitHub repository,
-    </a>
-    <span>and</span>
-    <a href="https://opencollective.com/livetl" target="_blank" class="underline">
-      chip in a few dollars to help fund future projects (stay tuned)!
-    </a>
-  </div>
-  <div>
-    <strong>NEW IN {latest?.version}:</strong>
-    <span>{latest?.comments}</span>
-  </div>
+  {#if showChangelog}
+    <p class="leading-tight mt-1.5">
+      <span href="/" on:click={(e) => {
+        $lastClosedVersion = version;
+        $refreshScroll = true;
+        e.preventDefault();
+      }}
+      class="inline-block align-middle cursor-pointer">
+        <Icon xs>
+          close
+        </Icon>
+      </span>
+      <strong class="mr-0.5">
+        New in v{version}:
+      </strong>
+      <Changelog />
+    </p>
+  {/if}
 </div>
