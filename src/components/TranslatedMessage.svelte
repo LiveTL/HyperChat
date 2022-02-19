@@ -1,7 +1,6 @@
 <script lang="ts">
   import { refreshScroll, translatorClient, translateTargetLanguage } from '../ts/storage';
   import Icon from './common/Icon.svelte';
-  import { fade } from 'svelte/transition';
 
   export let forceDark = false;
 
@@ -27,8 +26,6 @@
     translatedLanguage = '';
   }
 
-  const duration = 100;
-
   $: translatedColor = forceDark ? 'text-translated-dark' : 'dark:text-translated-dark text-translated-light';
   $: stockTextColor = forceDark ? 'text-white' : 'dark:text-white text-black';
 </script>
@@ -46,16 +43,9 @@
     }
   }}
 >
-  {#if !showTL}
-    <span in:fade={{ duration: translatedMessage ? duration : 0 }}>
-      {text}
-    </span>
-  {/if}
-  {#if showTL}
-    <span in:fade={{ duration }}>
-      {translatedMessage}
-    </span>
-  {/if}
+  <span>
+    {showTL ? translatedMessage : text}
+  </span>
   {#if translatedMessage}
     <span class="shifted-icon">
       <Icon xs={true} block={false}>
