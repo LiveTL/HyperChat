@@ -27,13 +27,10 @@
   }
 
   $: translatedColor = forceDark ? 'text-translated-dark' : 'dark:text-translated-dark text-translated-light';
-  $: stockTextColor = forceDark ? 'text-white' : 'dark:text-white text-black';
 </script>
 
 <span 
-  class={
-    showTL ? translatedColor : stockTextColor
-  }
+  class={showTL ? translatedColor : ''}
   class:cursor-pointer={translatedMessage}
   class:entrance-animation={translatedMessage}
   on:click={() => {
