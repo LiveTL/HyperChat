@@ -1,8 +1,9 @@
 <script lang="ts">
   import { refreshScroll, translatorClient, translateTargetLanguage } from '../ts/storage';
   import Icon from './common/Icon.svelte';
+  import { Theme } from '../ts/chat-constants';
 
-  export let forceDark = false;
+  export let forceTLColor: Theme = Theme.YOUTUBE;
 
   export let text: string;
   let translatedMessage = '';
@@ -26,7 +27,11 @@
     translatedLanguage = '';
   }
 
-  $: translatedColor = forceDark ? 'text-translated-dark' : 'dark:text-translated-dark text-translated-light';
+  $: console.log(forceTLColor);
+
+  $: translatedColor = forceTLColor === Theme.DARK
+    ? 'text-translated-dark'
+    : `text-translated-light ${forceTLColor === Theme.YOUTUBE ? 'dark:text-translated-dark' : ''}`;
 </script>
 
 <span 

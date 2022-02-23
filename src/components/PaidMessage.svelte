@@ -1,5 +1,7 @@
 <script lang="ts">
   import Message from './Message.svelte';
+  import isDarkColor from 'is-dark-color';
+  import { Theme } from '../ts/chat-constants';
 
   export let message: Ytc.ParsedMessage;
 
@@ -41,7 +43,9 @@
     </div>
     {#if message.message.length > 0}
       <div class="p-2">
-        <Message message={message} hideName />
+        <Message message={message} hideName forceTLColor={
+          isDarkColor(`#${message.superChat?.headerTextColor}`) ? Theme.LIGHT : Theme.DARK
+        } />
       </div>
     {/if}
   </div>

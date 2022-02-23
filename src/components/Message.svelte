@@ -7,6 +7,7 @@
     showTimestamps,
     showUserBadges
   } from '../ts/storage';
+  import { Theme } from '../ts/chat-constants';
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
@@ -52,6 +53,8 @@
 
   $: showUserMargin = $showProfileIcons || $showUsernames || $showTimestamps ||
     ($showUserBadges && (moderator || verified || member));
+  
+  export let forceTLColor: Theme = Theme.YOUTUBE;
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -100,6 +103,6 @@
       </span>
       <span class="mr-1.5" class:hidden={!showUserMargin} />
     {/if}
-    <MessageRun runs={message.message} {forceDark} deleted={deleted != null} />
+    <MessageRun runs={message.message} {forceDark} deleted={deleted != null} {forceTLColor} />
   </div>
 </div>

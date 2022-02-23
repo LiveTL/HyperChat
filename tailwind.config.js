@@ -33,8 +33,8 @@ const smelteConfig = {
           dark: '#898888'
         },
         translated: {
-          light: '#0050da',
-          dark: '#b9d9ff'
+          light: '#004abd',
+          dark: '#d4ebff'
         }
       }
     }
