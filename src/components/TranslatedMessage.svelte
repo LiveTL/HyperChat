@@ -20,7 +20,7 @@
     });
   }
 
-  $: showTL = Boolean(translatedMessage && !showOriginal);
+  $: showTL = Boolean(translatedMessage && !showOriginal && translatedMessage.trim() !== text.trim());
 
   $: if ($translateTargetLanguage !== translatedLanguage) {
     translatedMessage = '';
