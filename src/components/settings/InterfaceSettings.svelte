@@ -4,9 +4,10 @@
     showProfileIcons,
     showTimestamps,
     showUsernames,
-    showUserBadges
+    showUserBadges,
+    emojiRenderMode
   } from '../../ts/storage';
-  import { Theme, themeItems } from '../../ts/chat-constants';
+  import { Theme, themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
   import Radio from '../common/RadioGroupStore.svelte';
   import Checkbox from '../common/CheckboxStore.svelte';
@@ -49,6 +50,10 @@
   <Checkbox name="Show timestamps" store={showTimestamps} />
   <Checkbox name="Show usernames" store={showUsernames} />
   <Checkbox name="Show user badges" store={showUserBadges} />
+</Card>
+
+<Card title="Emojis" icon="emoji_emotions">
+  <Radio store={emojiRenderMode} items={emojiRenderItems} />
 </Card>
 
 <MessageTranslationSettings />
