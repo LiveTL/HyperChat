@@ -206,8 +206,8 @@
   const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1';
   const pinnedClass = 'absolute top-2 inset-x-2';
 
-  const showMessage = (action: Welcome | Chat.MessageAction, mode: YoutubeEmojiRenderMode) => {
-    const result = mode === YoutubeEmojiRenderMode.SHOW_ALL ||
+  const showMessage = (action: Welcome | Chat.MessageAction, mode: YoutubeEmojiRenderMode) => (
+    mode === YoutubeEmojiRenderMode.SHOW_ALL ||
     isWelcome(action) ||
     isSuperchat(action) ||
     isMembership(action) ||
@@ -217,9 +217,8 @@
         mode === YoutubeEmojiRenderMode.HIDE_ALL
       ) &&
       action.message.message.some(run => run.type !== 'emoji')
-    );
-    return result;
-  };
+    )
+  );
   const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
   const isMembership = (action: Chat.MessageAction) => (action.message.membership);
 </script>
