@@ -27,8 +27,6 @@
     translatedLanguage = '';
   }
 
-  $: console.log(forceTLColor);
-
   $: translatedColor = forceTLColor === Theme.DARK
     ? 'text-translated-dark'
     : `text-translated-light ${forceTLColor === Theme.YOUTUBE ? 'dark:text-translated-dark' : ''}`;
