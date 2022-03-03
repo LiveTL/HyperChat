@@ -39,3 +39,10 @@ export const isValidFrameInfo = (f: Chat.UncheckedFrameInfo, port?: Chat.Port): 
 const actionTypes = new Set(['messages', 'bonk', 'delete', 'pin', 'unpin', 'playerProgress', 'forceUpdate']);
 export const responseIsAction = (r: Chat.BackgroundResponse): r is Chat.Actions =>
   actionTypes.has(r.type);
+
+const privilegedTypes = new Set(['member', 'moderator', 'owner']);
+export const isPrivileged = (types: string[]): boolean =>
+  types.some(privilegedTypes.has.bind(privilegedTypes));
+
+export const isChatMessage = (a: Chat.MessageAction): boolean =>
+  !a.message.superChat && !a.message.superSticker && !a.message.membership;

@@ -13,10 +13,11 @@
     paramsIsReplay,
     Theme
   } from '../ts/chat-constants';
-  import { responseIsAction } from '../ts/chat-utils';
+  import { isChatMessage, isPrivileged, responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
   import {
     theme,
+    showOnlyMemberChat,
     showProfileIcons,
     showUsernames,
     showTimestamps,
@@ -38,6 +39,9 @@
   const isReplay = paramsIsReplay;
   let ytDark = false;
   const smelteDark = dark();
+
+  const shouldShowMessage = (m: Chat.MessageAction) =>
+    !$showOnlyMemberChat || !isChatMessage(m) || isPrivileged(m.message.author.types);
 
   const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
     'welcome' in m;
@@ -65,10 +69,10 @@
     // On replays' initial data, only show messages with negative timestamp
     if (isInitial && isReplay) {
       messageActions.push(...messagesAction.messages.filter(
-        (a) => a.message.timestamp.startsWith('-')
+        (a) => a.message.timestamp.startsWith('-') && shouldShowMessage(a)
       ));
     } else {
-      messageActions.push(...messagesAction.messages);
+      messageActions.push(...messagesAction.messages.filter(shouldShowMessage));
     }
     if (!isInitial) checkTruncateMessages();
   };
@@ -111,7 +115,7 @@
         pinned = null;
         break;
       case 'forceUpdate':
-        messageActions = [...action.messages];
+        messageActions = [...action.messages].filter(shouldShowMessage);
         break;
     }
   };

@@ -1,10 +1,11 @@
 <script lang="ts">
   import {
     theme,
+    showOnlyMemberChat,
     showProfileIcons,
     showTimestamps,
     showUsernames,
-    showUserBadges
+    showUserBadges,
   } from '../../ts/storage';
   import { Theme, themeItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
@@ -49,6 +50,7 @@
   <Checkbox name="Show timestamps" store={showTimestamps} />
   <Checkbox name="Show usernames" store={showUsernames} />
   <Checkbox name="Show user badges" store={showUserBadges} />
+  <Checkbox name="Show only member chat messages" store={showOnlyMemberChat} />
 </Card>
 
 <MessageTranslationSettings />
