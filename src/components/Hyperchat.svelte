@@ -11,7 +11,8 @@
     paramsTabId,
     paramsFrameId,
     paramsIsReplay,
-    Theme
+    Theme,
+    YoutubeEmojiRenderMode
   } from '../ts/chat-constants';
   import { isChatMessage, isPrivileged, responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
@@ -22,7 +23,8 @@
     showUsernames,
     showTimestamps,
     showUserBadges,
-    refreshScroll
+    refreshScroll,
+    emojiRenderMode
   } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -207,6 +209,22 @@
   const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
   const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1';
   const pinnedClass = 'absolute top-2 inset-x-2';
+
+  const showMessage = (action: Welcome | Chat.MessageAction, mode: YoutubeEmojiRenderMode) => (
+    mode === YoutubeEmojiRenderMode.SHOW_ALL ||
+    isWelcome(action) ||
+    isSuperchat(action) ||
+    isMembership(action) ||
+    (
+      (
+        mode === YoutubeEmojiRenderMode.BLOCK_SPAM ||
+        mode === YoutubeEmojiRenderMode.HIDE_ALL
+      ) &&
+      action.message.message.some(run => run.type !== 'emoji')
+    )
+  );
+  const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
+  const isMembership = (action: Chat.MessageAction) => (action.message.membership);
 </script>
 
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />
@@ -214,17 +232,19 @@
 <div class={containerClass} style="font-size: 13px">
   <div class={contentClass} bind:this={div} on:scroll={checkAtBottom}>
     {#each messageActions as action (action.message.messageId)}
-      <div class={isWelcome(action) ? 'm-2' : 'p-1 m-1 hover-highlight flex rounded'}>
-        {#if isWelcome(action)}
-          <WelcomeMessage />
-        {:else if (action.message.superChat || action.message.superSticker)}
-          <PaidMessage message={action.message} />
-        {:else if action.message.membership}
-          <MembershipItem message={action.message} />
-        {:else}
-          <Message message={action.message} deleted={action.deleted} />
-        {/if}
-      </div>
+      {#if showMessage(action, $emojiRenderMode)}
+        <div class={isWelcome(action) ? 'm-2' : 'p-1 m-1 hover-highlight flex rounded'}>
+          {#if isWelcome(action)}
+            <WelcomeMessage />
+          {:else if isSuperchat(action)}
+            <PaidMessage message={action.message} />
+          {:else if isMembership(action)}
+            <MembershipItem message={action.message} />
+          {:else}
+            <Message message={action.message} deleted={action.deleted} />
+          {/if}
+        </div>
+      {/if}
     {/each}
   </div>
   {#if pinned}
