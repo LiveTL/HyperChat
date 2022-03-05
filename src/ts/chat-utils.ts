@@ -46,3 +46,5 @@ export const isPrivileged = (types: string[]): boolean =>
 
 export const isChatMessage = (a: Chat.MessageAction): boolean =>
   !a.message.superChat && !a.message.superSticker && !a.message.membership;
+
+export const isAllEmoji = (a: Chat.MessageAction): boolean => !a.message.message.some(run => run.type !== 'emoji');

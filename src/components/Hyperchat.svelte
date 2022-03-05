@@ -14,7 +14,7 @@
     Theme,
     YoutubeEmojiRenderMode
   } from '../ts/chat-constants';
-  import { isChatMessage, isPrivileged, responseIsAction } from '../ts/chat-utils';
+  import { isAllEmoji, isChatMessage, isPrivileged, responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
   import {
     theme,
@@ -42,8 +42,23 @@
   let ytDark = false;
   const smelteDark = dark();
 
-  const shouldShowMessage = (m: Chat.MessageAction) =>
-    !$showOnlyMemberChat || !isChatMessage(m) || isPrivileged(m.message.author.types);
+  type MessageBlocker = (a: Chat.MessageAction) => boolean;
+
+  const memberOnlyBlocker: MessageBlocker = (a) => (
+    $showOnlyMemberChat && isChatMessage(a) && !isPrivileged(a.message.author.types)
+  );
+
+  const emojiSpamBlocker: MessageBlocker = (a) => (
+    isChatMessage(a) &&
+    $emojiRenderMode !== YoutubeEmojiRenderMode.SHOW_ALL &&
+    isAllEmoji(a)
+  );
+
+  const messageBlockers = [memberOnlyBlocker, emojiSpamBlocker];
+
+  const shouldShowMessage = (m: Chat.MessageAction): boolean => (
+    !messageBlockers.some(blocker => blocker(m))
+  );
 
   const isWelcome = (m: Chat.MessageAction | Welcome): m is Welcome =>
     'welcome' in m;
@@ -210,19 +225,6 @@
   const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1';
   const pinnedClass = 'absolute top-2 inset-x-2';
 
-  const showMessage = (action: Welcome | Chat.MessageAction, mode: YoutubeEmojiRenderMode) => (
-    mode === YoutubeEmojiRenderMode.SHOW_ALL ||
-    isWelcome(action) ||
-    isSuperchat(action) ||
-    isMembership(action) ||
-    (
-      (
-        mode === YoutubeEmojiRenderMode.BLOCK_SPAM ||
-        mode === YoutubeEmojiRenderMode.HIDE_ALL
-      ) &&
-      action.message.message.some(run => run.type !== 'emoji')
-    )
-  );
   const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
   const isMembership = (action: Chat.MessageAction) => (action.message.membership);
 </script>
@@ -232,19 +234,17 @@
 <div class={containerClass} style="font-size: 13px">
   <div class={contentClass} bind:this={div} on:scroll={checkAtBottom}>
     {#each messageActions as action (action.message.messageId)}
-      {#if showMessage(action, $emojiRenderMode)}
-        <div class={isWelcome(action) ? 'm-2' : 'p-1 m-1 hover-highlight flex rounded'}>
-          {#if isWelcome(action)}
-            <WelcomeMessage />
-          {:else if isSuperchat(action)}
-            <PaidMessage message={action.message} />
-          {:else if isMembership(action)}
-            <MembershipItem message={action.message} />
-          {:else}
-            <Message message={action.message} deleted={action.deleted} />
-          {/if}
-        </div>
-      {/if}
+      <div class={isWelcome(action) ? 'm-2' : 'p-1 m-1 hover-highlight flex rounded'}>
+        {#if isWelcome(action)}
+          <WelcomeMessage />
+        {:else if isSuperchat(action)}
+          <PaidMessage message={action.message} />
+        {:else if isMembership(action)}
+          <MembershipItem message={action.message} />
+        {:else}
+          <Message message={action.message} deleted={action.deleted} />
+        {/if}
+      </div>
     {/each}
   </div>
   {#if pinned}
