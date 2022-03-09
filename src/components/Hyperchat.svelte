@@ -222,7 +222,6 @@
   );
 
   const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
-  const contentClass = 'content absolute overflow-y-scroll w-full h-full flex-1';
   const pinnedClass = 'absolute top-2 inset-x-2';
 
   const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
@@ -232,20 +231,22 @@
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />
 
 <div class={containerClass} style="font-size: 13px">
-  <div class={contentClass} bind:this={div} on:scroll={checkAtBottom}>
-    {#each messageActions as action (action.message.messageId)}
-      <div class={isWelcome(action) ? 'm-2' : 'p-1 m-1 hover-highlight flex rounded'}>
-        {#if isWelcome(action)}
-          <WelcomeMessage />
-        {:else if isSuperchat(action)}
-          <PaidMessage message={action.message} />
-        {:else if isMembership(action)}
-          <MembershipItem message={action.message} />
-        {:else}
-          <Message message={action.message} deleted={action.deleted} />
-        {/if}
-      </div>
-    {/each}
+  <div class="absolute w-full h-full flex justify-end flex-col">
+    <div bind:this={div} on:scroll={checkAtBottom} class="content overflow-y-scroll">
+      {#each messageActions as action (action.message.messageId)}
+        <div class="{isWelcome(action) ? '' : 'hover-highlight rounded'} p-1.5 w-full block">
+          {#if isWelcome(action)}
+            <WelcomeMessage />
+          {:else if isSuperchat(action)}
+            <PaidMessage message={action.message} />
+          {:else if isMembership(action)}
+            <MembershipItem message={action.message} />
+          {:else}
+            <Message message={action.message} deleted={action.deleted} />
+          {/if}
+        </div>
+      {/each}
+    </div>
   </div>
   {#if pinned}
     <div class={pinnedClass}>
@@ -280,7 +281,7 @@
     background: #555;
   }
   .hover-highlight {
-    transition: 0.1s;
+    /* transition: 0.1s; */
     background-color: transparent;
   }
   .hover-highlight:hover {
