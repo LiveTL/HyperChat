@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { Theme } from '../ts/chat-constants';
+
   import TranslatedMessage from './TranslatedMessage.svelte';
   import {
     emojiRenderMode
@@ -8,6 +10,7 @@
   export let runs: Ytc.ParsedRun[];
   export let forceDark = false;
   export let deleted = false;
+  export let forceTLColor: Theme;
 
   let deletedClass = '';
 
@@ -30,7 +33,7 @@
       {#if deleted}
         <span>{run.text}</span>
       {:else}
-        <TranslatedMessage text={run.text} {forceDark} />
+        <TranslatedMessage text={run.text} {forceTLColor} />
       {/if}
     {:else if run.type === 'link'}
       <a
