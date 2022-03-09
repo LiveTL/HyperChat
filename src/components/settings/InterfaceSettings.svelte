@@ -51,11 +51,15 @@
   <Checkbox name="Show timestamps" store={showTimestamps} />
   <Checkbox name="Show usernames" store={showUsernames} />
   <Checkbox name="Show user badges" store={showUserBadges} />
-  <Checkbox name="Show only member chat messages" store={showOnlyMemberChat} />
 </Card>
 
 <Card title="Emojis" icon="emoji_emotions">
-  <Radio store={emojiRenderMode} items={emojiRenderItems} />
+  <Radio store={emojiRenderMode} items={emojiRenderItems} vertical />
+</Card>
+
+<Card title="Filters" icon="filter_list">
+  <i>These changes will take effect when the next chat message chunk arrives.</i>
+  <Checkbox name="Show only member chat messages" store={showOnlyMemberChat} />
 </Card>
 
 <MessageTranslationSettings />
