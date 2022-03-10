@@ -15,6 +15,11 @@
   import dark from 'smelte/src/dark';
   import MessageTranslationSettings from './MessageTranslationSettings.svelte';
 
+  const willChangeOnNextChunkMessage = (
+    'Changes will take effect when the next chat message chunk arrives.'
+  );
+
+
   const darkStore = dark();
   $: switch ($theme) {
     case Theme.DARK:
@@ -54,11 +59,12 @@
 </Card>
 
 <Card title="Emojis" icon="emoji_emotions">
+  <i>{willChangeOnNextChunkMessage}</i>
   <Radio store={emojiRenderMode} items={emojiRenderItems} vertical />
 </Card>
 
 <Card title="Filters" icon="filter_list">
-  <i>These changes will take effect when the next chat message chunk arrives.</i>
+  <i>{willChangeOnNextChunkMessage}</i>
   <Checkbox name="Show only member chat messages" store={showOnlyMemberChat} />
 </Card>
 
