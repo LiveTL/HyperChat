@@ -2,7 +2,7 @@ import { webExtStores } from 'svelte-webext-stores';
 import { readable, writable } from 'svelte/store';
 import { getClient } from 'iframe-translator';
 import type { IframeTranslatorClient } from 'iframe-translator';
-import { Theme } from './chat-constants';
+import { Theme, YoutubeEmojiRenderMode } from './chat-constants';
 
 export const stores = webExtStores();
 
@@ -39,3 +39,5 @@ export const showUsernames = stores.addSyncStore('hc.messages.showUsernames', tr
 export const showTimestamps = stores.addSyncStore('hc.messages.showTimestamps', false);
 export const showUserBadges = stores.addSyncStore('hc.messages.showUserBadges', true);
 export const lastClosedVersion = stores.addSyncStore('hc.lastClosedVersion', '');
+export const showOnlyMemberChat = stores.addSyncStore('hc.showOnlyMemberChat', false);
+export const emojiRenderMode = stores.addSyncStore('hc.emojiRenderMode', YoutubeEmojiRenderMode.SHOW_ALL);
