@@ -1,7 +1,7 @@
 import HcButton from '../components/HyperchatButton.svelte';
 import { getFrameInfoAsync, isValidFrameInfo, frameIsReplay } from '../ts/chat-utils';
 import { isLiveTL, isAndroid } from '../ts/chat-constants';
-import { hcEnabled } from '../ts/storage';
+import { hcEnabled, autoLiveChat } from '../ts/storage';
 
 // const isFirefox = navigator.userAgent.includes('Firefox');
 
@@ -84,6 +84,20 @@ const chatLoaded = async (): Promise<void> => {
     const inputPanel = document.querySelector('#input-panel');
     if (!inputPanel) return;
     (inputPanel as HTMLElement).style.display = 'none';
+  }
+
+  if (await autoLiveChat.get()) {
+    const menu = document.querySelector('tp-yt-paper-listbox#menu');
+    if (!menu) {
+      console.error('Failed to find tp-yt-paper-listbox#menu');
+      return;
+    }
+    const live = menu.children[1] as HTMLElement | null;
+    if (!live) {
+      console.error('Failed to find Live Chat menu item');
+      return;
+    }
+    live.click();
   }
 };
 

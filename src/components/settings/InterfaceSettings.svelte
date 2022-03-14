@@ -6,7 +6,8 @@
     showTimestamps,
     showUsernames,
     showUserBadges,
-    emojiRenderMode
+    emojiRenderMode,
+    autoLiveChat
   } from '../../ts/storage';
   import { Theme, themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
@@ -49,6 +50,7 @@
     <h6>Theme:</h6>
     <Radio store={theme} items={themeItems} />
   </div>
+  <Checkbox name="Automatically switch to Live Chat" store={autoLiveChat} />
 </Card>
 
 <Card title="Messages" icon="message">
