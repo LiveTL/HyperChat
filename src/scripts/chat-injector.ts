@@ -87,12 +87,7 @@ const chatLoaded = async (): Promise<void> => {
   }
 
   if (await autoLiveChat.get()) {
-    const menu = document.querySelector('tp-yt-paper-listbox#menu');
-    if (!menu) {
-      console.error('Failed to find tp-yt-paper-listbox#menu');
-      return;
-    }
-    const live = menu.children[1] as HTMLElement | null;
+    const live = document.querySelector<HTMLElement>('tp-yt-paper-listbox#menu > :nth-child(2)');
     if (!live) {
       console.error('Failed to find Live Chat menu item');
       return;
