@@ -80,21 +80,21 @@
     </span>
   </div>
   {#if showChangelog}
-    <p class="leading-tight mt-1.5">
+    <p class="leading-tight mt-1.5 flex flex-row">
       <span href="/" on:click={(e) => {
         $lastClosedVersion = version;
         $refreshScroll = true;
         e.preventDefault();
       }}
-      class="inline-block align-middle cursor-pointer">
+      class="inline-block align-middle cursor-pointer pt-0.5">
         <Icon xs>
           close
         </Icon>
       </span>
-      <strong class="mr-0.5">
+      <span class="mr-0.5">
         New in v{version}:
-      </strong>
-      <Changelog />
+        <Changelog />
+      </span>
     </p>
   {/if}
 </div>
