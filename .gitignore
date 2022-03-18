@@ -3,6 +3,7 @@ node_modules
 build
 dist
 package-lock.json
+.eslintcache
 
 # local env files
 .env.local

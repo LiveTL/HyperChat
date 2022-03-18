@@ -35,6 +35,18 @@ export const enum Theme {
 
 export const themeItems = [
   { value: Theme.YOUTUBE, label: 'Use YouTube theme' },
-  { value: Theme.LIGHT, label: 'Force light theme' },
-  { value: Theme.DARK, label: 'Force dark theme' }
+  { value: Theme.LIGHT, label: 'Light theme' },
+  { value: Theme.DARK, label: 'Dark theme' }
+];
+
+export enum YoutubeEmojiRenderMode {
+  SHOW_ALL = 'SHOW_ALL',
+  BLOCK_SPAM = 'BLOCK_SPAM',
+  HIDE_ALL = 'HIDE_ALL'
+}
+
+export const emojiRenderItems = [
+  { value: YoutubeEmojiRenderMode.SHOW_ALL, label: 'Show all emojis' },
+  { value: YoutubeEmojiRenderMode.BLOCK_SPAM, label: 'Hide emoji-only messages' },
+  { value: YoutubeEmojiRenderMode.HIDE_ALL, label: 'Hide all emojis and emoji-only messages' }
 ];

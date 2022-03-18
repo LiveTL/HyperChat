@@ -3,6 +3,7 @@
   import Message from './Message.svelte';
   import Tooltip from './common/Tooltip.svelte';
   import Icon from 'smelte/src/components/Icon';
+  import { Theme } from '../ts/chat-constants';
 
   export let pinned: Ytc.ParsedPinned;
 
@@ -48,7 +49,7 @@
     </div>
     {#if !shorten && !dismissed}
       <div class="mt-1" transition:slide|local={{ duration: 300 }}>
-        <Message message={pinned.item.contents} forceDark />
+        <Message message={pinned.item.contents} forceDark forceTLColor={Theme.DARK} />
       </div>
     {/if}
   </div>

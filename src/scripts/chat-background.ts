@@ -318,8 +318,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     chrome.windows.create({
       url: request.url,
       type: 'popup',
-      height: 300,
-      width: 600
+      height: 420,
+      width: 690
     }, () => {});
   }
 });

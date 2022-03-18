@@ -6,6 +6,7 @@
     "build": "vite build",
     "package": "node utils/package.js",
     "start": "cross-env MINIFY=false vite build --watch",
+    "start:none": "cross-env MINIFY=false BROWSER=none vite build --watch",
     "start:firefox": "cross-env MINIFY=false BROWSER=firefox vite build --watch",
     "format:check": "eslint ."
   },
@@ -30,6 +31,8 @@
     "eslint-plugin-promise": "4",
     "eslint-plugin-svelte3": "^3.2.0",
     "express": "4.17.1",
+    "iframe-translator": "^0.2.2",
+    "is-dark-color": "^1.2.0",
     "postcss": "^8.3.6",
     "postcss-extend": "^1.0.5",
     "postcss-import": "^14.0.2",

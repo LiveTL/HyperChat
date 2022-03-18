@@ -3279,6 +3279,11 @@ ieee754@^1.1.13:
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
   integrity sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==
 
+iframe-translator@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/iframe-translator/-/iframe-translator-0.2.2.tgz#467f3c24836f78f20aff61d138047a1c78140b72"
+  integrity sha512-/1yYDJG/TEGwGNySsW9q+bMXNmIgRp/befLy6C6UItBEQyGQGq4irHSBLorXRN7d/nuu/kr+7sTT5ZAL58WFvg==
+
 ignore@^4.0.6:
   version "4.0.6"
   resolved "https://registry.npmjs.org/ignore/-/ignore-4.0.6.tgz"
@@ -3490,6 +3495,11 @@ is-core-module@^2.2.0, is-core-module@^2.4.0:
   integrity sha512-TXCMSDsEHMEEZ6eCA8rwRDbLu55MRGmrctljsBX/2v1d9/GzqHOxW5c5oPSgrUt2vBFXebu9rGqckXGPWOlYpg==
   dependencies:
     has "^1.0.3"
+
+is-dark-color@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/is-dark-color/-/is-dark-color-1.2.0.tgz#60dea9b56cfd6e3a286fcf59e3ab78fd60a2c77d"
+  integrity sha512-07rMiXL60NRntHOMLp5A/2hVw+JGyQco7YS8mkg4y3FP0mTl68fm7/xVLuVR/8minoEQJKVqQ+xSgBlclaN5qA==
 
 is-date-object@^1.0.1:
   version "1.0.4"
@@ -7259,9 +7269,9 @@ verror@1.10.0:
     extsprintf "^1.2.0"
 
 vite-plugin-web-extension@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/vite-plugin-web-extension/-/vite-plugin-web-extension-1.0.7.tgz#b0fd05da2e09c96293f84aeac9cc75fcf84fc93e"
-  integrity sha512-LoG1/6ixWKj7v51ygrLpXOUpEgonXnzn+mHmWONf3BNfT0q94an6+qJceQZNuhhvojVtsCgrEB+ONMVPTx+3iA==
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/vite-plugin-web-extension/-/vite-plugin-web-extension-1.1.0.tgz#1dff5150da75a9a1497f866b78a1708cdb517208"
+  integrity sha512-h0o2VVXfsDHj9HceCFcV+cpHRTb0NKx88tFoZuC4xMj7qmeSS0pquNJFkSC/e4s/D5qezDZMVLI5Rh5CX5oC+w==
   dependencies:
     ajv "^8.8.1"
     web-ext "^6.5.0"
