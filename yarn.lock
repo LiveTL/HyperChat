@@ -3279,10 +3279,10 @@ ieee754@^1.1.13:
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
   integrity sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==
 
-iframe-translator@^0.2.3:
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/iframe-translator/-/iframe-translator-0.2.3.tgz#9253d4e0d9929f31ab6c38d5a85dd79eac84c343"
-  integrity sha512-a4g5nolqzr+ey8my31GpEp8qXYLCFwfdaYUTwTXf2XLOTmzWFJYlOmvdpVuvtkdvzr/o+DhWbt2W64YNTyYpww==
+iframe-translator@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/iframe-translator/-/iframe-translator-0.3.0.tgz#65cecc8c3089cac46c60e27c1fd136d9c004853f"
+  integrity sha512-DTI8cAX2AwaqJohaq/SUovPSJgG3steguC5dHWoRD3pbJYW4pYnfcki9DXyEFJ7LXsPGpCM7bDIMISjmj27c/w==
 
 ignore@^4.0.6:
   version "4.0.6"

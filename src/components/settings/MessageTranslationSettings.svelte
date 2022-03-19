@@ -18,22 +18,34 @@
       setTimeout(() => unsub(), 0);
     });
   });
-  const priority = [
-    'English',
-    'Japanese',
-    'Indonesian',
-    'Korean',
-    'Spanish',
-    'Russian',
-    'French',
-    'Chinese (Traditional)',
-    'Chinese (Simplified)'
+  const priority: (keyof typeof AvailableLanguages)[] = [
+    'en',
+    'ja',
+    'id',
+    'ko',
+    'es',
+    'ru',
+    'fr',
+    'zh-CN',
+    'zh-TW'
   ];
 
   async function scrollToBottom() {
     await tick();
     window.scrollTo(0, document.body.scrollHeight);
   }
+
+  $: items = [
+    ...priority.map(lang => ({
+      text: AvailableLanguages[lang],
+      value: lang
+    })),
+    ...(Object.keys(AvailableLanguages) as (keyof typeof AvailableLanguages)[])
+      .filter(e => !priority.includes(e)).map(lang => ({
+        text: AvailableLanguages[lang],
+        value: lang
+      }))
+  ];
 </script>
 
 <Card title="Additional Options" icon="tune">
@@ -42,10 +54,7 @@
     {#if $enabled}
       <DropdownStore name="Target language"
       store={translateTargetLanguage}
-      items={[
-        ...priority,
-        ...AvailableLanguages.filter(e => !priority.includes(e))
-      ]} />
+      {items} />
     {/if}
   </span>
 </Card>

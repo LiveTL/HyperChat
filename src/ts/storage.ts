@@ -1,13 +1,13 @@
 import { webExtStores } from 'svelte-webext-stores';
-import { readable, writable } from 'svelte/store';
-import { getClient } from 'iframe-translator';
+import { readable, writable, get } from 'svelte/store';
+import { getClient, AvailableLanguages } from 'iframe-translator';
 import type { IframeTranslatorClient } from 'iframe-translator';
 import { Theme, YoutubeEmojiRenderMode } from './chat-constants';
 
 export const stores = webExtStores();
 
 export const hcEnabled = stores.addSyncStore('hc.enabled', true);
-export const translateTargetLanguage = stores.addSyncStore('hc.translateTargetLanguage', '');
+export const translateTargetLanguage = stores.addSyncStore('hc.translateTargetLanguage', '' as '' | keyof typeof AvailableLanguages);
 export const translatorClient = readable(null as (null | IframeTranslatorClient), (set) => {
   let client: IframeTranslatorClient | null = null;
   const destroyIf = (): void => {
@@ -26,6 +26,18 @@ export const translatorClient = readable(null as (null | IframeTranslatorClient)
     if (client) return;
     client = await getClient();
     set(client);
+  });
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  translateTargetLanguage.ready().then(() => {
+    // migrate from old language value to new language code
+    const oldString = get(translateTargetLanguage) as string;
+    if (!(oldString in AvailableLanguages)) {
+      const newKey = (
+        Object.keys(AvailableLanguages) as Array<keyof typeof AvailableLanguages>
+      ).find(key => AvailableLanguages[key] === oldString);
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      translateTargetLanguage.set(newKey ?? '');
+    }
   });
   return () => {
     unsub();
