@@ -19,7 +19,7 @@
       setTimeout(() => unsub(), 0);
     });
   });
-  const priority: (AvailableLanguageCodes)[] = [
+  const priority: AvailableLanguageCodes[] = [
     'en',
     'ja',
     'id',
