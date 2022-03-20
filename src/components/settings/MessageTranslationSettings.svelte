@@ -41,7 +41,7 @@
       text: AvailableLanguages[lang],
       value: lang
     })),
-    ...(Object.keys(AvailableLanguages) as (AvailableLanguageCodes)[])
+    ...(Object.keys(AvailableLanguages) as AvailableLanguageCodes[])
       .filter(e => !priority.includes(e)).map(lang => ({
         text: AvailableLanguages[lang],
         value: lang
