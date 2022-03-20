@@ -6,6 +6,7 @@
   import Card from '../common/Card.svelte';
   import Checkbox from '../common/CheckboxStore.svelte';
   import { AvailableLanguages } from 'iframe-translator';
+  import type { AvailableLanguageCodes } from 'iframe-translator';
   import { writable } from 'svelte/store';
   import { onMount, tick } from 'svelte';
   const enabled = writable(true);
@@ -18,7 +19,7 @@
       setTimeout(() => unsub(), 0);
     });
   });
-  const priority: (keyof typeof AvailableLanguages)[] = [
+  const priority: (AvailableLanguageCodes)[] = [
     'en',
     'ja',
     'id',
@@ -40,7 +41,7 @@
       text: AvailableLanguages[lang],
       value: lang
     })),
-    ...(Object.keys(AvailableLanguages) as (keyof typeof AvailableLanguages)[])
+    ...(Object.keys(AvailableLanguages) as (AvailableLanguageCodes)[])
       .filter(e => !priority.includes(e)).map(lang => ({
         text: AvailableLanguages[lang],
         value: lang
