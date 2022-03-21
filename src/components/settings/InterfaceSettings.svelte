@@ -6,7 +6,8 @@
     showTimestamps,
     showUsernames,
     showUserBadges,
-    emojiRenderMode
+    emojiRenderMode,
+    autoLiveChat
   } from '../../ts/storage';
   import { Theme, themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
@@ -44,7 +45,7 @@
   });
 </script>
 
-<Card title="General" icon="tune">
+<Card title="Appearance" icon="format_paint">
   <div class="flex items-center gap-2">
     <h6>Theme:</h6>
     <Radio store={theme} items={themeItems} />
@@ -68,4 +69,7 @@
   <Checkbox name="Show only member chat messages" store={showOnlyMemberChat} />
 </Card>
 
-<MessageTranslationSettings />
+<Card title="Additional Options" icon="tune">
+  <Checkbox name="Automatically switch to Live Chat" store={autoLiveChat} />
+  <MessageTranslationSettings />
+</Card>
