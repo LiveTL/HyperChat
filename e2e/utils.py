@@ -44,16 +44,29 @@ def with_retry(amount=30, interval=0.5):
     return lambda cb: lambda *args, **kwargs: retry(lambda: cb(*args, **kwargs), amount, interval)
 
 @with_retry()
+def click_body(web: TWeb):
+    web.execute_script("document.body.click()")
+
+@with_retry()
+def switch_to_youtube_parent_frame(web):
+    while not web.find_elements_by_css_selector("video"):
+        web.switch_to.parent_frame()
+
+@with_retry()
 def switch_to_chatframe(web: TWeb):
     web.switch_to.frame(web.find_element_by_css_selector("#chatframe"))
 
 @with_retry()
-def get_hc_buttons(web: TWeb):
+def get_hc_buttons(web: TWeb, expected_buttons=2):
     """
     Get HyperChat buttons.
 
     Needs to be in chatframe context.
     """
     buttons = web.find_elements_by_css_selector("#hc-buttons > div")
-    assert len(buttons) == 2, "not correct amount of buttons"
+    assert len(buttons) == expected_buttons, "not correct amount of buttons"
     return buttons
+
+
+def get_ytc_msgs(web: TWeb):
+    return web.find_elements_by_css_selector("yt-live-chat-text-message-renderer")
