@@ -6,7 +6,7 @@
     Special thanks to Dominik K, Mr Fujisawa, Kuma, NepNep,
     and JensenLenard for helping with fixing this issue.
   </li>
-  <li>
+  <li class="ml-3.5">
     A setting to auto-switch the chat to "Live Chat" mode
   </li>
 </ul>
