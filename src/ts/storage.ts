@@ -1,13 +1,13 @@
 import { webExtStores } from 'svelte-webext-stores';
 import { readable, writable } from 'svelte/store';
-import { getClient } from 'iframe-translator';
-import type { IframeTranslatorClient } from 'iframe-translator';
+import { getClient, AvailableLanguages } from 'iframe-translator';
+import type { IframeTranslatorClient, AvailableLanguageCodes } from 'iframe-translator';
 import { Theme, YoutubeEmojiRenderMode } from './chat-constants';
 
 export const stores = webExtStores();
 
 export const hcEnabled = stores.addSyncStore('hc.enabled', true);
-export const translateTargetLanguage = stores.addSyncStore('hc.translateTargetLanguage', '');
+export const translateTargetLanguage = stores.addSyncStore('hc.translateTargetLanguage', '' as '' | AvailableLanguageCodes);
 export const translatorClient = readable(null as (null | IframeTranslatorClient), (set) => {
   let client: IframeTranslatorClient | null = null;
   const destroyIf = (): void => {
@@ -27,6 +27,16 @@ export const translatorClient = readable(null as (null | IframeTranslatorClient)
     client = await getClient();
     set(client);
   });
+  translateTargetLanguage.ready().then(() => {
+    // migrate from old language value to new language code
+    const oldString = translateTargetLanguage.getCurrent() as string;
+    if (!(oldString in AvailableLanguages)) {
+      const newKey = (
+        Object.keys(AvailableLanguages) as AvailableLanguageCodes[]
+      ).find(key => AvailableLanguages[key] === oldString);
+      translateTargetLanguage.set(newKey ?? '').catch(console.error);
+    }
+  }).catch(console.error);
   return () => {
     unsub();
     destroyIf();
@@ -41,3 +51,4 @@ export const showUserBadges = stores.addSyncStore('hc.messages.showUserBadges', 
 export const lastClosedVersion = stores.addSyncStore('hc.lastClosedVersion', '');
 export const showOnlyMemberChat = stores.addSyncStore('hc.showOnlyMemberChat', false);
 export const emojiRenderMode = stores.addSyncStore('hc.emojiRenderMode', YoutubeEmojiRenderMode.SHOW_ALL);
+export const autoLiveChat = stores.addSyncStore('hc.autoLiveChat', false);

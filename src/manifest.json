@@ -3,7 +3,7 @@
   "name": "HyperChat by LiveTL",
   "homepage_url": "https://livetl.app/en/hyperchat/",
   "description": "YouTube chat, but it's fast and sleek!",
-  "version": "2.3.1",
+  "version": "2.4.3",
   "permissions": [
     "storage"
   ],

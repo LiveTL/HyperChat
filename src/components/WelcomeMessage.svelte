@@ -92,7 +92,6 @@
         </Icon>
       </span>
       <span class="mr-0.5">
-        New in v{version}:
         <Changelog />
       </span>
     </p>
