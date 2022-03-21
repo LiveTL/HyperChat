@@ -24,7 +24,8 @@
     showTimestamps,
     showUserBadges,
     refreshScroll,
-    emojiRenderMode
+    emojiRenderMode,
+    useSystemEmojis
   } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -226,6 +227,8 @@
 
   const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
   const isMembership = (action: Chat.MessageAction) => (action.message.membership);
+
+  $: $useSystemEmojis, onRefresh();
 </script>
 
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />

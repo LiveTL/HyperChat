@@ -86,7 +86,9 @@ module.exports = {
         multiline: { delimiter: 'semi', requireLast: true },
         singleline: { delimiter: 'comma', requireLast: false }
       }
-    ]
+    ],
+    'no-sequences': 'off',
+    'no-unused-expressions': 'off',
   },
   settings: {
     'svelte3/typescript': () => require('typescript')
