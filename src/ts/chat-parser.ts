@@ -259,7 +259,7 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
     sortAction(parsedAction, messageArray, bonkArray, deleteArray, miscArray);
   });
 
-  cheatTimestamps(messageArray);
+  if (!isReplay) cheatTimestamps(messageArray);
 
   return {
     messages: messageArray,
