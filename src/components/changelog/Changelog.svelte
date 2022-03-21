@@ -1,4 +1,3 @@
-<br />
 <ul class="list-disc list-inside">
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
@@ -8,7 +7,7 @@
     and JensenLenard for helping with fixing this issue.
   </li>
   <li>
-    A setting to auto-switch the chat to <i>Live Chat</i> mode
+    A setting to auto-switch the chat to "Live Chat" mode
   </li>
 </ul>
 <ul class="list-disc list-inside">
