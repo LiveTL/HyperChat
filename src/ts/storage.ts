@@ -1,5 +1,5 @@
 import { webExtStores } from 'svelte-webext-stores';
-import { readable, writable, get } from 'svelte/store';
+import { readable, writable } from 'svelte/store';
 import { getClient, AvailableLanguages } from 'iframe-translator';
 import type { IframeTranslatorClient, AvailableLanguageCodes } from 'iframe-translator';
 import { Theme, YoutubeEmojiRenderMode } from './chat-constants';
