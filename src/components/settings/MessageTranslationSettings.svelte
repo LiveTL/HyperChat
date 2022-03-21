@@ -36,16 +36,14 @@
   }
 </script>
 
-<Card title="Additional Options" icon="tune">
-  <span on:click={scrollToBottom}>
-    <Checkbox name="Translate chat messages with Google Translate" store={enabled} />
-    {#if $enabled}
-      <DropdownStore name="Target language"
-      store={translateTargetLanguage}
-      items={[
-        ...priority,
-        ...AvailableLanguages.filter(e => !priority.includes(e))
-      ]} />
-    {/if}
-  </span>
-</Card>
+<span on:click={scrollToBottom}>
+  <Checkbox name="Translate chat messages with Google Translate" store={enabled} />
+  {#if $enabled}
+    <DropdownStore name="Target language"
+    store={translateTargetLanguage}
+    items={[
+      ...priority,
+      ...AvailableLanguages.filter(e => !priority.includes(e))
+    ]} />
+  {/if}
+</span>
