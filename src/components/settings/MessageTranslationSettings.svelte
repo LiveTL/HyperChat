@@ -36,7 +36,7 @@
     window.scrollTo(0, document.body.scrollHeight);
   }
 
-  $: items = [
+  const items = [
     ...priority.map(lang => ({
       text: AvailableLanguages[lang],
       value: lang

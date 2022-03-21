@@ -27,18 +27,16 @@ export const translatorClient = readable(null as (null | IframeTranslatorClient)
     client = await getClient();
     set(client);
   });
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   translateTargetLanguage.ready().then(() => {
     // migrate from old language value to new language code
-    const oldString = get(translateTargetLanguage) as string;
+    const oldString = translateTargetLanguage.getCurrent() as string;
     if (!(oldString in AvailableLanguages)) {
       const newKey = (
         Object.keys(AvailableLanguages) as AvailableLanguageCodes[]
       ).find(key => AvailableLanguages[key] === oldString);
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      translateTargetLanguage.set(newKey ?? '');
+      translateTargetLanguage.set(newKey ?? '').catch(console.error);
     }
-  });
+  }).catch(console.error);
   return () => {
     unsub();
     destroyIf();
