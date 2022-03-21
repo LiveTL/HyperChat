@@ -7,6 +7,9 @@
     Special thanks to Dominik K, Mr Fujisawa, Kuma, NepNep,
     and JensenLenard for helping with fixing this issue.
   </li>
+  <li>
+    A setting to auto-switch the chat to <i>Live Chat</i> mode
+  </li>
 </ul>
 <ul class="list-disc list-inside">
   <strong>What's cooking in the usual room:</strong>
