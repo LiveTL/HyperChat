@@ -209,6 +209,13 @@ const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[],
   }
 };
 
+const cheatTimestamps = (arr: Ytc.ParsedMessage[]): void => {
+  const earliest = arr[0].showtime;
+  arr.forEach(item => {
+    item.showtime += Date.now() - earliest;
+  });
+};
+
 export const parseChatResponse = (response: string, isReplay: boolean): Ytc.ParsedChunk | undefined => {
   const parsedResponse: Ytc.RawResponse = JSON.parse(response);
   const base =
@@ -251,6 +258,8 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
     }
     sortAction(parsedAction, messageArray, bonkArray, deleteArray, miscArray);
   });
+
+  cheatTimestamps(messageArray);
 
   return {
     messages: messageArray,
