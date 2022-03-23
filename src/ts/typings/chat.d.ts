@@ -86,7 +86,7 @@ declare namespace Chat {
   }
 
   type processJsonMsg = JsonMsg & {
-    type: 'processJson';
+    type: 'processMessageChunk' | 'processSentMessage';
   };
 
   type setInitialDataMsg = JsonMsg & {
@@ -139,6 +139,7 @@ declare namespace Chat {
     dark: boolean;
     queue: import('../queue').YtcQueue;
     queueUnsub?: import('../queue').Unsubscriber;
+    channelId?: string;
   }
 
   type Interceptors = Interceptor | YtcInterceptor;

@@ -1,6 +1,38 @@
 import { fixLeaks } from '../ts/ytc-fix-memleaks';
 import { frameIsReplay as isReplay } from '../ts/chat-utils';
 
+function injectedFunction(): void {
+  for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
+    window.addEventListener(eventName, event => {
+      event.stopImmediatePropagation();
+    }, true);
+  }
+  const fetchFallback = window.fetch;
+  (window as any).fetchFallback = fetchFallback;
+  window.fetch = async (...args) => {
+    const request = args[0] as Request;
+    const url = request.url;
+    if (url.startsWith(
+      'https://www.youtube.com/youtubei/v1/live_chat/send_message'
+    )) {
+      const clonedRequest = request.clone();
+      const body = JSON.stringify(await clonedRequest.json());
+      // action.clientId === body.clientMessageId
+      window.dispatchEvent(new CustomEvent('messageSent', {
+        detail: body
+      }));
+    }
+    const result = await fetchFallback(...args);
+    if (url.startsWith(
+      'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat')
+    ) {
+      const response = JSON.stringify(await (await result.clone()).json());
+      window.dispatchEvent(new CustomEvent('messageReceive', { detail: response }));
+    }
+    return result;
+  };
+}
+
 const chatLoaded = async (): Promise<void> => {
   if (document.querySelector('.toggleButton')) {
     console.error('HC button detected, not injecting interceptor.');
@@ -9,25 +41,7 @@ const chatLoaded = async (): Promise<void> => {
 
   // Inject interceptor script
   const script = document.createElement('script');
-  script.innerHTML = `
-    for (eventName of ["visibilitychange", "webkitvisibilitychange", "blur"]) {
-      window.addEventListener(eventName, event => {
-        event.stopImmediatePropagation();
-      }, true);
-    }
-    window.fetchFallback = window.fetch;
-    window.fetch = async (...args) => {
-      const url = args[0].url;
-      const result = await window.fetchFallback(...args);
-      if (url.startsWith(
-        'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat')
-      ) {
-        const response = JSON.stringify(await (await result.clone()).json());
-        window.dispatchEvent(new CustomEvent('messageReceive', { detail: response }));
-      }
-      return result;
-    };
-  `;
+  script.innerHTML = `(${injectedFunction.toString()})();`;
   document.body.appendChild(script);
 
   // Register interceptor
@@ -37,7 +51,15 @@ const chatLoaded = async (): Promise<void> => {
   // Send JSON response to clients
   window.addEventListener('messageReceive', (d) => {
     port.postMessage({
-      type: 'processJson',
+      type: 'processMessageChunk',
+      // @ts-expect-error TS doesn't like CustomEvent
+      json: d.detail
+    });
+  });
+
+  window.addEventListener('messageSent', (d) => {
+    port.postMessage({
+      type: 'processSentMessage',
       // @ts-expect-error TS doesn't like CustomEvent
       json: d.detail
     });
