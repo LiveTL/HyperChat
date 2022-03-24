@@ -106,8 +106,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     message: runs,
     timestamp: isReplay && timestampText != null ? timestampText : formatTimestamp(timestampUsec),
     showtime: isReplay ? liveTimeoutOrReplayMs : liveShowtimeMs,
-    messageId: renderer.id,
-    clientId: action.clientId
+    messageId: renderer.id
   };
 
   if (isPaidMessageRenderer(renderer)) {

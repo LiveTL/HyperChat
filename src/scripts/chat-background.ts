@@ -1,7 +1,6 @@
-import type { Unsubscriber } from '../ts/queue';
+import { Unsubscriber, ytcQueue } from '../ts/queue';
 import { isValidFrameInfo } from '../ts/chat-utils';
 import { isLiveTL } from '../ts/chat-constants';
-import { ytcQueue } from '../ts/queue';
 
 const interceptors: Chat.Interceptors[] = [];
 
@@ -83,8 +82,7 @@ const cleanupInterceptor = (i: number): void => {
 const registerInterceptor = (
   port: Chat.Port,
   source: Chat.InterceptorSource,
-  isReplay?: boolean,
-  channelId?: string
+  isReplay?: boolean
 ): void => {
   const frameInfo = getPortFrameInfo(port);
   if (!isValidFrameInfo(frameInfo, port)) return;
@@ -129,8 +127,7 @@ const registerInterceptor = (
       source: 'ytc',
       dark: false,
       queue,
-      queueUnsub,
-      channelId
+      queueUnsub
     };
     interceptors.push(ytcInterceptor);
     ytcInterceptor.queueUnsub = queue.latestAction.subscribe((latestAction) => {
@@ -219,7 +216,26 @@ const processMessageChunk = (port: Chat.Port, message: Chat.JsonMsg): void => {
  * Parses a sent message and adds a fake message entry.
  */
 const processSentMessage = (port: Chat.Port, message: Chat.JsonMsg): void => {
-  console.log(message);
+  const json = message.json;
+  const interceptor = findInterceptorFromPort(port, { message });
+  if (!interceptor || !isYtcInterceptor(interceptor)) return;
+
+  console.log('processSentMessage', { json, interceptor });
+
+  const parsedJson: {
+    richMessage: {
+      textSegments: string[];
+    };
+  } = JSON.parse(json);
+
+  interceptor.queue.addActionChunk({
+    messages: [{
+      message: [{
+        text: parsedJson.richMessage.textSegments[0],
+        type: 'text'
+      }]
+    }]
+  });
 };
 
 /**
@@ -230,18 +246,20 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
   const interceptor = findInterceptorFromPort(port, { message });
   if (!interceptor || !isYtcInterceptor(interceptor)) return;
 
+  console.log('addJsonToQueue', { json, interceptor });
+
   interceptor.queue.addJsonToQueue(json, true, interceptor);
 
   const parsedJson = JSON.parse(json);
 
-  const channelID =
+  const user =
     parsedJson?.continuationContents?.liveChatContinuation
       ?.actionPanel?.liveChatMessageInputRenderer
       ?.sendButton?.buttonRenderer?.serviceEndpoint
       ?.sendLiveChatMessageEndpoint?.actions[0]
       ?.addLiveChatTextMessageFromTemplateAction?.template
-      ?.liveChatTextMessageRenderer?.authorExternalChannelId;
-  interceptor.channelId = channelID;
+      ?.liveChatTextMessageRenderer;
+  interceptor.queue.selfChannel = user;
 };
 
 /**

@@ -51,7 +51,6 @@ declare namespace Ytc {
   /** YTC addChatItemAction object */
   interface AddChatItemAction {
     item: AddChatItem;
-    clientId?: string;
   }
 
   /** YTC replayChatItemAction object */
@@ -287,7 +286,6 @@ declare namespace Ytc {
     superChat?: ParsedSuperChat;
     superSticker?: ParsedSuperSticker;
     membership?: ParsedMembership;
-    clientId?: string;
   }
 
   interface ParsedBonk {

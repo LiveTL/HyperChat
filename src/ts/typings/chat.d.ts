@@ -139,7 +139,6 @@ declare namespace Chat {
     dark: boolean;
     queue: import('../queue').YtcQueue;
     queueUnsub?: import('../queue').Unsubscriber;
-    channelId?: string;
   }
 
   type Interceptors = Interceptor | YtcInterceptor;

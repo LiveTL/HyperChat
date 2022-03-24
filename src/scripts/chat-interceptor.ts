@@ -17,7 +17,6 @@ function injectedFunction(): void {
     )) {
       const clonedRequest = request.clone();
       const body = JSON.stringify(await clonedRequest.json());
-      // action.clientId === body.clientMessageId
       window.dispatchEvent(new CustomEvent('messageSent', {
         detail: body
       }));

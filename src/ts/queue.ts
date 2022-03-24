@@ -80,6 +80,8 @@ export interface YtcQueue {
   addJsonToQueue: (json: string, isInitial: boolean, interceptor: Chat.Interceptor) => void;
   updatePlayerProgress: (timeMs: number) => void;
   cleanUp: () => void;
+  selfChannel: Ytc.TextMessageRenderer | null;
+  addActionChunk: (chunk: Ytc.ParsedChunk, setInitial?: boolean, forceDisplay?: boolean) => void;
 }
 
 export function ytcQueue(isReplay = false): YtcQueue {
@@ -89,6 +91,8 @@ export function ytcQueue(isReplay = false): YtcQueue {
 
   const latestAction = subscribable<Chat.Actions | null>();
   let initialData: Chat.Actions[] = [];
+  // eslint-disable-next-line prefer-const
+  let selfChannel: Ytc.TextMessageRenderer | null = null;
 
   /**
    * Continuously pushes queue messages to store until queue is empty or until
@@ -186,7 +190,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
    * Adds messages to the queue, handles author bonks, message deletions
    * and pinned messages.
    */
-  const addActionChunk = (chunk: Ytc.ParsedChunk, setInitial = false): void => {
+  const addActionChunk = (chunk: Ytc.ParsedChunk, setInitial = false, forceDisplay = false): void => {
     const messages = chunk.messages;
     const bonks = chunk.bonks;
     const deletions = chunk.deletions;
@@ -208,7 +212,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
         }
         result.push(messageAction);
         return result;
-      }, []);
+      }, []).filter((m) => forceDisplay || m.message.author.id !== selfChannel?.authorExternalChannelId);
 
     if (setInitial) {
       initialData = [{ type: 'messages', messages: messageActions }, ...misc];
@@ -222,7 +226,12 @@ export function ytcQueue(isReplay = false): YtcQueue {
     misc.forEach((action) => latestAction.set(action));
   };
 
-  const addJsonToQueue = (json: string, isInitial: boolean, interceptor: Chat.Interceptor): void => {
+  const addJsonToQueue = (
+    json: string,
+    isInitial: boolean,
+    interceptor: Chat.Interceptor,
+    forceDisplay = false
+  ): void => {
     const chunk = parseChatResponse(json, isReplay);
     if (!chunk) {
       console.debug(
@@ -231,7 +240,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
       );
       return;
     }
-    addActionChunk(chunk, isInitial);
+    addActionChunk(chunk, isInitial, forceDisplay);
     console.debug(
       isInitial ? 'Saved initial data' : 'Added chunk to queue',
       { interceptor, chunk }
@@ -269,6 +278,8 @@ export function ytcQueue(isReplay = false): YtcQueue {
     getInitialData,
     addJsonToQueue,
     updatePlayerProgress,
-    cleanUp
+    cleanUp,
+    selfChannel,
+    addActionChunk
   };
 }
