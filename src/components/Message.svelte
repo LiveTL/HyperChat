@@ -59,7 +59,7 @@
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div 
-  class="inline-flex flex-row gap-2 break-words overflow-hidden w-full"
+  class="hc-message inline-flex flex-row gap-2 break-words overflow-hidden w-full"
   on:click|stopPropagation
 >
   {#if !hideName && $showProfileIcons}

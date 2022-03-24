@@ -56,6 +56,12 @@ def switch_to_youtube_parent_frame(web):
 def switch_to_chatframe(web: TWeb):
     web.switch_to.frame(web.find_element_by_css_selector("#chatframe"))
 
+def initial_switch_to_chatframe(web: TWeb):
+    switch_to_chatframe(web)
+    switch_to_youtube_parent_frame(web)
+    click_body(web)
+    switch_to_chatframe(web)
+
 @with_retry()
 def get_hc_buttons(web: TWeb, expected_buttons=2):
     """
@@ -70,3 +76,7 @@ def get_hc_buttons(web: TWeb, expected_buttons=2):
 
 def get_ytc_msgs(web: TWeb):
     return web.find_elements_by_css_selector("yt-live-chat-text-message-renderer")
+
+@with_retry()
+def has_yt_msgs(web: TWeb, expected: bool):
+    assert bool(get_ytc_msgs(web)) == expected
