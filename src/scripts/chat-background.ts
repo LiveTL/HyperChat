@@ -221,21 +221,6 @@ const processSentMessage = (port: Chat.Port, message: Chat.JsonMsg): void => {
   if (!interceptor || !isYtcInterceptor(interceptor)) return;
 
   console.log('processSentMessage', { json, interceptor });
-
-  const parsedJson: {
-    richMessage: {
-      textSegments: string[];
-    };
-  } = JSON.parse(json);
-
-  interceptor.queue.addActionChunk({
-    messages: [{
-      message: [{
-        text: parsedJson.richMessage.textSegments[0],
-        type: 'text'
-      }]
-    }]
-  });
 };
 
 /**
@@ -245,8 +230,6 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
   const json = message.json;
   const interceptor = findInterceptorFromPort(port, { message });
   if (!interceptor || !isYtcInterceptor(interceptor)) return;
-
-  console.log('addJsonToQueue', { json, interceptor });
 
   interceptor.queue.addJsonToQueue(json, true, interceptor);
 
@@ -259,7 +242,7 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
       ?.sendLiveChatMessageEndpoint?.actions[0]
       ?.addLiveChatTextMessageFromTemplateAction?.template
       ?.liveChatTextMessageRenderer;
-  interceptor.queue.selfChannel = user;
+  interceptor.queue.selfChannel.set(user);
 };
 
 /**

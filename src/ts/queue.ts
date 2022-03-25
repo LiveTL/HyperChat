@@ -48,6 +48,7 @@ type Callback<T> = (t: T) => void;
 export type Unsubscriber = () => void;
 export interface Subscribable<T> {
   set: (value: T) => void;
+  get: () => T;
   subscribe: (callback: Callback<T>) => Unsubscriber;
 }
 
@@ -61,6 +62,8 @@ export function subscribable<T>(): Subscribable<T> {
     subscribers.forEach((cb) => cb(newValue));
   };
 
+  const get = (): T => value;
+
   const subscribe = (callback: Callback<T>): Unsubscriber => {
     callback(value);
     const id = count;
@@ -70,7 +73,7 @@ export function subscribable<T>(): Subscribable<T> {
     return () => subscribers.delete(id);
   };
 
-  return { set, subscribe };
+  return { set, get, subscribe };
 }
 
 type QueueCondition = (queue: Queue<Chat.MessageAction>) => boolean;
@@ -80,7 +83,7 @@ export interface YtcQueue {
   addJsonToQueue: (json: string, isInitial: boolean, interceptor: Chat.Interceptor) => void;
   updatePlayerProgress: (timeMs: number) => void;
   cleanUp: () => void;
-  selfChannel: Ytc.TextMessageRenderer | null;
+  selfChannel: Subscribable<Ytc.TextMessageRenderer | null>;
   addActionChunk: (chunk: Ytc.ParsedChunk, setInitial?: boolean, forceDisplay?: boolean) => void;
 }
 
@@ -92,7 +95,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
   const latestAction = subscribable<Chat.Actions | null>();
   let initialData: Chat.Actions[] = [];
   // eslint-disable-next-line prefer-const
-  let selfChannel: Ytc.TextMessageRenderer | null = null;
+  let selfChannel = subscribable<Ytc.TextMessageRenderer | null>();
 
   /**
    * Continuously pushes queue messages to store until queue is empty or until
@@ -207,12 +210,16 @@ export function ytcQueue(isReplay = false): YtcQueue {
           message: m
         };
         processDeleted(messageAction, bonks, deletions);
-        if (!setInitial || (setInitial && isReplay && m.showtime > 0)) {
+        if ((
+          !setInitial || (setInitial && isReplay && m.showtime > 0)
+        ) && (
+          forceDisplay || m.author.id !== selfChannel.get()?.authorExternalChannelId
+        )) {
           messageQueue.push(messageAction);
         }
         result.push(messageAction);
         return result;
-      }, []).filter((m) => forceDisplay || m.message.author.id !== selfChannel?.authorExternalChannelId);
+      }, []);
 
     if (setInitial) {
       initialData = [{ type: 'messages', messages: messageActions }, ...misc];
