@@ -234,7 +234,7 @@
   <div class="absolute w-full h-full flex justify-end flex-col">
     <div bind:this={div} on:scroll={checkAtBottom} class="content overflow-y-scroll">
       {#each messageActions as action (action.message.messageId)}
-        <div class="{isWelcome(action) ? '' : 'hover-highlight rounded flex'} p-1.5 w-full block">
+        <div class="{isWelcome(action) ? '' : 'flex'} hover-highlight p-1.5 w-full block">
           {#if isWelcome(action)}
             <WelcomeMessage />
           {:else if isSuperchat(action)}
