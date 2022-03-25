@@ -80,7 +80,7 @@ type QueueCondition = (queue: Queue<Chat.MessageAction>) => boolean;
 export interface YtcQueue {
   latestAction: Subscribable<Chat.Actions | null>;
   getInitialData: () => Chat.Actions[];
-  addJsonToQueue: (json: string, isInitial: boolean, interceptor: Chat.Interceptor) => void;
+  addJsonToQueue: (json: string, isInitial: boolean, interceptor: Chat.Interceptor, forceDisplay?: boolean) => void;
   updatePlayerProgress: (timeMs: number) => void;
   cleanUp: () => void;
   selfChannel: Subscribable<Ytc.TextMessageRenderer | null>;

@@ -12,21 +12,21 @@ function injectedFunction(): void {
   window.fetch = async (...args) => {
     const request = args[0] as Request;
     const url = request.url;
-    if (url.startsWith(
-      'https://www.youtube.com/youtubei/v1/live_chat/send_message'
-    )) {
-      const clonedRequest = request.clone();
-      const body = JSON.stringify(await clonedRequest.json());
-      window.dispatchEvent(new CustomEvent('messageSent', {
-        detail: body
-      }));
-    }
     const result = await fetchFallback(...args);
-    if (url.startsWith(
-      'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat')
-    ) {
+    const condition = url.startsWith(
+      'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat'
+    )
+      ? 'messageReceive'
+      : (
+          url.startsWith(
+            'https://www.youtube.com/youtubei/v1/live_chat/send_message'
+          )
+            ? 'messageSent'
+            : false
+        );
+    if (condition !== false) {
       const response = JSON.stringify(await (await result.clone()).json());
-      window.dispatchEvent(new CustomEvent('messageReceive', { detail: response }));
+      window.dispatchEvent(new CustomEvent(condition, { detail: response }));
     }
     return result;
   };

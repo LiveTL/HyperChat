@@ -220,7 +220,22 @@ const processSentMessage = (port: Chat.Port, message: Chat.JsonMsg): void => {
   const interceptor = findInterceptorFromPort(port, { message });
   if (!interceptor || !isYtcInterceptor(interceptor)) return;
 
-  console.log('processSentMessage', { json, interceptor });
+  const fakeJson: Ytc.SentChatItemAction = JSON.parse(json);
+  const fakeChunk: Ytc.RawResponse = {
+    continuationContents: {
+      liveChatContinuation: {
+        continuations: [{
+          timedContinuationData: {
+            timeoutMs: 0
+          }
+        }],
+        actions: fakeJson.actions
+      }
+    }
+  };
+  interceptor.queue.addJsonToQueue(JSON.stringify(
+    fakeChunk
+  ), false, interceptor, true);
 };
 
 /**

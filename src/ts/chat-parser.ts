@@ -210,11 +210,14 @@ const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[],
 };
 
 export const parseChatResponse = (response: string, isReplay: boolean): Ytc.ParsedChunk | undefined => {
+  console.log(JSON.parse(response));
+
   const parsedResponse: Ytc.RawResponse = JSON.parse(response);
   const base =
     parsedResponse.continuationContents?.liveChatContinuation ??
     parsedResponse.contents?.liveChatRenderer;
   const actionsArray = base?.actions;
+  console.log(base, actionsArray);
   if (!base || !actionsArray) {
     console.debug('Invalid response:', parsedResponse);
     return;
