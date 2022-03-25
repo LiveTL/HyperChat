@@ -6,6 +6,7 @@ export interface Queue<T> {
   front: () => T | undefined;
   pop: () => T | undefined;
   push: (item: T) => void;
+  prepend: (item: T) => void;
 }
 
 export function queue<T>(): Queue<T> {
@@ -41,7 +42,18 @@ export function queue<T>(): Queue<T> {
     }
   };
 
-  return { clear, front, pop, push };
+  const prepend = (item: T): void => {
+    const newItem: QueueItem<T> = { data: item };
+    if (!first) {
+      first = newItem;
+      last = first;
+    } else {
+      newItem.next = first;
+      first = newItem;
+    }
+  };
+
+  return { clear, front, pop, push, prepend };
 }
 
 type Callback<T> = (t: T) => void;
@@ -215,7 +227,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
         ) && (
           forceDisplay || m.author.id !== selfChannel.get()?.authorExternalChannelId
         )) {
-          messageQueue.push(messageAction);
+          messageQueue[forceDisplay ? 'prepend' : 'push'](messageAction);
         }
         result.push(messageAction);
         return result;
