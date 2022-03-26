@@ -209,22 +209,19 @@ const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[],
   }
 };
 
-const cheatTimestamps = (arr: Ytc.ParsedMessage[]): void => {
-  const earliest = arr[0].showtime;
-  arr.forEach(item => {
+const cheatTimestamps = (messages: Ytc.ParsedMessage[]): void => {
+  const earliest = messages[0].showtime;
+  messages.forEach(item => {
     item.showtime += Date.now() - earliest;
   });
 };
 
 export const parseChatResponse = (response: string, isReplay: boolean): Ytc.ParsedChunk | undefined => {
-  console.log(JSON.parse(response));
-
   const parsedResponse: Ytc.RawResponse = JSON.parse(response);
   const base =
     parsedResponse.continuationContents?.liveChatContinuation ??
     parsedResponse.contents?.liveChatRenderer;
   const actionsArray = base?.actions;
-  console.log(base, actionsArray);
   if (!base || !actionsArray) {
     console.debug('Invalid response:', parsedResponse);
     return;
