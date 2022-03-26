@@ -222,11 +222,12 @@ export function ytcQueue(isReplay = false): YtcQueue {
           message: m
         };
         processDeleted(messageAction, bonks, deletions);
-        if ((
-          !setInitial || (setInitial && isReplay && m.showtime > 0)
-        ) && (
-          forceDisplay || m.author.id !== selfChannel.get()?.authorExternalChannelId
-        )) {
+
+        const isActiveReplay = isReplay && m.showtime > 0;
+        const isOwnMessage =
+          m.author.id === selfChannel.get()?.authorExternalChannelId;
+
+        if ((!setInitial || isActiveReplay) && (forceDisplay || !isOwnMessage)) {
           messageQueue[forceDisplay ? 'prepend' : 'push'](messageAction);
         }
         result.push(messageAction);
