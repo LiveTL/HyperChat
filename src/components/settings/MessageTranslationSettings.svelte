@@ -51,8 +51,10 @@
 <span on:click={scrollToBottom}>
   <Checkbox name="Translate chat messages with Google Translate" store={enabled} />
   {#if $enabled}
-    <DropdownStore name="Target language"
-    store={translateTargetLanguage}
-    {items} />
+    <DropdownStore
+      name="Target language"
+      store={translateTargetLanguage}
+      {items}
+    />
   {/if}
 </span>
