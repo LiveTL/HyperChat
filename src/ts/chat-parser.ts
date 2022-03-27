@@ -211,8 +211,9 @@ const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[],
 
 const cheatTimestamps = (arr: Ytc.ParsedMessage[]): void => {
   const earliest = arr[0].showtime;
+  const delta = Date.now() - earliest;
   arr.forEach(item => {
-    item.showtime += Date.now() - earliest;
+    item.showtime += delta;
   });
 };
 
