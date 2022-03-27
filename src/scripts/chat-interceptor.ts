@@ -14,12 +14,12 @@ function injectedFunction(): void {
     const url = request.url;
     const result = await fetchFallback(...args);
 
-    const ytApi = end => `https://www.youtube.com/youtubei/v1/live_chat${end}`;
+    const ytApi = (end: string): string => `https://www.youtube.com/youtubei/v1/live_chat${end}`;
     const isReceiving = url.startsWith(ytApi('/get_live_chat'));
     const isSending = url.startsWith(ytApi('/send_message'));
     const action = isReceiving ? 'messageReceive' : 'messageSent';
     if (isReceiving || isSending) {
-      const response = JSON.stringify(await (await result.clone()).json());
+      const response = JSON.stringify(await (result.clone()).json());
       window.dispatchEvent(new CustomEvent(action, { detail: response }));
     }
     return result;
