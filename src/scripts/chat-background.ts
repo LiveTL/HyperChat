@@ -1,7 +1,6 @@
-import type { Unsubscriber } from '../ts/queue';
+import { Unsubscriber, ytcQueue } from '../ts/queue';
 import { isValidFrameInfo } from '../ts/chat-utils';
 import { isLiveTL } from '../ts/chat-constants';
-import { ytcQueue } from '../ts/queue';
 
 const interceptors: Chat.Interceptors[] = [];
 
@@ -80,7 +79,11 @@ const cleanupInterceptor = (i: number): void => {
  * If an interceptor with the same FrameInfo already exists, its port will be
  * replaced with the given port instead.
  */
-const registerInterceptor = (port: Chat.Port, source: Chat.InterceptorSource, isReplay?: boolean): void => {
+const registerInterceptor = (
+  port: Chat.Port,
+  source: Chat.InterceptorSource,
+  isReplay?: boolean
+): void => {
   const frameInfo = getPortFrameInfo(port);
   if (!isValidFrameInfo(frameInfo, port)) return;
 
@@ -196,7 +199,7 @@ const registerClient = (
  * Parses the given YTC json response, and adds it to the queue of the
  * interceptor that sent it.
  */
-const processJson = (port: Chat.Port, message: Chat.JsonMsg): void => {
+const processMessageChunk = (port: Chat.Port, message: Chat.JsonMsg): void => {
   const json = message.json;
   const interceptor = findInterceptorFromPort(port, { message });
   if (!interceptor || !isYtcInterceptor(interceptor)) return;
@@ -210,8 +213,33 @@ const processJson = (port: Chat.Port, message: Chat.JsonMsg): void => {
 };
 
 /**
- * Parses the givevn YTC json response, and sets it as the initial data of
- * the interceptor that sent it.
+ * Parses a sent message and adds a fake message entry.
+ */
+const processSentMessage = (port: Chat.Port, message: Chat.JsonMsg): void => {
+  const json = message.json;
+  const interceptor = findInterceptorFromPort(port, { message });
+  if (!interceptor || !isYtcInterceptor(interceptor)) return;
+
+  const fakeJson: Ytc.SentChatItemAction = JSON.parse(json);
+  const fakeChunk: Ytc.RawResponse = {
+    continuationContents: {
+      liveChatContinuation: {
+        continuations: [{
+          timedContinuationData: {
+            timeoutMs: 0
+          }
+        }],
+        actions: fakeJson.actions
+      }
+    }
+  };
+  interceptor.queue.addJsonToQueue(JSON.stringify(
+    fakeChunk
+  ), false, interceptor, true);
+};
+
+/**
+ * Parses and sets initial message data and metadata.
  */
 const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
   const json = message.json;
@@ -219,6 +247,17 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
   if (!interceptor || !isYtcInterceptor(interceptor)) return;
 
   interceptor.queue.addJsonToQueue(json, true, interceptor);
+
+  const parsedJson = JSON.parse(json);
+
+  const user =
+    parsedJson?.continuationContents?.liveChatContinuation
+      ?.actionPanel?.liveChatMessageInputRenderer
+      ?.sendButton?.buttonRenderer?.serviceEndpoint
+      ?.sendLiveChatMessageEndpoint?.actions[0]
+      ?.addLiveChatTextMessageFromTemplateAction?.template
+      ?.liveChatTextMessageRenderer;
+  interceptor.queue.selfChannel.set(user);
 };
 
 /**
@@ -278,8 +317,11 @@ chrome.runtime.onConnect.addListener((port) => {
       case 'registerClient':
         registerClient(port, message.frameInfo, message.getInitialData);
         break;
-      case 'processJson':
-        processJson(port, message);
+      case 'processMessageChunk':
+        processMessageChunk(port, message);
+        break;
+      case 'processSentMessage':
+        processSentMessage(port, message);
         break;
       case 'setInitialData':
         setInitialData(port, message);
