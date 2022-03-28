@@ -86,7 +86,7 @@ declare namespace Chat {
   }
 
   type processJsonMsg = JsonMsg & {
-    type: 'processJson';
+    type: 'processMessageChunk' | 'processSentMessage';
   };
 
   type setInitialDataMsg = JsonMsg & {

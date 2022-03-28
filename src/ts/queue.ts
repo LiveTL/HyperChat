@@ -6,6 +6,7 @@ export interface Queue<T> {
   front: () => T | undefined;
   pop: () => T | undefined;
   push: (item: T) => void;
+  prepend: (item: T) => void;
 }
 
 export function queue<T>(): Queue<T> {
@@ -41,13 +42,25 @@ export function queue<T>(): Queue<T> {
     }
   };
 
-  return { clear, front, pop, push };
+  const prepend = (item: T): void => {
+    const newItem: QueueItem<T> = { data: item };
+    if (!first) {
+      first = newItem;
+      last = first;
+    } else {
+      newItem.next = first;
+      first = newItem;
+    }
+  };
+
+  return { clear, front, pop, push, prepend };
 }
 
 type Callback<T> = (t: T) => void;
 export type Unsubscriber = () => void;
 export interface Subscribable<T> {
   set: (value: T) => void;
+  get: () => T;
   subscribe: (callback: Callback<T>) => Unsubscriber;
 }
 
@@ -61,6 +74,8 @@ export function subscribable<T>(): Subscribable<T> {
     subscribers.forEach((cb) => cb(newValue));
   };
 
+  const get = (): T => value;
+
   const subscribe = (callback: Callback<T>): Unsubscriber => {
     callback(value);
     const id = count;
@@ -70,16 +85,17 @@ export function subscribable<T>(): Subscribable<T> {
     return () => subscribers.delete(id);
   };
 
-  return { set, subscribe };
+  return { set, get, subscribe };
 }
 
 type QueueCondition = (queue: Queue<Chat.MessageAction>) => boolean;
 export interface YtcQueue {
   latestAction: Subscribable<Chat.Actions | null>;
   getInitialData: () => Chat.Actions[];
-  addJsonToQueue: (json: string, isInitial: boolean, interceptor: Chat.Interceptor) => void;
+  addJsonToQueue: (json: string, isInitial: boolean, interceptor: Chat.Interceptor, forceDisplay?: boolean) => void;
   updatePlayerProgress: (timeMs: number) => void;
   cleanUp: () => void;
+  selfChannel: Subscribable<Ytc.TextMessageRenderer | null>;
 }
 
 export function ytcQueue(isReplay = false): YtcQueue {
@@ -89,6 +105,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
 
   const latestAction = subscribable<Chat.Actions | null>();
   let initialData: Chat.Actions[] = [];
+  const selfChannel = subscribable<Ytc.TextMessageRenderer | null>();
 
   /**
    * Continuously pushes queue messages to store until queue is empty or until
@@ -186,7 +203,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
    * Adds messages to the queue, handles author bonks, message deletions
    * and pinned messages.
    */
-  const addActionChunk = (chunk: Ytc.ParsedChunk, setInitial = false): void => {
+  const addActionChunk = (chunk: Ytc.ParsedChunk, setInitial = false, forceDisplay = false): void => {
     const messages = chunk.messages;
     const bonks = chunk.bonks;
     const deletions = chunk.deletions;
@@ -203,8 +220,13 @@ export function ytcQueue(isReplay = false): YtcQueue {
           message: m
         };
         processDeleted(messageAction, bonks, deletions);
-        if (!setInitial || (setInitial && isReplay && m.showtime > 0)) {
-          messageQueue.push(messageAction);
+
+        const isActiveReplay = isReplay && m.showtime > 0;
+        const isOwnMessage =
+          m.author.id === selfChannel.get()?.authorExternalChannelId;
+
+        if ((!setInitial || isActiveReplay) && (forceDisplay || !isOwnMessage)) {
+          messageQueue[forceDisplay ? 'prepend' : 'push'](messageAction);
         }
         result.push(messageAction);
         return result;
@@ -222,7 +244,12 @@ export function ytcQueue(isReplay = false): YtcQueue {
     misc.forEach((action) => latestAction.set(action));
   };
 
-  const addJsonToQueue = (json: string, isInitial: boolean, interceptor: Chat.Interceptor): void => {
+  const addJsonToQueue = (
+    json: string,
+    isInitial: boolean,
+    interceptor: Chat.Interceptor,
+    forceDisplay = false
+  ): void => {
     const chunk = parseChatResponse(json, isReplay);
     if (!chunk) {
       console.debug(
@@ -231,7 +258,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
       );
       return;
     }
-    addActionChunk(chunk, isInitial);
+    addActionChunk(chunk, isInitial, forceDisplay);
     console.debug(
       isInitial ? 'Saved initial data' : 'Added chunk to queue',
       { interceptor, chunk }
@@ -269,6 +296,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
     getInitialData,
     addJsonToQueue,
     updatePlayerProgress,
-    cleanUp
+    cleanUp,
+    selfChannel
   };
 }

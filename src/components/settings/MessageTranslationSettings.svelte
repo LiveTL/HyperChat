@@ -3,7 +3,6 @@
     translateTargetLanguage
   } from '../../ts/storage';
   import DropdownStore from '../common/DropdownStore.svelte';
-  import Card from '../common/Card.svelte';
   import Checkbox from '../common/CheckboxStore.svelte';
   import { AvailableLanguages } from 'iframe-translator';
   import type { AvailableLanguageCodes } from 'iframe-translator';
@@ -49,13 +48,13 @@
   ];
 </script>
 
-<Card title="Additional Options" icon="tune">
-  <span on:click={scrollToBottom}>
-    <Checkbox name="Translate chat messages with Google Translate" store={enabled} />
-    {#if $enabled}
-      <DropdownStore name="Target language"
+<span on:click={scrollToBottom}>
+  <Checkbox name="Translate chat messages with Google Translate" store={enabled} />
+  {#if $enabled}
+    <DropdownStore
+      name="Target language"
       store={translateTargetLanguage}
-      {items} />
-    {/if}
-  </span>
-</Card>
+      {items}
+    />
+  {/if}
+</span>

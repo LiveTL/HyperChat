@@ -59,6 +59,11 @@ declare namespace Ytc {
     videoOffsetTimeMsec: IntString;
   }
 
+  /* YTC sentChatItemAction object */
+  interface SentChatItemAction {
+    actions: Action[];
+  }
+
   /** YTC markChatItemsByAuthorAsDeletedAction object */
   interface AuthorBonkedAction extends IDeleted {
     /** ID of channel that was bonked */

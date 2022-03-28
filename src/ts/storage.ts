@@ -52,3 +52,4 @@ export const lastClosedVersion = stores.addSyncStore('hc.lastClosedVersion', '')
 export const showOnlyMemberChat = stores.addSyncStore('hc.showOnlyMemberChat', false);
 export const emojiRenderMode = stores.addSyncStore('hc.emojiRenderMode', YoutubeEmojiRenderMode.SHOW_ALL);
 export const autoLiveChat = stores.addSyncStore('hc.autoLiveChat', false);
+export const useSystemEmojis = stores.addSyncStore('hc.useSystemEmojis', false);
