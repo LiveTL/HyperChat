@@ -3,7 +3,7 @@
 
   import TranslatedMessage from './TranslatedMessage.svelte';
   import {
-    emojiRenderMode
+    emojiRenderMode, useSystemEmojis
   } from '../ts/storage';
   import { YoutubeEmojiRenderMode } from '../ts/chat-constants';
 
@@ -44,7 +44,7 @@
         {run.text}
       </a>
     {:else if run.type === 'emoji' && $emojiRenderMode !== YoutubeEmojiRenderMode.HIDE_ALL}
-      {#if run.standardEmoji}
+      {#if run.standardEmoji && $useSystemEmojis}
         <span
           class="cursor-auto align-middle text-base"
         >
