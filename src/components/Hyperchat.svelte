@@ -134,6 +134,9 @@
         break;
       case 'forceUpdate':
         messageActions = [...action.messages].filter(shouldShowMessage);
+        if (action.showWelcome) {
+          messageActions = [...messageActions, welcome];
+        }
         break;
     }
   };

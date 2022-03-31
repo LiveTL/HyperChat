@@ -128,6 +128,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
 
   /**
    * Pushes messages up till previousTime as forced update.
+   * Currently only called on chunk refresh, will show welcome message.
    */
   const forceUpdateTillPrevious = (): void => {
     const messages: Chat.MessageAction[] = [];
@@ -139,7 +140,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
       if (!message) return;
       messages.push(message);
     }
-    latestAction.set({ type: 'forceUpdate', messages });
+    latestAction.set({ type: 'forceUpdate', messages, showWelcome: true });
   };
 
   /**
