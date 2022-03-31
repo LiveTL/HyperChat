@@ -260,7 +260,8 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
     sortAction(parsedAction, messageArray, bonkArray, deleteArray, miscArray);
   });
 
-  if (!isReplay) cheatTimestamps(messageArray);
+  const refresh = base.clientMessages != null;
+  if (!isReplay && !refresh) cheatTimestamps(messageArray);
 
   return {
     messages: messageArray,
@@ -268,6 +269,6 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
     deletions: deleteArray,
     miscActions: miscArray,
     isReplay,
-    refresh: base.clientMessages != null
+    refresh
   };
 };
