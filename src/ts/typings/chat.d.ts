@@ -31,6 +31,7 @@ declare namespace Chat {
   interface ForceUpdate {
     type: 'forceUpdate';
     messages: MessageAction[];
+    showWelcome?: boolean;
   }
 
   type Actions = MessagesAction | BonkAction | DeleteAction | Ytc.ParsedMisc | PlayerProgressAction | ForceUpdate;
