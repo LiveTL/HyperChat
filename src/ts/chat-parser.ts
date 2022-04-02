@@ -93,6 +93,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
   const timestampText = renderer.timestampText?.simpleText;
   const liveShowtimeMs = (timestampUsec / 1000) + liveTimeoutOrReplayMs;
   const profileIcon = { src: fixUrl(renderer.authorPhoto?.thumbnails[0].url ?? ''), alt: renderer.authorName?.simpleText ?? '' };
+  const channelId = renderer.authorExternalChannelId;
 
   const item: Ytc.ParsedMessage = {
     author: {
@@ -108,6 +109,9 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     showtime: isReplay ? liveTimeoutOrReplayMs : liveShowtimeMs,
     messageId: renderer.id
   };
+  if (channelId) {
+    item.author.url = `https://www.youtube.com/channel/${channelId}`;
+  }
 
   if (isPaidMessageRenderer(renderer)) {
     item.superChat = {

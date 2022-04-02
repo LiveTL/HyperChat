@@ -63,11 +63,13 @@
   on:click|stopPropagation
 >
   {#if !hideName && $showProfileIcons}
-    <img
-      class="h-5 w-5 inline align-middle rounded-full cursor-auto flex-none"
-      src={message.author.profileIcon.src}
-      alt={message.author.profileIcon.alt}
-    />
+    <a href={message.author.url} target="_blank">
+      <img
+        class="h-5 w-5 inline align-middle rounded-full cursor-auto flex-none"
+        src={message.author.profileIcon.src}
+        alt={message.author.profileIcon.alt}
+      />
+    </a>
   {/if}
   <div>
     {#if !hideName}
@@ -77,12 +79,14 @@
       >
         {message.timestamp}
       </span>
-      <span
-        class="{nameClass} {nameColorClass}"
-        class:hidden={!$showUsernames}
-      >
-        {message.author.name}
-      </span>
+      <a href={message.author.url} target="_blank">
+        <span
+          class="{nameClass} {nameColorClass}"
+          class:hidden={!$showUsernames}
+        >
+          {message.author.name}
+        </span>
+      </a>
       <span class="align-middle" class:hidden={!$showUserBadges}>
         {#if moderator}
           <Icon class="inline align-middle" small>build</Icon>
