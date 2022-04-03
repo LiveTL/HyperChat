@@ -14,7 +14,7 @@
   export let forceDark = false;
   export let hideName = false;
 
-  const nameClass = 'font-bold tracking-wide cursor-auto align-middle';
+  const nameClass = 'font-bold tracking-wide align-middle';
   const generateNameColorClass = (member: boolean, moderator: boolean, owner: boolean, forceDark: boolean) => {
     if (owner && forceDark) {
       return 'text-owner-dark';
@@ -63,9 +63,14 @@
   on:click|stopPropagation
 >
   {#if !hideName && $showProfileIcons}
-    <a href={message.author.url} target="_blank">
+    <a
+      href={message.author.url}
+      class:cursor-pointer={message.author.url}
+      class:cursor-auto={!message.author.url}
+      target="_blank"
+    >
       <img
-        class="h-5 w-5 inline align-middle rounded-full cursor-auto flex-none"
+        class="h-5 w-5 inline align-middle rounded-full flex-none"
         src={message.author.profileIcon.src}
         alt={message.author.profileIcon.alt}
       />
@@ -79,7 +84,12 @@
       >
         {message.timestamp}
       </span>
-      <a href={message.author.url} target="_blank">
+      <a
+        href={message.author.url}
+        class:cursor-pointer={message.author.url}
+        class:cursor-auto={!message.author.url}
+        target="_blank"
+      >
         <span
           class="{nameClass} {nameColorClass}"
           class:hidden={!$showUsernames}
