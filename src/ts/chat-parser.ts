@@ -99,7 +99,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     author: {
       // It's apparently possible for there to be no author name (and only an author photo).
       name: renderer.authorName?.simpleText ?? '',
-      id: renderer.authorExternalChannelId,
+      id: renderer.authorExternalChannelId ?? '',
       types: authorTypes,
       customBadge,
       profileIcon
@@ -109,7 +109,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     showtime: isReplay ? liveTimeoutOrReplayMs : liveShowtimeMs,
     messageId: renderer.id
   };
-  if (channelId) {
+  if (channelId != null) {
     item.author.url = `https://www.youtube.com/channel/${channelId}`;
   }
 
