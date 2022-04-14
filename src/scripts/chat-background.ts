@@ -257,7 +257,8 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
       ?.sendLiveChatMessageEndpoint?.actions[0]
       ?.addLiveChatTextMessageFromTemplateAction?.template
       ?.liveChatTextMessageRenderer;
-  interceptor.queue.selfChannel.set(user);
+
+  if (user) interceptor.queue.selfChannel.set(user);
 };
 
 /**
