@@ -251,7 +251,8 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
   const parsedJson = JSON.parse(json);
 
   const user =
-    parsedJson?.continuationContents?.liveChatContinuation
+    (parsedJson?.continuationContents?.liveChatContinuation ||
+      parsedJson?.contents?.liveChatRenderer)
       ?.actionPanel?.liveChatMessageInputRenderer
       ?.sendButton?.buttonRenderer?.serviceEndpoint
       ?.sendLiveChatMessageEndpoint?.actions[0]
