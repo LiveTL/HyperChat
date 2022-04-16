@@ -50,3 +50,16 @@ export const emojiRenderItems = [
   { value: YoutubeEmojiRenderMode.BLOCK_SPAM, label: 'Hide emoji-only messages' },
   { value: YoutubeEmojiRenderMode.HIDE_ALL, label: 'Hide all emojis and emoji-only messages' }
 ];
+
+export enum ChatUserActions {
+  BLOCK = 0,
+  // 1: report channel art
+  REPORT_PFP = 2,
+  REPORT_USER = 3,
+}
+
+export const chatUserActionsItems = [
+  { value: ChatUserActions.BLOCK, label: 'Block user' },
+  { value: ChatUserActions.REPORT_PFP, label: 'Report profile picture' },
+  { value: ChatUserActions.REPORT_USER, label: 'Report user' }
+];
