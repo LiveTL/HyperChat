@@ -59,7 +59,7 @@ export enum ChatUserActions {
 }
 
 export const chatUserActionsItems = [
-  { value: ChatUserActions.BLOCK, label: 'Block user' },
-  { value: ChatUserActions.REPORT_PFP, label: 'Report profile picture' },
-  { value: ChatUserActions.REPORT_USER, label: 'Report user' }
+  { value: ChatUserActions.BLOCK, text: 'Block user', icon: 'block' },
+  { value: ChatUserActions.REPORT_PFP, text: 'Report profile picture', icon: 'flag_circle' },
+  { value: ChatUserActions.REPORT_USER, text: 'Report user', icon: 'flag' }
 ];

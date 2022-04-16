@@ -1,13 +1,14 @@
 <script lang="ts">
   import MessageRun from './MessageRuns.svelte';
   import Icon from './common/Icon.svelte';
+  import Menu from './common/Menu.svelte';
   import {
     showProfileIcons,
     showUsernames,
     showTimestamps,
     showUserBadges
   } from '../ts/storage';
-  import { Theme } from '../ts/chat-constants';
+  import { chatUserActionsItems, Theme } from '../ts/chat-constants';
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
@@ -55,12 +56,25 @@
     ($showUserBadges && (moderator || verified || member));
   
   export let forceTLColor: Theme = Theme.YOUTUBE;
+
+  let focused = false;
+
+  const menuItems = chatUserActionsItems.map((d) => ({
+    icon: d.icon,
+    text: d.text,
+    value: d.value.toString(),
+    onClick: () => {}
+  }));
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div 
   class="inline-flex flex-row gap-2 break-words overflow-hidden w-full"
   on:click|stopPropagation
+  on:mouseover={() => (focused = true)}
+  on:focus={() => (focused = true)}
+  on:mouseout={() => (focused = false)}
+  on:blur={() => (focused = false)}
 >
   {#if !hideName && $showProfileIcons}
     <a
@@ -118,4 +132,7 @@
     {/if}
     <MessageRun runs={message.message} {forceDark} deleted={deleted != null} {forceTLColor} />
   </div>
+  <Menu items={menuItems} visible={focused} class="mr-2 ml-auto">
+    <Icon slot="activator" style="font-size: 1.3em;">more_vert</Icon>
+  </Menu>
 </div>
