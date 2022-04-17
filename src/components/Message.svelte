@@ -69,7 +69,7 @@
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div 
-  class="inline-flex flex-row gap-2 break-words overflow-hidden w-full"
+  class="inline-flex flex-row gap-2 break-words w-full overflow-visible"
   on:click|stopPropagation
   on:mouseover={() => (focused = true)}
   on:focus={() => (focused = true)}
