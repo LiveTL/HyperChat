@@ -6,12 +6,14 @@
     showProfileIcons,
     showUsernames,
     showTimestamps,
-    showUserBadges
+    showUserBadges,
+    hoveredItem
   } from '../ts/storage';
   import { chatUserActionsItems, Theme } from '../ts/chat-constants';
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
+  export let messageId: Chat.MessageAction['message']['messageId'];
   export let forceDark = false;
   export let hideName = false;
 
@@ -57,8 +59,6 @@
   
   export let forceTLColor: Theme = Theme.YOUTUBE;
 
-  let focused = false;
-
   const menuItems = chatUserActionsItems.map((d) => ({
     icon: d.icon,
     text: d.text,
@@ -70,11 +70,6 @@
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div 
   class="inline-flex flex-row gap-2 break-words w-full overflow-visible"
-  on:click|stopPropagation
-  on:mouseover={() => (focused = true)}
-  on:focus={() => (focused = true)}
-  on:mouseout={() => (focused = false)}
-  on:blur={() => (focused = false)}
 >
   {#if !hideName && $showProfileIcons}
     <a
@@ -132,7 +127,7 @@
     {/if}
     <MessageRun runs={message.message} {forceDark} deleted={deleted != null} {forceTLColor} />
   </div>
-  <Menu items={menuItems} visible={focused} class="mr-2 ml-auto">
-    <Icon slot="activator" style="font-size: 1.3em;">more_vert</Icon>
+  <Menu items={menuItems} visible={$hoveredItem === messageId} class="mr-2 ml-auto context-menu">
+    <Icon slot="activator" style="font-size: 1.5em;">more_vert</Icon>
   </Menu>
 </div>

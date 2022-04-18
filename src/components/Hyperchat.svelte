@@ -25,7 +25,8 @@
     showUserBadges,
     refreshScroll,
     emojiRenderMode,
-    useSystemEmojis
+    useSystemEmojis,
+    hoveredItem
   } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -232,6 +233,11 @@
   const isMembership = (action: Chat.MessageAction) => (action.message.membership);
 
   $: $useSystemEmojis, onRefresh();
+
+  const setHover = (action: Chat.MessageAction | Welcome | null) => {
+    if (action == null) $hoveredItem = null;
+    else if (!('welcome' in action)) $hoveredItem = action.message.messageId;
+  };
 </script>
 
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />
@@ -240,7 +246,13 @@
   <div class="absolute w-full h-full flex justify-end flex-col">
     <div bind:this={div} on:scroll={checkAtBottom} class="content overflow-y-scroll">
       {#each messageActions as action (action.message.messageId)}
-        <div class="{isWelcome(action) ? '' : 'flex'} hover-highlight p-1.5 w-full block">
+        <div
+          class="{isWelcome(action) ? '' : 'flex'} hover-highlight p-1.5 w-full block"
+          on:mouseover={() => setHover(action)}
+          on:focus={() => setHover(action)}
+          on:mouseout={() => setHover(null)}
+          on:blur={() => setHover(null)}
+        >
           {#if isWelcome(action)}
             <WelcomeMessage />
           {:else if isSuperchat(action)}
@@ -248,7 +260,11 @@
           {:else if isMembership(action)}
             <MembershipItem message={action.message} />
           {:else}
-            <Message message={action.message} deleted={action.deleted} />
+            <Message
+              message={action.message}
+              deleted={action.deleted}
+              messageId={action.message.messageId}
+            />
           {/if}
         </div>
       {/each}

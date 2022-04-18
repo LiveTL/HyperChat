@@ -56,8 +56,7 @@
   };
   $: onOpenChange(open);
   $: open = $activeMenuId === id;
-  $: classes = (open || visible ? 'visible' : 'invisible') + ' ' +
-    ($$props.class ? $$props.class : '');
+  $: classes = $$props.class ? $$props.class : '';
   $: menuClasses = 'absolute bg-white rounded shadow z-20 dark:bg-dark-500 ' +
     `w-max ${offsetX}`;
   const listItemClasses = 'focus:bg-gray-50 dark-focus:bg-gray-700 ' +
@@ -75,6 +74,7 @@
     <div
       on:click={() => (open = !open)}
       slot="activator"
+      class={open || visible ? 'opacity-100' : 'opacity-0'}
       bind:this={activator}
     >
       <slot name="activator" />

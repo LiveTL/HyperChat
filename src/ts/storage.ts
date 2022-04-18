@@ -53,3 +53,4 @@ export const showOnlyMemberChat = stores.addSyncStore('hc.showOnlyMemberChat', f
 export const emojiRenderMode = stores.addSyncStore('hc.emojiRenderMode', YoutubeEmojiRenderMode.SHOW_ALL);
 export const autoLiveChat = stores.addSyncStore('hc.autoLiveChat', false);
 export const useSystemEmojis = stores.addSyncStore('hc.useSystemEmojis', false);
+export const hoveredItem = writable(null as null | Chat.MessageAction['message']['messageId']);
