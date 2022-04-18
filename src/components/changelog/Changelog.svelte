@@ -9,7 +9,7 @@
   </li>
 </ul>
 <ul class="list-disc list-inside">
-  <strong>What's cooking in the usual room:</strong>
+  <strong>What's still cooking in the usual room:</strong>
   <li class="ml-3.5">
     Report and block users in the chat
   </li>
