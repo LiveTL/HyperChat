@@ -61,6 +61,17 @@ const findInterceptorFromPort = (
   );
 };
 
+const findInterceptorFromClient = (
+  client: Chat.Port
+): Chat.Interceptor | undefined => {
+  return interceptors.find((interceptor) => {
+    for (const c of interceptor.clients) {
+      if (c.name === client.name) return true;
+    }
+    return false;
+  });
+};
+
 /**
  * If both port and clients are empty, removes interceptor from array.
  * Also runs the queue unsubscribe function.
@@ -310,6 +321,15 @@ const sendLtlMessage = (port: Chat.Port, message: Chat.LtlMessage): void => {
   );
 };
 
+const executeChatAction = (
+  port: Chat.Port,
+  message: Chat.executeChatActionMsg
+): void => {
+  const interceptor = findInterceptorFromClient(port);
+  interceptor?.port?.postMessage(message);
+  console.log(interceptor?.port);
+};
+
 chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((message: Chat.BackgroundMessage) => {
     switch (message.type) {
@@ -339,6 +359,9 @@ chrome.runtime.onConnect.addListener((port) => {
         break;
       case 'sendLtlMessage':
         sendLtlMessage(port, message.message);
+        break;
+      case 'executeChatAction':
+        executeChatAction(port, message);
         break;
       default:
         console.error('Unknown message type', port, message);

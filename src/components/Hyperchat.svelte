@@ -26,7 +26,8 @@
     refreshScroll,
     emojiRenderMode,
     useSystemEmojis,
-    hoveredItem
+    hoveredItem,
+    port
   } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -38,7 +39,6 @@
   let pinned: Ytc.ParsedPinned | null;
   let div: HTMLElement;
   let isAtBottom = true;
-  let port: Chat.Port;
   let truncateInterval: number;
   const isReplay = paramsIsReplay;
   let ytDark = false;
@@ -187,15 +187,17 @@
       tabId: parseInt(paramsTabId),
       frameId: parseInt(paramsFrameId)
     };
-    port = chrome.runtime.connect();
-    port.onMessage.addListener(onPortMessage);
 
-    port.postMessage({
+    $port = chrome.runtime.connect();
+
+    $port?.onMessage.addListener(onPortMessage);
+
+    $port?.postMessage({
       type: 'registerClient',
       frameInfo,
       getInitialData: true
     });
-    port.postMessage({
+    $port?.postMessage({
       type: 'getTheme',
       frameInfo
     });
@@ -216,7 +218,7 @@
   afterUpdate(onRefresh);
 
   onDestroy(() => {
-    port.disconnect();
+    $port?.disconnect();
     if (truncateInterval) window.clearInterval(truncateInterval);
   });
 

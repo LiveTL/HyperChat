@@ -1,5 +1,6 @@
 import { fixLeaks } from '../ts/ytc-fix-memleaks';
 import { frameIsReplay as isReplay } from '../ts/chat-utils';
+import { chatUserActionsItems } from '../ts/chat-constants';
 
 function injectedFunction(): void {
   for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
@@ -109,6 +110,49 @@ const chatLoaded = async (): Promise<void> => {
   const fixLeakScript = document.createElement('script');
   fixLeakScript.innerHTML = `(${fixLeaks.toString()})();`;
   document.body.appendChild(fixLeakScript);
+
+  port.onMessage.addListener((msg) => {
+    if (msg.type !== 'executeChatAction') return;
+    const message = msg.message;
+    const action = msg.action;
+    if (message.author.url == null) {
+      throw new Error('No author url');
+    }
+    const actionIndex = chatUserActionsItems.findIndex(
+      (item) => item.value === action
+    );
+    const iframe = document.createElement('iframe');
+    // iframe.style.display = 'none';
+    iframe.style.position = 'fixed';
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.top = '0';
+    iframe.style.left = '0';
+    document.body.appendChild(iframe);
+    iframe.src = `${message.author.url}/about`;
+    const attempt = (): void => {
+      if (iframe.contentDocument == null) {
+        throw new Error('No content document');
+      }
+      const elements = iframe.contentDocument.querySelectorAll(
+        '.tp-yt-iron-dropdown ytd-menu-service-item-renderer, ytd-toggle-menu-service-item-renderer'
+      );
+      const menuItem = elements[actionIndex] as HTMLButtonElement;
+      menuItem.click();
+      setTimeout(() => {
+        const confirmButton = document.querySelector('#confirm-button') as HTMLButtonElement;
+        confirmButton.click();
+      }, 50);
+    };
+    const attemptInterval = setInterval(() => {
+      try {
+        attempt();
+        clearInterval(attemptInterval);
+      } catch (e) {
+        console.log(e);
+      }
+    }, 100);
+  });
 };
 
 if (document.readyState === 'loading') {

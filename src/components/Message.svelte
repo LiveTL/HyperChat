@@ -7,9 +7,11 @@
     showUsernames,
     showTimestamps,
     showUserBadges,
-    hoveredItem
+    hoveredItem,
+    port
   } from '../ts/storage';
   import { chatUserActionsItems, Theme } from '../ts/chat-constants';
+  import { useBanHammer } from '../ts/chat-actions';
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
@@ -63,7 +65,7 @@
     icon: d.icon,
     text: d.text,
     value: d.value.toString(),
-    onClick: () => {}
+    onClick: () => useBanHammer(message, d.value, $port)
   }));
 </script>
 
