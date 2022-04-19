@@ -128,30 +128,33 @@ const chatLoaded = async (): Promise<void> => {
     iframe.style.height = '100%';
     iframe.style.top = '0';
     iframe.style.left = '0';
+    iframe.style.opacity = '0.5';
     document.body.appendChild(iframe);
     iframe.src = `${message.author.url}/about`;
-    const attempt = (): void => {
-      if (iframe.contentDocument == null) {
-        throw new Error('No content document');
-      }
-      const elements = iframe.contentDocument.querySelectorAll(
-        '.tp-yt-iron-dropdown ytd-menu-service-item-renderer, ytd-toggle-menu-service-item-renderer'
-      );
-      const menuItem = elements[actionIndex] as HTMLButtonElement;
-      menuItem.click();
-      setTimeout(() => {
-        const confirmButton = document.querySelector('#confirm-button') as HTMLButtonElement;
-        confirmButton.click();
-      }, 50);
+    const attempt = async (): Promise<void> => {
+      return await new Promise((resolve) => {
+        if (iframe.contentDocument == null) {
+          throw new Error('No content document');
+        }
+        const expand = iframe.contentDocument.querySelector('#right-column .yt-icon-button') as HTMLButtonElement;
+        expand.click();
+        const elements = iframe.contentDocument.querySelectorAll(
+          '.tp-yt-iron-dropdown ytd-menu-service-item-renderer, ytd-toggle-menu-service-item-renderer'
+        );
+        const menuItem = elements[actionIndex] as HTMLButtonElement;
+        menuItem.click();
+        setTimeout(() => {
+          const confirmButton = iframe.contentDocument?.querySelector('#confirm-button #button') as HTMLButtonElement;
+          confirmButton.click();
+          resolve();
+        }, 1000);
+      });
     };
-    const attemptInterval = setInterval(() => {
-      try {
-        attempt();
-        clearInterval(attemptInterval);
-      } catch (e) {
-        console.log(e);
-      }
-    }, 100);
+    iframe.addEventListener('load', () => {
+      const attemptInterval = setInterval(() => {
+        attempt().then(() => clearInterval(attemptInterval)).catch(() => {});
+      }, 1000);
+    });
   });
 };
 
