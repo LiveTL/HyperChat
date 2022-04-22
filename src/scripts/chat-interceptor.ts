@@ -58,14 +58,28 @@ const chatLoaded = async (): Promise<void> => {
     const ytcfg = (JSON.parse((d as CustomEvent).detail) as {
       data_: {
         INNERTUBE_API_KEY: string;
+        INNERTUBE_CONTEXT: any;
       };
     });
-    port.onMessage.addListener((msg) => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    port.onMessage.addListener(async (msg) => {
       if (msg.type !== 'executeChatAction') return;
       const message = msg.message;
+      if (message.params == null) return;
       const action = msg.action;
       const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
       console.log('TODO', message, action, apiKey);
+      const contextMenuUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?params=' +
+        `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
+      const context = ytcfg.data_.INNERTUBE_CONTEXT;
+      await fetch(contextMenuUrl, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify({ context })
+      });
     });
   });
 
