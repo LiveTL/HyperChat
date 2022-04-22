@@ -52,10 +52,9 @@ export const emojiRenderItems = [
 ];
 
 export enum ChatUserActions {
-  BLOCK = 0,
-  // 1: report channel art
-  REPORT_PFP = 2,
-  REPORT_USER = 3,
+  BLOCK = 'BLOCK',
+  REPORT_PFP = 'REPORT_PFP',
+  REPORT_USER = 'REPORT_USER',
 }
 
 export const chatUserActionsItems = [

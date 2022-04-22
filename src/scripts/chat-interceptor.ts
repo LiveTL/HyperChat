@@ -1,6 +1,5 @@
 import { fixLeaks } from '../ts/ytc-fix-memleaks';
 import { frameIsReplay as isReplay } from '../ts/chat-utils';
-import { chatUserActionsItems } from '../ts/chat-constants';
 
 function injectedFunction(): void {
   for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
@@ -25,6 +24,9 @@ function injectedFunction(): void {
     }
     return result;
   };
+  window.dispatchEvent(new CustomEvent('chatLoaded', {
+    detail: JSON.stringify(window.ytcfg)
+  }));
 }
 
 const chatLoaded = async (): Promise<void> => {
@@ -32,11 +34,6 @@ const chatLoaded = async (): Promise<void> => {
     console.error('HC button detected, not injecting interceptor.');
     return;
   }
-
-  // Inject interceptor script
-  const script = document.createElement('script');
-  script.innerHTML = `(${injectedFunction.toString()})();`;
-  document.body.appendChild(script);
 
   // Register interceptor
   const port: Chat.Port = chrome.runtime.connect();
@@ -46,18 +43,36 @@ const chatLoaded = async (): Promise<void> => {
   window.addEventListener('messageReceive', (d) => {
     port.postMessage({
       type: 'processMessageChunk',
-      // @ts-expect-error TS doesn't like CustomEvent
-      json: d.detail
+      json: (d as CustomEvent).detail
     });
   });
 
   window.addEventListener('messageSent', (d) => {
     port.postMessage({
       type: 'processSentMessage',
-      // @ts-expect-error TS doesn't like CustomEvent
-      json: d.detail
+      json: (d as CustomEvent).detail
     });
   });
+
+  window.addEventListener('chatLoaded', (d) => {
+    const ytcfg = (JSON.parse((d as CustomEvent).detail) as {
+      data_: {
+        INNERTUBE_API_KEY: string;
+      };
+    });
+    port.onMessage.addListener((msg) => {
+      if (msg.type !== 'executeChatAction') return;
+      const message = msg.message;
+      const action = msg.action;
+      const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
+      console.log('TODO', message, action, apiKey);
+    });
+  });
+
+  // Inject interceptor script
+  const script = document.createElement('script');
+  script.innerHTML = `(${injectedFunction.toString()})();`;
+  document.body.appendChild(script);
 
   // Handle initial data
   const scripts = document.querySelector('body')?.querySelectorAll('script');
@@ -110,52 +125,6 @@ const chatLoaded = async (): Promise<void> => {
   const fixLeakScript = document.createElement('script');
   fixLeakScript.innerHTML = `(${fixLeaks.toString()})();`;
   document.body.appendChild(fixLeakScript);
-
-  port.onMessage.addListener((msg) => {
-    if (msg.type !== 'executeChatAction') return;
-    const message = msg.message;
-    const action = msg.action;
-    if (message.author.url == null) {
-      throw new Error('No author url');
-    }
-    const actionIndex = chatUserActionsItems.findIndex(
-      (item) => item.value === action
-    );
-    const iframe = document.createElement('iframe');
-    // iframe.style.display = 'none';
-    iframe.style.position = 'fixed';
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.top = '0';
-    iframe.style.left = '0';
-    iframe.style.opacity = '0.5';
-    document.body.appendChild(iframe);
-    iframe.src = `${message.author.url}/about`;
-    const attempt = async (): Promise<void> => {
-      return await new Promise((resolve) => {
-        if (iframe.contentDocument == null) {
-          throw new Error('No content document');
-        }
-        const expand = iframe.contentDocument.querySelector('#right-column .yt-icon-button') as HTMLButtonElement;
-        expand.click();
-        const elements = iframe.contentDocument.querySelectorAll(
-          '.tp-yt-iron-dropdown ytd-menu-service-item-renderer, ytd-toggle-menu-service-item-renderer'
-        );
-        const menuItem = elements[actionIndex] as HTMLButtonElement;
-        menuItem.click();
-        setTimeout(() => {
-          const confirmButton = iframe.contentDocument?.querySelector('#confirm-button #button') as HTMLButtonElement;
-          confirmButton.click();
-          resolve();
-        }, 1000);
-      });
-    };
-    iframe.addEventListener('load', () => {
-      const attemptInterval = setInterval(() => {
-        attempt().then(() => clearInterval(attemptInterval)).catch(() => {});
-      }, 1000);
-    });
-  });
 };
 
 if (document.readyState === 'loading') {

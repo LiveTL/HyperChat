@@ -107,7 +107,8 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     message: runs,
     timestamp: isReplay && timestampText != null ? timestampText : formatTimestamp(timestampUsec),
     showtime: isReplay ? liveTimeoutOrReplayMs : liveShowtimeMs,
-    messageId: renderer.id
+    messageId: renderer.id,
+    params: renderer.contextMenuEndpoint?.liveChatItemContextMenuEndpoint.params
   };
   if (channelId != null) {
     item.author.url = `https://www.youtube.com/channel/${channelId}`;

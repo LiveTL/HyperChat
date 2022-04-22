@@ -327,7 +327,6 @@ const executeChatAction = (
 ): void => {
   const interceptor = findInterceptorFromClient(port);
   interceptor?.port?.postMessage(message);
-  console.log(interceptor?.port);
 };
 
 chrome.runtime.onConnect.addListener((port) => {
