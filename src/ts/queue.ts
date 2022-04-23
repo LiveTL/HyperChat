@@ -95,7 +95,7 @@ export interface YtcQueue {
   addJsonToQueue: (json: string, isInitial: boolean, interceptor: Chat.Interceptor, forceDisplay?: boolean) => void;
   updatePlayerProgress: (timeMs: number) => void;
   cleanUp: () => void;
-  selfChannel: Subscribable<Ytc.TextMessageRenderer | null>;
+  selfChannel: Subscribable<Ytc.TextMessageRenderer | null | undefined>;
 }
 
 export function ytcQueue(isReplay = false): YtcQueue {
@@ -105,7 +105,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
 
   const latestAction = subscribable<Chat.Actions | null>();
   let initialData: Chat.Actions[] = [];
-  const selfChannel = subscribable<Ytc.TextMessageRenderer | null>();
+  const selfChannel = subscribable<Ytc.TextMessageRenderer | null | undefined>();
 
   /**
    * Continuously pushes queue messages to store until queue is empty or until
@@ -215,10 +215,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
       messageQueue.clear();
     }
 
-    const processActions = (
-      selfChannelValue: ReturnType<(typeof selfChannel)['get']>
-    ): void => {
-      const messageActions =
+    const messageActions =
       messages.sort((m1, m2) => m1.showtime - m2.showtime).reduce((result: Chat.MessageAction[], m) => {
         const messageAction: Chat.MessageAction = {
           message: m
@@ -227,11 +224,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
 
         const isActiveReplay = isReplay && m.showtime > 0;
         const isOwnMessage =
-          m.author.id === selfChannelValue?.authorExternalChannelId;
-
-        if (isOwnMessage) {
-          m.author.isSelf = true;
-        }
+          m.author.id === selfChannel.get()?.authorExternalChannelId;
 
         if ((!setInitial || isActiveReplay) && (forceDisplay || !isOwnMessage)) {
           messageQueue[forceDisplay ? 'prepend' : 'push'](messageAction);
@@ -240,25 +233,16 @@ export function ytcQueue(isReplay = false): YtcQueue {
         return result;
       }, []);
 
-      if (setInitial) {
-        initialData = [{ type: 'messages', messages: messageActions }, ...misc];
-        return;
-      }
-
-      if (chunk.refresh) forceUpdateTillPrevious();
-
-      bonks.forEach((bonk) => latestAction.set({ type: 'bonk', bonk }));
-      deletions.forEach((deletion) => latestAction.set({ type: 'delete', deletion }));
-      misc.forEach((action) => latestAction.set(action));
-    };
-
-    if (selfChannel.get() == null) {
-      selfChannel.subscribe(selfChannelValue => {
-        if (selfChannelValue) processActions(selfChannelValue);
-      });
-    } else {
-      processActions(selfChannel.get());
+    if (setInitial) {
+      initialData = [{ type: 'messages', messages: messageActions }, ...misc];
+      return;
     }
+
+    if (chunk.refresh) forceUpdateTillPrevious();
+
+    bonks.forEach((bonk) => latestAction.set({ type: 'bonk', bonk }));
+    deletions.forEach((deletion) => latestAction.set({ type: 'delete', deletion }));
+    misc.forEach((action) => latestAction.set(action));
   };
 
   const addJsonToQueue = (

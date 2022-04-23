@@ -56,12 +56,17 @@ declare namespace Chat {
     dark: boolean;
   }
 
+  interface SelfChannelUpdate {
+    type: 'selfChannelUpdate';
+    id: string | null;
+  }
+
   interface LtlMessageResponse {
     type: 'ltlMessage';
     message: LtlMessage;
   }
 
-  type BackgroundResponse = Actions | InitialData | ThemeUpdate | LtlMessageResponse | executeChatActionMsg;
+  type BackgroundResponse = Actions | InitialData | ThemeUpdate | LtlMessageResponse | executeChatActionMsg | SelfChannelUpdate;
 
   type InterceptorSource = 'ytc' | 'ltlMessage';
 

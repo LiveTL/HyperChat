@@ -27,7 +27,8 @@
     emojiRenderMode,
     useSystemEmojis,
     hoveredItem,
-    port
+    port,
+    selfChannelId
   } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -167,6 +168,9 @@
         break;
       case 'themeUpdate':
         ytDark = response.dark;
+        break;
+      case 'selfChannelUpdate':
+        $selfChannelId = response.id;
         break;
       default:
         console.error('Unknown payload type', { port, response });

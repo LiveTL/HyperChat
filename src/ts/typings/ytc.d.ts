@@ -290,7 +290,6 @@ declare namespace Ytc {
       profileIcon: ParsedImage;
       customBadge?: ParsedImage;
       url?: string;
-      isSelf?: boolean;
     };
     message: ParsedRun[];
     timestamp: string;

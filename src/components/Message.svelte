@@ -8,7 +8,8 @@
     showTimestamps,
     showUserBadges,
     hoveredItem,
-    port
+    port,
+    selfChannelId
   } from '../ts/storage';
   import { chatUserActionsItems, Theme } from '../ts/chat-constants';
   import { useBanHammer } from '../ts/chat-actions';
@@ -129,7 +130,7 @@
     {/if}
     <MessageRun runs={message.message} {forceDark} deleted={deleted != null} {forceTLColor} />
   </div>
-  {#if !message.author.isSelf}
+  {#if message.author.id !== $selfChannelId}
     <Menu items={menuItems} visible={$hoveredItem === messageId} class="mr-2 ml-auto context-menu">
       <Icon slot="activator" style="font-size: 1.5em;">more_vert</Icon>
     </Menu>

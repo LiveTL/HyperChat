@@ -55,3 +55,4 @@ export const autoLiveChat = stores.addSyncStore('hc.autoLiveChat', false);
 export const useSystemEmojis = stores.addSyncStore('hc.useSystemEmojis', false);
 export const hoveredItem = writable(null as null | Chat.MessageAction['message']['messageId']);
 export const port = writable(null as null | Chat.Port);
+export const selfChannelId = writable(null as null | string);

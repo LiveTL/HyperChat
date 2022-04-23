@@ -261,16 +261,30 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
 
   const parsedJson = JSON.parse(json);
 
-  const user =
-    (parsedJson?.continuationContents?.liveChatContinuation ||
-      parsedJson?.contents?.liveChatRenderer)
-      ?.actionPanel?.liveChatMessageInputRenderer
-      ?.sendButton?.buttonRenderer?.serviceEndpoint
-      ?.sendLiveChatMessageEndpoint?.actions[0]
-      ?.addLiveChatTextMessageFromTemplateAction?.template
-      ?.liveChatTextMessageRenderer;
+  const actionPanel = (parsedJson?.continuationContents?.liveChatContinuation ||
+    parsedJson?.contents?.liveChatRenderer)
+    ?.actionPanel;
+  if (actionPanel.liveChatRestrictedParticipationRenderer) {
+    interceptor.queue.selfChannel.set(null);
+    interceptor.port?.postMessage({
+      type: 'selfChannelUpdate',
+      id: null
+    });
+    return;
+  }
+  const user = actionPanel?.liveChatMessageInputRenderer
+    ?.sendButton?.buttonRenderer?.serviceEndpoint
+    ?.sendLiveChatMessageEndpoint?.actions[0]
+    ?.addLiveChatTextMessageFromTemplateAction?.template
+    ?.liveChatTextMessageRenderer;
 
-  if (user) interceptor.queue.selfChannel.set(user);
+  if (user) {
+    interceptor.queue.selfChannel.set(user);
+    interceptor.port?.postMessage({
+      type: 'selfChannelUpdate',
+      id: user.id
+    });
+  }
 };
 
 /**
