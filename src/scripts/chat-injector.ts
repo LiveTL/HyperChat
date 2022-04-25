@@ -40,16 +40,6 @@ const chatLoaded = async (): Promise<void> => {
     return;
   }
 
-  // Inject CSS stylesheet
-  const titlebarStyle = chrome.runtime.getURL(
-    "hyperchat/stylesheets/titlebar.css"
-  );
-  const titlebarLink = document.createElement("link");
-  titlebarLink.rel = "stylesheet";
-  titlebarLink.type = "text/css";
-  titlebarLink.href = titlebarStyle;
-  document.getElementsByTagName("head")[0].appendChild(titlebarLink);
-
   // Inject hyperchat
   const frameInfo = await getFrameInfoAsync();
   if (!isValidFrameInfo(frameInfo)) {
