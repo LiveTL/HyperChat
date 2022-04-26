@@ -1,0 +1,13 @@
+#primary-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+#view-selector {
+  flex-grow: 1;
+}
+
+#view-selector #label #label-text {
+  white-space: break-spaces;
+}

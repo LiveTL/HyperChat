@@ -21,6 +21,7 @@
         "scripts/chat-interceptor.ts",
         "scripts/chat-injector.ts"
       ],
+      "css": ["stylesheets/titlebar.css"],
       "all_frames": true
     }
   ],
