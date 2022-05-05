@@ -69,7 +69,10 @@ const cleanupInterceptor = (i: number): void => {
   const interceptor = interceptors[i];
   if (!interceptor.port && interceptor.clients.length < 1) {
     console.debug('Removing empty interceptor', { interceptor, interceptors });
-    if (isYtcInterceptor(interceptor)) interceptor.queueUnsub?.();
+    if (isYtcInterceptor(interceptor)) {
+      interceptor.queue.cleanUp();
+      interceptor.queueUnsub?.();
+    }
     interceptors.splice(i, 1);
   }
 };

@@ -279,7 +279,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
    * Perform cleanup actions such as clearing live polling interval.
    */
   const cleanUp = (): void => {
-    if (livePolling != null) return;
+    if (livePolling == null) return;
     window.clearInterval(livePolling);
   };
 
