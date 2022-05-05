@@ -49,3 +49,11 @@ export const isChatMessage = (a: Chat.MessageAction): boolean =>
 
 export const isAllEmoji = (a: Chat.MessageAction): boolean =>
   a.message.message.every(m => m.type === 'emoji' || (m.type === 'text' && m.text.trim() === ''));
+
+export const checkInjected = (error: string): boolean => {
+  if (document.querySelector('#hc-buttons')) {
+    console.error(error);
+    return true;
+  }
+  return false;
+};

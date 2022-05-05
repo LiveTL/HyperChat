@@ -1,5 +1,6 @@
 import { fixLeaks } from '../ts/ytc-fix-memleaks';
-import { frameIsReplay as isReplay } from '../ts/chat-utils';
+import { frameIsReplay as isReplay, checkInjected } from '../ts/chat-utils';
+import { isLiveTL } from '../ts/chat-constants';
 
 function injectedFunction(): void {
   for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
@@ -27,10 +28,8 @@ function injectedFunction(): void {
 }
 
 const chatLoaded = async (): Promise<void> => {
-  if (document.querySelector('.toggleButton')) {
-    console.error('HC button detected, not injecting interceptor.');
-    return;
-  }
+  const warning = 'HC button detected, not injecting interceptor.';
+  if (!isLiveTL && checkInjected(warning)) return;
 
   // Inject interceptor script
   const script = document.createElement('script');
@@ -111,8 +110,6 @@ const chatLoaded = async (): Promise<void> => {
   document.body.appendChild(fixLeakScript);
 };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => async () => await chatLoaded());
-} else {
-  chatLoaded().catch(e => console.error(e));
-}
+setTimeout(() => {
+  chatLoaded().catch(console.error);
+}, isLiveTL ? 0 : 500);
