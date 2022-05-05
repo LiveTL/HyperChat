@@ -122,10 +122,6 @@ export function ytcQueue(isReplay = false): YtcQueue {
     latestAction.set({ type: 'messages', messages });
   };
 
-  const isScrubbedOrSkipped = (time: number): boolean => {
-    return time == null || Math.abs(previousTime - time) > 1;
-  };
-
   /**
    * Pushes messages up till previousTime as forced update.
    * Currently only called on chunk refresh, will show welcome message.
@@ -159,8 +155,11 @@ export function ytcQueue(isReplay = false): YtcQueue {
    */
   const onVideoProgress = (timeMs: number): void => {
     if (timeMs < 0) return;
-    if (isScrubbedOrSkipped(timeMs) && isReplay) {
-      console.log('Video scrubbed or skipped, forcing chat clear');
+    const diff = timeMs - previousTime;
+    // console.debug({ previousTime, timeMs, diff });
+
+    if (isReplay && diff < -1) {
+      console.log('Video scrubbed backwards, forcing chat clear');
       messageQueue.clear();
       latestAction.set({ type: 'forceUpdate', messages: [] });
     } else {
@@ -280,7 +279,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
    * Perform cleanup actions such as clearing live polling interval.
    */
   const cleanUp = (): void => {
-    if (livePolling != null) return;
+    if (livePolling == null) return;
     window.clearInterval(livePolling);
   };
 
