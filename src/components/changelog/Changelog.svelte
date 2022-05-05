@@ -1,11 +1,20 @@
 <ul class="list-disc list-inside">
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
-    Fixed an issue where the chat occasionally
-    freezes after sending a message
+    Ina is now a HyperChat user! 🎉
+    Thanks for installing, and we hope you like it!
   </li>
   <li class="ml-3.5">
-    Fixed profile picture scaling on thin displays
+    Fixed issues with the chat freezing or clearning
+    when watching VODs
+  </li>
+  <li class="ml-3.5">
+    Fixed message rendering with video playback speeds
+    faster than 1x
+  </li>
+  <li class="ml-3.5">
+    Added an alert to notify users who have both HyperChat
+    and LiveTL extensions installed
   </li>
 </ul>
 <ul class="list-disc list-inside">
