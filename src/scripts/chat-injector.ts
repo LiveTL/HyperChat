@@ -93,6 +93,10 @@ const chatLoaded = async (): Promise<void> => {
   }
 };
 
-setTimeout(() => {
+if (isLiveTL) {
   chatLoaded().catch(console.error);
-}, isLiveTL ? 0 : 500);
+} else {
+  setTimeout(() => {
+    chatLoaded().catch(console.error);
+  }, 500);
+}
