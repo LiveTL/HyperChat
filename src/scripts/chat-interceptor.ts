@@ -73,17 +73,15 @@ const chatLoaded = async (): Promise<void> => {
       if (msg.type !== 'executeChatAction') return;
       const message = msg.message;
       if (message.params == null) return;
-      const action = msg.action;
+      // const action = msg.action;
       const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
-      console.log('TODO', message, action, apiKey);
       const contextMenuUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?params=' +
         `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
       const context = ytcfg.data_.INNERTUBE_CONTEXT;
       const time = Math.floor(Date.now() / 1000);
       const SAPISID = getCookie('SAPISID');
-      const sha = sha1(`${new Date().getTime()} ${SAPISID} https://www.youtube.com`);
+      const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
       const auth = `SAPISIDHASH ${time}_${sha}`;
-      console.log(auth);
       await fetch(contextMenuUrl, {
         headers: {
           'Content-Type': 'application/json',
