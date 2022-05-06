@@ -9,7 +9,7 @@
     broken when using HyperChat with LiveTL
   </li>
   <li class="ml-3.5">
-    Fixed issues with the chat freezing or clearning
+    Fixed issues with the chat freezing or clearing
     when watching VODs
   </li>
   <li class="ml-3.5">
