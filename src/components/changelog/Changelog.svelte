@@ -5,6 +5,10 @@
     Thanks for installing, and we hope you like it!
   </li>
   <li class="ml-3.5">
+    Hotfix: fixed issues with message retrieval being
+    broken when using HyperChat with LiveTL
+  </li>
+  <li class="ml-3.5">
     Fixed issues with the chat freezing or clearning
     when watching VODs
   </li>
