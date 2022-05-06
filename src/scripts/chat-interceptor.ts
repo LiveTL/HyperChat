@@ -110,6 +110,10 @@ const chatLoaded = async (): Promise<void> => {
   document.body.appendChild(fixLeakScript);
 };
 
-setTimeout(() => {
+if (isLiveTL) {
   chatLoaded().catch(console.error);
-}, isLiveTL ? 0 : 500);
+} else {
+  setTimeout(() => {
+    chatLoaded().catch(console.error);
+  }, 500);
+}

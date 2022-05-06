@@ -61,7 +61,13 @@ declare namespace Chat {
     message: LtlMessage;
   }
 
-  type BackgroundResponse = Actions | InitialData | ThemeUpdate | LtlMessageResponse;
+  interface registerClientResponse {
+    type: 'registerClientResponse';
+    success: boolean;
+    failReason?: string;
+  }
+
+  type BackgroundResponse = Actions | InitialData | ThemeUpdate | LtlMessageResponse | registerClientResponse;
 
   type InterceptorSource = 'ytc' | 'ltlMessage';
 
