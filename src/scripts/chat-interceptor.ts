@@ -82,7 +82,8 @@ const chatLoaded = async (): Promise<void> => {
       const SAPISID = getCookie('SAPISID');
       const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
       const auth = `SAPISIDHASH ${time}_${sha}`;
-      await fetch(contextMenuUrl, {
+      const fetcher = (window as any).fetchFallback as typeof window.fetch;
+      const res = await (await fetcher(contextMenuUrl, {
         headers: {
           'Content-Type': 'application/json',
           Accept: '*/*',
@@ -90,6 +91,24 @@ const chatLoaded = async (): Promise<void> => {
         },
         method: 'POST',
         body: JSON.stringify({ context })
+      })).json();
+      const serviceEndpoint = res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[1].menuNavigationItemRenderer.navigationEndpoint.confirmDialogEndpoint.content.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint;
+      const { clickTrackingParams, additionalParams } = serviceEndpoint;
+      const clonedContext = JSON.parse(JSON.stringify(context));
+      clonedContext.clickTracking = {
+        clickTrackingParams
+      };
+      await fetcher(`https://www.youtube.com/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: '*/*',
+          Authorization: auth
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          params: additionalParams,
+          context: clonedContext
+        })
       });
     });
   });
