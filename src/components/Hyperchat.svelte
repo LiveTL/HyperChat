@@ -172,6 +172,8 @@
       case 'selfChannelUpdate':
         $selfChannelId = response.id;
         break;
+      case 'registerClientResponse':
+        break;
       default:
         console.error('Unknown payload type', { port, response });
         break;

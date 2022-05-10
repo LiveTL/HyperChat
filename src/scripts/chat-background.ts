@@ -167,12 +167,28 @@ const registerClient = (
     frameInfo,
     { interceptors, port, frameInfo }
   );
-  if (!interceptor) return;
+  if (!interceptor) {
+    port.postMessage(
+      {
+        type: 'registerClientResponse',
+        success: false,
+        failReason: 'Interceptor not found'
+      }
+    );
+    return;
+  }
 
   if (interceptor.clients.some((client) => client.name === port.name)) {
     console.debug(
       'Client already registered. Not registering',
       { interceptors, port, frameInfo }
+    );
+    port.postMessage(
+      {
+        type: 'registerClientResponse',
+        success: false,
+        failReason: 'Client already registered'
+      }
     );
     return;
   }
@@ -198,6 +214,12 @@ const registerClient = (
   // Add client to array
   interceptor.clients.push(port);
   console.debug('Register client successful', { port, interceptor });
+  port.postMessage(
+    {
+      type: 'registerClientResponse',
+      success: true
+    }
+  );
 
   if (getInitialData && isYtcInterceptor(interceptor)) {
     const payload = {
