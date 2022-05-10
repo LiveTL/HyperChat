@@ -56,3 +56,6 @@ export const useSystemEmojis = stores.addSyncStore('hc.useSystemEmojis', false);
 export const hoveredItem = writable(null as null | Chat.MessageAction['message']['messageId']);
 export const port = writable(null as null | Chat.Port);
 export const selfChannelId = writable(null as null | string);
+export const reportDialog = writable(null as null | {
+  callback: () => void;
+});

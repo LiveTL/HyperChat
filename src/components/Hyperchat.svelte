@@ -28,8 +28,10 @@
     useSystemEmojis,
     hoveredItem,
     port,
-    selfChannelId
+    selfChannelId,
+    reportDialog
   } from '../ts/storage';
+  import Dialog from './common/Dialog.svelte';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
@@ -247,6 +249,8 @@
     else if (!('welcome' in action)) $hoveredItem = action.message.messageId;
   };
 </script>
+
+<Dialog active={Boolean($reportDialog)} />
 
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />
 
