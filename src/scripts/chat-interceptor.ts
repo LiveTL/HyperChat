@@ -62,6 +62,7 @@ const chatLoaded = async (): Promise<void> => {
         INNERTUBE_CONTEXT: any;
       };
     });
+    const fetcher = window.fetch;
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     port.onMessage.addListener(async (msg) => {
       function getCookie(name: string): string {
@@ -82,7 +83,6 @@ const chatLoaded = async (): Promise<void> => {
       const SAPISID = getCookie('SAPISID');
       const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
       const auth = `SAPISIDHASH ${time}_${sha}`;
-      const fetcher = (window as any).fetchFallback as typeof window.fetch;
       const res = await (await fetcher(contextMenuUrl, {
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ const chatLoaded = async (): Promise<void> => {
         body: JSON.stringify({ context })
       })).json();
       const serviceEndpoint = res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[1].menuNavigationItemRenderer.navigationEndpoint.confirmDialogEndpoint.content.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint;
-      const { clickTrackingParams, additionalParams } = serviceEndpoint;
+      const { clickTrackingParams, moderateLiveChatEndpoint: { params } } = serviceEndpoint;
       const clonedContext = JSON.parse(JSON.stringify(context));
       clonedContext.clickTracking = {
         clickTrackingParams
@@ -106,7 +106,7 @@ const chatLoaded = async (): Promise<void> => {
         },
         method: 'POST',
         body: JSON.stringify({
-          params: additionalParams,
+          params,
           context: clonedContext
         })
       });
