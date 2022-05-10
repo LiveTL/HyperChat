@@ -133,14 +133,16 @@ const chatLoaded = async (): Promise<void> => {
         })).json();
         const index = chatReportUserOptions.findIndex(d => d.value === msg.reportOption);
         const options = modal.actions[0].openPopupAction.popup.reportFormModalRenderer.optionsSupportedRenderers.optionsRenderer.items;
-        const clickTrackingParams = options[index].optionSelectableItemRenderer.submitEndpoint.clickTrackingParams;
+        const submitEndpoint = options[index].optionSelectableItemRenderer.submitEndpoint;
+        const clickTrackingParams = submitEndpoint.clickTrackingParams;
+        const flagAction = submitEndpoint.flagEndpoint.flagAction;
         context.clickTracking = {
           clickTrackingParams
         };
         await fetcher(`https://www.youtube.com/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
           ...heads,
           body: JSON.stringify({
-            params,
+            action: flagAction,
             context
           })
         });

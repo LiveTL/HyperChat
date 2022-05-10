@@ -16,7 +16,14 @@ export function useBanHammer(
   } else if (action === ChatUserActions.REPORT_USER) {
     const store = writable(null as null | ChatReportUserOptions);
     reportDialog.set({
-      callback: () => {},
+      callback: (selection) => {
+        port?.postMessage({
+          type: 'executeChatAction',
+          message,
+          action,
+          reportOption: selection
+        });
+      },
       optionStore: store
     });
   }

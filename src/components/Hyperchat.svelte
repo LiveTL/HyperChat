@@ -265,6 +265,12 @@
       vertical
     />
   </div>
+  <div slot="actions">
+    <Button on:click={() => {
+      $reportDialog?.callback($optionStore);
+      $reportDialog = null;
+    }} color="error" disabled={!$optionStore}>Report</Button>
+  </div>
 </Dialog>
 
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />

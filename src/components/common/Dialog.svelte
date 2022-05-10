@@ -8,7 +8,7 @@
   /** Expanded width variant. */
   export let expandWidth = false;
   /** Background color. Default: 'bg-white dark:bg-dark-400'  */
-  export let bgColor = 'bg-white dark:bg-dark-400';
+  export let bgColor = 'bg-white dark:bg-dark-800';
   $: classes = `items-center z-50 rounded p-4 shadow ${bgColor}` +
     ' max-h-full overflow-y-auto ' +
     (expandWidth ? 'w-full mx-2 ' : ' ') +

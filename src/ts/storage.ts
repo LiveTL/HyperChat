@@ -58,6 +58,6 @@ export const hoveredItem = writable(null as null | Chat.MessageAction['message']
 export const port = writable(null as null | Chat.Port);
 export const selfChannelId = writable(null as null | string);
 export const reportDialog = writable(null as null | {
-  callback: () => void;
+  callback: (selection: ChatReportUserOptions) => void;
   optionStore: Writable<null | ChatReportUserOptions>;
 });
