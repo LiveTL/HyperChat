@@ -57,6 +57,28 @@ export enum ChatUserActions {
   REPORT_USER_CONFIRM = 'REPORT_USER_CONFIRM',
 }
 
+export enum ChatReportUserOptions {
+  UNWANTED_SPAM = 'UNWANTED_SPAM',
+  PORN_OR_SEX = 'PORN_OR_SEX',
+  CHILD_ABUSE = 'CHILD_ABUSE',
+  HATE_SPEECH = 'HATE_SPEECH',
+  TERRORISM = 'TERRORISM',
+  HARASSMENT = 'HARASSMENT',
+  SUICIDE = 'SUICIDE',
+  MISINFORMATION = 'MISINFORMATION',
+}
+
+export const chatReportUserOptions = [
+  { value: ChatReportUserOptions.UNWANTED_SPAM, text: 'Unwanted commercial content or spam' },
+  { value: ChatReportUserOptions.PORN_OR_SEX, text: 'Pornography or sexually explicit material' },
+  { value: ChatReportUserOptions.CHILD_ABUSE, text: 'Child abuse' },
+  { value: ChatReportUserOptions.HATE_SPEECH, text: 'Hate speech or graphic violence' },
+  { value: ChatReportUserOptions.TERRORISM, text: 'Promotes terrorism' },
+  { value: ChatReportUserOptions.HARASSMENT, text: 'Harassment or bullying' },
+  { value: ChatReportUserOptions.SUICIDE, text: 'Suicide or self injury' },
+  { value: ChatReportUserOptions.MISINFORMATION, text: 'Misinformation' }
+];
+
 export const chatUserActionsItems = [
   { value: ChatUserActions.BLOCK, text: 'Block user', icon: 'block' },
   { value: ChatUserActions.REPORT_USER, text: 'Report user', icon: 'flag' }

@@ -1,7 +1,7 @@
 import { fixLeaks } from '../ts/ytc-fix-memleaks';
 import { frameIsReplay as isReplay } from '../ts/chat-utils';
 import sha1 from 'sha-1';
-import { ChatUserActions } from '../ts/chat-constants';
+import { chatReportUserOptions, ChatUserActions } from '../ts/chat-constants';
 
 function injectedFunction(): void {
   for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
@@ -84,13 +84,16 @@ const chatLoaded = async (): Promise<void> => {
       const SAPISID = getCookie('SAPISID');
       const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
       const auth = `SAPISIDHASH ${time}_${sha}`;
-      const res = await (await fetcher(contextMenuUrl, {
+      const heads = {
         headers: {
           'Content-Type': 'application/json',
           Accept: '*/*',
           Authorization: auth
         },
-        method: 'POST',
+        method: 'POST'
+      };
+      const res = await (await fetcher(contextMenuUrl, {
+        ...Headers,
         body: JSON.stringify({ context: baseContext })
       })).json();
       function parseServiceEndpoint(serviceEndpoint: any, prop: string): { params: string, context: any } {
@@ -112,12 +115,7 @@ const chatLoaded = async (): Promise<void> => {
           'moderateLiveChatEndpoint'
         );
         await fetcher(`https://www.youtube.com/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: '*/*',
-            Authorization: auth
-          },
-          method: 'POST',
+          ...Headers,
           body: JSON.stringify({
             params,
             context
@@ -128,13 +126,20 @@ const chatLoaded = async (): Promise<void> => {
           res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[0].menuServiceItemRenderer.serviceEndpoint,
           'getReportFormEndpoint'
         );
-        await fetcher(`https://www.youtube.com/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: '*/*',
-            Authorization: auth
-          },
-          method: 'POST',
+        const modal = await (await fetcher(`https://www.youtube.com/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
+          body: JSON.stringify({
+            params,
+            context
+          })
+        })).json();
+        const index = chatReportUserOptions.findIndex(d => d.value === msg.reportOption);
+        const options = modal.actions[0].openPopupAction.popup.reportFormModalRenderer.optionsSupportedRenderers.optionsRenderer.items;
+        const clickTrackingParams = options[index].optionSelectableItemRenderer.submitEndpoint.clickTrackingParams;
+        context.clickTracking = {
+          clickTrackingParams
+        };
+        await fetcher(`https://www.youtube.com/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
+          ...heads,
           body: JSON.stringify({
             params,
             context

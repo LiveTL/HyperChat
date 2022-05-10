@@ -123,6 +123,7 @@ declare namespace Chat {
     type: 'executeChatAction';
     message: Ytc.ParsedMessage;
     action: ChatUserActions;
+    reportOption?: ChatReportUserOptions;
   }
 
   type BackgroundMessage =
