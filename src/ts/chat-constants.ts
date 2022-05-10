@@ -53,12 +53,11 @@ export const emojiRenderItems = [
 
 export enum ChatUserActions {
   BLOCK = 'BLOCK',
-  REPORT_PFP = 'REPORT_PFP',
-  REPORT_USER = 'REPORT_USER',
+  REPORT_USER = 'REPORT_USER_INITIATE',
+  REPORT_USER_CONFIRM = 'REPORT_USER_CONFIRM',
 }
 
 export const chatUserActionsItems = [
   { value: ChatUserActions.BLOCK, text: 'Block user', icon: 'block' },
-  { value: ChatUserActions.REPORT_PFP, text: 'Report profile picture', icon: 'flag_circle' },
   { value: ChatUserActions.REPORT_USER, text: 'Report user', icon: 'flag' }
 ];
