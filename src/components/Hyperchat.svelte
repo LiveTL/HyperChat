@@ -12,7 +12,9 @@
     paramsFrameId,
     paramsIsReplay,
     Theme,
-    YoutubeEmojiRenderMode
+    YoutubeEmojiRenderMode,
+    ChatReportUserOptions,
+    chatReportUserOptions
   } from '../ts/chat-constants';
   import { isAllEmoji, isChatMessage, isPrivileged, responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
@@ -32,6 +34,8 @@
     reportDialog
   } from '../ts/storage';
   import Dialog from './common/Dialog.svelte';
+  import type { Writable } from 'svelte/store';
+  import RadioGroupStore from './common/RadioGroupStore.svelte';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
@@ -248,9 +252,20 @@
     if (action == null) $hoveredItem = null;
     else if (!('welcome' in action)) $hoveredItem = action.message.messageId;
   };
+
+  $: optionStore = $reportDialog?.optionStore as Writable<ChatReportUserOptions>;
 </script>
 
-<Dialog active={Boolean($reportDialog)} />
+<Dialog active={Boolean($reportDialog)} class="max-w-full max-h-full" style="height: 500px; width: 500px;">
+  <svelte:fragment slot="title">Report User</svelte:fragment>
+  <div>
+    <RadioGroupStore
+      store={optionStore}
+      items={chatReportUserOptions}
+      vertical
+    />
+  </div>
+</Dialog>
 
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />
 

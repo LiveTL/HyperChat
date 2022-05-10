@@ -1,8 +1,9 @@
 import { webExtStores } from 'svelte-webext-stores';
 import { readable, writable } from 'svelte/store';
+import type { Writable } from 'svelte/store';
 import { getClient, AvailableLanguages } from 'iframe-translator';
 import type { IframeTranslatorClient, AvailableLanguageCodes } from 'iframe-translator';
-import { Theme, YoutubeEmojiRenderMode } from './chat-constants';
+import { ChatReportUserOptions, Theme, YoutubeEmojiRenderMode } from './chat-constants';
 
 export const stores = webExtStores();
 
@@ -58,4 +59,5 @@ export const port = writable(null as null | Chat.Port);
 export const selfChannelId = writable(null as null | string);
 export const reportDialog = writable(null as null | {
   callback: () => void;
+  optionStore: Writable<null | ChatReportUserOptions>;
 });

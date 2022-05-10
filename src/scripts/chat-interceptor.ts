@@ -91,7 +91,7 @@ const chatLoaded = async (): Promise<void> => {
         method: 'POST'
       };
       const res = await (await fetcher(contextMenuUrl, {
-        ...Headers,
+        ...heads,
         body: JSON.stringify({ context: baseContext })
       })).json();
       function parseServiceEndpoint(serviceEndpoint: any, prop: string): { params: string, context: any } {
@@ -113,7 +113,7 @@ const chatLoaded = async (): Promise<void> => {
           'moderateLiveChatEndpoint'
         );
         await fetcher(`https://www.youtube.com/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
-          ...Headers,
+          ...heads,
           body: JSON.stringify({
             params,
             context
@@ -125,6 +125,7 @@ const chatLoaded = async (): Promise<void> => {
           'getReportFormEndpoint'
         );
         const modal = await (await fetcher(`https://www.youtube.com/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
+          ...heads,
           body: JSON.stringify({
             params,
             context

@@ -69,14 +69,14 @@ export enum ChatReportUserOptions {
 }
 
 export const chatReportUserOptions = [
-  { value: ChatReportUserOptions.UNWANTED_SPAM, text: 'Unwanted commercial content or spam' },
-  { value: ChatReportUserOptions.PORN_OR_SEX, text: 'Pornography or sexually explicit material' },
-  { value: ChatReportUserOptions.CHILD_ABUSE, text: 'Child abuse' },
-  { value: ChatReportUserOptions.HATE_SPEECH, text: 'Hate speech or graphic violence' },
-  { value: ChatReportUserOptions.TERRORISM, text: 'Promotes terrorism' },
-  { value: ChatReportUserOptions.HARASSMENT, text: 'Harassment or bullying' },
-  { value: ChatReportUserOptions.SUICIDE, text: 'Suicide or self injury' },
-  { value: ChatReportUserOptions.MISINFORMATION, text: 'Misinformation' }
+  { value: ChatReportUserOptions.UNWANTED_SPAM, label: 'Unwanted commercial content or spam' },
+  { value: ChatReportUserOptions.PORN_OR_SEX, label: 'Pornography or sexually explicit material' },
+  { value: ChatReportUserOptions.CHILD_ABUSE, label: 'Child abuse' },
+  { value: ChatReportUserOptions.HATE_SPEECH, label: 'Hate speech or graphic violence' },
+  { value: ChatReportUserOptions.TERRORISM, label: 'Promotes terrorism' },
+  { value: ChatReportUserOptions.HARASSMENT, label: 'Harassment or bullying' },
+  { value: ChatReportUserOptions.SUICIDE, label: 'Suicide or self injury' },
+  { value: ChatReportUserOptions.MISINFORMATION, label: 'Misinformation' }
 ];
 
 export const chatUserActionsItems = [
