@@ -84,7 +84,7 @@ export const chatUserActionsItems = [
     text: 'Block user',
     icon: 'block',
     messages: {
-      success: 'The user has been blocked, and you will no longer see their messages. You can unblock users in the settings panel at any time.',
+      success: 'The user has been blocked, and you will no longer see their messages. It may take several minutes for the setting to take full effect. You can unblock users in the settings panel at any time.',
       error: 'There was an error blocking the user. It is possible that this user has already been blocked. If not, please try again later.'
     }
   },
