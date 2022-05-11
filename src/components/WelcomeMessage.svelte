@@ -86,8 +86,8 @@
         $refreshScroll = true;
         e.preventDefault();
       }}
-      class="inline-block align-middle cursor-pointer pt-0.5">
-        <Icon xs>
+      class="inline-block align-middle cursor-pointer pt-0.5 h-fit">
+        <Icon xs class="text-error-200">
           close
         </Icon>
       </span>
