@@ -222,10 +222,11 @@ const registerClient = (
   );
 
   if (getInitialData && isYtcInterceptor(interceptor)) {
-    const payload = {
+    const payload: Chat.InitialData = {
       type: 'initialData',
-      initialData: interceptor.queue.getInitialData()
-    } as const;
+      initialData: interceptor.queue.getInitialData(),
+      selfChannelId: interceptor.queue.selfChannel.get()?.authorExternalChannelId ?? null
+    };
     port.postMessage(payload);
     console.debug('Sent initial data', { port, interceptor, payload });
   }
@@ -289,27 +290,16 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
   const actionPanel = (parsedJson?.continuationContents?.liveChatContinuation ||
     parsedJson?.contents?.liveChatRenderer)
     ?.actionPanel;
-  if (actionPanel.liveChatRestrictedParticipationRenderer) {
-    interceptor.queue.selfChannel.set(null);
-    interceptor.port?.postMessage({
-      type: 'selfChannelUpdate',
-      id: null
-    });
-    return;
-  }
-  const user = actionPanel?.liveChatMessageInputRenderer
-    ?.sendButton?.buttonRenderer?.serviceEndpoint
-    ?.sendLiveChatMessageEndpoint?.actions[0]
-    ?.addLiveChatTextMessageFromTemplateAction?.template
-    ?.liveChatTextMessageRenderer;
 
-  if (user) {
-    interceptor.queue.selfChannel.set(user);
-    interceptor.port?.postMessage({
-      type: 'selfChannelUpdate',
-      id: user.id
-    });
-  }
+  const user = actionPanel.liveChatRestrictedParticipationRenderer
+    ? null
+    : actionPanel?.liveChatMessageInputRenderer
+      ?.sendButton?.buttonRenderer?.serviceEndpoint
+      ?.sendLiveChatMessageEndpoint?.actions[0]
+      ?.addLiveChatTextMessageFromTemplateAction?.template
+      ?.liveChatTextMessageRenderer;
+
+  interceptor.queue.selfChannel.set(user);
 };
 
 /**

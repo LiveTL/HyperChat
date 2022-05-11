@@ -167,12 +167,10 @@
           onChatAction(action, true);
         });
         messageActions = [...messageActions, welcome];
+        $selfChannelId = response.selfChannelId;
         break;
       case 'themeUpdate':
         ytDark = response.dark;
-        break;
-      case 'selfChannelUpdate':
-        $selfChannelId = response.id;
         break;
       case 'chatUserActionResponse':
         $alertDialog = {

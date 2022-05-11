@@ -49,16 +49,12 @@ declare namespace Chat {
   interface InitialData {
     type: 'initialData';
     initialData: Actions[];
+    selfChannelId: string | null;
   }
 
   interface ThemeUpdate {
     type: 'themeUpdate';
     dark: boolean;
-  }
-
-  interface SelfChannelUpdate {
-    type: 'selfChannelUpdate';
-    id: string | null;
   }
 
   interface LtlMessageResponse {
@@ -81,7 +77,7 @@ declare namespace Chat {
 
   type BackgroundResponse =
     Actions | InitialData | ThemeUpdate | LtlMessageResponse |
-    registerClientResponse | executeChatActionMsg | SelfChannelUpdate | chatUserActionResponse;
+    registerClientResponse | executeChatActionMsg | chatUserActionResponse;
 
   type InterceptorSource = 'ytc' | 'ltlMessage';
 

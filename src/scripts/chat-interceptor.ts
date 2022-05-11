@@ -141,13 +141,13 @@ const chatLoaded = async (): Promise<void> => {
           context.clickTracking = {
             clickTrackingParams
           };
-          // await fetcher(`https://www.youtube.com/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
-          //   ...heads,
-          //   body: JSON.stringify({
-          //     action: flagAction,
-          //     context
-          //   })
-          // });
+          await fetcher(`https://www.youtube.com/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
+            ...heads,
+            body: JSON.stringify({
+              action: flagAction,
+              context
+            })
+          });
         }
       } catch (e) {
         console.debug('Error executing chat action', e);
