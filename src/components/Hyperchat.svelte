@@ -179,6 +179,14 @@
             ?.messages[response.success ? 'success' : 'error'] ?? '',
           color: response.success ? 'primary' : 'error'
         };
+        if (response.success) {
+          messageActions = messageActions.filter(
+            (a) => {
+              if (isWelcome(a)) return true;
+              return a.message.author.id !== response.message.author.id;
+            }
+          );
+        }
         break;
       case 'registerClientResponse':
         break;
