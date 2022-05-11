@@ -7,14 +7,14 @@
   import PinnedMessage from './PinnedMessage.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
+  import ReportBanDialog from './ReportBanDialog.svelte';
   import {
     paramsTabId,
     paramsFrameId,
     paramsIsReplay,
     Theme,
     YoutubeEmojiRenderMode,
-    ChatReportUserOptions,
-    chatReportUserOptions
+    chatUserActionsItems
   } from '../ts/chat-constants';
   import { isAllEmoji, isChatMessage, isPrivileged, responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
@@ -31,11 +31,8 @@
     hoveredItem,
     port,
     selfChannelId,
-    reportDialog
+    alertDialog
   } from '../ts/storage';
-  import Dialog from './common/Dialog.svelte';
-  import type { Writable } from 'svelte/store';
-  import RadioGroupStore from './common/RadioGroupStore.svelte';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
@@ -178,6 +175,14 @@
       case 'selfChannelUpdate':
         $selfChannelId = response.id;
         break;
+      case 'chatUserActionResponse':
+        $alertDialog = {
+          title: response.success ? 'Success!' : 'Error',
+          message: chatUserActionsItems.find(v => v.value === response.action)
+            ?.messages[response.success ? 'success' : 'error'] ?? '',
+          color: response.success ? 'primary' : 'error'
+        };
+        break;
       case 'registerClientResponse':
         break;
       default:
@@ -252,26 +257,9 @@
     if (action == null) $hoveredItem = null;
     else if (!('welcome' in action)) $hoveredItem = action.message.messageId;
   };
-
-  $: optionStore = $reportDialog?.optionStore as Writable<ChatReportUserOptions>;
 </script>
 
-<Dialog active={Boolean($reportDialog)} class="max-w-full max-h-full" style="height: 500px; width: 500px;">
-  <svelte:fragment slot="title">Report User</svelte:fragment>
-  <div>
-    <RadioGroupStore
-      store={optionStore}
-      items={chatReportUserOptions}
-      vertical
-    />
-  </div>
-  <div slot="actions">
-    <Button on:click={() => {
-      $reportDialog?.callback($optionStore);
-      $reportDialog = null;
-    }} color="error" disabled={!$optionStore}>Report</Button>
-  </div>
-</Dialog>
+<ReportBanDialog />
 
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />
 

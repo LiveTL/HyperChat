@@ -61,3 +61,8 @@ export const reportDialog = writable(null as null | {
   callback: (selection: ChatReportUserOptions) => void;
   optionStore: Writable<null | ChatReportUserOptions>;
 });
+export const alertDialog = writable(null as null | {
+  title: string;
+  message: string;
+  color: string;
+});

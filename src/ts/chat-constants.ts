@@ -53,8 +53,7 @@ export const emojiRenderItems = [
 
 export enum ChatUserActions {
   BLOCK = 'BLOCK',
-  REPORT_USER = 'REPORT_USER_INITIATE',
-  REPORT_USER_CONFIRM = 'REPORT_USER_CONFIRM',
+  REPORT_USER = 'REPORT_USER',
 }
 
 export enum ChatReportUserOptions {
@@ -80,6 +79,22 @@ export const chatReportUserOptions = [
 ];
 
 export const chatUserActionsItems = [
-  { value: ChatUserActions.BLOCK, text: 'Block user', icon: 'block' },
-  { value: ChatUserActions.REPORT_USER, text: 'Report user', icon: 'flag' }
+  {
+    value: ChatUserActions.BLOCK,
+    text: 'Block user',
+    icon: 'block',
+    messages: {
+      success: 'The user has been blocked, and you will no longer see their messages.',
+      error: 'There was an error blocking the user. Please try again later.'
+    }
+  },
+  {
+    value: ChatUserActions.REPORT_USER,
+    text: 'Report user',
+    icon: 'flag',
+    messages: {
+      success: 'The user has been reported for review by YouTube staff.',
+      error: 'There was an error reporting the user. Please try again later.'
+    }
+  }
 ];

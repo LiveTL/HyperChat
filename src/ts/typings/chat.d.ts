@@ -72,7 +72,14 @@ declare namespace Chat {
     failReason?: string;
   }
 
-  type BackgroundResponse = Actions | InitialData | ThemeUpdate | LtlMessageResponse | registerClientResponse | executeChatActionMsg | SelfChannelUpdate;
+  interface chatUserActionResponse {
+    type: 'chatUserActionResponse';
+    action: ChatUserActions;
+    message: Ytc.ParsedMessage;
+    success: boolean;
+  }
+
+  type BackgroundResponse = Actions | InitialData | ThemeUpdate | LtlMessageResponse | registerClientResponse | executeChatActionMsg | SelfChannelUpdate | chatUserActionResponse;
 
   type InterceptorSource = 'ytc' | 'ltlMessage';
 
