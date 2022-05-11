@@ -31,8 +31,8 @@
   </div>
 </Dialog>
 
-<Dialog active={Boolean($alertDialog)}>
-  <svelte:fragment slot="title">${$alertDialog?.title}</svelte:fragment>
+<Dialog active={Boolean($alertDialog)} noCloseButton>
+  <svelte:fragment slot="title">{$alertDialog?.title}</svelte:fragment>
   <div>
     {$alertDialog?.message}
   </div>

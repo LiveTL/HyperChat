@@ -157,7 +157,6 @@
   };
 
   const onPortMessage = (response: Chat.BackgroundResponse) => {
-    // console.debug({ response });
     if (responseIsAction(response)) {
       onChatAction(response);
       return;

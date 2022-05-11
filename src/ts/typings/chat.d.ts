@@ -79,7 +79,9 @@ declare namespace Chat {
     success: boolean;
   }
 
-  type BackgroundResponse = Actions | InitialData | ThemeUpdate | LtlMessageResponse | registerClientResponse | executeChatActionMsg | SelfChannelUpdate | chatUserActionResponse;
+  type BackgroundResponse =
+    Actions | InitialData | ThemeUpdate | LtlMessageResponse |
+    registerClientResponse | executeChatActionMsg | SelfChannelUpdate | chatUserActionResponse;
 
   type InterceptorSource = 'ytc' | 'ltlMessage';
 
@@ -142,7 +144,7 @@ declare namespace Chat {
   type BackgroundMessage =
     RegisterInterceptorMsg | RegisterClientMsg | processJsonMsg |
     setInitialDataMsg | updatePlayerProgressMsg | setThemeMsg | getThemeMsg |
-    RegisterYtcInterceptorMsg | sendLtlMessageMsg | executeChatActionMsg;
+    RegisterYtcInterceptorMsg | sendLtlMessageMsg | executeChatActionMsg | chatUserActionResponse;
 
   type Port = Omit<chrome.runtime.Port, 'postMessage' | 'onMessage'> & {
     postMessage: (message: BackgroundMessage | BackgroundResponse) => void;

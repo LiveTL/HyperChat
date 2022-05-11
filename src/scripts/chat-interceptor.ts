@@ -153,12 +153,6 @@ const chatLoaded = async (): Promise<void> => {
         console.debug('Error executing chat action', e);
         success = false;
       }
-      console.log({
-        type: 'chatUserActionResponse',
-        action: msg.action,
-        message,
-        success
-      });
       port.postMessage({
         type: 'chatUserActionResponse',
         action: msg.action,

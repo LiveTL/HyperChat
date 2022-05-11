@@ -368,6 +368,18 @@ const executeChatAction = (
   interceptor?.port?.postMessage(message);
 };
 
+const sendChatUserActionResponse = (
+  port: Chat.Port,
+  message: Chat.chatUserActionResponse
+): void => {
+  const interceptor = findInterceptorFromPort(port, { message });
+  if (!interceptor) return;
+
+  interceptor.clients.forEach(
+    (clientPort) => clientPort.postMessage(message)
+  );
+};
+
 chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((message: Chat.BackgroundMessage) => {
     switch (message.type) {
@@ -400,6 +412,9 @@ chrome.runtime.onConnect.addListener((port) => {
         break;
       case 'executeChatAction':
         executeChatAction(port, message);
+        break;
+      case 'chatUserActionResponse':
+        sendChatUserActionResponse(port, message);
         break;
       default:
         console.error('Unknown message type', port, message);
