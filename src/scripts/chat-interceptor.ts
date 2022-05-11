@@ -78,7 +78,7 @@ const chatLoaded = async (): Promise<void> => {
         // const action = msg.action;
         const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
         const contextMenuUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?params=' +
-        `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
+          `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
         const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
         const time = Math.floor(Date.now() / 1000);
         const SAPISID = getCookie('SAPISID');
