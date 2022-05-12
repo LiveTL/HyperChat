@@ -7,7 +7,8 @@
     showUsernames,
     showUserBadges,
     emojiRenderMode,
-    autoLiveChat
+    autoLiveChat,
+    useSystemEmojis
   } from '../../ts/storage';
   import { Theme, themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
@@ -17,9 +18,8 @@
   import MessageTranslationSettings from './MessageTranslationSettings.svelte';
 
   const willChangeOnNextChunkMessage = (
-    'Changes will take effect when the next chat message chunk arrives.'
+    'Settings listed below will take effect when the next chat message chunk arrives.'
   );
-
 
   const darkStore = dark();
   $: switch ($theme) {
@@ -60,6 +60,7 @@
 </Card>
 
 <Card title="Emojis" icon="emoji_emotions">
+  <Checkbox name="Use system emojis when possible" store={useSystemEmojis} />
   <i>{willChangeOnNextChunkMessage}</i>
   <Radio store={emojiRenderMode} items={emojiRenderItems} vertical />
 </Card>

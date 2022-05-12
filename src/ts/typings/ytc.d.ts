@@ -59,6 +59,11 @@ declare namespace Ytc {
     videoOffsetTimeMsec: IntString;
   }
 
+  /* YTC sentChatItemAction object */
+  interface SentChatItemAction {
+    actions: Action[];
+  }
+
   /** YTC markChatItemsByAuthorAsDeletedAction object */
   interface AuthorBonkedAction extends IDeleted {
     /** ID of channel that was bonked */
@@ -136,6 +141,7 @@ declare namespace Ytc {
 
   interface TextMessageRenderer {
     message?: RunsObj;
+    authorExternalChannelId?: string;
     authorName?: SimpleTextObj;
     authorPhoto?: Thumbnails;
     authorBadges?: Array<{
@@ -278,6 +284,7 @@ declare namespace Ytc {
       types: string[];
       profileIcon: ParsedImage;
       customBadge?: ParsedImage;
+      url?: string;
     };
     message: ParsedRun[];
     timestamp: string;

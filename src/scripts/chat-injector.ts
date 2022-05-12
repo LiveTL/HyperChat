@@ -1,5 +1,5 @@
 import HcButton from '../components/HyperchatButton.svelte';
-import { getFrameInfoAsync, isValidFrameInfo, frameIsReplay } from '../ts/chat-utils';
+import { getFrameInfoAsync, isValidFrameInfo, frameIsReplay, checkInjected } from '../ts/chat-utils';
 import { isLiveTL, isAndroid } from '../ts/chat-constants';
 import { hcEnabled, autoLiveChat } from '../ts/storage';
 
@@ -12,10 +12,7 @@ const hcWarning = 'An existing HyperChat button has been detected. This ' +
   'problems such as chat messages not loading.';
 
 const chatLoaded = async (): Promise<void> => {
-  if (document.querySelector('.toggleButton')) {
-    console.error(hcWarning);
-    return;
-  }
+  if (!isLiveTL && checkInjected(hcWarning)) return;
 
   document.body.style.minWidth = document.body.style.minHeight = '0px';
   const hyperChatEnabled = await hcEnabled.get();
@@ -96,8 +93,10 @@ const chatLoaded = async (): Promise<void> => {
   }
 };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => async () => await chatLoaded());
+if (isLiveTL) {
+  chatLoaded().catch(console.error);
 } else {
-  chatLoaded().catch(e => console.error(e));
+  setTimeout(() => {
+    chatLoaded().catch(console.error);
+  }, 500);
 }

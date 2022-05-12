@@ -1,33 +1,39 @@
 import { fixLeaks } from '../ts/ytc-fix-memleaks';
-import { frameIsReplay as isReplay } from '../ts/chat-utils';
+import { frameIsReplay as isReplay, checkInjected } from '../ts/chat-utils';
+import { isLiveTL } from '../ts/chat-constants';
+
+function injectedFunction(): void {
+  for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
+    window.addEventListener(eventName, event => {
+      event.stopImmediatePropagation();
+    }, true);
+  }
+  const fetchFallback = window.fetch;
+  (window as any).fetchFallback = fetchFallback;
+  window.fetch = async (...args) => {
+    const request = args[0] as Request;
+    const url = request.url;
+    const result = await fetchFallback(...args);
+
+    const ytApi = (end: string): string => `https://www.youtube.com/youtubei/v1/live_chat${end}`;
+    const isReceiving = url.startsWith(ytApi('/get_live_chat'));
+    const isSending = url.startsWith(ytApi('/send_message'));
+    const action = isReceiving ? 'messageReceive' : 'messageSent';
+    if (isReceiving || isSending) {
+      const response = JSON.stringify(await (result.clone()).json());
+      window.dispatchEvent(new CustomEvent(action, { detail: response }));
+    }
+    return result;
+  };
+}
 
 const chatLoaded = async (): Promise<void> => {
-  if (document.querySelector('.toggleButton')) {
-    console.error('HC button detected, not injecting interceptor.');
-    return;
-  }
+  const warning = 'HC button detected, not injecting interceptor.';
+  if (!isLiveTL && checkInjected(warning)) return;
 
   // Inject interceptor script
   const script = document.createElement('script');
-  script.innerHTML = `
-    for (eventName of ["visibilitychange", "webkitvisibilitychange", "blur"]) {
-      window.addEventListener(eventName, event => {
-        event.stopImmediatePropagation();
-      }, true);
-    }
-    window.fetchFallback = window.fetch;
-    window.fetch = async (...args) => {
-      const url = args[0].url;
-      const result = await window.fetchFallback(...args);
-      if (url.startsWith(
-        'https://www.youtube.com/youtubei/v1/live_chat/get_live_chat')
-      ) {
-        const response = JSON.stringify(await (await result.clone()).json());
-        window.dispatchEvent(new CustomEvent('messageReceive', { detail: response }));
-      }
-      return result;
-    };
-  `;
+  script.innerHTML = `(${injectedFunction.toString()})();`;
   document.body.appendChild(script);
 
   // Register interceptor
@@ -37,7 +43,15 @@ const chatLoaded = async (): Promise<void> => {
   // Send JSON response to clients
   window.addEventListener('messageReceive', (d) => {
     port.postMessage({
-      type: 'processJson',
+      type: 'processMessageChunk',
+      // @ts-expect-error TS doesn't like CustomEvent
+      json: d.detail
+    });
+  });
+
+  window.addEventListener('messageSent', (d) => {
+    port.postMessage({
+      type: 'processSentMessage',
       // @ts-expect-error TS doesn't like CustomEvent
       json: d.detail
     });
@@ -96,8 +110,10 @@ const chatLoaded = async (): Promise<void> => {
   document.body.appendChild(fixLeakScript);
 };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => async () => await chatLoaded());
+if (isLiveTL) {
+  chatLoaded().catch(console.error);
 } else {
-  chatLoaded().catch(e => console.error(e));
+  setTimeout(() => {
+    chatLoaded().catch(console.error);
+  }, 500);
 }

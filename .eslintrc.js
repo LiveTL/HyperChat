@@ -30,7 +30,9 @@ module.exports = {
         ],
         '@typescript-eslint/prefer-nullish-coalescing': 'off',
         // Causes false positives with reactive and auto subscriptions
-        '@typescript-eslint/strict-boolean-expressions': 'off'
+        '@typescript-eslint/strict-boolean-expressions': 'off',
+        'no-sequences': 'off',
+        'no-unused-expressions': 'off',
       }
     }
   ],
@@ -86,7 +88,7 @@ module.exports = {
         multiline: { delimiter: 'semi', requireLast: true },
         singleline: { delimiter: 'comma', requireLast: false }
       }
-    ]
+    ],
   },
   settings: {
     'svelte3/typescript': () => require('typescript')

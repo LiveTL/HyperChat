@@ -31,6 +31,7 @@ declare namespace Chat {
   interface ForceUpdate {
     type: 'forceUpdate';
     messages: MessageAction[];
+    showWelcome?: boolean;
   }
 
   type Actions = MessagesAction | BonkAction | DeleteAction | Ytc.ParsedMisc | PlayerProgressAction | ForceUpdate;
@@ -60,7 +61,13 @@ declare namespace Chat {
     message: LtlMessage;
   }
 
-  type BackgroundResponse = Actions | InitialData | ThemeUpdate | LtlMessageResponse;
+  interface registerClientResponse {
+    type: 'registerClientResponse';
+    success: boolean;
+    failReason?: string;
+  }
+
+  type BackgroundResponse = Actions | InitialData | ThemeUpdate | LtlMessageResponse | registerClientResponse;
 
   type InterceptorSource = 'ytc' | 'ltlMessage';
 
@@ -86,7 +93,7 @@ declare namespace Chat {
   }
 
   type processJsonMsg = JsonMsg & {
-    type: 'processJson';
+    type: 'processMessageChunk' | 'processSentMessage';
   };
 
   type setInitialDataMsg = JsonMsg & {

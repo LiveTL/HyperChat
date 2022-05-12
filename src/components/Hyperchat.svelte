@@ -24,7 +24,8 @@
     showTimestamps,
     showUserBadges,
     refreshScroll,
-    emojiRenderMode
+    emojiRenderMode,
+    useSystemEmojis
   } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -133,6 +134,9 @@
         break;
       case 'forceUpdate':
         messageActions = [...action.messages].filter(shouldShowMessage);
+        if (action.showWelcome) {
+          messageActions = [...messageActions, welcome];
+        }
         break;
     }
   };
@@ -162,6 +166,8 @@
         break;
       case 'themeUpdate':
         ytDark = response.dark;
+        break;
+      case 'registerClientResponse':
         break;
       default:
         console.error('Unknown payload type', { port, response });
@@ -226,6 +232,8 @@
 
   const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
   const isMembership = (action: Chat.MessageAction) => (action.message.membership);
+
+  $: $useSystemEmojis, onRefresh();
 </script>
 
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />
@@ -234,7 +242,7 @@
   <div class="absolute w-full h-full flex justify-end flex-col">
     <div bind:this={div} on:scroll={checkAtBottom} class="content overflow-y-scroll">
       {#each messageActions as action (action.message.messageId)}
-        <div class="{isWelcome(action) ? '' : 'hover-highlight rounded flex'} p-1.5 w-full block">
+        <div class="{isWelcome(action) ? '' : 'flex'} hover-highlight p-1.5 w-full block">
           {#if isWelcome(action)}
             <WelcomeMessage />
           {:else if isSuperchat(action)}

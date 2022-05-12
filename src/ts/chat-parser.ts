@@ -93,12 +93,13 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
   const timestampText = renderer.timestampText?.simpleText;
   const liveShowtimeMs = (timestampUsec / 1000) + liveTimeoutOrReplayMs;
   const profileIcon = { src: fixUrl(renderer.authorPhoto?.thumbnails[0].url ?? ''), alt: renderer.authorName?.simpleText ?? '' };
+  const channelId = renderer.authorExternalChannelId;
 
   const item: Ytc.ParsedMessage = {
     author: {
       // It's apparently possible for there to be no author name (and only an author photo).
       name: renderer.authorName?.simpleText ?? '',
-      id: renderer.authorExternalChannelId,
+      id: renderer.authorExternalChannelId ?? '',
       types: authorTypes,
       customBadge,
       profileIcon
@@ -108,6 +109,9 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     showtime: isReplay ? liveTimeoutOrReplayMs : liveShowtimeMs,
     messageId: renderer.id
   };
+  if (channelId != null) {
+    item.author.url = `https://www.youtube.com/channel/${channelId}`;
+  }
 
   if (isPaidMessageRenderer(renderer)) {
     item.superChat = {
@@ -209,6 +213,14 @@ const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[],
   }
 };
 
+const cheatTimestamps = (arr: Ytc.ParsedMessage[]): void => {
+  const earliest = arr[0].showtime;
+  const delta = Date.now() - earliest;
+  arr.forEach(item => {
+    item.showtime += delta;
+  });
+};
+
 export const parseChatResponse = (response: string, isReplay: boolean): Ytc.ParsedChunk | undefined => {
   const parsedResponse: Ytc.RawResponse = JSON.parse(response);
   const base =
@@ -252,12 +264,15 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
     sortAction(parsedAction, messageArray, bonkArray, deleteArray, miscArray);
   });
 
+  const refresh = base.clientMessages != null;
+  if (!isReplay && !refresh) cheatTimestamps(messageArray);
+
   return {
     messages: messageArray,
     bonks: bonkArray,
     deletions: deleteArray,
     miscActions: miscArray,
     isReplay,
-    refresh: base.clientMessages != null
+    refresh
   };
 };
