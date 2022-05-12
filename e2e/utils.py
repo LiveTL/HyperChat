@@ -45,7 +45,10 @@ def with_retry(amount=30, interval=0.5):
 
 @with_retry()
 def click_body(web: TWeb):
-    web.execute_script("document.body.click()")
+    web.execute_script("""
+document.body.click();
+setInterval(() => document.body.click(), 1000)
+    """)
 
 @with_retry()
 def switch_to_youtube_parent_frame(web):
@@ -63,7 +66,7 @@ def initial_switch_to_chatframe(web: TWeb):
     switch_to_chatframe(web)
 
 @with_retry()
-def get_hc_buttons(web: TWeb, expected_buttons=2):
+def get_hc_buttons(web: TWeb, expected_buttons=2, delay=2):
     """
     Get HyperChat buttons.
 
@@ -71,6 +74,7 @@ def get_hc_buttons(web: TWeb, expected_buttons=2):
     """
     buttons = web.find_elements_by_css_selector("#hc-buttons > div")
     assert len(buttons) == expected_buttons, "not correct amount of buttons"
+    time.sleep(delay)
     return buttons
 
 
