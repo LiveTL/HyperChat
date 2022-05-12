@@ -29,6 +29,16 @@ function injectedFunction(): void {
   window.dispatchEvent(new CustomEvent('chatLoaded', {
     detail: JSON.stringify(window.ytcfg)
   }));
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  window.addEventListener('proxyFetchRequest', async (event) => {
+    const args = JSON.parse((event as any).detail as string) as [string, object];
+    const request = await fetchFallback(...args);
+    const response = await request.json();
+    console.log(response);
+    window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
+      detail: JSON.stringify(response)
+    }));
+  });
 }
 
 const chatLoaded = async (): Promise<void> => {
@@ -61,7 +71,19 @@ const chatLoaded = async (): Promise<void> => {
         INNERTUBE_CONTEXT: any;
       };
     });
-    const fetcher = window.fetch;
+    const fetcher = async (...args: any[]): Promise<any> => {
+      return await new Promise((resolve) => {
+        const encoded = JSON.stringify(args);
+        window.addEventListener('proxyFetchResponse', (e) => {
+          const response = JSON.parse((e as CustomEvent).detail);
+          resolve(response);
+        });
+        window.dispatchEvent(new CustomEvent('proxyFetchRequest', {
+          detail: encoded
+        }));
+      });
+    };
+
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     port.onMessage.addListener(async (msg) => {
       function getCookie(name: string): string {
@@ -92,10 +114,10 @@ const chatLoaded = async (): Promise<void> => {
           },
           method: 'POST'
         };
-        const res = await (await fetcher(contextMenuUrl, {
+        const res = await fetcher(contextMenuUrl, {
           ...heads,
           body: JSON.stringify({ context: baseContext })
-        })).json();
+        });
         function parseServiceEndpoint(serviceEndpoint: any, prop: string): { params: string, context: any } {
           const { clickTrackingParams, [prop]: { params } } = serviceEndpoint;
           const clonedContext = JSON.parse(JSON.stringify(baseContext));
@@ -126,13 +148,13 @@ const chatLoaded = async (): Promise<void> => {
             res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[0].menuServiceItemRenderer.serviceEndpoint,
             'getReportFormEndpoint'
           );
-          const modal = await (await fetcher(`https://www.youtube.com/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
+          const modal = await fetcher(`https://www.youtube.com/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
               params,
               context
             })
-          })).json();
+          });
           const index = chatReportUserOptions.findIndex(d => d.value === msg.reportOption);
           const options = modal.actions[0].openPopupAction.popup.reportFormModalRenderer.optionsSupportedRenderers.optionsRenderer.items;
           const submitEndpoint = options[index].optionSelectableItemRenderer.submitEndpoint;
@@ -180,7 +202,6 @@ const chatLoaded = async (): Promise<void> => {
       continue;
     }
     const json = text.replace(start, '').slice(0, -1);
-    console.log(JSON.parse(json));
     port.postMessage({
       type: 'setInitialData',
       json
