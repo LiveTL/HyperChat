@@ -8,6 +8,9 @@
 <ul class="list-disc list-inside">
   <strong>What's still cooking in the usual room:</strong>
   <li class="ml-3.5">
+    Sticky superchats
+  </li>
+  <li class="ml-3.5">
     Updated screenshots, store listing, and trailer video
   </li>
 </ul>
