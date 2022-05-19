@@ -292,7 +292,7 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
     parsedJson?.contents?.liveChatRenderer)
     ?.actionPanel;
 
-  const user = actionPanel.liveChatRestrictedParticipationRenderer
+  const user = actionPanel?.liveChatRestrictedParticipationRenderer
     ? null
     : actionPanel?.liveChatMessageInputRenderer
       ?.sendButton?.buttonRenderer?.serviceEndpoint

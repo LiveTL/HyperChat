@@ -34,7 +34,6 @@ function injectedFunction(): void {
     const args = JSON.parse((event as any).detail as string) as [string, object];
     const request = await fetchFallback(...args);
     const response = await request.json();
-    console.log(response);
     window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
       detail: JSON.stringify(response)
     }));
