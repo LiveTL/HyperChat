@@ -1,8 +1,9 @@
 import { webExtStores } from 'svelte-webext-stores';
 import { readable, writable } from 'svelte/store';
+import type { Writable } from 'svelte/store';
 import { getClient, AvailableLanguages } from 'iframe-translator';
 import type { IframeTranslatorClient, AvailableLanguageCodes } from 'iframe-translator';
-import { Theme, YoutubeEmojiRenderMode } from './chat-constants';
+import { ChatReportUserOptions, Theme, YoutubeEmojiRenderMode } from './chat-constants';
 
 export const stores = webExtStores();
 
@@ -53,3 +54,15 @@ export const showOnlyMemberChat = stores.addSyncStore('hc.showOnlyMemberChat', f
 export const emojiRenderMode = stores.addSyncStore('hc.emojiRenderMode', YoutubeEmojiRenderMode.SHOW_ALL);
 export const autoLiveChat = stores.addSyncStore('hc.autoLiveChat', false);
 export const useSystemEmojis = stores.addSyncStore('hc.useSystemEmojis', false);
+export const hoveredItem = writable(null as null | Chat.MessageAction['message']['messageId']);
+export const port = writable(null as null | Chat.Port);
+export const selfChannelId = writable(null as null | string);
+export const reportDialog = writable(null as null | {
+  callback: (selection: ChatReportUserOptions) => void;
+  optionStore: Writable<null | ChatReportUserOptions>;
+});
+export const alertDialog = writable(null as null | {
+  title: string;
+  message: string;
+  color: string;
+});

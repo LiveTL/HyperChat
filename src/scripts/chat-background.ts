@@ -1,4 +1,5 @@
-import { Unsubscriber, ytcQueue } from '../ts/queue';
+import type { Unsubscriber } from '../ts/queue';
+import { ytcQueue } from '../ts/queue';
 import { isValidFrameInfo } from '../ts/chat-utils';
 import { isLiveTL } from '../ts/chat-constants';
 
@@ -59,6 +60,17 @@ const findInterceptorFromPort = (
     frameInfo,
     { interceptors, port, ...errorObject }
   );
+};
+
+const findInterceptorFromClient = (
+  client: Chat.Port
+): Chat.Interceptor | undefined => {
+  return interceptors.find((interceptor) => {
+    for (const c of interceptor.clients) {
+      if (c.name === client.name) return true;
+    }
+    return false;
+  });
 };
 
 /**
@@ -211,10 +223,11 @@ const registerClient = (
   );
 
   if (getInitialData && isYtcInterceptor(interceptor)) {
-    const payload = {
+    const payload: Chat.InitialData = {
       type: 'initialData',
-      initialData: interceptor.queue.getInitialData()
-    } as const;
+      initialData: interceptor.queue.getInitialData(),
+      selfChannelId: interceptor.queue.selfChannel.get()?.authorExternalChannelId ?? null
+    };
     port.postMessage(payload);
     console.debug('Sent initial data', { port, interceptor, payload });
   }
@@ -275,16 +288,19 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
 
   const parsedJson = JSON.parse(json);
 
-  const user =
-    (parsedJson?.continuationContents?.liveChatContinuation ||
-      parsedJson?.contents?.liveChatRenderer)
-      ?.actionPanel?.liveChatMessageInputRenderer
+  const actionPanel = (parsedJson?.continuationContents?.liveChatContinuation ||
+    parsedJson?.contents?.liveChatRenderer)
+    ?.actionPanel;
+
+  const user = actionPanel?.liveChatRestrictedParticipationRenderer
+    ? null
+    : actionPanel?.liveChatMessageInputRenderer
       ?.sendButton?.buttonRenderer?.serviceEndpoint
       ?.sendLiveChatMessageEndpoint?.actions[0]
       ?.addLiveChatTextMessageFromTemplateAction?.template
       ?.liveChatTextMessageRenderer;
 
-  if (user) interceptor.queue.selfChannel.set(user);
+  interceptor.queue.selfChannel.set(user);
 };
 
 /**
@@ -335,6 +351,26 @@ const sendLtlMessage = (port: Chat.Port, message: Chat.LtlMessage): void => {
   );
 };
 
+const executeChatAction = (
+  port: Chat.Port,
+  message: Chat.executeChatActionMsg
+): void => {
+  const interceptor = findInterceptorFromClient(port);
+  interceptor?.port?.postMessage(message);
+};
+
+const sendChatUserActionResponse = (
+  port: Chat.Port,
+  message: Chat.chatUserActionResponse
+): void => {
+  const interceptor = findInterceptorFromPort(port, { message });
+  if (!interceptor) return;
+
+  interceptor.clients.forEach(
+    (clientPort) => clientPort.postMessage(message)
+  );
+};
+
 chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((message: Chat.BackgroundMessage) => {
     switch (message.type) {
@@ -364,6 +400,12 @@ chrome.runtime.onConnect.addListener((port) => {
         break;
       case 'sendLtlMessage':
         sendLtlMessage(port, message.message);
+        break;
+      case 'executeChatAction':
+        executeChatAction(port, message);
+        break;
+      case 'chatUserActionResponse':
+        sendChatUserActionResponse(port, message);
         break;
       default:
         console.error('Unknown message type', port, message);

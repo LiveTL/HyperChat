@@ -24,7 +24,6 @@
 </script>
 
 <span
-  on:click|stopPropagation
   class="cursor-auto align-middle {deletedClass} {$$props.class ?? ''}"
   style="word-break: break-word"
 >

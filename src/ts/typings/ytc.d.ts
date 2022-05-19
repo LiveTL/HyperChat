@@ -167,6 +167,11 @@ declare namespace Ytc {
     authorExternalChannelId: string;
     /** Only available on replays */
     timestampText?: SimpleTextObj;
+    contextMenuEndpoint?: {
+      liveChatItemContextMenuEndpoint: {
+        params: string;
+      };
+    };
   }
 
   interface PaidRenderer extends TextMessageRenderer {
@@ -293,6 +298,7 @@ declare namespace Ytc {
     superChat?: ParsedSuperChat;
     superSticker?: ParsedSuperSticker;
     membership?: ParsedMembership;
+    params?: string;
   }
 
   interface ParsedBonk {

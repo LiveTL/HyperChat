@@ -14,6 +14,7 @@
   import Card from '../common/Card.svelte';
   import Radio from '../common/RadioGroupStore.svelte';
   import Checkbox from '../common/CheckboxStore.svelte';
+  import Icon from '../common/Icon.svelte';
   import dark from 'smelte/src/dark';
   import MessageTranslationSettings from './MessageTranslationSettings.svelte';
 
@@ -71,6 +72,14 @@
 </Card>
 
 <Card title="Additional Options" icon="tune">
+  <a
+    href="https://myaccount.google.com/blocklist"
+    class="ml-2 dark:text-primary-50 text-primary-900"
+    target="_blank"
+  >
+    <span class="underline">Unblock chat users</span>
+    <Icon class="inline align-middle" small>open_in_new</Icon>
+  </a>
   <Checkbox name="Automatically switch to Live Chat" store={autoLiveChat} />
   <MessageTranslationSettings />
 </Card>

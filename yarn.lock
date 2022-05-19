@@ -6314,6 +6314,11 @@ setprototypeof@1.1.1:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.1.1.tgz#7e95acb24aa92f5885e0abef5ba131330d4ae683"
   integrity sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==
 
+sha-1@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/sha-1/-/sha-1-1.0.0.tgz#01cca4f6ba3e5cacd44dbde092c90d070660e4e2"
+  integrity sha512-qjFA/+LdT0Gvu/JcmYTGZMvVy6WXJOWv1KQuY7HvSr2oBrMxA8PnZu2mc1/ZS2EvLMokj7lIeQsNPjkRzXrImw==
+
 sha.js@2.4.11:
   version "2.4.11"
   resolved "https://registry.npmjs.org/sha.js/-/sha.js-2.4.11.tgz"
@@ -6405,10 +6410,10 @@ slice-ansi@^4.0.0:
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
 
-smelte@^1.1.6:
-  version "1.1.6"
-  resolved "https://registry.npmjs.org/smelte/-/smelte-1.1.6.tgz"
-  integrity sha512-6WXc66UFZ5mff6VfxIAYNa3+cHOQPRev8RUkhTru3Mc/BS7k/6Yf/9dbuWfdHXm8heUNSd2DMg2+j6zasdfONQ==
+smelte@^1.1.8:
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/smelte/-/smelte-1.1.8.tgz#2e5286e880e8924e773014c15872875c1f31c4e8"
+  integrity sha512-lSr2rgzMu+h65dua8spu8Tb2hBQefhk5H7Cbuzs/9rdxNcoBNLaeWWdrgbc779x10002PVR2rP8G9tFO1Q3hbA==
   dependencies:
     autoprefixer "^9.8.6"
     merge-deep "^3.0.3"

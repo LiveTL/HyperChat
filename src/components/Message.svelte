@@ -1,16 +1,22 @@
 <script lang="ts">
   import MessageRun from './MessageRuns.svelte';
   import Icon from './common/Icon.svelte';
+  import Menu from './common/Menu.svelte';
   import {
     showProfileIcons,
     showUsernames,
     showTimestamps,
-    showUserBadges
+    showUserBadges,
+    hoveredItem,
+    port,
+    selfChannelId
   } from '../ts/storage';
-  import { Theme } from '../ts/chat-constants';
+  import { chatUserActionsItems, Theme } from '../ts/chat-constants';
+  import { useBanHammer } from '../ts/chat-actions';
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
+  export let messageId: Chat.MessageAction['message']['messageId'];
   export let forceDark = false;
   export let hideName = false;
 
@@ -55,12 +61,18 @@
     ($showUserBadges && (moderator || verified || member));
   
   export let forceTLColor: Theme = Theme.YOUTUBE;
+
+  const menuItems = chatUserActionsItems.map((d) => ({
+    icon: d.icon,
+    text: d.text,
+    value: d.value.toString(),
+    onClick: () => useBanHammer(message, d.value, $port)
+  }));
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div 
-  class="inline-flex flex-row gap-2 break-words overflow-hidden w-full"
-  on:click|stopPropagation
+  class="inline-flex flex-row gap-2 break-words w-full overflow-visible"
 >
   {#if !hideName && $showProfileIcons}
     <a
@@ -118,4 +130,9 @@
     {/if}
     <MessageRun runs={message.message} {forceDark} deleted={deleted != null} {forceTLColor} />
   </div>
+  {#if $selfChannelId && message.author.id !== $selfChannelId}
+    <Menu items={menuItems} visible={$hoveredItem === messageId} class="mr-2 ml-auto context-menu">
+      <Icon slot="activator" style="font-size: 1.5em;">more_vert</Icon>
+    </Menu>
+  {/if}
 </div>

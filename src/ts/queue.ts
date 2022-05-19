@@ -95,7 +95,7 @@ export interface YtcQueue {
   addJsonToQueue: (json: string, isInitial: boolean, interceptor: Chat.Interceptor, forceDisplay?: boolean) => void;
   updatePlayerProgress: (timeMs: number) => void;
   cleanUp: () => void;
-  selfChannel: Subscribable<Ytc.TextMessageRenderer | null>;
+  selfChannel: Subscribable<Ytc.TextMessageRenderer | null | undefined>;
 }
 
 export function ytcQueue(isReplay = false): YtcQueue {
@@ -105,7 +105,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
 
   const latestAction = subscribable<Chat.Actions | null>();
   let initialData: Chat.Actions[] = [];
-  const selfChannel = subscribable<Ytc.TextMessageRenderer | null>();
+  const selfChannel = subscribable<Ytc.TextMessageRenderer | null | undefined>();
 
   /**
    * Continuously pushes queue messages to store until queue is empty or until

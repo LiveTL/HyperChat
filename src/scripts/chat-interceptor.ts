@@ -1,6 +1,7 @@
 import { fixLeaks } from '../ts/ytc-fix-memleaks';
 import { frameIsReplay as isReplay, checkInjected } from '../ts/chat-utils';
-import { isLiveTL } from '../ts/chat-constants';
+import sha1 from 'sha-1';
+import { chatReportUserOptions, ChatUserActions, isLiveTL } from '../ts/chat-constants';
 
 function injectedFunction(): void {
   for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
@@ -25,16 +26,23 @@ function injectedFunction(): void {
     }
     return result;
   };
+  window.dispatchEvent(new CustomEvent('chatLoaded', {
+    detail: JSON.stringify(window.ytcfg)
+  }));
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  window.addEventListener('proxyFetchRequest', async (event) => {
+    const args = JSON.parse((event as any).detail as string) as [string, object];
+    const request = await fetchFallback(...args);
+    const response = await request.json();
+    window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
+      detail: JSON.stringify(response)
+    }));
+  });
 }
 
 const chatLoaded = async (): Promise<void> => {
   const warning = 'HC button detected, not injecting interceptor.';
   if (!isLiveTL && checkInjected(warning)) return;
-
-  // Inject interceptor script
-  const script = document.createElement('script');
-  script.innerHTML = `(${injectedFunction.toString()})();`;
-  document.body.appendChild(script);
 
   // Register interceptor
   const port: Chat.Port = chrome.runtime.connect();
@@ -44,18 +52,141 @@ const chatLoaded = async (): Promise<void> => {
   window.addEventListener('messageReceive', (d) => {
     port.postMessage({
       type: 'processMessageChunk',
-      // @ts-expect-error TS doesn't like CustomEvent
-      json: d.detail
+      json: (d as CustomEvent).detail
     });
   });
 
   window.addEventListener('messageSent', (d) => {
     port.postMessage({
       type: 'processSentMessage',
-      // @ts-expect-error TS doesn't like CustomEvent
-      json: d.detail
+      json: (d as CustomEvent).detail
     });
   });
+
+  window.addEventListener('chatLoaded', (d) => {
+    const ytcfg = (JSON.parse((d as CustomEvent).detail) as {
+      data_: {
+        INNERTUBE_API_KEY: string;
+        INNERTUBE_CONTEXT: any;
+      };
+    });
+    const fetcher = async (...args: any[]): Promise<any> => {
+      return await new Promise((resolve) => {
+        const encoded = JSON.stringify(args);
+        window.addEventListener('proxyFetchResponse', (e) => {
+          const response = JSON.parse((e as CustomEvent).detail);
+          resolve(response);
+        });
+        window.dispatchEvent(new CustomEvent('proxyFetchRequest', {
+          detail: encoded
+        }));
+      });
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    port.onMessage.addListener(async (msg) => {
+      function getCookie(name: string): string {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
+        return '';
+      }
+      if (msg.type !== 'executeChatAction') return;
+      const message = msg.message;
+      if (message.params == null) return;
+      let success = true;
+      try {
+        // const action = msg.action;
+        const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
+        const contextMenuUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?params=' +
+          `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
+        const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
+        const time = Math.floor(Date.now() / 1000);
+        const SAPISID = getCookie('SAPISID');
+        const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
+        const auth = `SAPISIDHASH ${time}_${sha}`;
+        const heads = {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: '*/*',
+            Authorization: auth
+          },
+          method: 'POST'
+        };
+        const res = await fetcher(contextMenuUrl, {
+          ...heads,
+          body: JSON.stringify({ context: baseContext })
+        });
+        function parseServiceEndpoint(serviceEndpoint: any, prop: string): { params: string, context: any } {
+          const { clickTrackingParams, [prop]: { params } } = serviceEndpoint;
+          const clonedContext = JSON.parse(JSON.stringify(baseContext));
+          clonedContext.clickTracking = {
+            clickTrackingParams
+          };
+          return {
+            params,
+            context: clonedContext
+          };
+        }
+        if (msg.action === ChatUserActions.BLOCK) {
+          const { params, context } = parseServiceEndpoint(
+            res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[1]
+              .menuNavigationItemRenderer.navigationEndpoint.confirmDialogEndpoint
+              .content.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint,
+            'moderateLiveChatEndpoint'
+          );
+          await fetcher(`https://www.youtube.com/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+            ...heads,
+            body: JSON.stringify({
+              params,
+              context
+            })
+          });
+        } else if (msg.action === ChatUserActions.REPORT_USER) {
+          const { params, context } = parseServiceEndpoint(
+            res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[0].menuServiceItemRenderer.serviceEndpoint,
+            'getReportFormEndpoint'
+          );
+          const modal = await fetcher(`https://www.youtube.com/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
+            ...heads,
+            body: JSON.stringify({
+              params,
+              context
+            })
+          });
+          const index = chatReportUserOptions.findIndex(d => d.value === msg.reportOption);
+          const options = modal.actions[0].openPopupAction.popup.reportFormModalRenderer.optionsSupportedRenderers.optionsRenderer.items;
+          const submitEndpoint = options[index].optionSelectableItemRenderer.submitEndpoint;
+          const clickTrackingParams = submitEndpoint.clickTrackingParams;
+          const flagAction = submitEndpoint.flagEndpoint.flagAction;
+          context.clickTracking = {
+            clickTrackingParams
+          };
+          await fetcher(`https://www.youtube.com/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
+            ...heads,
+            body: JSON.stringify({
+              action: flagAction,
+              context
+            })
+          });
+        }
+      } catch (e) {
+        console.debug('Error executing chat action', e);
+        success = false;
+      }
+      port.postMessage({
+        type: 'chatUserActionResponse',
+        action: msg.action,
+        message,
+        success
+      });
+    });
+  });
+
+  // Inject interceptor script
+  const script = document.createElement('script');
+  script.innerHTML = `(${injectedFunction.toString()})();`;
+  document.body.appendChild(script);
 
   // Handle initial data
   const scripts = document.querySelector('body')?.querySelectorAll('script');
