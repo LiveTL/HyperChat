@@ -31,7 +31,18 @@ function injectedFunction(): void {
   }));
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   window.addEventListener('proxyFetchRequest', async (event) => {
-    const args = JSON.parse((event as any).detail as string) as [string, object];
+    function getCookie(name: string): string {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
+      return '';
+    }
+    const args = JSON.parse((event as any).detail as string) as [string, any];
+    const time = Math.floor(Date.now() / 1000);
+    const SAPISID = getCookie('SAPISID');
+    const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
+    const auth = `SAPISIDHASH ${time}_${sha}`;
+    args[1].headers.Authorization = auth;
     const request = await fetchFallback(...args);
     const response = await request.json();
     window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
@@ -85,12 +96,6 @@ const chatLoaded = async (): Promise<void> => {
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     port.onMessage.addListener(async (msg) => {
-      function getCookie(name: string): string {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
-        return '';
-      }
       if (msg.type !== 'executeChatAction') return;
       const message = msg.message;
       if (message.params == null) return;
@@ -101,15 +106,10 @@ const chatLoaded = async (): Promise<void> => {
         const contextMenuUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?params=' +
           `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
         const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
-        const time = Math.floor(Date.now() / 1000);
-        const SAPISID = getCookie('SAPISID');
-        const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
-        const auth = `SAPISIDHASH ${time}_${sha}`;
         const heads = {
           headers: {
             'Content-Type': 'application/json',
-            Accept: '*/*',
-            Authorization: auth
+            Accept: '*/*'
           },
           method: 'POST'
         };
