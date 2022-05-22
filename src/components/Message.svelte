@@ -130,7 +130,7 @@
     {/if}
     <MessageRun runs={message.message} {forceDark} deleted={deleted != null} {forceTLColor} />
   </div>
-  {#if $selfChannelId && message.author.id !== $selfChannelId}
+  {#if message.author.id !== $selfChannelId}
     <Menu items={menuItems} visible={$hoveredItem === messageId} class="mr-2 ml-auto context-menu">
       <Icon slot="activator" style="font-size: 1.5em;">more_vert</Icon>
     </Menu>
