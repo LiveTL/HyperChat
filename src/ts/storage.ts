@@ -66,3 +66,4 @@ export const alertDialog = writable(null as null | {
   message: string;
   color: string;
 });
+export const stickySuperchats = writable([] as Ytc.ParsedMessage[]);

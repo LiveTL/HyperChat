@@ -31,7 +31,8 @@
     hoveredItem,
     port,
     selfChannelId,
-    alertDialog
+    alertDialog,
+    stickySuperchats
   } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -97,6 +98,14 @@
     } else {
       messageActions.push(...messagesAction.messages.filter(shouldShowMessage));
     }
+    messageActions.forEach(action => {
+      if (!isWelcome(action) && isSuperchat(action)) {
+        $stickySuperchats = [
+          ...$stickySuperchats,
+          action.message
+        ];
+      }
+    });
     if (!isInitial) checkTruncateMessages();
   };
 
@@ -251,7 +260,6 @@
   );
 
   const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
-  const pinnedClass = 'absolute top-2 inset-x-2';
 
   const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
   const isMembership = (action: Chat.MessageAction) => (action.message.membership);
@@ -296,11 +304,13 @@
       {/each}
     </div>
   </div>
-  {#if pinned}
-    <div class={pinnedClass}>
-      <PinnedMessage pinned={pinned} />
-    </div>
-  {/if}
+  <div class="absolute top-0 w-full">
+    {#if pinned}
+      <div class="mx-2 mt-2">
+        <PinnedMessage pinned={pinned} />
+      </div>
+    {/if}
+  </div>
   {#if !isAtBottom}
     <div
       class="absolute left-1/2 transform -translate-x-1/2 bottom-0 pb-1"

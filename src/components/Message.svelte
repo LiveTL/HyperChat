@@ -16,7 +16,7 @@
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
-  export let messageId: Chat.MessageAction['message']['messageId'];
+  export let messageId: Chat.MessageAction['message']['messageId'] = '';
   export let forceDark = false;
   export let hideName = false;
 
