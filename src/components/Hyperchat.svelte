@@ -8,6 +8,7 @@
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
   import ReportBanDialog from './ReportBanDialog.svelte';
+  import StickyBar from './StickyBar.svelte';
   import {
     paramsTabId,
     paramsFrameId,
@@ -305,6 +306,7 @@
     </div>
   </div>
   <div class="absolute top-0 w-full">
+    <StickyBar />
     {#if pinned}
       <div class="mx-2 mt-2">
         <PinnedMessage pinned={pinned} />
@@ -322,27 +324,28 @@
 </div>
 
 <style>
-  .content {
-    scrollbar-width: thin;
-    scrollbar-color: #888 transparent;
-  }
-  .content::-webkit-scrollbar {
-    width: 4px;
-  }
-  .content::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .content::-webkit-scrollbar-thumb {
-    background: #888;
-  }
-  .content::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
   .hover-highlight {
     /* transition: 0.1s; */
     background-color: transparent;
   }
   .hover-highlight:hover {
     background-color: #80808040;
+  }
+  * :global(::-webkit-scrollbar) {
+    width: 4px;
+    height: 4px;
+  }
+  * :global(::-webkit-scrollbar-track) {
+    background: transparent;
+  }
+  * :global(::-webkit-scrollbar-thumb) {
+    background: #888;
+  }
+  * :global(::-webkit-scrollbar-thumb:hover) {
+    background: #555;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #888 transparent;
   }
 </style>

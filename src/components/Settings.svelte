@@ -16,17 +16,11 @@
 </div>
 
 <style>
-  :global(::-webkit-scrollbar) {
-    width: 4px;
-    height: 4px;
-  }
-  :global(::-webkit-scrollbar-track) {
+  * :global(::-webkit-scrollbar-track) {
     background: transparent;
   }
-  :global(::-webkit-scrollbar-thumb) {
-    background: #888;
-  }
-  :global(::-webkit-scrollbar-thumb:hover) {
-    background: #555;
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #888 transparent;
   }
 </style>

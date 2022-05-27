@@ -4,6 +4,7 @@
   import { Theme } from '../ts/chat-constants';
 
   export let message: Ytc.ParsedMessage;
+  export let chip = false;
 
   let headerStyle = '';
 
@@ -20,7 +21,7 @@
     headerStyle = '';
   }
 
-  const classes = 'inline-flex flex-col rounded break-words overflow-hidden w-full';
+  const classes = `inline-flex flex-col rounded overflow-hidden ${chip ? 'w-fit whitespace-pre' : 'w-full break-words'}`;
 
   $: if (!paid) {
     console.error('Not a paid message', { message });
@@ -28,8 +29,8 @@
 </script>
 
 {#if paid}
-  <div class={classes} style={backgroundColor + textColor}>
-    <div class="p-2" style={headerStyle}>
+  <div class={classes} style={(chip ? '' : backgroundColor) + textColor}>
+    <div class="p-2 {chip ? 'rounded-full cursor-pointer' : ''}" style={headerStyle}>
       <span class="mr-1 underline font-bold">{amount}</span>
       <span class="font-bold tracking-wide" style={nameColor}>
         {message.author.name}
@@ -41,7 +42,7 @@
           alt={message.superSticker.alt} />
       {/if}
     </div>
-    {#if message.message.length > 0}
+    {#if !chip && message.message.length > 0}
       <div class="p-2">
         <Message message={message} hideName forceTLColor={
           isDarkColor(`#${message.superChat?.headerTextColor}`) ? Theme.LIGHT : Theme.DARK

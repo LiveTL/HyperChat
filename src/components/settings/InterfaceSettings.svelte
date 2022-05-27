@@ -8,9 +8,10 @@
     showUserBadges,
     emojiRenderMode,
     autoLiveChat,
-    useSystemEmojis
+    useSystemEmojis,
+    isDark
   } from '../../ts/storage';
-  import { Theme, themeItems, emojiRenderItems } from '../../ts/chat-constants';
+  import { themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
   import Radio from '../common/RadioGroupStore.svelte';
   import Checkbox from '../common/CheckboxStore.svelte';
@@ -23,20 +24,7 @@
   );
 
   const darkStore = dark();
-  $: switch ($theme) {
-    case Theme.DARK:
-      darkStore.set(true);
-      break;
-    case Theme.LIGHT:
-      darkStore.set(false);
-      break;
-    case Theme.YOUTUBE:
-      if (window.location.search.includes('dark')) darkStore.set(true);
-      else darkStore.set(false);
-      break;
-    default:
-      break;
-  }
+  $: darkStore.set($isDark);
 
   $: console.debug({
     theme: $theme,

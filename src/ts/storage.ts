@@ -1,5 +1,5 @@
 import { webExtStores } from 'svelte-webext-stores';
-import { readable, writable } from 'svelte/store';
+import { derived, readable, writable } from 'svelte/store';
 import type { Writable } from 'svelte/store';
 import { getClient, AvailableLanguages } from 'iframe-translator';
 import type { IframeTranslatorClient, AvailableLanguageCodes } from 'iframe-translator';
@@ -67,3 +67,8 @@ export const alertDialog = writable(null as null | {
   color: string;
 });
 export const stickySuperchats = writable([] as Ytc.ParsedMessage[]);
+export const isDark = derived(theme, ($theme) => {
+  return $theme === Theme.DARK || (
+    $theme === Theme.YOUTUBE && window.location.search.includes('dark')
+  );
+});
