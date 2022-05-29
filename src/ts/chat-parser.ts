@@ -181,6 +181,22 @@ const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned
   };
 };
 
+const parseTickerAction = (action: Ytc.AddTickerAction, isReplay: boolean, liveTimeoutOrReplayMs: number): Ytc.ParsedTicker | undefined => {
+  const baseRenderer = action.item.liveChatTickerPaidMessageItemRenderer;
+  if (!baseRenderer) return;
+  const parsedMessage = parseAddChatItemAction({
+    item: {
+      liveChatPaidMessageRenderer: baseRenderer.showItemEndpoint.showLiveChatItemEndpoint.renderer.liveChatPaidMessageRenderer
+    }
+  }, isReplay, liveTimeoutOrReplayMs);
+  if (!parsedMessage) return;
+  return {
+    type: 'ticker',
+    parsedMessage,
+    duration: baseRenderer.durationSec
+  };
+};
+
 const processCommonAction = (action: Ytc.ReplayAction, isReplay: boolean, liveTimeoutOrReplayMs: number): Ytc.ParsedMessage | Ytc.ParsedMisc | undefined => {
   if (action.addChatItemAction) {
     return parseAddChatItemAction(action.addChatItemAction, isReplay, liveTimeoutOrReplayMs);
@@ -188,6 +204,10 @@ const processCommonAction = (action: Ytc.ReplayAction, isReplay: boolean, liveTi
     return parsePinnedMessageAction(action.addBannerToLiveChatCommand);
   } else if (action.removeBannerForLiveChatCommand) {
     return { type: 'unpin' } as const;
+  } else if (action.addLiveChatTickerItemAction) {
+    const p = parseTickerAction(action.addLiveChatTickerItemAction, isReplay, liveTimeoutOrReplayMs);
+    console.log(p);
+    return p;
   }
 };
 

@@ -99,14 +99,6 @@
     } else {
       messageActions.push(...messagesAction.messages.filter(shouldShowMessage));
     }
-    messageActions.forEach(action => {
-      if (!isWelcome(action) && isSuperchat(action)) {
-        $stickySuperchats = [
-          ...$stickySuperchats,
-          action.message
-        ];
-      }
-    });
     if (!isInitial) checkTruncateMessages();
   };
 
@@ -117,6 +109,13 @@
         action.deleted = { replace: bonk.replacedMessage };
       }
     });
+  };
+
+  const onTicker = (ticker: Ytc.ParsedTicker) => {
+    $stickySuperchats = [
+      ...$stickySuperchats,
+      ticker.parsedMessage
+    ];
   };
 
   const onDelete = (deletion: Ytc.ParsedDeleted) => {
@@ -146,6 +145,9 @@
         break;
       case 'unpin':
         pinned = null;
+        break;
+      case 'ticker':
+        onTicker(action);
         break;
       case 'forceUpdate':
         messageActions = [...action.messages].filter(shouldShowMessage);

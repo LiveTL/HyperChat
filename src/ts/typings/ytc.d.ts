@@ -99,6 +99,14 @@ declare namespace Ytc {
       liveChatTickerPaidMessageItemRenderer?: TickerRenderer & {
         amount: SimpleTextObj;
         amountTextColor: number;
+        durationSec: number;
+        showItemEndpoint: {
+          showLiveChatItemEndpoint: {
+            renderer: {
+              liveChatPaidMessageRenderer: PaidMessageRenderer;
+            };
+          };
+        };
       };
     };
     durationSec: IntString;
@@ -319,7 +327,13 @@ declare namespace Ytc {
     };
   }
 
-  type ParsedMisc = ParsedPinned | { type: 'unpin'};
+  interface ParsedTicker {
+    type: 'ticker';
+    parsedMessage: ParsedMessage;
+    duration: number;
+  }
+
+  type ParsedMisc = ParsedPinned | ParsedTicker | { type: 'unpin'};
 
   type ParsedAction = ParsedMessage | ParsedBonk | ParsedDeleted | ParsedMisc;
 
