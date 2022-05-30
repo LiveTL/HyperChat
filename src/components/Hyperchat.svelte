@@ -8,6 +8,7 @@
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
   import ReportBanDialog from './ReportBanDialog.svelte';
+  import SuperchatViewDialog from './SuperchatViewDialog.svelte';
   import StickyBar from './StickyBar.svelte';
   import {
     paramsTabId,
@@ -284,6 +285,7 @@
 </script>
 
 <ReportBanDialog />
+<SuperchatViewDialog />
 
 <svelte:window on:resize={scrollToBottom} on:load={onLoad} />
 

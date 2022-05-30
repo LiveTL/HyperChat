@@ -2,6 +2,7 @@
   import Message from './Message.svelte';
   import isDarkColor from 'is-dark-color';
   import { Theme } from '../ts/chat-constants';
+  import { focusedSuperchat } from '../ts/storage';
 
   export let message: Ytc.ParsedTimedItem;
   export let chip = false;
@@ -31,7 +32,13 @@
 
 {#if paid}
   <div class={classes} style={(chip ? '' : backgroundColor) + textColor}>
-    <div class="relative overflow-hidden p-2 {chip ? 'rounded-full cursor-pointer' : ''}" style={headerStyle}>
+    <div
+      class="relative overflow-hidden p-2 {chip ? 'rounded-full cursor-pointer' : ''}"
+      style={headerStyle}
+      on:click={() => {
+        if (chip) $focusedSuperchat = message;
+      }}
+    >
       {#if chip}
         <div class="absolute top-0 right-0 h-full" style="
           background-color: rgba(0, 0, 0, 0.1);

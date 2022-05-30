@@ -55,6 +55,7 @@ export const emojiRenderMode = stores.addSyncStore('hc.emojiRenderMode', Youtube
 export const autoLiveChat = stores.addSyncStore('hc.autoLiveChat', false);
 export const useSystemEmojis = stores.addSyncStore('hc.useSystemEmojis', false);
 export const hoveredItem = writable(null as null | Chat.MessageAction['message']['messageId']);
+export const focusedSuperchat = writable(null as null | Ytc.ParsedTimedItem);
 export const port = writable(null as null | Chat.Port);
 export const selfChannelId = writable(null as null | string);
 export const reportDialog = writable(null as null | {
