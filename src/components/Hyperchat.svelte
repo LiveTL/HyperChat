@@ -117,7 +117,10 @@
     const keep: Chat.MessageAction[] = [];
     const discard: Ytc.ParsedTicker[] = [];
     items.forEach(item => {
-      if ('tickerDuration' in item.message) discard.push(item.message);
+      if (
+        'tickerDuration' in item.message &&
+        !$stickySuperchats.some(sc => sc.messageId === item.message.messageId)
+      ) discard.push(item.message);
       else keep.push(item);
     });
     $stickySuperchats = [
