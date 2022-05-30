@@ -33,7 +33,8 @@
     port,
     selfChannelId,
     alertDialog,
-    stickySuperchats
+    stickySuperchats,
+    currentProgress
   } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -113,8 +114,13 @@
 
   const onTicker = (ticker: Ytc.ParsedTicker) => {
     $stickySuperchats = [
-      ...$stickySuperchats,
-      ticker.parsedMessage
+      {
+        ...ticker,
+        start: $currentProgress,
+        end: $currentProgress + ticker.duration,
+        progress: 0
+      },
+      ...$stickySuperchats
     ];
   };
 
@@ -148,6 +154,9 @@
         break;
       case 'ticker':
         onTicker(action);
+        break;
+      case 'playerProgress':
+        $currentProgress = action.playerProgress;
         break;
       case 'forceUpdate':
         messageActions = [...action.messages].filter(shouldShowMessage);

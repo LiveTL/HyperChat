@@ -173,7 +173,9 @@ export function ytcQueue(isReplay = false): YtcQueue {
    * Normally called by the live polling interval that runs every 250 ms.
    */
   const updateLiveProgress = (): void => {
-    onVideoProgress(Date.now() / 1000);
+    const t = Date.now() / 1000;
+    onVideoProgress(t);
+    updatePlayerProgress(t);
   };
 
   /**

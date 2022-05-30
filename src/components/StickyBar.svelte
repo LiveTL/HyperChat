@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { isDark, stickySuperchats } from '../ts/storage';
+  import { isDark, stickySuperchats, currentProgress } from '../ts/storage';
   import PaidMessage from './PaidMessage.svelte';
   let scrollableElem: HTMLDivElement;
   $: if (scrollableElem) {
@@ -9,12 +9,20 @@
       scrollableElem.scrollBy(e.deltaY, 0);
     });
   }
+  $: $stickySuperchats = $stickySuperchats.filter(sc => {
+    return sc.start <= $currentProgress && sc.end >= $currentProgress;
+  }).map(sc => {
+    return {
+      ...sc,
+      progress: (sc.end - $currentProgress) / (sc.end - sc.start)
+    };
+  });
 </script>
 
 {#if $stickySuperchats.length}
   <div class="w-full overflow-y-hidden" style="overflow-x: overlay;" bind:this={scrollableElem}>
     <div
-      class="flex ml-1 gap-1 items-center"
+      class="flex items-center"
       style="
         height: calc(2.5rem + 4px);
         width: fit-content;
@@ -23,9 +31,9 @@
       "
     >
       {#each $stickySuperchats as sc}
-        {#if !sc.superSticker}
-          <PaidMessage message={sc} chip />
-        {/if}
+        <span class="mx-0.5">
+          <PaidMessage message={sc.parsedMessage} chip fillPortion={sc.progress} />
+        </span>
       {/each}
     </div>
   </div>

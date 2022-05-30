@@ -5,6 +5,7 @@
 
   export let message: Ytc.ParsedMessage;
   export let chip = false;
+  export let fillPortion = 1;
 
   let headerStyle = '';
 
