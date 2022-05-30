@@ -10,7 +10,7 @@
     });
   }
   $: $stickySuperchats = $stickySuperchats.filter(sc => {
-    return (sc.showtime >= $currentProgress) && (sc.showtime + sc.tickerDuration) >= $currentProgress;
+    return (sc.showtime / 1000 <= $currentProgress) && (sc.showtime / 1000 + sc.tickerDuration) >= $currentProgress;
   });
 </script>
 
@@ -27,7 +27,7 @@
     >
       {#each $stickySuperchats as sc}
         <span class="mx-0.5">
-          <PaidMessage message={sc} chip fillPortion={($currentProgress - sc.showtime) / sc.tickerDuration} />
+          <PaidMessage message={sc} chip fillPortion={($currentProgress - sc.showtime / 1000) / sc.tickerDuration} />
         </span>
       {/each}
     </div>

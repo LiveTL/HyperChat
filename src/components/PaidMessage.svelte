@@ -31,7 +31,16 @@
 
 {#if paid}
   <div class={classes} style={(chip ? '' : backgroundColor) + textColor}>
-    <div class="p-2 {chip ? 'rounded-full cursor-pointer' : ''}" style={headerStyle}>
+    <div class="relative overflow-hidden p-2 {chip ? 'rounded-full cursor-pointer' : ''}" style={headerStyle}>
+      {#if chip}
+        <div class="absolute top-0 right-0 h-full" style="
+          background-color: rgba(0, 0, 0, 0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: {Math.round(fillPortion * 100)}%;
+        " />
+      {/if}
       <span class="mr-1 underline font-bold">{amount}</span>
       <span class="font-bold tracking-wide" style={nameColor}>
         {message.author.name}
