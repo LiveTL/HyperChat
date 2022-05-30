@@ -336,7 +336,7 @@ declare namespace Ytc {
 
   type ParsedTimedItem = ParsedMessage | ParsedTicker;
 
-  type ParsedAction = ParsedMessage | ParsedBonk | ParsedDeleted | ParsedMisc | ParsedTicker;
+  type ParsedAction = ParsedTimedItem | ParsedBonk | ParsedDeleted | ParsedMisc;
 
   interface ParsedChunk {
     messages: ParsedMessage[];
