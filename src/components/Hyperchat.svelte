@@ -94,11 +94,11 @@
     if (!isAtBottom) return;
     // On replays' initial data, only show messages with negative timestamp
     if (isInitial && isReplay) {
-      messageActions.push(...messagesAction.messages.filter(
+      messageActions.push(...filterTickers(messagesAction.messages).filter(
         (a) => a.message.timestamp.startsWith('-') && shouldShowMessage(a)
       ));
     } else {
-      messageActions.push(...messagesAction.messages.filter(shouldShowMessage));
+      messageActions.push(...filterTickers(messagesAction.messages).filter(shouldShowMessage));
     }
     if (!isInitial) checkTruncateMessages();
   };
@@ -112,16 +112,18 @@
     });
   };
 
-  const onTicker = (ticker: Ytc.ParsedTicker) => {
+  const filterTickers = (items: Chat.MessageAction[]): Chat.MessageAction[] => {
+    const keep: Chat.MessageAction[] = [];
+    const discard: Ytc.ParsedTicker[] = [];
+    items.forEach(item => {
+      if ('tickerDuration' in item.message) discard.push(item.message);
+      else keep.push(item);
+    });
     $stickySuperchats = [
-      {
-        ...ticker,
-        start: $currentProgress,
-        end: $currentProgress + ticker.duration,
-        progress: 0
-      },
+      ...discard,
       ...$stickySuperchats
     ];
+    return keep;
   };
 
   const onDelete = (deletion: Ytc.ParsedDeleted) => {
@@ -151,9 +153,6 @@
         break;
       case 'unpin':
         pinned = null;
-        break;
-      case 'ticker':
-        onTicker(action);
         break;
       case 'playerProgress':
         $currentProgress = action.playerProgress;

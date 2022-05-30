@@ -66,11 +66,7 @@ export const alertDialog = writable(null as null | {
   message: string;
   color: string;
 });
-export const stickySuperchats = writable([] as Array<Ytc.ParsedTicker & {
-  start: number;
-  end: number;
-  progress: number;
-}>);
+export const stickySuperchats = writable([] as Ytc.ParsedTicker[]);
 export const isDark = derived(theme, ($theme) => {
   return $theme === Theme.DARK || (
     $theme === Theme.YOUTUBE && window.location.search.includes('dark')

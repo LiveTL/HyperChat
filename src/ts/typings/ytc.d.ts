@@ -327,15 +327,16 @@ declare namespace Ytc {
     };
   }
 
-  interface ParsedTicker {
+  interface ParsedTicker extends ParsedMessage {
     type: 'ticker';
-    parsedMessage: ParsedMessage;
-    duration: number;
+    tickerDuration: number;
   }
 
-  type ParsedMisc = ParsedPinned | ParsedTicker | { type: 'unpin'};
+  type ParsedMisc = ParsedPinned | { type: 'unpin'};
 
-  type ParsedAction = ParsedMessage | ParsedBonk | ParsedDeleted | ParsedMisc;
+  type ParsedTimedItem = ParsedMessage | ParsedTicker;
+
+  type ParsedAction = ParsedMessage | ParsedBonk | ParsedDeleted | ParsedMisc | ParsedTicker;
 
   interface ParsedChunk {
     messages: ParsedMessage[];

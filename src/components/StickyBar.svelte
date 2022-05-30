@@ -10,12 +10,7 @@
     });
   }
   $: $stickySuperchats = $stickySuperchats.filter(sc => {
-    return sc.start <= $currentProgress && sc.end >= $currentProgress;
-  }).map(sc => {
-    return {
-      ...sc,
-      progress: (sc.end - $currentProgress) / (sc.end - sc.start)
-    };
+    return (sc.showtime >= $currentProgress) && (sc.showtime + sc.tickerDuration) >= $currentProgress;
   });
 </script>
 
@@ -32,7 +27,7 @@
     >
       {#each $stickySuperchats as sc}
         <span class="mx-0.5">
-          <PaidMessage message={sc.parsedMessage} chip fillPortion={sc.progress} />
+          <PaidMessage message={sc} chip fillPortion={($currentProgress - sc.showtime) / sc.tickerDuration} />
         </span>
       {/each}
     </div>

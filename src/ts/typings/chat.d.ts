@@ -4,7 +4,7 @@ declare namespace Chat {
   }
 
   interface MessageAction {
-    message: Ytc.ParsedMessage;
+    message: Ytc.ParsedTimedItem;
     deleted?: MessageDeletedObj;
   }
 

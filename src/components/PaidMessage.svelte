@@ -3,7 +3,7 @@
   import isDarkColor from 'is-dark-color';
   import { Theme } from '../ts/chat-constants';
 
-  export let message: Ytc.ParsedMessage;
+  export let message: Ytc.ParsedTimedItem;
   export let chip = false;
   export let fillPortion = 1;
 
