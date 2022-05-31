@@ -2,6 +2,7 @@
   import Message from './Message.svelte';
   import isDarkColor from 'is-dark-color';
   import { Theme } from '../ts/chat-constants';
+  import { showProfileIcons } from '../ts/storage';
 
   export let message: Ytc.ParsedMessage;
 
@@ -30,6 +31,13 @@
 {#if paid}
   <div class={classes} style={backgroundColor + textColor}>
     <div class="p-2" style={headerStyle}>
+      {#if $showProfileIcons}
+        <img
+          class="h-5 w-5 inline align-middle rounded-full flex-none"
+          src={message.author.profileIcon.src}
+          alt={message.author.profileIcon.alt}
+        />
+      {/if}
       <span class="mr-1 underline font-bold">{amount}</span>
       <span class="font-bold tracking-wide" style={nameColor}>
         {message.author.name}
