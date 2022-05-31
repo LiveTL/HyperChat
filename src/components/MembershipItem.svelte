@@ -1,6 +1,7 @@
 <script lang="ts">
   import Message from './Message.svelte';
   import MessageRun from './MessageRuns.svelte';
+  import { showProfileIcons } from '../ts/storage';
 
   export let message: Ytc.ParsedMessage;
 
@@ -19,6 +20,13 @@
       class="p-2"
       style="{isMilestoneChat ? 'background-color: #107516;' : ''}"
     >
+      {#if $showProfileIcons}
+        <img
+          class="h-5 w-5 inline align-middle rounded-full flex-none"
+          src={message.author.profileIcon.src}
+          alt={message.author.profileIcon.alt}
+        />
+      {/if}
       <span class="font-bold tracking-wide align-middle mr-3">
         {message.author.name}
       </span>
