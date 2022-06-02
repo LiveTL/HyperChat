@@ -87,7 +87,7 @@
         e.preventDefault();
       }}
       class="inline-block align-middle cursor-pointer pt-0.5 h-fit">
-        <Icon xs class="text-error-200">
+        <Icon xs class="text-error-500 dark:text-error-200 font-bold">
           close
         </Icon>
       </span>
