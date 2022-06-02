@@ -73,4 +73,4 @@ export const isDark = derived(theme, ($theme) => {
     $theme === Theme.YOUTUBE && window.location.search.includes('dark')
   );
 });
-export const currentProgress = writable(0);
+export const currentProgress = writable(null as null | number);
