@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { isDark, stickySuperchats, currentProgress } from '../ts/storage';
+  import dark from 'smelte/src/dark';
+  import { stickySuperchats, currentProgress } from '../ts/storage';
   import PaidMessage from './PaidMessage.svelte';
+
+  const isDark = dark();
   let scrollableElem: HTMLDivElement;
   $: if (scrollableElem) {
     scrollableElem.addEventListener('wheel', (e) => {

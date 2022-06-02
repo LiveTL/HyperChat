@@ -42,9 +42,6 @@
       {#if chip}
         <div class="absolute top-0 right-0 h-full" style="
           background-color: rgba(0, 0, 0, 0.1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
           width: {Math.round(fillPortion * 100)}%;
         " />
       {/if}
