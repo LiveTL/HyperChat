@@ -193,7 +193,7 @@ const parseTickerAction = (action: Ytc.AddTickerAction, isReplay: boolean, liveT
   return {
     type: 'ticker',
     ...parsedMessage,
-    tickerDuration: baseRenderer.durationSec
+    tickerDuration: baseRenderer.fullDurationSec
   };
 };
 
