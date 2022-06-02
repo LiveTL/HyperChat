@@ -9,7 +9,7 @@
     scrollableElem.addEventListener('wheel', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      scrollableElem.scrollBy(e.deltaY, 0);
+      scrollableElem.scrollBy(e.deltaY + e.deltaX, 0);
     });
   }
   $: $stickySuperchats = $stickySuperchats.filter(sc => {
@@ -19,7 +19,7 @@
 </script>
 
 {#if $stickySuperchats.length}
-  <div class="w-full overflow-y-hidden" style="overflow-x: overlay;" bind:this={scrollableElem}>
+  <div class="w-full overflow-y-hidden scroll-on-hover" bind:this={scrollableElem}>
     <div
       class="flex items-center"
       style="
@@ -41,3 +41,12 @@
     </div>
   </div>
 {/if}
+
+<style>
+  .scroll-on-hover {
+    overflow-x: hidden;
+  }
+  .scroll-on-hover:hover {
+    overflow-x: overlay;
+  }
+</style>
