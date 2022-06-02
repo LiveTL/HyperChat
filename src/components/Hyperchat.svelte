@@ -123,10 +123,12 @@
       ) discard.push(item.message);
       else keep.push(item);
     });
-    $stickySuperchats = [
-      ...discard,
-      ...$stickySuperchats
-    ];
+    if (discard.length) {
+      $stickySuperchats = [
+        ...discard,
+        ...$stickySuperchats
+      ];
+    }
     return keep;
   };
 
