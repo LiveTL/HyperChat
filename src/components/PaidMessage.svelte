@@ -2,7 +2,7 @@
   import Message from './Message.svelte';
   import isDarkColor from 'is-dark-color';
   import { Theme } from '../ts/chat-constants';
-  import { focusedSuperchat } from '../ts/storage';
+  import { focusedSuperchat, showProfileIcons } from '../ts/storage';
 
   export let message: Ytc.ParsedTimedItem;
   export let chip = false;
@@ -39,6 +39,13 @@
         if (chip) $focusedSuperchat = message;
       }}
     >
+      {#if $showProfileIcons}
+        <img
+          class="h-5 w-5 inline align-middle rounded-full flex-none"
+          src={message.author.profileIcon.src}
+          alt={message.author.profileIcon.alt}
+        />
+      {/if}
       {#if chip}
         <div class="absolute top-0 right-0 h-full" style="
           background-color: rgba(0, 0, 0, 0.1);
