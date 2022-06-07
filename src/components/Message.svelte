@@ -19,6 +19,34 @@
   export let messageId: Chat.MessageAction['message']['messageId'];
   export let forceDark = false;
   export let hideName = false;
+  let hiddenClass = '';
+
+  const userRegEx = /\w/;
+  const mustBeRegEx = false;
+  const forMessage = true;
+
+  $: message.message.forEach(element => {
+    if (forMessage) {
+      if (element.type === 'text' && mustBeRegEx && userRegEx.test(element.text)) {
+        hiddenClass = 'border border-gray-600'; // hidden
+        return;
+      }
+      if (element.type === 'text' && !mustBeRegEx && element.text.includes('がんばれ')) {
+        hiddenClass = 'border border-gray-600'; // hidden
+        return;
+      }
+    } else {
+      if (message.author.name && mustBeRegEx && userRegEx.test(message.author.name)) {
+        hiddenClass = 'border border-gray-600'; // hidden
+        return;
+      }
+      if (message.author.name && !mustBeRegEx && message.author.name.includes('がんばれ')) {
+        hiddenClass = 'border border-gray-600'; // hidden
+        return;
+      }
+    }
+    hiddenClass = '';
+  });
 
   const nameClass = 'font-bold tracking-wide align-middle';
   const generateNameColorClass = (member: boolean, moderator: boolean, owner: boolean, forceDark: boolean) => {
@@ -72,7 +100,7 @@
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <div 
-  class="inline-flex flex-row gap-2 break-words w-full overflow-visible"
+  class="inline-flex flex-row gap-2 break-words w-full overflow-visible {hiddenClass}"
 >
   {#if !hideName && $showProfileIcons}
     <a

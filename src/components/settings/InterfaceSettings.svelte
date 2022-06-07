@@ -8,19 +8,24 @@
     showUserBadges,
     emojiRenderMode,
     autoLiveChat,
-    useSystemEmojis
+    useSystemEmojis, isRegexFilter
   } from '../../ts/storage';
   import { Theme, themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
   import Radio from '../common/RadioGroupStore.svelte';
   import Checkbox from '../common/CheckboxStore.svelte';
   import Icon from '../common/Icon.svelte';
-  import dark from 'smelte/src/dark';
   import MessageTranslationSettings from './MessageTranslationSettings.svelte';
+  import dark from 'smelte/src/dark';
+  import FilterTable from '../common/FilterTable.svelte';
+  import TextArea from '../common/TextArea.svelte';
 
   const willChangeOnNextChunkMessage = (
     'Settings listed below will take effect when the next chat message chunk arrives.'
   );
+
+  let isRegEx = true;
+  let inputTextArea = '';
 
   const darkStore = dark();
   $: switch ($theme) {
@@ -66,11 +71,6 @@
   <Radio store={emojiRenderMode} items={emojiRenderItems} vertical />
 </Card>
 
-<Card title="Filters" icon="filter_list">
-  <i>{willChangeOnNextChunkMessage}</i>
-  <Checkbox name="Show only member chat messages" store={showOnlyMemberChat} />
-</Card>
-
 <Card title="Additional Options" icon="tune">
   <a
     href="https://myaccount.google.com/blocklist"
@@ -82,4 +82,16 @@
   </a>
   <Checkbox name="Automatically switch to Live Chat" store={autoLiveChat} />
   <MessageTranslationSettings />
+</Card>
+
+<Card title="Filters" icon="filter_list">
+  <i>{willChangeOnNextChunkMessage}</i>
+  <Checkbox name="Show only member chat messages" store={showOnlyMemberChat} />
+</Card>
+
+<Card title="RegEx Filter" icon="filter_list">
+  <i>{willChangeOnNextChunkMessage}</i>
+  <TextArea bind:isRegEx bind:inputTextArea />
+  <button class="text-white bg-primary-500 rounded h-8" style="width: 5rem">Add</button>
+  <FilterTable />
 </Card>
