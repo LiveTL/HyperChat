@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Theme } from '../ts/chat-constants';
+  import { Theme } from '../ts/chat-constants';
 
   import TranslatedMessage from './TranslatedMessage.svelte';
   import {
@@ -10,7 +10,7 @@
   export let runs: Ytc.ParsedRun[];
   export let forceDark = false;
   export let deleted = false;
-  export let forceTLColor: Theme;
+  export let forceTLColor: Theme = Theme.YOUTUBE;
 
   let deletedClass = '';
 
