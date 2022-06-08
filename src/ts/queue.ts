@@ -93,7 +93,7 @@ export interface YtcQueue {
   latestAction: Subscribable<Chat.Actions | null>;
   getInitialData: () => Chat.Actions[];
   addJsonToQueue: (json: string, isInitial: boolean, interceptor: Chat.Interceptor, forceDisplay?: boolean) => void;
-  updatePlayerProgress: (timeMs: number) => void;
+  updatePlayerProgress: (timeMs: number, isFromYt?: boolean) => void;
   cleanUp: () => void;
   selfChannel: Subscribable<Ytc.TextMessageRenderer | null | undefined>;
 }
@@ -271,8 +271,8 @@ export function ytcQueue(isReplay = false): YtcQueue {
    * Update player progress to given time.
    * Only effective on VODs.
    */
-  const updatePlayerProgress = (timeMs: number): void => {
-    latestAction.set({ type: 'playerProgress', playerProgress: timeMs });
+  const updatePlayerProgress = (timeMs: number, isFromYt?: boolean): void => {
+    if (isReplay || isFromYt == null) latestAction.set({ type: 'playerProgress', playerProgress: timeMs });
     if (livePolling != null || !isReplay) return;
     onVideoProgress(timeMs);
   };
