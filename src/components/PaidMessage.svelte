@@ -18,7 +18,7 @@
   $: if (message.superChat) {
     const background = message.superChat.headerBackgroundColor;
     const text = message.superChat.headerTextColor;
-    headerStyle = `background-color: #${background}; color: #${text}`;
+    headerStyle = `background-color: #${background}; color: #${text};`;
   } else {
     headerStyle = '';
   }
@@ -33,8 +33,8 @@
 {#if paid}
   <div class={classes} style={(chip ? '' : backgroundColor) + textColor}>
     <div
-      class="relative overflow-hidden p-2 {chip ? 'rounded-full cursor-pointer' : ''}"
-      style={headerStyle}
+      class="relative overflow-hidden p-2 {chip ? 'rounded-full cursor-pointer w-max' : ''}"
+      style={headerStyle + (chip ? 'max-width: 175px; text-overflow: ellipsis;' : '')}
       on:click={() => {
         if (chip) $focusedSuperchat = message;
       }}

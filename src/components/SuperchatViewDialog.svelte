@@ -4,15 +4,14 @@
   } from '../ts/storage';
   import Dialog from './common/Dialog.svelte';
   import PaidMessage from './PaidMessage.svelte';
-  import Button from 'smelte/src/components/Button';
   $: sc = $focusedSuperchat as Ytc.ParsedTimedItem;
+  let open = false;
+  const openDialog = () => (open = true);
+  const closeDialog = () => ($focusedSuperchat = null);
+  $: if (sc) openDialog();
+  $: if (!open) closeDialog();
 </script>
 
-<Dialog active={Boolean(sc)} noCloseButton>
+<Dialog bind:active={open} noCloseButton>
   <PaidMessage message={sc}  />
-  <div slot="actions">
-    <Button on:click={() => {
-      $focusedSuperchat = null;
-    }} color="primary">Close</Button>
-  </div>
 </Dialog>
