@@ -9,7 +9,7 @@
     showUserBadges,
     hoveredItem,
     port,
-    selfChannelId
+    selfChannelId, filterArray
   } from '../ts/storage';
   import { chatUserActionsItems, Theme } from '../ts/chat-constants';
   import { useBanHammer } from '../ts/chat-actions';
@@ -21,31 +21,36 @@
   export let hideName = false;
   let hiddenClass = '';
 
-  const userRegEx = /\w/;
-  const mustBeRegEx = false;
-  const forMessage = true;
+  // const userRegEx = /\w/;
+  // const mustBeRegEx = false;
+  // const forMessage = true;
 
-  $: message.message.forEach(element => {
-    if (forMessage) {
-      if (element.type === 'text' && mustBeRegEx && userRegEx.test(element.text)) {
-        hiddenClass = 'border border-gray-600'; // hidden
-        return;
-      }
-      if (element.type === 'text' && !mustBeRegEx && element.text.includes('がんばれ')) {
-        hiddenClass = 'border border-gray-600'; // hidden
-        return;
-      }
+  $: message.message.forEach(communication => {
+    if ($filterArray.length !== 0) {
+      $filterArray.forEach(rule => {
+        if (!rule.isNicknameFilter) {
+          if (communication.type === 'text' && rule.isRegEx && new RegExp(rule.value).test(communication.text)) {
+            hiddenClass = 'hidden'; // hidden
+            return;
+          }
+          if (communication.type === 'text' && !rule.isRegEx && communication.text.includes(rule.value)) {
+            hiddenClass = 'hidden'; // hidden
+            return;
+          }
+        } else {
+          if (message.author.name && rule.isRegEx && new RegExp(rule.value).test(message.author.name)) {
+            hiddenClass = 'hidden'; // hidden
+            return;
+          }
+          if (message.author.name && !rule.isRegEx && message.author.name.includes(rule.value)) {
+            hiddenClass = 'hidden'; // hidden
+            return;
+          }
+        }
+      });
     } else {
-      if (message.author.name && mustBeRegEx && userRegEx.test(message.author.name)) {
-        hiddenClass = 'border border-gray-600'; // hidden
-        return;
-      }
-      if (message.author.name && !mustBeRegEx && message.author.name.includes('がんばれ')) {
-        hiddenClass = 'border border-gray-600'; // hidden
-        return;
-      }
+      hiddenClass = '';
     }
-    hiddenClass = '';
   });
 
   const nameClass = 'font-bold tracking-wide align-middle';

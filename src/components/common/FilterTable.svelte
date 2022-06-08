@@ -1,16 +1,17 @@
 <script lang="ts">
     import type { Writable } from 'svelte/store';
     import TextArea from './TextArea.svelte';
-    import { isRegexFilter } from '../../ts/storage';
-    export let store: Writable<{ id: number, value: string, isRegEx: boolean }[]>;
+    import { isRegexFilter, isNickNameFilter } from '../../ts/storage';
+    export let store: Writable<{ id: number, value: string, isRegEx: boolean, isNicknameFilter: boolean }[]>;
     export let inputTextArea: string;
 
     $: isRegEx = $isRegexFilter;
+    $: isNicknameFilter = $isNickNameFilter;
     $: value = inputTextArea;
 
     const updateStore = (id: number, value: string) => {
       inputTextArea = '';
-      $store = [...$store, { id, value, isRegEx }];
+      $store = [...$store, { id, value, isRegEx, isNicknameFilter }];
     };
 
     const deleteElement = (id: number) => {

@@ -8,7 +8,7 @@
     showUserBadges,
     emojiRenderMode,
     autoLiveChat,
-    useSystemEmojis, isRegexFilter, filterArray
+    useSystemEmojis, isRegexFilter, isNickNameFilter, filterArray
   } from '../../ts/storage';
   import { Theme, themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
@@ -88,5 +88,6 @@
 <Card title="RegEx Filter" icon="filter_list">
   <i>{willChangeOnNextChunkMessage}</i>
   <Checkbox name="Filter as a regular expression" store={isRegexFilter} />
+  <Checkbox name="Filter nicknames" store={isNickNameFilter} />
   <FilterTable store={filterArray} />
 </Card>
