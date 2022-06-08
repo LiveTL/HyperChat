@@ -315,7 +315,6 @@
             <Message
               message={action.message}
               deleted={action.deleted}
-              messageId={action.message.messageId}
             />
           {/if}
         </div>
