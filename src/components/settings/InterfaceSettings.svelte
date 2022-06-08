@@ -8,7 +8,7 @@
     showUserBadges,
     emojiRenderMode,
     autoLiveChat,
-    useSystemEmojis, isRegexFilter
+    useSystemEmojis, isRegexFilter, filterArray
   } from '../../ts/storage';
   import { Theme, themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
@@ -18,14 +18,10 @@
   import MessageTranslationSettings from './MessageTranslationSettings.svelte';
   import dark from 'smelte/src/dark';
   import FilterTable from '../common/FilterTable.svelte';
-  import TextArea from '../common/TextArea.svelte';
 
   const willChangeOnNextChunkMessage = (
     'Settings listed below will take effect when the next chat message chunk arrives.'
   );
-
-  let isRegEx = true;
-  let inputTextArea = '';
 
   const darkStore = dark();
   $: switch ($theme) {
@@ -91,7 +87,6 @@
 
 <Card title="RegEx Filter" icon="filter_list">
   <i>{willChangeOnNextChunkMessage}</i>
-  <TextArea bind:isRegEx bind:inputTextArea />
-  <button class="text-white bg-primary-500 rounded h-8" style="width: 5rem">Add</button>
-  <FilterTable />
+  <Checkbox name="Filter as a regular expression" store={isRegexFilter} />
+  <FilterTable store={filterArray} />
 </Card>

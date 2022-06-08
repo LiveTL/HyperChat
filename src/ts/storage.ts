@@ -44,7 +44,7 @@ export const translatorClient = readable(null as (null | IframeTranslatorClient)
   };
 });
 export const refreshScroll = writable(false);
-export const filterArray = writable([]);
+export const filterArray = stores.addSyncStore('hc.filterArray', []);
 export const theme = stores.addSyncStore('hc.theme', Theme.YOUTUBE);
 export const showProfileIcons = stores.addSyncStore('hc.messages.showProfileIcons', false);
 export const showUsernames = stores.addSyncStore('hc.messages.showUsernames', true);
@@ -52,7 +52,7 @@ export const showTimestamps = stores.addSyncStore('hc.messages.showTimestamps', 
 export const showUserBadges = stores.addSyncStore('hc.messages.showUserBadges', true);
 export const lastClosedVersion = stores.addSyncStore('hc.lastClosedVersion', '');
 export const showOnlyMemberChat = stores.addSyncStore('hc.showOnlyMemberChat', false);
-export const isRegexFilter = stores.addSyncStore('hc.isRegexFilter', false);
+export const isRegexFilter = stores.addSyncStore('hc.isRegexFilter', true);
 export const emojiRenderMode = stores.addSyncStore('hc.emojiRenderMode', YoutubeEmojiRenderMode.SHOW_ALL);
 export const autoLiveChat = stores.addSyncStore('hc.autoLiveChat', false);
 export const useSystemEmojis = stores.addSyncStore('hc.useSystemEmojis', false);
