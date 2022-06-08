@@ -1,16 +1,16 @@
 <script lang="ts">
     import type { Writable } from 'svelte/store';
-    import TextArea from './TextArea.svelte';
     import { isRegexFilter, isNickNameFilter } from '../../ts/storage';
+    import FilterInput from './FilterInput.svelte';
     export let store: Writable<{ id: number, value: string, isRegEx: boolean, isNicknameFilter: boolean }[]>;
-    export let inputTextArea: string;
+    export let inputArea: string;
 
     $: isRegEx = $isRegexFilter;
     $: isNicknameFilter = $isNickNameFilter;
-    $: value = inputTextArea;
+    $: value = inputArea;
 
     const updateStore = (id: number, value: string) => {
-      inputTextArea = '';
+      inputArea = '';
       $store = [...$store, { id, value, isRegEx, isNicknameFilter }];
     };
 
@@ -19,7 +19,7 @@
     };
 </script>
 
-<TextArea bind:isRegEx bind:inputTextArea />
+<FilterInput bind:isRegEx bind:inputArea />
 <button on:click={updateStore(Date.now(), value)} class="text-white bg-primary-500 rounded h-8" style="width: 5rem">Add</button>
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -32,7 +32,10 @@
                 Filter Query
             </th>
             <th scope="col" class="px-6 py-3">
-                <span class="sr-only">Edit/Delete</span>
+                Filtering by
+            </th>
+            <th scope="col" class="px-6 py-3">
+                <span class="sr-only">Delete</span>
             </th>
         </tr>
         </thead>
@@ -44,6 +47,9 @@
                 </th>
                 <td class="px-6 py-4 font-medium text-gray-700 dark:text-white whitespace-nowrap">
                     {element.value}
+                </td>
+                <td class="px-6 py-4 font-medium text-gray-700 dark:text-white whitespace-nowrap">
+                    {element.isNicknameFilter ? 'Nickname' : 'Message'}
                 </td>
                 <td class="px-6 py-4 text-center">
                     <button on:click={deleteElement(element.id)} class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Delete</button>

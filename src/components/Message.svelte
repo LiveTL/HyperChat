@@ -9,7 +9,7 @@
     showUserBadges,
     hoveredItem,
     port,
-    selfChannelId, filterArray
+    selfChannelId, filterArray, isFilterActive
   } from '../ts/storage';
   import { chatUserActionsItems, Theme } from '../ts/chat-constants';
   import { useBanHammer } from '../ts/chat-actions';
@@ -26,7 +26,7 @@
   // const forMessage = true;
 
   $: message.message.forEach(communication => {
-    if ($filterArray.length !== 0) {
+    if ($isFilterActive && $filterArray.length !== 0) {
       $filterArray.forEach(rule => {
         if (!rule.isNicknameFilter) {
           if (communication.type === 'text' && rule.isRegEx && new RegExp(rule.value).test(communication.text)) {
