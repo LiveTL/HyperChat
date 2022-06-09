@@ -21,10 +21,6 @@
   export let hideName = false;
   let hiddenClass = '';
 
-  // const userRegEx = /\w/;
-  // const mustBeRegEx = false;
-  // const forMessage = true;
-
   $: message.message.forEach(communication => {
     if ($isFilterActive && $filterArray.length !== 0) {
       $filterArray.forEach(rule => {
