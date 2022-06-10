@@ -99,7 +99,9 @@ declare namespace Ytc {
         endBackgroundColor: number;
         showItemEndpoint: {
           showLiveChatItemEndpoint: {
-            renderer: MembershipRenderer;
+            renderer: {
+              liveChatMembershipItemRenderer: MembershipRenderer;
+            };
           };
         };
       };
