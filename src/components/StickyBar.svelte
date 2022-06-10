@@ -23,7 +23,7 @@
     <div
       class="flex items-center"
       style="
-        height: calc(2.5rem + 4px);
+        height: calc(1.75rem + 4px);
         width: fit-content;
         min-width: 100%;
         background-color: #{$isDark ? '202020' : 'ffffff'}
@@ -47,6 +47,6 @@
     overflow-x: hidden;
   }
   .scroll-on-hover:hover {
-    overflow-x: overlay;
+    overflow-x: auto;
   }
 </style>

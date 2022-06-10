@@ -33,7 +33,7 @@
 {#if paid}
   <div class={classes} style={(chip ? '' : backgroundColor) + textColor}>
     <div
-      class="relative overflow-hidden p-2 {chip ? 'rounded-full cursor-pointer w-max' : ''}"
+      class="relative overflow-hidden {chip ? 'rounded-full cursor-pointer w-max p-1.5' : 'p-2'}"
       style={headerStyle + (chip ? 'max-width: 175px; text-overflow: ellipsis;' : '')}
       on:click={() => {
         if (chip) $focusedSuperchat = message;

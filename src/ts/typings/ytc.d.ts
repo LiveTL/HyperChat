@@ -95,6 +95,13 @@ declare namespace Ytc {
       liveChatTickerSponsorItemRenderer?: TickerRenderer & {
         detailText: RunsObj;
         detailTextColor: number;
+        startBackgroundColor: number;
+        endBackgroundColor: number;
+        showItemEndpoint: {
+          showLiveChatItemEndpoint: {
+            renderer: MembershipRenderer;
+          };
+        };
       };
       liveChatTickerPaidMessageItemRenderer?: TickerRenderer & {
         amount: SimpleTextObj;

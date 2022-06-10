@@ -182,7 +182,8 @@ const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned
 };
 
 const parseTickerAction = (action: Ytc.AddTickerAction, isReplay: boolean, liveTimeoutOrReplayMs: number): Ytc.ParsedTicker | undefined => {
-  const baseRenderer = action.item.liveChatTickerPaidMessageItemRenderer;
+  const baseRenderer = action.item.liveChatTickerPaidMessageItemRenderer ?? action.item.liveChatTickerSponsorItemRenderer;
+  console.log(baseRenderer);
   if (!baseRenderer) return;
   const parsedMessage = parseAddChatItemAction({
     item: {
