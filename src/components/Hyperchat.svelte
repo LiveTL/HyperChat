@@ -35,7 +35,8 @@
     selfChannelId,
     alertDialog,
     stickySuperchats,
-    currentProgress
+    currentProgress,
+    enableStickySuperchatBar
   } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -123,7 +124,7 @@
       ) discard.push(item.message);
       else keep.push(item);
     });
-    if (discard.length) {
+    if ($enableStickySuperchatBar && discard.length) {
       $stickySuperchats = [
         ...discard,
         ...$stickySuperchats
@@ -287,6 +288,11 @@
     if (action == null) $hoveredItem = null;
     else if (!('welcome' in action)) $hoveredItem = action.message.messageId;
   };
+
+  const clearStickySuperchats = () => {
+    $stickySuperchats = [];
+  };
+  $: if (!$enableStickySuperchatBar) clearStickySuperchats();
 </script>
 
 <ReportBanDialog />
@@ -322,7 +328,9 @@
     </div>
   </div>
   <div class="absolute top-0 w-full">
-    <StickyBar />
+    {#if $enableStickySuperchatBar}
+      <StickyBar />
+    {/if}
     {#if pinned}
       <div class="mx-2 mt-2">
         <PinnedMessage pinned={pinned} />

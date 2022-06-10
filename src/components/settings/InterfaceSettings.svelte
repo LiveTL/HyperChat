@@ -9,7 +9,8 @@
     emojiRenderMode,
     autoLiveChat,
     useSystemEmojis,
-    isDark
+    isDark,
+    enableStickySuperchatBar
   } from '../../ts/storage';
   import { themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
@@ -32,6 +33,13 @@
     showTimestamps: $showTimestamps,
     showUsernames: $showUsernames
   });
+
+  const superchatBarWasDisabled = !$enableStickySuperchatBar;
+  let superchatBarWasToggled: boolean | null = null;
+  const updateSuperchatBarToggle = () => {
+    superchatBarWasToggled = superchatBarWasToggled !== null;
+  };
+  $: $enableStickySuperchatBar, updateSuperchatBarToggle();
 </script>
 
 <Card title="Appearance" icon="format_paint">
@@ -39,6 +47,10 @@
     <h6>Theme:</h6>
     <Radio store={theme} items={themeItems} />
   </div>
+  <Checkbox name="Enable sticky superchat bar" store={enableStickySuperchatBar} />
+  {#if (superchatBarWasToggled || superchatBarWasDisabled) && $enableStickySuperchatBar}
+    <i>The superchat bar will appear upon reload or when the next superchat arrives.</i>
+  {/if}
 </Card>
 
 <Card title="Messages" icon="message">
