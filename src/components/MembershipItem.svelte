@@ -8,7 +8,7 @@
   export let detailText: string = '';
   export let fillPortion = 1;
 
-  const classes = `inline-flex flex-col rounded overflow-hidden text-white ${chip ? 'w-fit whitespace-nowrap' : 'w-full break-words'}`;
+  const classes = `inline-flex flex-col rounded text-white ${chip ? 'w-fit whitespace-nowrap' : 'w-full break-words'}`;
 
   $: membership = message.membership;
   $: if (!membership) {
@@ -18,10 +18,10 @@
 </script>
 
 {#if membership}
-  <div class={classes}>
+  <div class={classes} style={chip ? '' : 'background-color: #0f9d58;'}>
     <div
-      class="relative overflow-hidden {chip ? 'rounded-full cursor-pointer w-max p-1.5' : 'p-2'}"
-      style={chip ? (`background-color: #${isMilestoneChat ? '107516' : '0f9d58'};`) : ''}
+      class="relative {chip ? 'rounded-full cursor-pointer w-max p-1.5' : 'rounded p-2'}"
+      style="background-color: #{isMilestoneChat ? '107516' : '0f9d58'};"
       on:click={() => {
         if (chip) $focusedSuperchat = message;
       }}
@@ -53,7 +53,7 @@
         {/if}
         <MessageRun runs={membership.headerSubtext} />
       {/if}
-      {#if detailText}
+      {#if chip && detailText}
         <span class="font-bold">{detailText}</span>
       {/if}
     </div>

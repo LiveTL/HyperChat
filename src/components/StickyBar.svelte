@@ -1,8 +1,7 @@
 <script lang="ts">
   import dark from 'smelte/src/dark';
   import { stickySuperchats, currentProgress } from '../ts/storage';
-  import PaidMessage from './PaidMessage.svelte';
-  import MembershipItem from './MembershipItem.svelte';
+  import TimedItem from './TimedItem.svelte';
 
   const isDark = dark();
   let scrollableElem: HTMLDivElement;
@@ -32,20 +31,11 @@
     >
       {#each $stickySuperchats as sc}
         <span class="mx-0.5">
-          {#if ('superChat' in sc || 'superSticker' in sc)}
-            <PaidMessage
-              message={sc}
-              chip
-              fillPortion={Math.max(0, (($currentProgress || 0) - sc.showtime / 1000) / sc.tickerDuration)}
-            />
-          {:else}
-            <MembershipItem
-              message={sc}
-              chip
-              fillPortion={Math.max(0, (($currentProgress || 0) - sc.showtime / 1000) / sc.tickerDuration)}
-              detailText={sc.detailText}
-            />
-          {/if}
+          <TimedItem
+            item={sc}
+            chip
+            fillPortion={Math.max(0, (($currentProgress || 0) - sc.showtime / 1000) / sc.tickerDuration)}
+          />
         </span>
       {/each}
     </div>

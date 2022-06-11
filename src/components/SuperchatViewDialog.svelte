@@ -3,7 +3,7 @@
     focusedSuperchat
   } from '../ts/storage';
   import Dialog from './common/Dialog.svelte';
-  import PaidMessage from './PaidMessage.svelte';
+  import TimedItem from './TimedItem.svelte';
   $: sc = $focusedSuperchat as Ytc.ParsedTimedItem;
   let open = false;
   const openDialog = () => (open = true);
@@ -13,5 +13,5 @@
 </script>
 
 <Dialog bind:active={open} noCloseButton>
-  <PaidMessage message={sc}  />
+  <TimedItem item={sc}  />
 </Dialog>

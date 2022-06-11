@@ -188,7 +188,6 @@ const parseTickerAction = (action: Ytc.AddTickerAction, isReplay: boolean, liveT
     item: baseRenderer.showItemEndpoint.showLiveChatItemEndpoint.renderer
   }, isReplay, liveTimeoutOrReplayMs);
   if (!parsedMessage) return;
-  console.log(baseRenderer);
   return {
     type: 'ticker',
     ...parsedMessage,

@@ -23,7 +23,7 @@
     headerStyle = '';
   }
 
-  const classes = `inline-flex flex-col rounded overflow-hidden ${chip ? 'w-fit whitespace-nowrap' : 'w-full break-words'}`;
+  const classes = `inline-flex flex-col rounded ${chip ? 'w-fit whitespace-nowrap' : 'w-full break-words'}`;
 
   $: if (!paid) {
     console.error('Not a paid message', { message });
@@ -33,7 +33,7 @@
 {#if paid}
   <div class={classes} style={(chip ? '' : backgroundColor) + textColor}>
     <div
-      class="relative overflow-hidden {chip ? 'rounded-full cursor-pointer w-max p-1.5' : 'p-2'}"
+      class="relative {chip ? 'rounded-full cursor-pointer w-max p-1.5' : 'rounded p-2'}"
       style={headerStyle}
       on:click={() => {
         if (chip) $focusedSuperchat = message;
