@@ -12,6 +12,12 @@
   $: if (!open) closeDialog();
 </script>
 
-<Dialog bind:active={open} noCloseButton>
+<Dialog bind:active={open} noCloseButton class="no-padding">
   <TimedItem item={sc}  />
 </Dialog>
+
+<style>
+  :global(.no-padding>div):nth-child(1), :global(.no-padding>div):nth-child(3) {
+    display: none;
+  }
+</style>
