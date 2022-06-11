@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../stylesheets/scrollbar.css';
   import { onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import dark from 'smelte/src/dark';
@@ -354,22 +355,5 @@
   }
   .hover-highlight:hover {
     background-color: #80808040;
-  }
-  * :global(::-webkit-scrollbar) {
-    width: 4px;
-    height: 4px;
-  }
-  * :global(::-webkit-scrollbar-track) {
-    background: transparent;
-  }
-  * :global(::-webkit-scrollbar-thumb) {
-    background: #888;
-  }
-  * :global(::-webkit-scrollbar-thumb:hover) {
-    background: #555;
-  }
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: #888 transparent;
   }
 </style>
