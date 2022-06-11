@@ -28,7 +28,7 @@
     >
       {#if $showProfileIcons}
         <img
-          class="h-5 w-5 inline align-middle rounded-full flex-none"
+          class="h-5 w-5 inline align-middle rounded-full flex-none mr-1"
           src={message.author.profileIcon.src}
           alt={message.author.profileIcon.alt}
         />
@@ -52,7 +52,7 @@
         <MessageRun runs={membership.headerSubtext} />
       {/if}
       {#if chip && detailText}
-        <span class="font-bold align-middle ml-1">{detailText}</span>
+        <span class="font-bold align-middle">{detailText}</span>
       {/if}
     </div>
     {#if !chip && isMilestoneChat}

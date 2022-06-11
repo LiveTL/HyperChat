@@ -41,7 +41,7 @@
     >
       {#if $showProfileIcons}
         <img
-          class="h-5 w-5 inline align-middle rounded-full flex-none"
+          class="h-5 w-5 inline align-middle rounded-full flex-none mr-1"
           src={message.author.profileIcon.src}
           alt={message.author.profileIcon.alt}
         />
@@ -52,7 +52,7 @@
           width: {Math.round(fillPortion * 100)}%;
         " />
       {/if}
-      <span class="{chip ? 'ml-1' : 'mr-1'} underline font-bold align-middle">{amount}</span>
+      <span class="underline font-bold align-middle">{amount}</span>
       {#if !chip}
         <span class="font-bold tracking-wide" style={nameColor}>
           {message.author.name}
