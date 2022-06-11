@@ -191,7 +191,7 @@ const parseTickerAction = (action: Ytc.AddTickerAction, isReplay: boolean, liveT
   return {
     type: 'ticker',
     ...parsedMessage,
-    tickerDuration: baseRenderer.fullDurationSec,
+    tickerDuration: baseRenderer.fullDurationSec ?? baseRenderer.durationSec,
     detailText: 'detailText' in baseRenderer
       ? (
           'simpleText' in baseRenderer.detailText ? baseRenderer.detailText.simpleText : baseRenderer.detailText.runs[0].text
