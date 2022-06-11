@@ -23,13 +23,13 @@
     <div
       class="flex items-center"
       style="
-        height: calc(1.75rem + 4px);
+        height: 40px;
         width: fit-content;
         min-width: 100%;
         background-color: #{$isDark ? '202020' : 'ffffff'}
       "
     >
-      {#each $stickySuperchats as sc}
+      {#each $stickySuperchats as sc (sc.messageId)}
         <span class="mx-0.5">
           <TimedItem
             item={sc}

@@ -20,7 +20,7 @@
 {#if membership}
   <div class={classes} style={chip ? '' : 'background-color: #0f9d58;'}>
     <div
-      class="relative {chip ? 'rounded-full cursor-pointer w-max p-1.5' : 'rounded p-2'}"
+      class="relative {chip ? 'rounded-full flex items-center cursor-pointer w-max p-1.5 overflow-hidden' : 'rounded p-2'}"
       style="background-color: #{isMilestoneChat ? '107516' : '0f9d58'};"
       on:click={() => {
         if (chip) $focusedSuperchat = message;
@@ -40,21 +40,19 @@
         " />
       {/if}
       {#if !chip}
-        <span class="font-bold tracking-wide align-middle {chip ? '' : 'mr-3'}">
+        <span class="font-bold tracking-wide mr-3 align-middle">
           {message.author.name}
         </span>
-      {/if}
-      {#if !chip}
         {#if membership.headerPrimaryText.length > 0}
           <MessageRun
-            class="font-medium mr-3"
+            class="font-medium mr-3 align-middle"
             runs={membership.headerPrimaryText}
           />
         {/if}
         <MessageRun runs={membership.headerSubtext} />
       {/if}
       {#if chip && detailText}
-        <span class="font-bold">{detailText}</span>
+        <span class="font-bold align-middle ml-1">{detailText}</span>
       {/if}
     </div>
     {#if !chip && isMilestoneChat}

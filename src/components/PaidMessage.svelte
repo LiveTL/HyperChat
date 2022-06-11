@@ -33,7 +33,7 @@
 {#if paid}
   <div class={classes} style={(chip ? '' : backgroundColor) + textColor}>
     <div
-      class="relative {chip ? 'rounded-full cursor-pointer w-max p-1.5' : 'rounded p-2'}"
+      class="relative {chip ? 'rounded-full items-center flex cursor-pointer w-max p-1.5 overflow-hidden' : 'rounded p-2'}"
       style={headerStyle}
       on:click={() => {
         if (chip) $focusedSuperchat = message;
@@ -52,7 +52,7 @@
           width: {Math.round(fillPortion * 100)}%;
         " />
       {/if}
-      <span class="{chip ? '' : 'mr-1'} underline font-bold">{amount}</span>
+      <span class="{chip ? 'ml-1' : 'mr-1'} underline font-bold align-middle">{amount}</span>
       {#if !chip}
         <span class="font-bold tracking-wide" style={nameColor}>
           {message.author.name}
