@@ -1,11 +1,14 @@
 <script lang="ts">
   import Message from './Message.svelte';
   import MessageRun from './MessageRuns.svelte';
-  import { showProfileIcons } from '../ts/storage';
+  import { focusedSuperchat, showProfileIcons } from '../ts/storage';
 
-  export let message: Ytc.ParsedMessage;
+  export let message: Ytc.ParsedTimedItem;
+  export let chip = false;
+  export let detailText: Ytc.ParsedRun[] | null = null;
+  export let fillPortion = 1;
 
-  const classes = 'inline-flex flex-col rounded break-words overflow-hidden w-full text-white';
+  const classes = `inline-flex flex-col rounded overflow-hidden text-white ${chip ? 'w-fit whitespace-nowrap' : 'w-full break-words'}`;
 
   $: membership = message.membership;
   $: if (!membership) {
@@ -15,10 +18,13 @@
 </script>
 
 {#if membership}
-  <div class={classes} style="background-color: #0f9d58;">
+  <div class={classes}>
     <div
-      class="p-2"
-      style="{isMilestoneChat ? 'background-color: #107516;' : ''}"
+      class="relative overflow-hidden {chip ? 'rounded-full cursor-pointer w-max p-1.5' : 'p-2'}"
+      style={chip ? (`background-color: #${isMilestoneChat ? '107516' : '0f9d58'};`) : ''}
+      on:click={() => {
+        if (chip) $focusedSuperchat = message;
+      }}
     >
       {#if $showProfileIcons}
         <img
@@ -27,18 +33,31 @@
           alt={message.author.profileIcon.alt}
         />
       {/if}
-      <span class="font-bold tracking-wide align-middle mr-3">
-        {message.author.name}
-      </span>
-      {#if membership.headerPrimaryText.length > 0}
-        <MessageRun
-          class="font-medium mr-3"
-          runs={membership.headerPrimaryText}
-        />
+      {#if chip}
+        <div class="absolute top-0 right-0 h-full" style="
+          background-color: rgba(0, 0, 0, 0.1);
+          width: {Math.round(fillPortion * 100)}%;
+        " />
       {/if}
-      <MessageRun runs={membership.headerSubtext} />
+      {#if !chip}
+        <span class="font-bold tracking-wide align-middle {chip ? '' : 'mr-3'}">
+          {message.author.name}
+        </span>
+      {/if}
+      {#if !chip}
+        {#if membership.headerPrimaryText.length > 0}
+          <MessageRun
+            class="font-medium mr-3"
+            runs={membership.headerPrimaryText}
+          />
+        {/if}
+        <MessageRun runs={membership.headerSubtext} />
+      {/if}
+      {#if detailText}
+        <MessageRun runs={detailText} />
+      {/if}
     </div>
-    {#if isMilestoneChat}
+    {#if !chip && isMilestoneChat}
       <div class="p-2">
         <Message message={message} hideName />
       </div>

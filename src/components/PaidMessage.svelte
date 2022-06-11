@@ -23,7 +23,7 @@
     headerStyle = '';
   }
 
-  const classes = `inline-flex flex-col rounded overflow-hidden ${chip ? 'w-fit whitespace-pre' : 'w-full break-words'}`;
+  const classes = `inline-flex flex-col rounded overflow-hidden ${chip ? 'w-fit whitespace-nowrap' : 'w-full break-words'}`;
 
   $: if (!paid) {
     console.error('Not a paid message', { message });
@@ -34,7 +34,7 @@
   <div class={classes} style={(chip ? '' : backgroundColor) + textColor}>
     <div
       class="relative overflow-hidden {chip ? 'rounded-full cursor-pointer w-max p-1.5' : 'p-2'}"
-      style={headerStyle + (chip ? 'max-width: 175px; text-overflow: ellipsis;' : '')}
+      style={headerStyle}
       on:click={() => {
         if (chip) $focusedSuperchat = message;
       }}
@@ -52,10 +52,12 @@
           width: {Math.round(fillPortion * 100)}%;
         " />
       {/if}
-      <span class="mr-1 underline font-bold">{amount}</span>
-      <span class="font-bold tracking-wide" style={nameColor}>
-        {message.author.name}
-      </span>
+      <span class="{chip ? '' : 'mr-1'} underline font-bold">{amount}</span>
+      {#if !chip}
+        <span class="font-bold tracking-wide" style={nameColor}>
+          {message.author.name}
+        </span>
+      {/if}
       {#if message.superSticker}
         <img
           class="h-10 w-10 float-right"

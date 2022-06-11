@@ -191,7 +191,8 @@ const parseTickerAction = (action: Ytc.AddTickerAction, isReplay: boolean, liveT
   return {
     type: 'ticker',
     ...parsedMessage,
-    tickerDuration: baseRenderer.fullDurationSec
+    tickerDuration: baseRenderer.fullDurationSec,
+    detailText: 'detailText' in baseRenderer ? parseMessageRuns(baseRenderer.detailText.runs) : undefined
   };
 };
 

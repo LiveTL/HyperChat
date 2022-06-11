@@ -339,6 +339,7 @@ declare namespace Ytc {
   interface ParsedTicker extends ParsedMessage {
     type: 'ticker';
     tickerDuration: number;
+    detailText?: ParsedRun[];
   }
 
   type ParsedMisc = ParsedPinned | { type: 'unpin'};
