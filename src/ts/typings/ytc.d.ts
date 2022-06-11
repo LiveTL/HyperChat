@@ -93,7 +93,7 @@ declare namespace Ytc {
   interface AddTickerAction {
     item: {
       liveChatTickerSponsorItemRenderer?: TickerRenderer & {
-        detailText: RunsObj;
+        detailText: RunsObj | SimpleTextObj;
         detailTextColor: number;
         startBackgroundColor: number;
         endBackgroundColor: number;
@@ -339,7 +339,7 @@ declare namespace Ytc {
   interface ParsedTicker extends ParsedMessage {
     type: 'ticker';
     tickerDuration: number;
-    detailText?: ParsedRun[];
+    detailText?: string;
   }
 
   type ParsedMisc = ParsedPinned | { type: 'unpin'};

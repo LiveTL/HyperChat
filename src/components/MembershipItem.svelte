@@ -5,7 +5,7 @@
 
   export let message: Ytc.ParsedTimedItem;
   export let chip = false;
-  export let detailText: Ytc.ParsedRun[] | null = null;
+  export let detailText: string = '';
   export let fillPortion = 1;
 
   const classes = `inline-flex flex-col rounded overflow-hidden text-white ${chip ? 'w-fit whitespace-nowrap' : 'w-full break-words'}`;
@@ -54,7 +54,7 @@
         <MessageRun runs={membership.headerSubtext} />
       {/if}
       {#if detailText}
-        <MessageRun runs={detailText} />
+        <span class="font-bold">{detailText}</span>
       {/if}
     </div>
     {#if !chip && isMilestoneChat}

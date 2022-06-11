@@ -188,11 +188,16 @@ const parseTickerAction = (action: Ytc.AddTickerAction, isReplay: boolean, liveT
     item: baseRenderer.showItemEndpoint.showLiveChatItemEndpoint.renderer
   }, isReplay, liveTimeoutOrReplayMs);
   if (!parsedMessage) return;
+  console.log(baseRenderer);
   return {
     type: 'ticker',
     ...parsedMessage,
     tickerDuration: baseRenderer.fullDurationSec,
-    detailText: 'detailText' in baseRenderer ? parseMessageRuns(baseRenderer.detailText.runs) : undefined
+    detailText: 'detailText' in baseRenderer
+      ? (
+          'simpleText' in baseRenderer.detailText ? baseRenderer.detailText.simpleText : baseRenderer.detailText.runs[0].text
+        )
+      : undefined
   };
 };
 
