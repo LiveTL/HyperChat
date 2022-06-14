@@ -4,6 +4,7 @@
   import Tooltip from './common/Tooltip.svelte';
   import Icon from 'smelte/src/components/Icon';
   import { Theme } from '../ts/chat-constants';
+  import { createEventDispatcher } from 'svelte';
 
   export let pinned: Ytc.ParsedPinned;
 
@@ -18,6 +19,9 @@
     dismissed = false;
     shorten = false;
   }
+
+  const dispatch = createEventDispatcher();
+  $: dismissed, shorten, dispatch('resize');
 </script>
 
 {#if !dismissed}

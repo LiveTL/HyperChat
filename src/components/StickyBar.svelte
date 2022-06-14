@@ -2,6 +2,7 @@
   import dark from 'smelte/src/dark';
   import { stickySuperchats, currentProgress } from '../ts/storage';
   import TimedItem from './TimedItem.svelte';
+  import { createEventDispatcher } from 'svelte';
 
   const isDark = dark();
   let scrollableElem: HTMLDivElement;
@@ -16,9 +17,13 @@
     return $currentProgress === null ||
       ((sc.showtime / 1000 - 5 <= $currentProgress) && (sc.showtime / 1000 + sc.tickerDuration) >= $currentProgress);
   });
+
+  const dispatch = createEventDispatcher();
+  $: open = Boolean($stickySuperchats.length);
+  $: open, dispatch('resize');
 </script>
 
-{#if $stickySuperchats.length}
+{#if open}
   <div class="w-full overflow-y-hidden scroll-on-hover" bind:this={scrollableElem}>
     <div
       class="flex items-center"
@@ -47,6 +52,6 @@
     overflow-x: hidden;
   }
   .scroll-on-hover:hover {
-    overflow-x: auto;
+    overflow-x: overlay;
   }
 </style>

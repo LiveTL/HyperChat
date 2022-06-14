@@ -294,16 +294,31 @@
     $stickySuperchats = [];
   };
   $: if (!$enableStickySuperchatBar) clearStickySuperchats();
+
+  let topBarSize = 0;
+  let topBar: HTMLDivElement | undefined;
+  const topBarResized = () => {
+    setTimeout(() => {
+      if (topBar) {
+        topBarSize = topBar.clientHeight;
+      }
+    }, 350);
+  };
+  $: $enableStickySuperchatBar, pinned, topBarResized();
 </script>
 
 <ReportBanDialog />
 <SuperchatViewDialog />
 
-<svelte:window on:resize={scrollToBottom} on:load={onLoad} />
+<svelte:window on:resize={() => {
+  scrollToBottom();
+  topBarResized();
+}} on:load={onLoad} />
 
 <div class={containerClass} style="font-size: 13px">
   <div class="absolute w-full h-full flex justify-end flex-col">
-    <div bind:this={div} on:scroll={checkAtBottom} class="content overflow-y-scroll">
+    <div bind:this={div} on:scroll={checkAtBottom} class="content" style="overflow-y: overlay;">
+      <div style="height: {topBarSize}px; transition: height 0.3s;" />
       {#each messageActions as action (action.message.messageId)}
         <div
           class="{isWelcome(action) ? '' : 'flex'} hover-highlight p-1.5 w-full block"
@@ -328,13 +343,13 @@
       {/each}
     </div>
   </div>
-  <div class="absolute top-0 w-full">
+  <div class="absolute top-0 w-full" bind:this={topBar}>
     {#if $enableStickySuperchatBar}
-      <StickyBar />
+      <StickyBar on:resize={topBarResized} />
     {/if}
     {#if pinned}
-      <div class="mx-2 mt-2">
-        <PinnedMessage pinned={pinned} />
+      <div class="mx-1.5 mt-1.5">
+        <PinnedMessage pinned={pinned} on:resize={topBarResized} />
       </div>
     {/if}
   </div>

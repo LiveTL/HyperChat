@@ -428,9 +428,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.type === 'createPopup') {
     chrome.windows.create({
       url: request.url,
-      type: 'popup',
-      height: 420,
-      width: 690
+      type: 'popup'
     }, () => {});
   }
 });
