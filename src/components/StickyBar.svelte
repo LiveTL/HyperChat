@@ -44,7 +44,7 @@
     bind:this={scrollableElem}
   >
     <div
-      class="flex items-center h-9"
+      class="flex items-center h-9 enlarge-on-ff"
       style="
         width: fit-content;
         min-width: 100%;
@@ -71,5 +71,14 @@
   }
   .scroll-on-hover::-webkit-scrollbar-track {
     background: var(--scrollbar-bg-color);
+  }
+  .scroll-on-hover {
+    scrollbar-color: #888 var(--scrollbar-bg-color);
+  }
+  @supports (-moz-appearance:none) {
+    .enlarge-on-ff {
+      height: 2.5rem;
+      padding-top: 0.25rem;
+    }
   }
 </style>
