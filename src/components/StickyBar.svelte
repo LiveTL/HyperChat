@@ -23,8 +23,13 @@
   $: open, dispatch('resize');
 </script>
 
+<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 {#if open}
-  <div class="w-full overflow-y-hidden scroll-on-hover" bind:this={scrollableElem}>
+  <div
+    class="w-full overflow-y-hidden scroll-on-hover"
+    bind:this={scrollableElem}
+    on:mouseover={() => dispatch('resize')}
+  >
     <div
       class="flex items-center"
       style="
@@ -52,6 +57,6 @@
     overflow-x: hidden;
   }
   .scroll-on-hover:hover {
-    overflow-x: overlay;
+    overflow-x: auto;
   }
 </style>

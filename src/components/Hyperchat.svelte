@@ -317,7 +317,7 @@
 
 <div class={containerClass} style="font-size: 13px">
   <div class="absolute w-full h-full flex justify-end flex-col">
-    <div bind:this={div} on:scroll={checkAtBottom} class="content" style="overflow-y: overlay;">
+    <div bind:this={div} on:scroll={checkAtBottom} class="content overflow-y-scroll">
       <div style="height: {topBarSize}px; transition: height 0.3s;" />
       {#each messageActions as action (action.message.messageId)}
         <div
@@ -343,7 +343,7 @@
       {/each}
     </div>
   </div>
-  <div class="absolute top-0 w-full" bind:this={topBar}>
+  <div class="absolute top-0" style="width: calc(100% - 3.5px);" bind:this={topBar}>
     {#if $enableStickySuperchatBar}
       <StickyBar on:resize={topBarResized} />
     {/if}
