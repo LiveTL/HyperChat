@@ -2,7 +2,7 @@
   import dark from 'smelte/src/dark';
   import { stickySuperchats, currentProgress } from '../ts/storage';
   import TimedItem from './TimedItem.svelte';
-  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
 
   const isDark = dark();
   let scrollableElem: HTMLDivElement;
@@ -33,29 +33,26 @@
     }
   });
 
-  const dispatch = createEventDispatcher();
   $: open = Boolean($stickySuperchats.length);
-  $: open, dispatch('resize');
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 {#if open}
   <div
-    class="w-full overflow-y-hidden scroll-on-hover"
+    class="w-full overflow-y-hidden overflow-x-scroll scroll-on-hover items-start"
+    style="--scrollbar-bg-color: #{$isDark ? '202020' : 'ffffff'};"
     bind:this={scrollableElem}
-    on:mouseover={() => dispatch('resize')}
   >
     <div
-      class="flex items-center"
+      class="flex items-center h-9"
       style="
-        height: 40px;
         width: fit-content;
         min-width: 100%;
-        background-color: #{$isDark ? '202020' : 'ffffff'}
+        background-color: var(--scrollbar-bg-color);
       "
     >
       {#each $stickySuperchats as sc (sc.messageId)}
-        <span class="mx-0.5">
+        <span class="mx-0.5 h-8 mt-1">
           <TimedItem
             item={sc}
             chip
@@ -68,10 +65,11 @@
 {/if}
 
 <style>
-  .scroll-on-hover {
-    overflow-x: hidden;
+  .scroll-on-hover::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
   }
-  .scroll-on-hover:hover {
-    overflow-x: auto;
+  .scroll-on-hover::-webkit-scrollbar-track {
+    background: var(--scrollbar-bg-color);
   }
 </style>
