@@ -2,7 +2,7 @@
   import dark from 'smelte/src/dark';
   import { stickySuperchats, currentProgress } from '../ts/storage';
   import TimedItem from './TimedItem.svelte';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 
   const isDark = dark();
   let scrollableElem: HTMLDivElement;
@@ -13,9 +13,24 @@
       scrollableElem.scrollBy(e.deltaY + e.deltaX, 0);
     });
   }
-  $: $stickySuperchats = $stickySuperchats.filter(sc => {
-    return $currentProgress === null ||
-      ((sc.showtime / 1000 - 5 <= $currentProgress) && (sc.showtime / 1000 + sc.tickerDuration) >= $currentProgress);
+
+  let interval: number | undefined;
+
+  onMount(() => {
+    interval = setInterval(() => {
+      $stickySuperchats.filter(sc => {
+        return $currentProgress === null || (
+          (sc.showtime / 1000 - 5 <= $currentProgress) &&
+          (sc.showtime / 1000 + sc.tickerDuration) >= $currentProgress
+        );
+      });
+    }, 500) as unknown as number;
+  });
+
+  onDestroy(() => {
+    if (interval) {
+      clearInterval(interval);
+    }
   });
 
   const dispatch = createEventDispatcher();
