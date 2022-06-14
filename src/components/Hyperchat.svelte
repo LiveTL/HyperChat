@@ -343,7 +343,7 @@
       {/each}
     </div>
   </div>
-  <div class="absolute top-0" style="width: calc(100% - 3.5px);" bind:this={topBar}>
+  <div class="absolute top-0 w-full" bind:this={topBar}>
     {#if $enableStickySuperchatBar}
       <StickyBar on:resize={topBarResized} />
     {/if}
