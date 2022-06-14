@@ -318,7 +318,7 @@
 <div class={containerClass} style="font-size: 13px">
   <div class="absolute w-full h-full flex justify-end flex-col">
     <div bind:this={div} on:scroll={checkAtBottom} class="content overflow-y-scroll">
-      <div style="height: {topBarSize}px; transition: height 0.3s;" />
+      <div style="height: {topBarSize}px;" />
       {#each messageActions as action (action.message.messageId)}
         <div
           class="{isWelcome(action) ? '' : 'flex'} hover-highlight p-1.5 w-full block"
