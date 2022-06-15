@@ -18,7 +18,7 @@
 
   onMount(() => {
     interval = setInterval(() => {
-      $stickySuperchats.filter(sc => {
+      $stickySuperchats = $stickySuperchats.filter(sc => {
         return $currentProgress === null || (
           (sc.showtime / 1000 - 5 <= $currentProgress) &&
           (sc.showtime / 1000 + sc.tickerDuration) >= $currentProgress
