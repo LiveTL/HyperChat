@@ -2,9 +2,8 @@
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
     Sticky superchats are finally supported!
-    Tickers for superchats, membership joins,
-    and membership milestones will be visible at
-    the top of the screen (like in default YTC).
+    Tickers for superchats and membership joins/milestones
+    will be visible at the top of the screen (like in default YTC).
     The bar can also be disabled in the settings menu.
   </li>
   <li class="ml-3.5">
