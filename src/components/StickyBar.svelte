@@ -2,7 +2,7 @@
   import dark from 'smelte/src/dark';
   import { stickySuperchats, currentProgress } from '../ts/storage';
   import TimedItem from './TimedItem.svelte';
-  import { onDestroy, onMount } from 'svelte';
+  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 
   const isDark = dark();
   let scrollableElem: HTMLDivElement;
@@ -34,6 +34,8 @@
   });
 
   $: open = Boolean($stickySuperchats.length);
+  const dispatch = createEventDispatcher();
+  $: open, dispatch('resize');
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
