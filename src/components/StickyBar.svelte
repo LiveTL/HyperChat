@@ -2,7 +2,7 @@
   import dark from 'smelte/src/dark';
   import { stickySuperchats, currentProgress } from '../ts/storage';
   import TimedItem from './TimedItem.svelte';
-  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
 
   const isDark = dark();
   let scrollableElem: HTMLDivElement;
@@ -17,14 +17,14 @@
   let interval: number | undefined;
 
   onMount(() => {
-    interval = setInterval(() => {
+    interval = window.setInterval(() => {
       $stickySuperchats = $stickySuperchats.filter(sc => {
         return $currentProgress === null || (
           (sc.showtime / 1000 - 5 <= $currentProgress) &&
           (sc.showtime / 1000 + sc.tickerDuration) >= $currentProgress
         );
       });
-    }, 500) as unknown as number;
+    }, 500);
   });
 
   onDestroy(() => {
@@ -34,14 +34,12 @@
   });
 
   $: open = Boolean($stickySuperchats.length);
-  const dispatch = createEventDispatcher();
-  $: open, dispatch('resize');
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 {#if open}
   <div
-    class="w-full overflow-y-hidden overflow-x-scroll scroll-on-hover items-start"
+    class="w-full overflow-y-hidden overflow-x-scroll scroll-on-hover items-start flex-none"
     style="--scrollbar-bg-color: #{$isDark ? '202020' : 'ffffff'};"
     bind:this={scrollableElem}
   >

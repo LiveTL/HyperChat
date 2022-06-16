@@ -278,7 +278,7 @@
     $showProfileIcons, $showUsernames, $showTimestamps, $showUserBadges
   );
 
-  const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
+  const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25 flex flex-col';
 
   const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
   const isMembership = (action: Chat.MessageAction) => (action.message.membership);
@@ -316,7 +316,10 @@
 }} on:load={onLoad} />
 
 <div class={containerClass} style="font-size: 13px">
-  <div class="absolute w-full h-full flex justify-end flex-col">
+  {#if $enableStickySuperchatBar}
+    <StickyBar />
+  {/if}
+  <div class="w-full min-h-0 flex justify-end flex-col relative">
     <div bind:this={div} on:scroll={checkAtBottom} class="content overflow-y-scroll">
       <div style="height: {topBarSize}px;" />
       {#each messageActions as action (action.message.messageId)}
@@ -342,25 +345,22 @@
         </div>
       {/each}
     </div>
-  </div>
-  <div class="absolute top-0 w-full" bind:this={topBar}>
-    {#if $enableStickySuperchatBar}
-      <StickyBar on:resize={topBarResized} />
-    {/if}
     {#if pinned}
-      <div class="mx-1.5 mt-1.5">
-        <PinnedMessage pinned={pinned} on:resize={topBarResized} />
+      <div class="absolute top-0 w-full" bind:this={topBar}>
+        <div class="mx-1.5 mt-1.5">
+          <PinnedMessage pinned={pinned} on:resize={topBarResized} />
+        </div>
+      </div>
+    {/if}
+    {#if !isAtBottom}
+      <div
+        class="absolute left-1/2 transform -translate-x-1/2 bottom-0 pb-1"
+        transition:fade={{ duration: 150 }}
+      >
+        <Button icon="arrow_downward" on:click={scrollToBottom} small />
       </div>
     {/if}
   </div>
-  {#if !isAtBottom}
-    <div
-      class="absolute left-1/2 transform -translate-x-1/2 bottom-0 pb-1"
-      transition:fade={{ duration: 150 }}
-    >
-      <Button icon="arrow_downward" on:click={scrollToBottom} small />
-    </div>
-  {/if}
 </div>
 
 <style>
