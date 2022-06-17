@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../stylesheets/scrollbar.css';
   import { onMount } from 'svelte';
   import Interface from './settings/InterfaceSettings.svelte';
 
@@ -14,19 +15,3 @@
 <div class="text-base p-2" style="scrollbar-width: thin; scrollbar-color: #888 transparent;">
   <Interface />
 </div>
-
-<style>
-  :global(::-webkit-scrollbar) {
-    width: 4px;
-    height: 4px;
-  }
-  :global(::-webkit-scrollbar-track) {
-    background: transparent;
-  }
-  :global(::-webkit-scrollbar-thumb) {
-    background: #888;
-  }
-  :global(::-webkit-scrollbar-thumb:hover) {
-    background: #555;
-  }
-</style>

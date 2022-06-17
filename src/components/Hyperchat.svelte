@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../stylesheets/scrollbar.css';
   import { onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import dark from 'smelte/src/dark';
@@ -8,6 +9,8 @@
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
   import ReportBanDialog from './ReportBanDialog.svelte';
+  import SuperchatViewDialog from './SuperchatViewDialog.svelte';
+  import StickyBar from './StickyBar.svelte';
   import {
     paramsTabId,
     paramsFrameId,
@@ -31,7 +34,10 @@
     hoveredItem,
     port,
     selfChannelId,
-    alertDialog
+    alertDialog,
+    stickySuperchats,
+    currentProgress,
+    enableStickySuperchatBar
   } from '../ts/storage';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
@@ -91,11 +97,11 @@
     if (!isAtBottom) return;
     // On replays' initial data, only show messages with negative timestamp
     if (isInitial && isReplay) {
-      messageActions.push(...messagesAction.messages.filter(
+      messageActions.push(...filterTickers(messagesAction.messages).filter(
         (a) => a.message.timestamp.startsWith('-') && shouldShowMessage(a)
       ));
     } else {
-      messageActions.push(...messagesAction.messages.filter(shouldShowMessage));
+      messageActions.push(...filterTickers(messagesAction.messages).filter(shouldShowMessage));
     }
     if (!isInitial) checkTruncateMessages();
   };
@@ -107,6 +113,25 @@
         action.deleted = { replace: bonk.replacedMessage };
       }
     });
+  };
+
+  const filterTickers = (items: Chat.MessageAction[]): Chat.MessageAction[] => {
+    const keep: Chat.MessageAction[] = [];
+    const discard: Ytc.ParsedTicker[] = [];
+    items.forEach(item => {
+      if (
+        'tickerDuration' in item.message &&
+        !$stickySuperchats.some(sc => sc.messageId === item.message.messageId)
+      ) discard.push(item.message);
+      else keep.push(item);
+    });
+    if ($enableStickySuperchatBar && discard.length) {
+      $stickySuperchats = [
+        ...discard,
+        ...$stickySuperchats
+      ];
+    }
+    return keep;
   };
 
   const onDelete = (deletion: Ytc.ParsedDeleted) => {
@@ -136,6 +161,9 @@
         break;
       case 'unpin':
         pinned = null;
+        break;
+      case 'playerProgress':
+        $currentProgress = action.playerProgress;
         break;
       case 'forceUpdate':
         messageActions = [...action.messages].filter(shouldShowMessage);
@@ -250,8 +278,7 @@
     $showProfileIcons, $showUsernames, $showTimestamps, $showUserBadges
   );
 
-  const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25';
-  const pinnedClass = 'absolute top-2 inset-x-2';
+  const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25 flex flex-col';
 
   const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
   const isMembership = (action: Chat.MessageAction) => (action.message.membership);
@@ -262,15 +289,39 @@
     if (action == null) $hoveredItem = null;
     else if (!('welcome' in action)) $hoveredItem = action.message.messageId;
   };
+
+  const clearStickySuperchats = () => {
+    $stickySuperchats = [];
+  };
+  $: if (!$enableStickySuperchatBar) clearStickySuperchats();
+
+  let topBarSize = 0;
+  let topBar: HTMLDivElement | undefined;
+  const topBarResized = () => {
+    setTimeout(() => {
+      if (topBar) {
+        topBarSize = topBar.clientHeight;
+      }
+    }, 350);
+  };
+  $: $enableStickySuperchatBar, pinned, topBarResized();
 </script>
 
 <ReportBanDialog />
+<SuperchatViewDialog />
 
-<svelte:window on:resize={scrollToBottom} on:load={onLoad} />
+<svelte:window on:resize={() => {
+  scrollToBottom();
+  topBarResized();
+}} on:load={onLoad} />
 
 <div class={containerClass} style="font-size: 13px">
-  <div class="absolute w-full h-full flex justify-end flex-col">
+  {#if $enableStickySuperchatBar}
+    <StickyBar />
+  {/if}
+  <div class="w-full min-h-0 flex justify-end flex-col relative">
     <div bind:this={div} on:scroll={checkAtBottom} class="content overflow-y-scroll">
+      <div style="height: {topBarSize}px;" />
       {#each messageActions as action (action.message.messageId)}
         <div
           class="{isWelcome(action) ? '' : 'flex'} hover-highlight p-1.5 w-full block"
@@ -289,45 +340,30 @@
             <Message
               message={action.message}
               deleted={action.deleted}
-              messageId={action.message.messageId}
             />
           {/if}
         </div>
       {/each}
     </div>
+    {#if pinned}
+      <div class="absolute top-0 w-full" bind:this={topBar}>
+        <div class="mx-1.5 mt-1.5">
+          <PinnedMessage pinned={pinned} on:resize={topBarResized} />
+        </div>
+      </div>
+    {/if}
+    {#if !isAtBottom}
+      <div
+        class="absolute left-1/2 transform -translate-x-1/2 bottom-0 pb-1"
+        transition:fade={{ duration: 150 }}
+      >
+        <Button icon="arrow_downward" on:click={scrollToBottom} small />
+      </div>
+    {/if}
   </div>
-  {#if pinned}
-    <div class={pinnedClass}>
-      <PinnedMessage pinned={pinned} />
-    </div>
-  {/if}
-  {#if !isAtBottom}
-    <div
-      class="absolute left-1/2 transform -translate-x-1/2 bottom-0 pb-1"
-      transition:fade={{ duration: 150 }}
-    >
-      <Button icon="arrow_downward" on:click={scrollToBottom} small />
-    </div>
-  {/if}
 </div>
 
 <style>
-  .content {
-    scrollbar-width: thin;
-    scrollbar-color: #888 transparent;
-  }
-  .content::-webkit-scrollbar {
-    width: 4px;
-  }
-  .content::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .content::-webkit-scrollbar-thumb {
-    background: #888;
-  }
-  .content::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
   .hover-highlight {
     /* transition: 0.1s; */
     background-color: transparent;

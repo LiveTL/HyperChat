@@ -1,5 +1,5 @@
 import { webExtStores } from 'svelte-webext-stores';
-import { readable, writable } from 'svelte/store';
+import { derived, readable, writable } from 'svelte/store';
 import type { Writable } from 'svelte/store';
 import { getClient, AvailableLanguages } from 'iframe-translator';
 import type { IframeTranslatorClient, AvailableLanguageCodes } from 'iframe-translator';
@@ -55,6 +55,7 @@ export const emojiRenderMode = stores.addSyncStore('hc.emojiRenderMode', Youtube
 export const autoLiveChat = stores.addSyncStore('hc.autoLiveChat', false);
 export const useSystemEmojis = stores.addSyncStore('hc.useSystemEmojis', false);
 export const hoveredItem = writable(null as null | Chat.MessageAction['message']['messageId']);
+export const focusedSuperchat = writable(null as null | Ytc.ParsedTimedItem);
 export const port = writable(null as null | Chat.Port);
 export const selfChannelId = writable(null as null | string);
 export const reportDialog = writable(null as null | {
@@ -66,3 +67,11 @@ export const alertDialog = writable(null as null | {
   message: string;
   color: string;
 });
+export const stickySuperchats = writable([] as Ytc.ParsedTicker[]);
+export const isDark = derived(theme, ($theme) => {
+  return $theme === Theme.DARK || (
+    $theme === Theme.YOUTUBE && window.location.search.includes('dark')
+  );
+});
+export const currentProgress = writable(null as null | number);
+export const enableStickySuperchatBar = stores.addSyncStore('hc.enableStickySuperchatBar', true);

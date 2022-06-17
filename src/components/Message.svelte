@@ -16,7 +16,6 @@
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
-  export let messageId: Chat.MessageAction['message']['messageId'];
   export let forceDark = false;
   export let hideName = false;
 
@@ -131,7 +130,7 @@
     <MessageRun runs={message.message} {forceDark} deleted={deleted != null} {forceTLColor} />
   </div>
   {#if message.author.id !== $selfChannelId}
-    <Menu items={menuItems} visible={$hoveredItem === messageId} class="mr-2 ml-auto context-menu">
+    <Menu items={menuItems} visible={$hoveredItem === message.messageId} class="mr-2 ml-auto context-menu">
       <Icon slot="activator" style="font-size: 1.5em;">more_vert</Icon>
     </Menu>
   {/if}

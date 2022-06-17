@@ -306,11 +306,11 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
 /**
  * Updates the player progress of the queue of the interceptor.
  */
-const updatePlayerProgress = (port: Chat.Port, playerProgress: number): void => {
+const updatePlayerProgress = (port: Chat.Port, playerProgress: number, isFromYt?: boolean): void => {
   const interceptor = findInterceptorFromPort(port, { playerProgress });
   if (!interceptor || !isYtcInterceptor(interceptor)) return;
 
-  interceptor.queue.updatePlayerProgress(playerProgress);
+  interceptor.queue.updatePlayerProgress(playerProgress, isFromYt);
 };
 
 /**
@@ -390,7 +390,7 @@ chrome.runtime.onConnect.addListener((port) => {
         setInitialData(port, message);
         break;
       case 'updatePlayerProgress':
-        updatePlayerProgress(port, message.playerProgress);
+        updatePlayerProgress(port, message.playerProgress, message.isFromYt);
         break;
       case 'setTheme':
         setTheme(port, message.dark);
@@ -428,9 +428,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.type === 'createPopup') {
     chrome.windows.create({
       url: request.url,
-      type: 'popup',
-      height: 420,
-      width: 690
+      type: 'popup'
     }, () => {});
   }
 });

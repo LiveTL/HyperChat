@@ -213,7 +213,8 @@ const chatLoaded = async (): Promise<void> => {
     if (d.data['yt-player-video-progress'] != null) {
       port.postMessage({
         type: 'updatePlayerProgress',
-        playerProgress: d.data['yt-player-video-progress']
+        playerProgress: d.data['yt-player-video-progress'],
+        isFromYt: true
       });
     }
   });

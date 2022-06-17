@@ -1,0 +1,23 @@
+<script lang="ts">
+  import {
+    focusedSuperchat
+  } from '../ts/storage';
+  import Dialog from './common/Dialog.svelte';
+  import TimedItem from './TimedItem.svelte';
+  $: sc = $focusedSuperchat as Ytc.ParsedTimedItem;
+  let open = false;
+  const openDialog = () => (open = true);
+  const closeDialog = () => ($focusedSuperchat = null);
+  $: if (sc) openDialog();
+  $: if (!open) closeDialog();
+</script>
+
+<Dialog bind:active={open} noCloseButton class="no-padding">
+  <TimedItem item={sc}  />
+</Dialog>
+
+<style>
+  :global(.no-padding>div):nth-child(1), :global(.no-padding>div):nth-child(3) {
+    display: none;
+  }
+</style>

@@ -181,13 +181,38 @@ const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned
   };
 };
 
-const processCommonAction = (action: Ytc.ReplayAction, isReplay: boolean, liveTimeoutOrReplayMs: number): Ytc.ParsedMessage | Ytc.ParsedMisc | undefined => {
+const parseTickerAction = (action: Ytc.AddTickerAction, isReplay: boolean, liveTimeoutOrReplayMs: number): Ytc.ParsedTicker | undefined => {
+  const baseRenderer = action.item.liveChatTickerPaidMessageItemRenderer ?? action.item.liveChatTickerSponsorItemRenderer;
+  if (!baseRenderer) return;
+  const parsedMessage = parseAddChatItemAction({
+    item: baseRenderer.showItemEndpoint.showLiveChatItemEndpoint.renderer
+  }, isReplay, liveTimeoutOrReplayMs);
+  if (!parsedMessage) return;
+  return {
+    type: 'ticker',
+    ...parsedMessage,
+    tickerDuration: baseRenderer.fullDurationSec ?? baseRenderer.durationSec,
+    detailText: 'detailText' in baseRenderer
+      ? (
+          'simpleText' in baseRenderer.detailText ? baseRenderer.detailText.simpleText : baseRenderer.detailText.runs[0].text
+        )
+      : undefined
+  };
+};
+
+const processCommonAction = (
+  action: Ytc.ReplayAction,
+  isReplay: boolean,
+  liveTimeoutOrReplayMs: number
+): Ytc.ParsedTimedItem | Ytc.ParsedMisc | undefined => {
   if (action.addChatItemAction) {
     return parseAddChatItemAction(action.addChatItemAction, isReplay, liveTimeoutOrReplayMs);
   } else if (action.addBannerToLiveChatCommand) {
     return parsePinnedMessageAction(action.addBannerToLiveChatCommand);
   } else if (action.removeBannerForLiveChatCommand) {
     return { type: 'unpin' } as const;
+  } else if (action.addLiveChatTickerItemAction) {
+    return parseTickerAction(action.addLiveChatTickerItemAction, isReplay, liveTimeoutOrReplayMs);
   }
 };
 
@@ -202,8 +227,8 @@ const processLiveAction = (action: Ytc.Action, isReplay: boolean, liveTimeoutMs:
   }
 };
 
-const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedMessage[], bonkArray: Ytc.ParsedBonk[], deleteArray: Ytc.ParsedDeleted[], miscArray: Ytc.ParsedMisc[]): void => {
-  if ('message' in action) {
+const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedTimedItem[], bonkArray: Ytc.ParsedBonk[], deleteArray: Ytc.ParsedDeleted[], miscArray: Ytc.ParsedMisc[]): void => {
+  if ('message' in action || 'tickerDuration' in action) {
     messageArray.push(action);
   } else if ('replacedMessage' in action && 'authorId' in action) {
     bonkArray.push(action);
@@ -233,7 +258,7 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
     return;
   }
 
-  const messageArray: Ytc.ParsedMessage[] = [];
+  const messageArray: Ytc.ParsedTimedItem[] = [];
   const bonkArray: Ytc.ParsedBonk[] = [];
   const deleteArray: Ytc.ParsedDeleted[] = [];
   const miscArray: Ytc.ParsedMisc[] = [];

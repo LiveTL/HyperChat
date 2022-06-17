@@ -4,7 +4,7 @@ declare namespace Chat {
   }
 
   interface MessageAction {
-    message: Ytc.ParsedMessage;
+    message: Ytc.ParsedTimedItem;
     deleted?: MessageDeletedObj;
   }
 
@@ -26,6 +26,7 @@ declare namespace Chat {
   interface PlayerProgressAction {
     type: 'playerProgress';
     playerProgress: number;
+    isFromYt?: boolean;
   }
 
   interface ForceUpdate {
@@ -113,6 +114,7 @@ declare namespace Chat {
   interface updatePlayerProgressMsg {
     type: 'updatePlayerProgress';
     playerProgress: number;
+    isFromYt?: boolean;
   }
 
   interface setThemeMsg {

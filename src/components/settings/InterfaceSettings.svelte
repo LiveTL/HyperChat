@@ -8,9 +8,11 @@
     showUserBadges,
     emojiRenderMode,
     autoLiveChat,
-    useSystemEmojis
+    useSystemEmojis,
+    isDark,
+    enableStickySuperchatBar
   } from '../../ts/storage';
-  import { Theme, themeItems, emojiRenderItems } from '../../ts/chat-constants';
+  import { themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
   import Radio from '../common/RadioGroupStore.svelte';
   import Checkbox from '../common/CheckboxStore.svelte';
@@ -23,20 +25,7 @@
   );
 
   const darkStore = dark();
-  $: switch ($theme) {
-    case Theme.DARK:
-      darkStore.set(true);
-      break;
-    case Theme.LIGHT:
-      darkStore.set(false);
-      break;
-    case Theme.YOUTUBE:
-      if (window.location.search.includes('dark')) darkStore.set(true);
-      else darkStore.set(false);
-      break;
-    default:
-      break;
-  }
+  $: darkStore.set($isDark);
 
   $: console.debug({
     theme: $theme,
@@ -44,6 +33,13 @@
     showTimestamps: $showTimestamps,
     showUsernames: $showUsernames
   });
+
+  const superchatBarWasDisabled = !$enableStickySuperchatBar;
+  let superchatBarWasToggled: boolean | null = null;
+  const updateSuperchatBarToggle = () => {
+    superchatBarWasToggled = superchatBarWasToggled !== null;
+  };
+  $: $enableStickySuperchatBar, updateSuperchatBarToggle();
 </script>
 
 <Card title="Appearance" icon="format_paint">
@@ -51,6 +47,10 @@
     <h6>Theme:</h6>
     <Radio store={theme} items={themeItems} />
   </div>
+  <Checkbox name="Enable sticky superchat bar" store={enableStickySuperchatBar} />
+  {#if (superchatBarWasToggled || superchatBarWasDisabled) && $enableStickySuperchatBar}
+    <i>The superchat bar will appear upon reload or when the next superchat arrives.</i>
+  {/if}
 </Card>
 
 <Card title="Messages" icon="message">

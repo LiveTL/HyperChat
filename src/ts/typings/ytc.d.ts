@@ -93,12 +93,29 @@ declare namespace Ytc {
   interface AddTickerAction {
     item: {
       liveChatTickerSponsorItemRenderer?: TickerRenderer & {
-        detailText: RunsObj;
+        detailText: RunsObj | SimpleTextObj;
         detailTextColor: number;
+        startBackgroundColor: number;
+        endBackgroundColor: number;
+        showItemEndpoint: {
+          showLiveChatItemEndpoint: {
+            renderer: {
+              liveChatMembershipItemRenderer: MembershipRenderer;
+            };
+          };
+        };
       };
       liveChatTickerPaidMessageItemRenderer?: TickerRenderer & {
         amount: SimpleTextObj;
         amountTextColor: number;
+        durationSec: number;
+        showItemEndpoint: {
+          showLiveChatItemEndpoint: {
+            renderer: {
+              liveChatPaidMessageRenderer: PaidMessageRenderer;
+            };
+          };
+        };
       };
     };
     durationSec: IntString;
@@ -319,9 +336,17 @@ declare namespace Ytc {
     };
   }
 
+  interface ParsedTicker extends ParsedMessage {
+    type: 'ticker';
+    tickerDuration: number;
+    detailText?: string;
+  }
+
   type ParsedMisc = ParsedPinned | { type: 'unpin'};
 
-  type ParsedAction = ParsedMessage | ParsedBonk | ParsedDeleted | ParsedMisc;
+  type ParsedTimedItem = ParsedMessage | ParsedTicker;
+
+  type ParsedAction = ParsedTimedItem | ParsedBonk | ParsedDeleted | ParsedMisc;
 
   interface ParsedChunk {
     messages: ParsedMessage[];
