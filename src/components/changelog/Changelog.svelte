@@ -15,6 +15,10 @@
     properly on select devices
   </li>
   <li class="ml-3.5">
+    Fixed pinned messages hindering visibility when
+    scrolled to the top of the chat
+  </li>
+  <li class="ml-3.5">
     Fixed occasional freezing issues
   </li>
 </ul>
