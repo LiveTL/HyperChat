@@ -119,11 +119,11 @@
     const keep: Chat.MessageAction[] = [];
     const discard: Ytc.ParsedTicker[] = [];
     items.forEach(item => {
-      if (
-        'tickerDuration' in item.message &&
-        !$stickySuperchats.some(sc => sc.messageId === item.message.messageId)
-      ) discard.push(item.message);
-      else keep.push(item);
+      if ('tickerDuration' in item.message) {
+        if (!$stickySuperchats.some(sc => sc.messageId === item.message.messageId)) {
+          discard.push(item.message);
+        }
+      } else keep.push(item);
     });
     if ($enableStickySuperchatBar && discard.length) {
       $stickySuperchats = [
@@ -278,7 +278,7 @@
     $showProfileIcons, $showUsernames, $showTimestamps, $showUserBadges
   );
 
-  const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25 flex flex-col';
+  const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25 flex flex-col justify-between';
 
   const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
   const isMembership = (action: Chat.MessageAction) => (action.message.membership);
