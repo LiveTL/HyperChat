@@ -176,6 +176,7 @@
         $currentProgress = action.playerProgress;
         break;
       case 'forceUpdate':
+        messageKeys.clear();
         messageActions = [...action.messages].filter(shouldShowMessage);
         if (action.showWelcome) {
           messageActions = [...messageActions, welcome];
