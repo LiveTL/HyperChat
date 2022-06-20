@@ -11,15 +11,16 @@
     profile pictures if enabled.
   </li>
   <li class="ml-3.5">
+    Fixed freezing issues when YouTube requests to render
+    duplicate message entries
+  </li>
+  <li class="ml-3.5">
     Fixed issues with the settings menu not opening
     properly on select devices
   </li>
   <li class="ml-3.5">
     Fixed pinned messages hindering visibility when
     scrolled to the top of the chat
-  </li>
-  <li class="ml-3.5">
-    Fixed occasional freezing issues
   </li>
 </ul>
 <ul class="list-disc list-inside">
