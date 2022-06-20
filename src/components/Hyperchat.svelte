@@ -46,6 +46,7 @@
   const CHAT_HISTORY_SIZE = 150;
   const TRUNCATE_SIZE = 20;
   let messageActions: (Chat.MessageAction | Welcome)[] = [];
+  const messageKeys = new Set<string>();
   let pinned: Ytc.ParsedPinned | null;
   let div: HTMLElement;
   let isAtBottom = true;
@@ -66,7 +67,13 @@
     isAllEmoji(a)
   );
 
-  const messageBlockers = [memberOnlyBlocker, emojiSpamBlocker];
+  const duplicateKeyBlocker: MessageBlocker = (a) => {
+    const result = messageKeys.has(a.message.messageId);
+    messageKeys.add(a.message.messageId);
+    return result;
+  };
+
+  const messageBlockers = [memberOnlyBlocker, emojiSpamBlocker, duplicateKeyBlocker];
 
   const shouldShowMessage = (m: Chat.MessageAction): boolean => (
     !messageBlockers.some(blocker => blocker(m))
@@ -87,7 +94,10 @@
 
   const checkTruncateMessages = (): void => {
     const diff = messageActions.length - CHAT_HISTORY_SIZE;
-    if (diff > TRUNCATE_SIZE) messageActions.splice(0, diff);
+    if (diff > TRUNCATE_SIZE) {
+      const removed = messageActions.splice(0, diff);
+      removed.forEach(m => messageKeys.delete(m.message.messageId));
+    }
     messageActions = messageActions;
   };
 
@@ -166,6 +176,7 @@
         $currentProgress = action.playerProgress;
         break;
       case 'forceUpdate':
+        messageKeys.clear();
         messageActions = [...action.messages].filter(shouldShowMessage);
         if (action.showWelcome) {
           messageActions = [...messageActions, welcome];
