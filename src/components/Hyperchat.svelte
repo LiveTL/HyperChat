@@ -222,7 +222,11 @@
           messageActions = messageActions.filter(
             (a) => {
               if (isWelcome(a)) return true;
-              return a.message.author.id !== response.message.author.id;
+              const r = a.message.author.id !== response.message.author.id;
+              if (!r) {
+                messageKeys.delete(a.message.messageId);
+              }
+              return r;
             }
           );
         }
