@@ -19,9 +19,27 @@
 
   const logo = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png');
   const simplified = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/simplified.png');
+
+  let updated = !disabled;
 </script>
 
 <div id="hc-buttons">
+  {#if updated}
+    <div class="update-notification">
+      Updated!
+      <svg height="24" width="24" viewBox="0 0 24 24" class="chevron">
+        <path d="M0 0h24v24H0z" fill="none"/><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+      </svg>
+      <a href="/" on:click={(e) => {
+        e.preventDefault();
+        updated = false;
+      }}>
+        <svg height="20" width="24" viewBox="0 0 24 24" class="close">
+          <path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </svg>
+      </a>
+    </div>
+  {/if}
   <div class="tooltip-bottom" data-tooltip="{disabled ? 'Enable' : 'Disable'} HyperChat">
     <div class="toggleButton" class:disabled on:click={toggleHc} >
       <img src={logo} alt="hc-logo"/>
@@ -291,5 +309,25 @@
     -webkit-transform: translateY(12px);
     -moz-transform:    translateY(12px);
     transform:         translateY(12px); 
+  }
+
+  .update-notification {
+    background-color: rgb(224, 172, 0);
+    color: black;
+    display: flex;
+    border-radius: 1000px;
+    padding-left: 10px;
+    font-size: 1.5rem;
+    justify-content: center;
+    align-items: center;
+  }
+  .close {
+    display: none;
+  }
+  .update-notification:hover .chevron {
+    display: none;
+  }
+  .update-notification:hover .close {
+    display: block;
   }
 </style>
