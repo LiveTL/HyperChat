@@ -37,8 +37,10 @@
     alertDialog,
     stickySuperchats,
     currentProgress,
-    enableStickySuperchatBar
+    enableStickySuperchatBar,
+    lastOpenedVersion
   } from '../ts/storage';
+  import { version } from '../manifest.json';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
@@ -241,6 +243,7 @@
 
   // Doesn't work well with onMount, so onLoad will have to do
   const onLoad = () => {
+    $lastOpenedVersion = version;
     document.body.classList.add('overflow-hidden');
 
     if (paramsTabId == null || paramsFrameId == null || paramsTabId.length < 1 || paramsFrameId.length < 1) {

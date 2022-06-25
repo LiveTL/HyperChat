@@ -1,8 +1,9 @@
 <script lang='ts'>
   import { isLiveTL } from '../ts/chat-constants';
-  import { hcEnabled } from '../ts/storage';
+  import { hcEnabled, lastOpenedVersion } from '../ts/storage';
   import { createPopup } from '../ts/chat-utils';
   import { mdiCogOutline } from '@mdi/js';
+  import { version } from '../manifest.json';
 
   $: disabled = !$hcEnabled;
 
@@ -20,7 +21,11 @@
   const logo = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png');
   const simplified = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/simplified.png');
 
-  let updated = !disabled;
+  let updated = false;
+
+  lastOpenedVersion.ready().then(() => {
+    updated = !$hcEnabled && $lastOpenedVersion !== version;
+  });
 </script>
 
 <div id="hc-buttons">
@@ -33,6 +38,7 @@
       <a href="/" on:click={(e) => {
         e.preventDefault();
         updated = false;
+        $lastOpenedVersion = version;
       }}>
         <svg height="20" width="24" viewBox="0 0 24 24" class="close">
           <path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
@@ -62,6 +68,7 @@
   #hc-buttons {
     float: right;
     display: flex;
+    user-select: none;
   }
 
   .toggleButton {
@@ -320,6 +327,7 @@
     font-size: 1.5rem;
     justify-content: center;
     align-items: center;
+    cursor: default;
   }
   .close {
     display: none;
