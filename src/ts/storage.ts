@@ -7,7 +7,7 @@ import { ChatReportUserOptions, Theme, YoutubeEmojiRenderMode } from './chat-con
 
 export const stores = webExtStores();
 
-export const hcEnabled = stores.addSyncStore('hc.enabled', true);
+export const hcEnabled = stores.addSyncStore('hc.enabled', false);
 export const translateTargetLanguage = stores.addSyncStore('hc.translateTargetLanguage', '' as '' | AvailableLanguageCodes);
 export const translatorClient = readable(null as (null | IframeTranslatorClient), (set) => {
   let client: IframeTranslatorClient | null = null;
