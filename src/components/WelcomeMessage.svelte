@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { lastClosedVersion, refreshScroll } from '../ts/storage';
+  import { lastClosedVersion, refreshScroll, focusedSuperchat } from '../ts/storage';
   import { Browser, getBrowser, isLiveTL } from '../ts/chat-constants';
   import Changelog from './changelog/Changelog.svelte';
   import { version } from '../manifest.json';
@@ -39,8 +39,12 @@
   $: showChangelog = $lastClosedVersion !== version;
 
   const d = new Date();
-  const kiwawaBdayImg = (true || (d.getFullYear() === 2022 && d.getMonth() === 6 && d.getDate() >= 4 && d.getDate() <= 8))
+  const cond = (true || (d.getFullYear() === 2022 && d.getMonth() === 6 && d.getDate() >= 4 && d.getDate() <= 8));
+  const kiwawaBdayImg = cond
     ? chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/kiara-hat.png')
+    : '';
+  const profilePic = cond
+    ? chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/kento.png')
     : '';
 </script>
 
@@ -49,7 +53,34 @@
     <div class="relative">
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
       {#if kiwawaBdayImg}
-        <img src={kiwawaBdayImg} class="kiwawa-hat" alt="Takanashi Kiara's Birthday Surprise">
+        <img src={kiwawaBdayImg} class="kiwawa-hat cursor-pointer" alt="Takanashi Kiara's Birthday Surprise" on:click={() => {
+          $focusedSuperchat = {
+            author: {
+              name: 'Kento Nishi',
+              id: 'fake-user-id',
+              types: [],
+              profileIcon: {
+                src: profilePic,
+                alt: 'Kento Nishi'
+              }
+            },
+            message: [{
+              type: 'text',
+              text: 'Test Message'
+            }],
+            timestamp: 'July 6th, 2022',
+            showtime: 69420,
+            messageId: 'fake-message-id',
+            superChat: {
+              headerBackgroundColor: 'ff3700',
+              headerTextColor: 'ffffff',
+              amount: '',
+              bodyBackgroundColor: 'ff6500',
+              bodyTextColor: 'ffffff',
+              nameColor: 'ffffff'
+            }
+          };
+        }}>
       {/if}
     </div>
     <span class="ml-2 leading-tight">
