@@ -37,12 +37,20 @@
   ];
 
   $: showChangelog = $lastClosedVersion !== version;
+
+  const d = new Date();
+  const kiwawaBdayImg = (true || (d.getFullYear() === 2022 && d.getMonth() === 6 && d.getDate() >= 4 && d.getDate() <= 8))
+    ? chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/kiara-hat.png')
+    : '';
 </script>
 
 <div class={classes}>
   <div class="flex items-center w-full">
-    <div>
+    <div class="relative">
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
+      {#if kiwawaBdayImg}
+        <img src={kiwawaBdayImg} class="kiwawa-hat" alt="Takanashi Kiara's Birthday Surprise">
+      {/if}
     </div>
     <span class="ml-2 leading-tight">
       <h5 class="font-bold">HyperChat by LiveTL</h5>
@@ -97,3 +105,25 @@
     </p>
   {/if}
 </div>
+
+<style>
+  @keyframes float {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  .kiwawa-hat {
+    position: absolute;
+    top: -10px;
+    left: -5px;
+    max-width: unset;
+    width: 55px;
+    animation: float 1.5s ease-in-out infinite;
+  }
+</style>
