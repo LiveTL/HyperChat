@@ -69,6 +69,8 @@
             alt={run.alt}
           />
         {/if}
+      {:else if run.type === 'newline'}
+        <div class="block w-full h-2" />
       {/if}
     {/each}
   </span>

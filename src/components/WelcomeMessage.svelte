@@ -39,45 +39,95 @@
   $: showChangelog = $lastClosedVersion !== version;
 
   const d = new Date();
-  const cond = (true || (d.getFullYear() === 2022 && d.getMonth() === 6 && d.getDate() >= 4 && d.getDate() <= 8));
-  const kiwawaBdayImg = cond
-    ? chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/kiara-hat.png')
-    : '';
-  const profilePic = cond
-    ? chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/kento.png')
-    : '';
+  const kiaraBday = (true || (d.getFullYear() === 2022 && d.getMonth() === 6 && d.getDate() >= 4 /* && d.getDate() <= 8 */));
+  // ^^^^^^^ start showing 2 days before, and don't hide
+  const getURL = (asset: string) => chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + `/${asset}`);
 </script>
 
 <div class={classes}>
   <div class="flex items-center w-full">
     <div class="relative">
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
-      {#if kiwawaBdayImg}
-        <img src={kiwawaBdayImg} class="kiwawa-hat cursor-pointer" alt="Takanashi Kiara's Birthday Surprise" on:click={() => {
+      {#if kiaraBday}
+        <img src={getURL('kiara-hat.png')} class="kiwawa-hat cursor-pointer" alt="Takanashi Kiara's Birthday Surprise" on:click={() => {
           $focusedSuperchat = {
             author: {
-              name: 'Kento Nishi',
+              name: 'Kento Nishi | LiveTL & HyperChat Dev🐔',
               id: 'fake-user-id',
               types: [],
               profileIcon: {
-                src: profilePic,
+                src: getURL('kento.png'),
                 alt: 'Kento Nishi'
               }
             },
             message: [{
               type: 'text',
-              text: 'Test Message'
+              text: 'Happy Birthday, Kiwawa!'
+            }, {
+              type: 'emoji',
+              alt: 'KiaraLove',
+              src: getURL('kiara-love.png')
+            }, {
+              type: 'newline'
+            }, {
+              type: 'text',
+              text: 'ここで、ドイツ語で「お誕生日おめでとう」を歌わせていただきます、、、なんちゃってｗｗｗ'
+            }, {
+              type: 'newline'
+            }, {
+              type: 'text',
+              text: `
+                I just wanted to take this special occasion to express my gratitude
+                to you and the KFP community for... well, existing, really.
+                I've been a part of many fandoms, but KFP feels special;
+                your engagement in the community is unlike that of any other
+                content creator. I love that you are so close with us employees,
+                be it through the chat, conventions like Dokomi, or even memes on Twitter.
+              `
+            }, {
+              type: 'newline'
+            }, {
+              type: 'text',
+              text: `
+                When I started developing LiveTL and HyperChat, I never imagined
+                that my oshi would one day be a user, and a very supportive one
+                at that! There's been a very obvious uptick in new features and improvements
+                to HyperChat since you started using it -- you are an inspiration to me,
+                and you motivate all of us developers to keep pushing to provide completely
+                free and open-source software for everyone to enjoy.
+              `
+            }, {
+              type: 'newline'
+            }, {
+              type: 'text',
+              text: `
+                Aside from all that sentimental stuff, I really enjoy your streams, music, art,
+                and memes! Your streams are a blast, and I wish I could watch them live more
+                often (curse you, timezones!). Keep 'em comin'!
+              `
+            }, {
+              type: 'newline'
+            }, {
+              type: 'text',
+              text: `
+                Again, happy birthday, tenchou! Here's to another year of Kiwawa and KFP!
+                VIVA LA KFP! VIVA LA KIARA!
+              `
+            }, {
+              type: 'emoji',
+              alt: 'KiaraKotori',
+              src: getURL('kiara-kotori.png')
             }],
             timestamp: 'July 6th, 2022',
             showtime: 69420,
             messageId: 'fake-message-id',
             superChat: {
-              headerBackgroundColor: 'ff3700',
+              headerBackgroundColor: 'ff883a',
               headerTextColor: 'ffffff',
               amount: '',
-              bodyBackgroundColor: 'ff6500',
-              bodyTextColor: 'ffffff',
-              nameColor: 'ffffff'
+              bodyBackgroundColor: 'ffb700',
+              bodyTextColor: '000000',
+              nameColor: '000000'
             }
           };
         }}>
@@ -155,6 +205,6 @@
     left: -5px;
     max-width: unset;
     width: 55px;
-    animation: float 1.5s ease-in-out infinite;
+    animation: float 1s ease-in-out infinite;
   }
 </style>
