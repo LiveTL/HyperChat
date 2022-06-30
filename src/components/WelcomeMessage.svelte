@@ -39,7 +39,7 @@
   $: showChangelog = $lastClosedVersion !== version;
 
   const d = new Date();
-  const kiaraBday = (true || (d.getFullYear() === 2022 && d.getMonth() === 6 && d.getDate() >= 4 /* && d.getDate() <= 8 */));
+  const kiaraBday = (/* true || */ (d.getFullYear() === 2022 && d.getMonth() === 6 && d.getDate() >= 5 /* && d.getDate() <= 8 */));
   // ^^^^^^^ start showing 2 days before, and don't hide
   const getURL = (asset: string) => chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + `/${asset}`);
 </script>
