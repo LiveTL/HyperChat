@@ -67,6 +67,7 @@
             class="h-5 w-5 inline mx-0.5 align-middle"
             src={run.src}
             alt={run.alt}
+            title={run.alt}
           />
         {/if}
       {/if}

@@ -122,6 +122,7 @@
             class="h-4 w-4 inline align-middle"
             src={message.author.customBadge.src}
             alt={message.author.customBadge.alt}
+            title={message.author.customBadge.alt}
           />
         {/if}
       </span>
