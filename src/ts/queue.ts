@@ -227,7 +227,7 @@ export function ytcQueue(isReplay = false): YtcQueue {
         const isOwnMessage =
           m.author.id === selfChannel.get()?.authorExternalChannelId;
 
-        if ((!setInitial || isActiveReplay) && (forceDisplay || !isOwnMessage)) {
+        if ((!setInitial || isActiveReplay) && (forceDisplay || !isOwnMessage || chunk.refresh)) {
           messageQueue[forceDisplay ? 'prepend' : 'push'](messageAction);
         }
         result.push(messageAction);
