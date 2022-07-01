@@ -62,7 +62,8 @@
         <img
           class="h-10 w-10 float-right"
           src={message.superSticker.src}
-          alt={message.superSticker.alt} />
+          alt={message.superSticker.alt}
+          title={message.superSticker.alt} />
       {/if}
     </div>
     {#if !chip && message.message.length > 0}
