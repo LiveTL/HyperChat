@@ -278,11 +278,7 @@ declare namespace Ytc {
     standardEmoji?: boolean;
   }
 
-  interface ForceNewlineRun {
-    type: 'newline';
-  }
-
-  type ParsedRun = ParsedTextRun | ParsedLinkRun | ParsedEmojiRun | ForceNewlineRun;
+  type ParsedRun = ParsedTextRun | ParsedLinkRun | ParsedEmojiRun;
 
   interface PaidDetails {
     amount: string;
