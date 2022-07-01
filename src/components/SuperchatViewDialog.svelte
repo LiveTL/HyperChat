@@ -20,4 +20,9 @@
   :global(.no-padding>div):nth-child(1), :global(.no-padding>div):nth-child(3) {
     display: none;
   }
+  :global(.no-padding) {
+    padding: 0px !important;
+    margin: 1rem !important;
+    background-color: transparent !important;
+  }
 </style>
