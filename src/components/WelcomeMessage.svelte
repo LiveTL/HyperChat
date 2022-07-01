@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { lastClosedVersion, refreshScroll, focusedSuperchat } from '../ts/storage';
+  import { lastClosedVersion, refreshScroll } from '../ts/storage';
   import { Browser, getBrowser, isLiveTL } from '../ts/chat-constants';
   import Changelog from './changelog/Changelog.svelte';
   import { version } from '../manifest.json';
@@ -39,115 +39,40 @@
   $: showChangelog = $lastClosedVersion !== version;
 
   const d = new Date();
-  const kiaraBday = (/* true || */ (d.getFullYear() === 2022 && d.getMonth() === 6 && d.getDate() >= 5 /* && d.getDate() <= 8 */));
-  // ^^^^^^^ start showing 2 days before, and don't hide
+  const kiaraBday = (true || (d.getFullYear() === 2022 && d.getMonth() === 6 && d.getDate() >= 5 /* && d.getDate() <= 8 */));
+  let kiaraBdayActive = false;
   const getURL = (asset: string) => chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + `/${asset}`);
 </script>
 
-<div class={classes}>
+<div class={classes} style={kiaraBdayActive ? 'background-color: #ffb826' : ''}>
   <div class="flex items-center w-full">
     <div class="relative">
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
       {#if kiaraBday}
         <img src={getURL('kiara-hat.png')} class="kiwawa-hat cursor-pointer" alt="Takanashi Kiara's Birthday Surprise" on:click={() => {
-          $focusedSuperchat = {
-            author: {
-              name: 'Kento Nishi | LiveTL & HyperChat Dev🐔',
-              id: 'fake-user-id',
-              types: [],
-              profileIcon: {
-                src: getURL('kento.png'),
-                alt: 'Kento Nishi'
-              }
-            },
-            message: [{
-              type: 'text',
-              text: 'Happy Birthday, Kiwawa!'
-            }, {
-              type: 'emoji',
-              alt: 'KiaraLove',
-              src: getURL('kiara-love.png')
-            }, {
-              type: 'newline'
-            }, {
-              type: 'text',
-              text: 'ここで、ドイツ語で「お誕生日おめでとう」を歌わせていただきます、、、なんちゃってｗｗｗ'
-            }, {
-              type: 'newline'
-            }, {
-              type: 'text',
-              text: `
-                I just wanted to take this special occasion to express my gratitude
-                to you and the KFP community for... well, existing, really.
-                I've been a part of many fandoms, but KFP feels special;
-                your engagement in the community is unlike that of any other
-                content creator. I love that you are so close with us employees,
-                be it through the chat, conventions like Dokomi, or even memes on Twitter.
-              `
-            }, {
-              type: 'newline'
-            }, {
-              type: 'text',
-              text: `
-                When I started developing LiveTL and HyperChat, I never imagined
-                that my oshi would one day be a user, and a very supportive one
-                at that! There's been a very obvious uptick in new features and improvements
-                to HyperChat since you started using it -- you are an inspiration to me,
-                and you motivate all of us developers to keep pushing to provide completely
-                free and open-source software for everyone to enjoy.
-              `
-            }, {
-              type: 'newline'
-            }, {
-              type: 'text',
-              text: `
-                Aside from all that sentimental stuff, I really enjoy your streams, music, art,
-                and memes! Your streams are a blast, and I wish I could watch them live more
-                often (curse you, timezones!). Keep 'em comin'!
-              `
-            }, {
-              type: 'newline'
-            }, {
-              type: 'text',
-              text: `
-                Again, happy birthday, tenchou! Here's to another year of Kiwawa and KFP!
-                VIVA LA KFP! VIVA LA KIARA!
-              `
-            }, {
-              type: 'emoji',
-              alt: 'KiaraKotori',
-              src: getURL('kiara-kotori.png')
-            }],
-            timestamp: 'July 6th, 2022',
-            showtime: 69420,
-            messageId: 'fake-message-id',
-            superChat: {
-              headerBackgroundColor: 'ff883a',
-              headerTextColor: 'ffffff',
-              amount: '',
-              bodyBackgroundColor: 'ffb700',
-              bodyTextColor: '000000',
-              nameColor: '000000'
-            }
-          };
+          kiaraBdayActive = !kiaraBdayActive;
         }}>
       {/if}
     </div>
-    <span class="ml-2 leading-tight">
-      <h5 class="font-bold">HyperChat by LiveTL</h5>
+    <span class="ml-2 leading-tight {kiaraBdayActive ? 'text-black' : ''}">
+      <h5 class="font-bold">HyperChat by {kiaraBdayActive ? 'KFP' : 'LiveTL'}</h5>
       <p>
-        Optimized YouTube Chat
-        /
-        {#if !showChangelog}
-          <a href="/" on:click={(e) => {
-            $lastClosedVersion = '';
-            $refreshScroll = true;
-            e.preventDefault();
-          }} class="underline dark:text-primary-50 text-primary-900">
-            v{version}
-          </a>
+        {#if kiaraBdayActive}
+          Happy Birthday Kiwawa!
         {:else}
-          v{version}
+          Optimized YouTube Chat
+          /
+          {#if !showChangelog}
+            <a href="/" on:click={(e) => {
+              $lastClosedVersion = '';
+              $refreshScroll = true;
+              e.preventDefault();
+            }} class="underline text-primary-900 {kiaraBdayActive ? '' : 'dark:text-primary-50'}">
+              v{version}
+            </a>
+          {:else}
+            v{version}
+          {/if}
         {/if}
       </p>
       <div class="flex flex-wrap">
@@ -155,7 +80,7 @@
           <p>
             <a 
               href={badge.href}
-              class="underline dark:text-primary-50 text-primary-900"
+              class="underline text-primary-900 {kiaraBdayActive ? '' : 'dark:text-primary-50'}"
               target="_blank"
             >
               {badge.name}
@@ -176,11 +101,11 @@
         e.preventDefault();
       }}
       class="inline-block align-middle cursor-pointer pt-0.5 h-fit">
-        <Icon xs class="text-error-500 dark:text-error-200 font-bold">
+        <Icon xs class="{kiaraBdayActive ? 'text-error-800' : 'text-error-500 dark:text-error-200'} font-bold">
           close
         </Icon>
       </span>
-      <span class="mr-0.5">
+      <span class="mr-0.5 {kiaraBdayActive ? 'text-black' : ''}">
         <Changelog />
       </span>
     </p>
