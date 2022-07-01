@@ -1,8 +1,9 @@
 <script lang='ts'>
   import { isLiveTL } from '../ts/chat-constants';
-  import { hcEnabled } from '../ts/storage';
+  import { hcEnabled, lastOpenedVersion } from '../ts/storage';
   import { createPopup } from '../ts/chat-utils';
-  import { mdiCogOutline } from '@mdi/js';
+  import { mdiChevronRight, mdiClose, mdiCogOutline } from '@mdi/js';
+  import { version } from '../manifest.json';
 
   $: disabled = !$hcEnabled;
 
@@ -19,9 +20,31 @@
 
   const logo = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/logo-48.png');
   const simplified = chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + '/simplified.png');
+
+  let updated = false;
+
+  lastOpenedVersion.ready().then(() => {
+    updated = !$hcEnabled && $lastOpenedVersion !== version;
+  });
 </script>
 
 <div id="hc-buttons">
+  {#if updated}
+    <div class="update-notification">
+      Updated!
+      <svg height="24" width="24" viewBox="0 0 24 24" class="chevron">
+        <path d={mdiChevronRight} fill="black"/>
+      </svg>
+      <div style="cursor: pointer;" on:click={() => {
+        updated = false;
+        $lastOpenedVersion = version;
+      }}>
+        <svg height="20" width="24" viewBox="0 0 24 24" class="close">
+          <path d={mdiClose} fill="black"/>
+        </svg>
+      </div>
+    </div>
+  {/if}
   <div class="tooltip-bottom" data-tooltip="{disabled ? 'Enable' : 'Disable'} HyperChat">
     <div class="toggleButton" class:disabled on:click={toggleHc} >
       <img src={logo} alt="hc-logo"/>
@@ -44,6 +67,7 @@
   #hc-buttons {
     float: right;
     display: flex;
+    user-select: none;
   }
 
   .toggleButton {
@@ -291,5 +315,25 @@
     -webkit-transform: translateY(12px);
     -moz-transform:    translateY(12px);
     transform:         translateY(12px); 
+  }
+
+  .update-notification {
+    background-color: rgb(224, 172, 0);
+    color: black;
+    display: flex;
+    border-radius: 1000px;
+    padding-left: 10px;
+    font-size: 1.5rem;
+    justify-content: center;
+    align-items: center;
+  }
+  .close {
+    display: none;
+  }
+  .update-notification:hover .chevron {
+    display: none;
+  }
+  .update-notification:hover .close {
+    display: block;
   }
 </style>
