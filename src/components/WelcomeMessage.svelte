@@ -46,19 +46,19 @@
 
 <div class={classes} style={kiaraBdayActive ? 'background-color: #ffb826' : ''}>
   <div class="flex items-center w-full">
-    <div class="relative">
+    <div class="relative" class:cursor-pointer={kiaraBday} on:mousedown={() => {
+      if (kiaraBday) kiaraBdayActive = !kiaraBdayActive;
+    }}>
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
       {#if kiaraBday}
-        <img src={getURL('kiara-hat.png')} class="kiwawa-hat cursor-pointer" alt="Takanashi Kiara's Birthday Surprise" on:click={() => {
-          kiaraBdayActive = !kiaraBdayActive;
-        }}>
+        <img src={getURL('kiara-hat.png')} class="kiwawa-hat" alt="Takanashi Kiara's Birthday Surprise">
       {/if}
     </div>
     <span class="ml-2 leading-tight {kiaraBdayActive ? 'text-black' : ''}">
       <h5 class="font-bold">HyperChat by {kiaraBdayActive ? 'KFP' : 'LiveTL'}</h5>
       <p>
         {#if kiaraBdayActive}
-          Happy Birthday Kiwawa!
+          Happy birthday, Kiwawa!
         {:else}
           Optimized YouTube Chat
           /
