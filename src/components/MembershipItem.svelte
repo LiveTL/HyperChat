@@ -4,7 +4,7 @@
   import { showProfileIcons } from '../ts/storage';
   import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
 
-  export let message: Ytc.ParsedTimedItem;
+  export let message: Ytc.ParsedMessage;
 
   const classes = 'inline-flex flex-col rounded break-words overflow-hidden w-full text-white';
 
