@@ -220,11 +220,8 @@ declare namespace Ytc {
 
   interface MembershipGiftPurchaseRenderer extends IRenderer {
     header: {
-      liveChatSponsorshipsHeaderRenderer: {
-        authorName?: SimpleTextObj;
-        authorPhoto?: Thumbnails;
+      liveChatSponsorshipsHeaderRenderer: TextMessageRenderer & {
         primaryText: RunsObj;
-        authorBadges?: AuthorBadge[];
         image: Thumbnails;
       };
     };
@@ -324,6 +321,11 @@ declare namespace Ytc {
     headerSubtext: ParsedRun[];
   }
 
+  interface ParsedMembershipGiftPurchase {
+    headerPrimaryText: ParsedRun[];
+    image: ParsedImage;
+  }
+
   interface ParsedMessage {
     author: {
       name: string;
@@ -341,6 +343,8 @@ declare namespace Ytc {
     superSticker?: ParsedSuperSticker;
     membership?: ParsedMembership;
     params?: string;
+    membershipGiftPurchase?: ParsedMembershipGiftPurchase;
+    membershipGiftRedeem?: boolean;
   }
 
   interface ParsedBonk {
