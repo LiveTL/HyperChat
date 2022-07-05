@@ -128,7 +128,16 @@
       </span>
       <span class="mr-1.5" class:hidden={!showUserMargin} />
     {/if}
-    <MessageRun runs={message.message} {forceDark} deleted={deleted != null} {forceTLColor} />
+    <MessageRun
+      runs={message.message}
+      {forceDark}
+      deleted={deleted != null}
+      {forceTLColor}
+      class={message.membershipGiftRedeem ? 'text-gray-700 dark:text-gray-600 italic font-medium' : ''}
+    />
+    {#if message.membershipGiftRedeem}
+      <Icon class="inline align-middle ml-1 text-gray-700 dark:text-gray-600" small>redeem</Icon>
+    {/if}
   </div>
   {#if message.author.id !== $selfChannelId}
     <Menu items={menuItems} visible={$hoveredItem === message.messageId} class="mr-2 ml-auto context-menu">

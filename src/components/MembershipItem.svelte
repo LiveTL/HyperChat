@@ -2,24 +2,27 @@
   import Message from './Message.svelte';
   import MessageRun from './MessageRuns.svelte';
   import { showProfileIcons } from '../ts/storage';
-  import { membershipBackground } from '../ts/chat-constants';
+  import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
 
   export let message: Ytc.ParsedTimedItem;
 
   const classes = 'inline-flex flex-col rounded break-words overflow-hidden w-full text-white';
 
   $: membership = message.membership;
-  $: if (!membership) {
+  $: membershipGift = message.membershipGiftPurchase;
+  $: if (!(membership || membershipGift)) {
     console.error('Not a membership item', { message });
   }
   $: isMilestoneChat = message.message.length > 0;
+
+  $: primaryText = (membership || membershipGift)?.headerPrimaryText;
 </script>
 
-{#if membership}
+{#if membership || membershipGift}
   <div class={classes} style="background-color: #{membershipBackground};">
     <div
       class="p-2"
-      style="{isMilestoneChat ? 'background-color: #107516;' : ''}"
+      style="{isMilestoneChat ? `background-color: #${milestoneChatBackground};` : ''}"
     >
       {#if $showProfileIcons}
         <img
@@ -31,13 +34,22 @@
       <span class="font-bold tracking-wide align-middle mr-3">
         {message.author.name}
       </span>
-      {#if membership.headerPrimaryText.length > 0}
+      {#if primaryText && primaryText.length > 0}
         <MessageRun
           class="font-medium mr-3"
-          runs={membership.headerPrimaryText}
+          runs={primaryText}
         />
       {/if}
-      <MessageRun runs={membership.headerSubtext} />
+      {#if membership}
+        <MessageRun runs={membership.headerSubtext} />
+      {/if}
+      {#if membershipGift}
+        <img
+          class="h-10 w-10 float-right"
+          src={membershipGift.image.src}
+          alt={membershipGift.image.alt}
+          title={membershipGift.image.alt} />
+      {/if}
     </div>
     {#if isMilestoneChat}
       <div class="p-2">
