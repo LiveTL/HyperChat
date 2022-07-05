@@ -1,8 +1,8 @@
 <script lang="ts">
   import dark from 'smelte/src/dark';
   import { stickySuperchats, currentProgress } from '../ts/storage';
-  import TimedItem from './TimedItem.svelte';
   import { onDestroy, onMount } from 'svelte';
+  import Chip from './TickerChip.svelte';
 
   const isDark = dark();
   let scrollableElem: HTMLDivElement;
@@ -52,13 +52,10 @@
       "
     >
       {#each $stickySuperchats as sc (sc.messageId)}
-        <span class="mx-0.5 h-8 mt-1">
-          <TimedItem
-            item={sc}
-            chip
-            fillPortion={Math.max(0, (($currentProgress || 0) - sc.showtime / 1000) / sc.tickerDuration)}
-          />
-        </span>
+        <Chip
+          item={sc}
+          fillPortion={Math.max(0, (($currentProgress || 0) - sc.showtime / 1000) / sc.tickerDuration)}
+        />
       {/each}
     </div>
   </div>
