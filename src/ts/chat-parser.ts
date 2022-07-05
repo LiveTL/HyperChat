@@ -95,7 +95,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     });
   }
   const runs = parseMessageRuns(messageRenderer.message?.runs);
-  const timestampUsec = parseInt(renderer.timestampUsec);
+  const timestampUsec = parseInt(renderer.timestampUsec || (Date.now() * 1000).toString());
   const timestampText = messageRenderer.timestampText?.simpleText;
   const liveShowtimeMs = (timestampUsec / 1000) + liveTimeoutOrReplayMs;
   const profileIcon = {
