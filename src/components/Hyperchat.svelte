@@ -38,7 +38,8 @@
     stickySuperchats,
     currentProgress,
     enableStickySuperchatBar,
-    lastOpenedVersion
+    lastOpenedVersion,
+    selfChannelName
   } from '../ts/storage';
   import { version } from '../manifest.json';
 
@@ -300,6 +301,8 @@
 
   const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
   const isMembership = (action: Chat.MessageAction) => (action.message.membership);
+  const isMessage = (action: Chat.MessageAction | Welcome): action is Chat.MessageAction =>
+    (!isWelcome(action) && !isSuperchat(action) && !isMembership(action));
 
   $: $useSystemEmojis, onRefresh();
 
@@ -323,6 +326,16 @@
     }, 350);
   };
   $: $enableStickySuperchatBar, pinned, topBarResized();
+
+  const isMention = (msg: Ytc.ParsedMessage) => {
+    return msg.message.map(run => {
+      if (run.type === 'text' || run.type === 'link') {
+        return run.text;
+      } else {
+        return run.alt;
+      }
+    }).join('').includes(`@${$selfChannelName}`);
+  };
 </script>
 
 <ReportBanDialog />
@@ -342,7 +355,10 @@
       <div style="height: {topBarSize}px;" />
       {#each messageActions as action (action.message.messageId)}
         <div
-          class="{isWelcome(action) ? '' : 'flex'} hover-highlight p-1.5 w-full block"
+          class="hover-highlight p-1.5 w-full block"
+          class:flex = {!isWelcome(action)}
+          class:mention = {isMessage(action) && isMention(action.message)}
+          class:mention-light = {!$smelteDark}
           on:mouseover={() => setHover(action)}
           on:focus={() => setHover(action)}
           on:mouseout={() => setHover(null)}
@@ -354,7 +370,7 @@
             <PaidMessage message={action.message} />
           {:else if isMembership(action)}
             <MembershipItem message={action.message} />
-          {:else}
+          {:else if isMessage(action)}
             <Message
               message={action.message}
               deleted={action.deleted}
@@ -383,10 +399,21 @@
 
 <style>
   .hover-highlight {
-    /* transition: 0.1s; */
     background-color: transparent;
   }
   .hover-highlight:hover {
     background-color: #80808040;
+  }
+  .mention {
+    background-color: #ffe60038;
+  }
+  .mention:hover {
+    background-color: #fff48f3f;
+  }
+  .mention.mention-light {
+    background-color: #ffe60085;
+  }
+  .mention.mention-light:hover {
+    background-color: #bfb2408f;
   }
 </style>
