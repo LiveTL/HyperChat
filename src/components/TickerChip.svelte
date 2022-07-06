@@ -1,7 +1,7 @@
 <script lang="ts">
   import { focusedSuperchat, showProfileIcons } from '../ts/storage';
   import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
-  import Icon from './common/Icon.svelte';
+  import { mdiGift } from '@mdi/js';
 
   export let item: Ytc.ParsedTicker;
   export let fillPortion = 1;
@@ -35,7 +35,15 @@
     width: {Math.round(fillPortion * 100)}%;
   " />
   {#if item.membershipGiftPurchase}
-    <Icon class="inline align-middle mr-1" small>redeem</Icon>
+    <svg
+      height="1em"
+      width="1em"
+      viewBox="0 0 24 24"
+      class="inline align-middle mr-1"
+      style="transform: translateY(-1px);"
+    >
+      <path d={mdiGift} fill="currentColor"/>
+    </svg>
   {/if}
   <span
     class="font-bold align-middle {item.superChat ? 'underline' : ''}"
