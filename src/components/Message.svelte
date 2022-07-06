@@ -18,6 +18,7 @@
   export let deleted: Chat.MessageDeletedObj | null = null;
   export let forceDark = false;
   export let hideName = false;
+  export let hideDropdown = false;
 
   const nameClass = 'font-bold tracking-wide align-middle';
   const generateNameColorClass = (member: boolean, moderator: boolean, owner: boolean, forceDark: boolean) => {
@@ -130,7 +131,7 @@
     {/if}
     <MessageRun runs={message.message} {forceDark} deleted={deleted != null} {forceTLColor} />
   </div>
-  {#if message.author.id !== $selfChannelId}
+  {#if message.author.id !== $selfChannelId && !hideDropdown}
     <Menu items={menuItems} visible={$hoveredItem === message.messageId} class="mr-2 ml-auto context-menu">
       <Icon slot="activator" style="font-size: 1.5em;">more_vert</Icon>
     </Menu>

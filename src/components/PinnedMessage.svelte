@@ -11,7 +11,7 @@
   let dismissed = false;
   let shorten = false;
   const classes = 'rounded inline-flex flex-col overflow-visible ' +
-   'bg-secondary-900 p-2 w-full cursor-pointer text-white z-10 shadow';
+   'bg-secondary-900 p-2 w-full text-white z-10 shadow';
 
   const onShorten = () => { shorten = !shorten; };
 
@@ -27,18 +27,26 @@
 {#if !dismissed}
   <div
     class={classes}
-    on:click={onShorten}
     transition:fade={{ duration: 250 }}
   >
-    <div class="flex flex-row items-center">
+    <div class="flex flex-row items-center cursor-pointer" on:click={onShorten}>
       <div class="font-medium tracking-wide text-white flex-1">
+        <span class="mr-1 inline-block" style="transform: translateY(3px);">
+          <Icon small>
+            {#if shorten}
+              expand_more
+            {:else}
+              expand_less
+            {/if}
+          </Icon>
+        </span>
         {#each pinned.item.header as run}
           {#if run.type === 'text'}
             <span class="align-middle">{run.text}</span>
           {/if}
         {/each}
       </div>
-      <div class="flex-none self-end">
+      <div class="flex-none self-end" style="transform: translateY(3px);">
         <Tooltip offsetY={0} small>
           <Icon
             slot="activator"
@@ -53,7 +61,7 @@
     </div>
     {#if !shorten && !dismissed}
       <div class="mt-1" transition:slide|local={{ duration: 300 }}>
-        <Message message={pinned.item.contents} forceDark forceTLColor={Theme.DARK} />
+        <Message message={pinned.item.contents} forceDark forceTLColor={Theme.DARK} hideDropdown />
       </div>
     {/if}
   </div>
