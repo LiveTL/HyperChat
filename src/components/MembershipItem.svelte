@@ -1,30 +1,28 @@
 <script lang="ts">
   import Message from './Message.svelte';
   import MessageRun from './MessageRuns.svelte';
-  import { focusedSuperchat, showProfileIcons } from '../ts/storage';
+  import { showProfileIcons } from '../ts/storage';
+  import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
 
-  export let message: Ytc.ParsedTimedItem;
-  export let chip = false;
-  export let detailText: string = '';
-  export let fillPortion = 1;
+  export let message: Ytc.ParsedMessage;
 
-  const classes = `inline-flex flex-col rounded text-white ${chip ? 'w-fit whitespace-nowrap' : 'w-full break-words'}`;
+  const classes = 'inline-flex flex-col rounded break-words overflow-hidden w-full text-white';
 
   $: membership = message.membership;
-  $: if (!membership) {
+  $: membershipGift = message.membershipGiftPurchase;
+  $: if (!(membership || membershipGift)) {
     console.error('Not a membership item', { message });
   }
   $: isMilestoneChat = message.message.length > 0;
+
+  $: primaryText = (membership || membershipGift)?.headerPrimaryText;
 </script>
 
-{#if membership}
-  <div class={classes} style={chip ? '' : 'background-color: #0f9d58;'}>
+{#if membership || membershipGift}
+  <div class={classes} style="background-color: #{membershipBackground};">
     <div
-      class="relative {chip ? 'rounded-full flex items-center cursor-pointer w-max p-1.5 overflow-hidden' : 'rounded p-2'}"
-      style="background-color: #{isMilestoneChat ? '107516' : '0f9d58'};"
-      on:click={() => {
-        if (chip) $focusedSuperchat = message;
-      }}
+      class="p-2"
+      style="{isMilestoneChat ? `background-color: #${milestoneChatBackground};` : ''}"
     >
       {#if $showProfileIcons}
         <img
@@ -33,29 +31,27 @@
           alt={message.author.profileIcon.alt}
         />
       {/if}
-      {#if chip}
-        <div class="absolute top-0 right-0 h-full" style="
-          background-color: rgba(0, 0, 0, 0.1);
-          width: {Math.round(fillPortion * 100)}%;
-        " />
+      <span class="font-bold tracking-wide align-middle mr-3">
+        {message.author.name}
+      </span>
+      {#if primaryText && primaryText.length > 0}
+        <MessageRun
+          class="font-medium mr-3"
+          runs={primaryText}
+        />
       {/if}
-      {#if !chip}
-        <span class="font-bold tracking-wide mr-3 align-middle">
-          {message.author.name}
-        </span>
-        {#if membership.headerPrimaryText.length > 0}
-          <MessageRun
-            class="font-medium mr-3 align-middle"
-            runs={membership.headerPrimaryText}
-          />
-        {/if}
+      {#if membership}
         <MessageRun runs={membership.headerSubtext} />
       {/if}
-      {#if chip && detailText}
-        <span class="font-bold align-middle">{detailText}</span>
+      {#if membershipGift}
+        <img
+          class="h-10 w-10 float-right"
+          src={membershipGift.image.src}
+          alt={membershipGift.image.alt}
+          title={membershipGift.image.alt} />
       {/if}
     </div>
-    {#if !chip && isMilestoneChat}
+    {#if isMilestoneChat}
       <div class="p-2">
         <Message message={message} hideName />
       </div>

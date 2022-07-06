@@ -2,11 +2,9 @@
   import Message from './Message.svelte';
   import isDarkColor from 'is-dark-color';
   import { Theme } from '../ts/chat-constants';
-  import { focusedSuperchat, showProfileIcons } from '../ts/storage';
+  import { showProfileIcons } from '../ts/storage';
 
-  export let message: Ytc.ParsedTimedItem;
-  export let chip = false;
-  export let fillPortion = 1;
+  export let message: Ytc.ParsedMessage;
 
   let headerStyle = '';
 
@@ -23,7 +21,7 @@
     headerStyle = '';
   }
 
-  const classes = `inline-flex flex-col rounded ${chip ? 'w-fit whitespace-nowrap' : 'w-full break-words'}`;
+  const classes = 'inline-flex flex-col rounded break-words overflow-hidden w-full';
 
   $: if (!paid) {
     console.error('Not a paid message', { message });
@@ -31,14 +29,8 @@
 </script>
 
 {#if paid}
-  <div class={classes} style={(chip ? '' : backgroundColor) + textColor}>
-    <div
-      class="relative {chip ? 'rounded-full items-center flex cursor-pointer w-max p-1.5 overflow-hidden' : 'rounded p-2'}"
-      style={headerStyle}
-      on:click={() => {
-        if (chip) $focusedSuperchat = message;
-      }}
-    >
+  <div class={classes} style={backgroundColor + textColor}>
+    <div class="p-2" style={headerStyle}>
       {#if $showProfileIcons}
         <img
           class="h-5 w-5 inline align-middle rounded-full flex-none mr-1"
@@ -46,18 +38,10 @@
           alt={message.author.profileIcon.alt}
         />
       {/if}
-      {#if chip}
-        <div class="absolute top-0 right-0 h-full" style="
-          background-color: rgba(0, 0, 0, 0.1);
-          width: {Math.round(fillPortion * 100)}%;
-        " />
-      {/if}
-      <span class="underline font-bold align-middle">{amount}</span>
-      {#if !chip}
-        <span class="font-bold tracking-wide" style={nameColor}>
-          {message.author.name}
-        </span>
-      {/if}
+      <span class="mr-1 underline font-bold">{amount}</span>
+      <span class="font-bold tracking-wide" style={nameColor}>
+        {message.author.name}
+      </span>
       {#if message.superSticker}
         <img
           class="h-10 w-10 float-right"
@@ -66,7 +50,7 @@
           title={message.superSticker.alt} />
       {/if}
     </div>
-    {#if !chip && message.message.length > 0}
+    {#if message.message.length > 0}
       <div class="p-2">
         <Message message={message} hideName forceTLColor={
           isDarkColor(`#${message.superChat?.headerTextColor}`) ? Theme.LIGHT : Theme.DARK
