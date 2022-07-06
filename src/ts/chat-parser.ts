@@ -1,7 +1,8 @@
 import {
   isPaidMessageRenderer,
   isPaidStickerRenderer,
-  isMembershipRenderer
+  isMembershipRenderer,
+  isMembershipGiftPurchaseRenderer
 } from './chat-utils';
 
 // Source: https://stackoverflow.com/a/64396666
@@ -64,15 +65,20 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
   const renderer = actionItem.liveChatTextMessageRenderer ??
     actionItem.liveChatPaidMessageRenderer ??
     actionItem.liveChatPaidStickerRenderer ??
-    actionItem.liveChatMembershipItemRenderer;
+    actionItem.liveChatMembershipItemRenderer ??
+    actionItem.liveChatSponsorshipsGiftPurchaseAnnouncementRenderer ??
+    actionItem.liveChatSponsorshipsGiftRedemptionAnnouncementRenderer;
   if (!renderer) {
     return;
   }
 
+  const isGiftPurchase = isMembershipGiftPurchaseRenderer(renderer);
+  const messageRenderer = isGiftPurchase ? renderer.header.liveChatSponsorshipsHeaderRenderer : renderer;
+
   const authorTypes: string[] = [];
   let customBadge: Ytc.ParsedImage | undefined;
-  if (renderer.authorBadges) {
-    renderer.authorBadges.forEach((badge) => {
+  if (messageRenderer.authorBadges) {
+    messageRenderer.authorBadges.forEach((badge) => {
       const badgeRenderer = badge.liveChatAuthorBadgeRenderer;
       const iconType = badgeRenderer.icon?.iconType;
       if (iconType != null) {
@@ -88,17 +94,20 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
       }
     });
   }
-  const runs = parseMessageRuns(renderer.message?.runs);
-  const timestampUsec = parseInt(renderer.timestampUsec);
-  const timestampText = renderer.timestampText?.simpleText;
+  const runs = parseMessageRuns(messageRenderer.message?.runs);
+  const timestampUsec = parseInt(renderer.timestampUsec || (Date.now() * 1000).toString());
+  const timestampText = messageRenderer.timestampText?.simpleText;
   const liveShowtimeMs = (timestampUsec / 1000) + liveTimeoutOrReplayMs;
-  const profileIcon = { src: fixUrl(renderer.authorPhoto?.thumbnails[0].url ?? ''), alt: renderer.authorName?.simpleText ?? '' };
+  const profileIcon = {
+    src: fixUrl(messageRenderer.authorPhoto?.thumbnails[0].url ?? ''),
+    alt: messageRenderer.authorName?.simpleText ?? ''
+  };
   const channelId = renderer.authorExternalChannelId;
 
   const item: Ytc.ParsedMessage = {
     author: {
       // It's apparently possible for there to be no author name (and only an author photo).
-      name: renderer.authorName?.simpleText ?? '',
+      name: messageRenderer.authorName?.simpleText ?? '',
       id: renderer.authorExternalChannelId ?? '',
       types: authorTypes,
       customBadge,
@@ -108,7 +117,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     timestamp: isReplay && timestampText != null ? timestampText : formatTimestamp(timestampUsec),
     showtime: isReplay ? liveTimeoutOrReplayMs : liveShowtimeMs,
     messageId: renderer.id,
-    params: renderer.contextMenuEndpoint?.liveChatItemContextMenuEndpoint.params
+    params: messageRenderer.contextMenuEndpoint?.liveChatItemContextMenuEndpoint.params
   };
   if (channelId != null) {
     item.author.url = `https://www.youtube.com/channel/${channelId}`;
@@ -144,6 +153,17 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
           ]
         : parseMessageRuns(renderer.headerSubtext.runs)
     };
+  } else if (isGiftPurchase) {
+    const header = renderer.header.liveChatSponsorshipsHeaderRenderer;
+    item.membershipGiftPurchase = {
+      headerPrimaryText: parseMessageRuns(header.primaryText.runs),
+      image: {
+        src: fixUrl(header.image.thumbnails[0].url),
+        alt: 'gift'
+      }
+    };
+  } else if (actionItem.liveChatSponsorshipsGiftRedemptionAnnouncementRenderer) {
+    item.membershipGiftRedeem = true;
   }
   return item;
 };

@@ -3,7 +3,9 @@
     focusedSuperchat
   } from '../ts/storage';
   import Dialog from './common/Dialog.svelte';
-  import TimedItem from './TimedItem.svelte';
+  import PaidMessage from './PaidMessage.svelte';
+  import MembershipItem from './MembershipItem.svelte';
+
   $: sc = $focusedSuperchat as Ytc.ParsedTimedItem;
   let open = false;
   const openDialog = () => (open = true);
@@ -13,7 +15,11 @@
 </script>
 
 <Dialog bind:active={open} noCloseButton class="no-padding">
-  <TimedItem item={sc}  />
+  {#if ('superChat' in sc || 'superSticker' in sc)}
+    <PaidMessage message={sc} />
+  {:else}
+    <MembershipItem message={sc} />
+  {/if}
 </Dialog>
 
 <style>

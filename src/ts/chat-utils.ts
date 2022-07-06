@@ -40,6 +40,9 @@ const actionTypes = new Set(['messages', 'bonk', 'delete', 'pin', 'unpin', 'play
 export const responseIsAction = (r: Chat.BackgroundResponse): r is Chat.Actions =>
   actionTypes.has(r.type);
 
+export const isMembershipGiftPurchaseRenderer = (r: Ytc.Renderers): r is Ytc.MembershipGiftPurchaseRenderer =>
+  'header' in r && 'liveChatSponsorshipsHeaderRenderer' in r.header;
+
 const privilegedTypes = new Set(['member', 'moderator', 'owner']);
 export const isPrivileged = (types: string[]): boolean =>
   types.some(privilegedTypes.has.bind(privilegedTypes));

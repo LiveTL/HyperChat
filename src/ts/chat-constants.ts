@@ -98,3 +98,6 @@ export const chatUserActionsItems = [
     }
   }
 ];
+
+export const membershipBackground = '0f9d58';
+export const milestoneChatBackground = '107516';

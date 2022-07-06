@@ -11,7 +11,7 @@
   export let bgColor = 'bg-white dark:bg-dark-800';
   export let noCloseButton = false;
   $: classes = `items-center z-50 rounded p-4 shadow ${bgColor}` +
-    ' max-h-full overflow-y-auto ' +
+    ' max-h-full overflow-y-auto text-xs ' +
     (expandWidth ? 'w-full mx-2 ' : ' ') +
     ($$props.class ?? '');
 </script>

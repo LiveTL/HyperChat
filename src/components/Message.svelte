@@ -13,6 +13,7 @@
   } from '../ts/storage';
   import { chatUserActionsItems, Theme } from '../ts/chat-constants';
   import { useBanHammer } from '../ts/chat-actions';
+  import { mdiGift } from '@mdi/js';
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
@@ -129,7 +130,24 @@
       </span>
       <span class="mr-1.5" class:hidden={!showUserMargin} />
     {/if}
-    <MessageRun runs={message.message} {forceDark} deleted={deleted != null} {forceTLColor} />
+    <MessageRun
+      runs={message.message}
+      {forceDark}
+      deleted={deleted != null}
+      {forceTLColor}
+      class={message.membershipGiftRedeem ? 'text-gray-700 dark:text-gray-600 italic font-medium' : ''}
+    />
+    {#if message.membershipGiftRedeem}
+      <svg
+        height="1em"
+        width="1em"
+        viewBox="0 0 24 24"
+        class="inline align-middle ml-1 text-gray-700 dark:text-gray-600"
+        style="transform: translateY(-1px);"
+      >
+        <path d={mdiGift} fill="currentColor"/>
+      </svg>
+    {/if}
   </div>
   {#if message.author.id !== $selfChannelId && !hideDropdown}
     <Menu items={menuItems} visible={$hoveredItem === message.messageId} class="mr-2 ml-auto context-menu">

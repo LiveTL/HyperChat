@@ -156,32 +156,36 @@ declare namespace Ytc {
     };
   }
 
-  interface TextMessageRenderer {
-    message?: RunsObj;
-    authorExternalChannelId?: string;
-    authorName?: SimpleTextObj;
-    authorPhoto?: Thumbnails;
-    authorBadges?: Array<{
-      liveChatAuthorBadgeRenderer: {
-        /** Changes based on YT language */
-        tooltip: string;
-        /** Used to check if author is member ignoring YT language */
-        customThumbnail?: Thumbnails;
-        /** Only available for verified, mods and owner */
-        icon?: {
-          /** Unlocalized string */
-          iconType: string;
-        };
-        accessibility?: {
-          accessibilityData: {
-            label: string;
-          };
-        };
-      };
-    }>;
+  interface IRenderer {
     id: string;
     timestampUsec: IntString;
-    authorExternalChannelId: string;
+    authorExternalChannelId?: string;
+  }
+
+  interface AuthorBadge {
+    liveChatAuthorBadgeRenderer: {
+      /** Changes based on YT language */
+      tooltip: string;
+      /** Used to check if author is member ignoring YT language */
+      customThumbnail?: Thumbnails;
+      /** Only available for verified, mods and owner */
+      icon?: {
+        /** Unlocalized string */
+        iconType: string;
+      };
+      accessibility?: {
+        accessibilityData: {
+          label: string;
+        };
+      };
+    };
+  }
+
+  interface TextMessageRenderer extends IRenderer {
+    message?: RunsObj;
+    authorName?: SimpleTextObj;
+    authorPhoto?: Thumbnails;
+    authorBadges?: AuthorBadge[];
     /** Only available on replays */
     timestampText?: SimpleTextObj;
     contextMenuEndpoint?: {
@@ -191,19 +195,19 @@ declare namespace Ytc {
     };
   }
 
-  interface PaidRenderer extends TextMessageRenderer {
+  interface IPaidRenderer extends TextMessageRenderer {
     purchaseAmountText: SimpleTextObj;
     authorNameTextColor: number;
   }
 
-  interface PaidMessageRenderer extends PaidRenderer {
+  interface PaidMessageRenderer extends IPaidRenderer {
     headerBackgroundColor: number;
     headerTextColor: number;
     bodyBackgroundColor: number;
     bodyTextColor: number;
   }
 
-  interface PaidStickerRenderer extends PaidRenderer {
+  interface PaidStickerRenderer extends IPaidRenderer {
     sticker: ThumbnailsWithLabel;
     moneyChipBackgroundColor: number;
     moneyChipTextColor: number;
@@ -214,19 +218,37 @@ declare namespace Ytc {
     headerSubtext: SimpleTextObj | RunsObj;
   }
 
+  interface MembershipGiftPurchaseRenderer extends IRenderer {
+    header: {
+      liveChatSponsorshipsHeaderRenderer: TextMessageRenderer & {
+        primaryText: RunsObj;
+        image: Thumbnails;
+      };
+    };
+  }
+
   interface PlaceholderRenderer { // No idea what the purpose of this is
     id: string;
     timestampUsec: IntString;
   }
 
   type Renderers = TextMessageRenderer | PaidMessageRenderer |
-  PaidStickerRenderer | MembershipRenderer;
+  PaidStickerRenderer | MembershipRenderer | MembershipGiftPurchaseRenderer;
 
   interface AddChatItem {
+    /** Normal message */
     liveChatTextMessageRenderer?: TextMessageRenderer;
+    /** Super Chat */
     liveChatPaidMessageRenderer?: PaidMessageRenderer;
+    /** Super Sticker */
     liveChatPaidStickerRenderer?: PaidStickerRenderer;
+    /** Membership & Member Milestone Chat */
     liveChatMembershipItemRenderer?: MembershipRenderer;
+    /** Membership gift purchase */
+    liveChatSponsorshipsGiftPurchaseAnnouncementRenderer?: MembershipGiftPurchaseRenderer;
+    /** Membership gift redemption */
+    liveChatSponsorshipsGiftRedemptionAnnouncementRenderer?: TextMessageRenderer;
+    /** ??? */
     liveChatPlaceholderItemRenderer?: PlaceholderRenderer;
   }
 
@@ -299,6 +321,11 @@ declare namespace Ytc {
     headerSubtext: ParsedRun[];
   }
 
+  interface ParsedMembershipGiftPurchase {
+    headerPrimaryText: ParsedRun[];
+    image: ParsedImage;
+  }
+
   interface ParsedMessage {
     author: {
       name: string;
@@ -316,6 +343,8 @@ declare namespace Ytc {
     superSticker?: ParsedSuperSticker;
     membership?: ParsedMembership;
     params?: string;
+    membershipGiftPurchase?: ParsedMembershipGiftPurchase;
+    membershipGiftRedeem?: boolean;
   }
 
   interface ParsedBonk {
