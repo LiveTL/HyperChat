@@ -299,12 +299,16 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
     ?.actionPanel;
 
   const user = actionPanel?.liveChatRestrictedParticipationRenderer
-    ? null
-    : actionPanel?.liveChatMessageInputRenderer
+    ? actionPanel?.liveChatMessageInputRenderer
       ?.sendButton?.buttonRenderer?.serviceEndpoint
       ?.sendLiveChatMessageEndpoint?.actions[0]
       ?.addLiveChatTextMessageFromTemplateAction?.template
-      ?.liveChatTextMessageRenderer;
+      ?.liveChatTextMessageRenderer
+    : {
+        authorName: {
+          simpleText: parsedJson.continuationContents.liveChatContinuation.viewerName
+        }
+      };
 
   interceptor.queue.selfChannel.set(user);
 };
