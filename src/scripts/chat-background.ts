@@ -223,10 +223,16 @@ const registerClient = (
   );
 
   if (getInitialData && isYtcInterceptor(interceptor)) {
+    const selfChannel = interceptor.queue.selfChannel.get();
     const payload: Chat.InitialData = {
       type: 'initialData',
       initialData: interceptor.queue.getInitialData(),
-      selfChannelId: interceptor.queue.selfChannel.get()?.authorExternalChannelId ?? null
+      selfChannel: selfChannel != null
+        ? {
+            name: selfChannel.authorName?.simpleText ?? '',
+            channelId: selfChannel.authorExternalChannelId ?? ''
+          }
+        : null
     };
     port.postMessage(payload);
     console.debug('Sent initial data', { port, interceptor, payload });

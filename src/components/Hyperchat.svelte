@@ -33,7 +33,7 @@
     useSystemEmojis,
     hoveredItem,
     port,
-    selfChannelId,
+    selfChannel,
     alertDialog,
     stickySuperchats,
     currentProgress,
@@ -208,7 +208,7 @@
           onChatAction(action, true);
         });
         messageActions = [...messageActions, welcome];
-        $selfChannelId = response.selfChannelId;
+        $selfChannel = response.selfChannel;
         break;
       case 'themeUpdate':
         ytDark = response.dark;
