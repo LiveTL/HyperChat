@@ -37,42 +37,28 @@
   ];
 
   $: showChangelog = $lastClosedVersion !== version;
-
-  const d = new Date();
-  const kiaraBday = (true || (d.getFullYear() === 2022 && d.getMonth() === 6 && d.getDate() >= 5 /* && d.getDate() <= 8 */));
-  let kiaraBdayActive = false;
-  const getURL = (asset: string) => chrome.runtime.getURL((isLiveTL ? 'hyperchat' : 'assets') + `/${asset}`);
 </script>
 
-<div class={classes} style={kiaraBdayActive ? 'background-color: #ffb826' : ''}>
+<div class={classes}>
   <div class="flex items-center w-full">
-    <div class="relative" class:cursor-pointer={kiaraBday} on:mousedown={() => {
-      if (kiaraBday) kiaraBdayActive = !kiaraBdayActive;
-    }}>
+    <div class="relative">
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
-      {#if kiaraBday}
-        <img src={getURL('kiara-hat.png')} class="kiwawa-hat" alt="Takanashi Kiara's Birthday Surprise">
-      {/if}
     </div>
-    <span class="ml-2 leading-tight {kiaraBdayActive ? 'text-black' : ''}">
-      <h5 class="font-bold">HyperChat by {kiaraBdayActive ? 'KFP' : 'LiveTL'}</h5>
+    <span class="ml-2 leading-tight">
+      <h5 class="font-bold">HyperChat by LiveTL</h5>
       <p>
-        {#if kiaraBdayActive}
-          Happy birthday, Kiwawa!
-        {:else}
-          Optimized YouTube Chat
-          /
-          {#if !showChangelog}
-            <a href="/" on:click={(e) => {
-              $lastClosedVersion = '';
-              $refreshScroll = true;
-              e.preventDefault();
-            }} class="underline text-primary-900 {kiaraBdayActive ? '' : 'dark:text-primary-50'}">
-              v{version}
-            </a>
-          {:else}
+        Optimized YouTube Chat
+        /
+        {#if !showChangelog}
+          <a href="/" on:click={(e) => {
+            $lastClosedVersion = '';
+            $refreshScroll = true;
+            e.preventDefault();
+          }} class="underline text-primary-900 dark:text-primary-50">
             v{version}
-          {/if}
+          </a>
+        {:else}
+          v{version}
         {/if}
       </p>
       <div class="flex flex-wrap">
@@ -80,7 +66,7 @@
           <p>
             <a 
               href={badge.href}
-              class="underline text-primary-900 {kiaraBdayActive ? '' : 'dark:text-primary-50'}"
+              class="underline text-primary-900 dark:text-primary-50"
               target="_blank"
             >
               {badge.name}
@@ -101,11 +87,11 @@
         e.preventDefault();
       }}
       class="inline-block align-middle cursor-pointer pt-0.5 h-fit">
-        <Icon xs class="{kiaraBdayActive ? 'text-error-800' : 'text-error-500 dark:text-error-200'} font-bold">
+        <Icon xs class="text-error-500 dark:text-error-200 font-bold">
           close
         </Icon>
       </span>
-      <span class="mr-0.5 {kiaraBdayActive ? 'text-black' : ''}">
+      <span class="mr-0.5">
         <Changelog />
       </span>
     </p>
