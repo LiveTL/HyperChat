@@ -69,8 +69,6 @@
     value: d.value.toString(),
     onClick: () => useBanHammer(message, d.value, $port)
   }));
-
-  $: console.log($selfChannelId);
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
