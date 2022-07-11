@@ -50,7 +50,7 @@ declare namespace Chat {
   interface InitialData {
     type: 'initialData';
     initialData: Actions[];
-    selfChannelId: string | null;
+    selfChannel: SimpleUserInfo | null;
   }
 
   interface ThemeUpdate {

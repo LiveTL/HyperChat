@@ -223,10 +223,16 @@ const registerClient = (
   );
 
   if (getInitialData && isYtcInterceptor(interceptor)) {
+    const selfChannel = interceptor.queue.selfChannel.get();
     const payload: Chat.InitialData = {
       type: 'initialData',
       initialData: interceptor.queue.getInitialData(),
-      selfChannelId: interceptor.queue.selfChannel.get()?.authorExternalChannelId ?? null
+      selfChannel: selfChannel != null
+        ? {
+            name: selfChannel.authorName?.simpleText ?? '',
+            channelId: selfChannel.authorExternalChannelId ?? ''
+          }
+        : null
     };
     port.postMessage(payload);
     console.debug('Sent initial data', { port, interceptor, payload });
@@ -292,13 +298,15 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
     parsedJson?.contents?.liveChatRenderer)
     ?.actionPanel;
 
-  const user = actionPanel?.liveChatRestrictedParticipationRenderer
-    ? null
-    : actionPanel?.liveChatMessageInputRenderer
-      ?.sendButton?.buttonRenderer?.serviceEndpoint
-      ?.sendLiveChatMessageEndpoint?.actions[0]
-      ?.addLiveChatTextMessageFromTemplateAction?.template
-      ?.liveChatTextMessageRenderer;
+  const user = actionPanel?.liveChatMessageInputRenderer
+    ?.sendButton?.buttonRenderer?.serviceEndpoint
+    ?.sendLiveChatMessageEndpoint?.actions[0]
+    ?.addLiveChatTextMessageFromTemplateAction?.template
+    ?.liveChatTextMessageRenderer ?? {
+    authorName: {
+      simpleText: parsedJson.continuationContents.liveChatContinuation.viewerName
+    }
+  };
 
   interceptor.queue.selfChannel.set(user);
 };

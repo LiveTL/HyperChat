@@ -57,7 +57,9 @@ export const useSystemEmojis = stores.addSyncStore('hc.useSystemEmojis', false);
 export const hoveredItem = writable(null as null | Chat.MessageAction['message']['messageId']);
 export const focusedSuperchat = writable(null as null | Ytc.ParsedTimedItem);
 export const port = writable(null as null | Chat.Port);
-export const selfChannelId = writable(null as null | string);
+export const selfChannel = writable(null as null | SimpleUserInfo);
+export const selfChannelId = derived(selfChannel, ($selfChannel) => $selfChannel?.channelId);
+export const selfChannelName = derived(selfChannel, ($selfChannel) => $selfChannel?.name);
 export const reportDialog = writable(null as null | {
   callback: (selection: ChatReportUserOptions) => void;
   optionStore: Writable<null | ChatReportUserOptions>;
@@ -75,4 +77,5 @@ export const isDark = derived(theme, ($theme) => {
 });
 export const currentProgress = writable(null as null | number);
 export const enableStickySuperchatBar = stores.addSyncStore('hc.enableStickySuperchatBar', true);
+export const enableHighlightedMentions = stores.addSyncStore('hc.enableHighlightedMentions', true);
 export const lastOpenedVersion = stores.addSyncStore('hc.lastOpenedVersion', '');
