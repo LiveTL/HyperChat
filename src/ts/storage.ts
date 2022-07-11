@@ -77,4 +77,5 @@ export const isDark = derived(theme, ($theme) => {
 });
 export const currentProgress = writable(null as null | number);
 export const enableStickySuperchatBar = stores.addSyncStore('hc.enableStickySuperchatBar', true);
+export const enableHighlightedMentions = stores.addSyncStore('hc.enableHighlightedMentions', true);
 export const lastOpenedVersion = stores.addSyncStore('hc.lastOpenedVersion', '');

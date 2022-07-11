@@ -39,7 +39,8 @@
     currentProgress,
     enableStickySuperchatBar,
     lastOpenedVersion,
-    selfChannelName
+    selfChannelName,
+    enableHighlightedMentions
   } from '../ts/storage';
   import { version } from '../manifest.json';
 
@@ -358,7 +359,7 @@
         <div
           class="hover-highlight p-1.5 w-full block"
           class:flex = {!isWelcome(action)}
-          class:mention = {isMessage(action) && isMention(action.message)}
+          class:mention = {$enableHighlightedMentions && isMessage(action) && isMention(action.message)}
           class:mention-light = {!$smelteDark}
           on:mouseover={() => setHover(action)}
           on:focus={() => setHover(action)}

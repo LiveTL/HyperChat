@@ -10,7 +10,8 @@
     autoLiveChat,
     useSystemEmojis,
     isDark,
-    enableStickySuperchatBar
+    enableStickySuperchatBar,
+enableHighlightedMentions
   } from '../../ts/storage';
   import { themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';
@@ -58,6 +59,7 @@
   <Checkbox name="Show timestamps" store={showTimestamps} />
   <Checkbox name="Show usernames" store={showUsernames} />
   <Checkbox name="Show user badges" store={showUserBadges} />
+  <Checkbox name="Highlight mentions" store={enableHighlightedMentions} />
 </Card>
 
 <Card title="Emojis" icon="emoji_emotions">
