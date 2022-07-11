@@ -298,17 +298,15 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
     parsedJson?.contents?.liveChatRenderer)
     ?.actionPanel;
 
-  const user = actionPanel?.liveChatRestrictedParticipationRenderer
-    ? actionPanel?.liveChatMessageInputRenderer
-      ?.sendButton?.buttonRenderer?.serviceEndpoint
-      ?.sendLiveChatMessageEndpoint?.actions[0]
-      ?.addLiveChatTextMessageFromTemplateAction?.template
-      ?.liveChatTextMessageRenderer
-    : {
-        authorName: {
-          simpleText: parsedJson.continuationContents.liveChatContinuation.viewerName
-        }
-      };
+  const user = actionPanel?.liveChatMessageInputRenderer
+    ?.sendButton?.buttonRenderer?.serviceEndpoint
+    ?.sendLiveChatMessageEndpoint?.actions[0]
+    ?.addLiveChatTextMessageFromTemplateAction?.template
+    ?.liveChatTextMessageRenderer ?? {
+    authorName: {
+      simpleText: parsedJson.continuationContents.liveChatContinuation.viewerName
+    }
+  };
 
   interceptor.queue.selfChannel.set(user);
 };

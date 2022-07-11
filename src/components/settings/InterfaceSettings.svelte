@@ -11,7 +11,7 @@
     useSystemEmojis,
     isDark,
     enableStickySuperchatBar,
-enableHighlightedMentions
+    enableHighlightedMentions
   } from '../../ts/storage';
   import { themeItems, emojiRenderItems } from '../../ts/chat-constants';
   import Card from '../common/Card.svelte';

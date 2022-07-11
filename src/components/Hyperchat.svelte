@@ -211,7 +211,6 @@
         });
         messageActions = [...messageActions, welcome];
         $selfChannel = response.selfChannel;
-        console.log($selfChannel);
         break;
       case 'themeUpdate':
         ytDark = response.dark;
