@@ -2,6 +2,14 @@ import HcButton from '../components/HyperchatButton.svelte';
 import { getFrameInfoAsync, isValidFrameInfo, frameIsReplay, checkInjected } from '../ts/chat-utils';
 import { isLiveTL, isAndroid } from '../ts/chat-constants';
 import { hcEnabled, autoLiveChat } from '../ts/storage';
+import {
+  initInterceptor,
+  processMessageChunk,
+  processSentMessage,
+  setInitialData,
+  updatePlayerProgress,
+  setTheme
+} from '../ts/messaging';
 
 // const isFirefox = navigator.userAgent.includes('Firefox');
 
@@ -13,6 +21,56 @@ const hcWarning = 'An existing HyperChat button has been detected. This ' +
 
 const chatLoaded = async (): Promise<void> => {
   if (!isLiveTL && checkInjected(hcWarning)) return;
+
+  // Init and inject interceptor
+  initInterceptor('ytc', window.ytcfg, frameIsReplay);
+  window.addEventListener('messageReceive', (d) => {
+    processMessageChunk((d as CustomEvent).detail);
+  });
+  window.addEventListener('messageSent', (d) => {
+    processSentMessage((d as CustomEvent).detail);
+  });
+  const script = document.createElement('script');
+  script.src = chrome.runtime.getURL('scripts/chat-interceptor.js');
+  document.body.appendChild(script);
+
+  // Handle initial data
+  const scripts = document.querySelector('body')?.querySelectorAll('script');
+  if (!scripts) {
+    console.error('Unable to get script elements.');
+    return;
+  }
+  for (const script of Array.from(scripts)) {
+    const start = 'window["ytInitialData"] = ';
+    const text = script.text;
+    if (!text || !text.startsWith(start)) {
+      continue;
+    }
+    const json = text.replace(start, '').slice(0, -1);
+    setInitialData(json);
+    break;
+  }
+
+  // Catch YT messages
+  window.addEventListener('message', (d) => {
+    if (d.data['yt-player-video-progress'] != null) {
+      updatePlayerProgress(d.data['yt-player-video-progress'], true);
+    }
+  });
+
+  // Update dark theme whenever it changes
+  let wasDark: boolean | undefined;
+  const html = document.documentElement;
+  const sendTheme = (): void => {
+    const isDark = html.hasAttribute('dark');
+    if (isDark === wasDark) return;
+    setTheme(isDark);
+    wasDark = isDark;
+  };
+  new MutationObserver(sendTheme).observe(html, {
+    attributes: true
+  });
+  sendTheme();
 
   document.body.style.minWidth = document.body.style.minHeight = '0px';
   const hyperChatEnabled = await hcEnabled.get();

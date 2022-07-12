@@ -18,7 +18,6 @@
         "https://www.youtube.com/live_chat_replay*"
       ],
       "js": [
-        "scripts/chat-interceptor.ts",
         "scripts/chat-injector.ts"
       ],
       "css": ["stylesheets/titlebar.css"],
