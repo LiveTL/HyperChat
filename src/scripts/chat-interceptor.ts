@@ -1,45 +1,45 @@
-import { fixLeaks } from '../ts/ytc-fix-memleaks';
+// import { fixLeaks } from '../ts/ytc-fix-memleaks';
 import { frameIsReplay as isReplay, checkInjected } from '../ts/chat-utils';
 // import sha1 from 'sha-1';
 import { isLiveTL } from '../ts/chat-constants';
 import { initInterceptor, processMessageChunk, processSentMessage, setInitialData, updatePlayerProgress, setTheme } from '../ts/messaging';
 
-function injectedFunction(): void {
-  for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
-    window.addEventListener(eventName, event => {
-      event.stopImmediatePropagation();
-    }, true);
-  }
-  const fetchFallback = window.fetch;
-  (window as any).fetchFallback = fetchFallback;
-  window.fetch = async (...args) => {
-    const request = args[0] as Request;
-    const url = request.url;
-    const result = await fetchFallback(...args);
+// function injectedFunction(): void {
+//   for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
+//     window.addEventListener(eventName, event => {
+//       event.stopImmediatePropagation();
+//     }, true);
+//   }
+//   const fetchFallback = window.fetch;
+//   (window as any).fetchFallback = fetchFallback;
+//   window.fetch = async (...args) => {
+//     const request = args[0] as Request;
+//     const url = request.url;
+//     const result = await fetchFallback(...args);
 
-    const ytApi = (end: string): string => `https://www.youtube.com/youtubei/v1/live_chat${end}`;
-    const isReceiving = url.startsWith(ytApi('/get_live_chat'));
-    const isSending = url.startsWith(ytApi('/send_message'));
-    const action = isReceiving ? 'messageReceive' : 'messageSent';
-    if (isReceiving || isSending) {
-      const response = JSON.stringify(await (result.clone()).json());
-      window.dispatchEvent(new CustomEvent(action, { detail: response }));
-    }
-    return result;
-  };
-  // window.dispatchEvent(new CustomEvent('chatLoaded', {
-  //   detail: JSON.stringify(window.ytcfg)
-  // }));
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  window.addEventListener('proxyFetchRequest', async (event) => {
-    const args = JSON.parse((event as any).detail as string) as [string, any];
-    const request = await fetchFallback(...args);
-    const response = await request.json();
-    window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
-      detail: JSON.stringify(response)
-    }));
-  });
-}
+//     const ytApi = (end: string): string => `https://www.youtube.com/youtubei/v1/live_chat${end}`;
+//     const isReceiving = url.startsWith(ytApi('/get_live_chat'));
+//     const isSending = url.startsWith(ytApi('/send_message'));
+//     const action = isReceiving ? 'messageReceive' : 'messageSent';
+//     if (isReceiving || isSending) {
+//       const response = JSON.stringify(await (result.clone()).json());
+//       window.dispatchEvent(new CustomEvent(action, { detail: response }));
+//     }
+//     return result;
+//   };
+//   // window.dispatchEvent(new CustomEvent('chatLoaded', {
+//   //   detail: JSON.stringify(window.ytcfg)
+//   // }));
+//   // eslint-disable-next-line @typescript-eslint/no-misused-promises
+//   window.addEventListener('proxyFetchRequest', async (event) => {
+//     const args = JSON.parse((event as any).detail as string) as [string, any];
+//     const request = await fetchFallback(...args);
+//     const response = await request.json();
+//     window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
+//       detail: JSON.stringify(response)
+//     }));
+//   });
+// }
 
 const chatLoaded = async (): Promise<void> => {
   const warning = 'HC button detected, not injecting interceptor.';
@@ -189,7 +189,8 @@ const chatLoaded = async (): Promise<void> => {
 
   // Inject interceptor script
   const script = document.createElement('script');
-  script.innerHTML = `(${injectedFunction.toString()})();`;
+  script.src = chrome.runtime.getURL('scripts/interceptor.js');
+  // script.innerHTML = `(${injectedFunction.toString()})();`;
   document.body.appendChild(script);
 
   // Handle initial data
@@ -243,10 +244,10 @@ const chatLoaded = async (): Promise<void> => {
   });
   sendTheme();
 
-  // Inject mem leak fix script
-  const fixLeakScript = document.createElement('script');
-  fixLeakScript.innerHTML = `(${fixLeaks.toString()})();`;
-  document.body.appendChild(fixLeakScript);
+  // // Inject mem leak fix script
+  // const fixLeakScript = document.createElement('script');
+  // fixLeakScript.innerHTML = `(${fixLeaks.toString()})();`;
+  // document.body.appendChild(fixLeakScript);
 };
 
 if (isLiveTL) {

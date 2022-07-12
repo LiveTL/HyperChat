@@ -5,7 +5,7 @@ import sha1 from 'sha-1';
 import { chatReportUserOptions, ChatUserActions, ChatReportUserOptions } from '../ts/chat-constants';
 
 // const interceptors: Chat.Interceptors[] = [];
-const interceptor: Chat.Interceptor = { clients: [] };
+let interceptor: Chat.Interceptor = { clients: [] };
 
 const isYtcInterceptor = (i: Chat.Interceptors): i is Chat.YtcInterceptor =>
   i.source === 'ytc';
@@ -252,8 +252,7 @@ const registerClient = (
  * Parses the given YTC json response, and adds it to the queue of the
  * interceptor that sent it.
  */
-export const processMessageChunk = (message: Chat.JsonMsg): void => {
-  const json = message.json;
+export const processMessageChunk = (json: string): void => {
   // const interceptor = findInterceptorFromPort(port, { message });
   if (!isYtcInterceptor(interceptor)) return;
 
@@ -268,8 +267,7 @@ export const processMessageChunk = (message: Chat.JsonMsg): void => {
 /**
  * Parses a sent message and adds a fake message entry.
  */
-export const processSentMessage = (message: Chat.JsonMsg): void => {
-  const json = message.json;
+export const processSentMessage = (json: string): void => {
   // const interceptor = findInterceptorFromPort(port, { message });
   if (!isYtcInterceptor(interceptor)) return;
 
@@ -521,6 +519,7 @@ export const initInterceptor = (
       if (!latestAction) return;
       interceptor.clients.forEach((port) => port.postMessage(latestAction));
     });
+    interceptor = ytcInterceptor;
   } else {
     interceptor.source = source;
   }

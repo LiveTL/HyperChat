@@ -26,7 +26,8 @@ export default defineConfig({
         path.resolve(__dirname, 'src/manifest.json')
       ],
       additionalInputs: [
-        'hyperchat.html'
+        'hyperchat.html',
+        'scripts/interceptor.ts'
       ],
       disableAutoLaunch: process.env.BROWSER === 'none',
       browser: process.env.BROWSER === 'none' ? undefined : process.env.BROWSER,
