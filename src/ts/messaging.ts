@@ -1,26 +1,35 @@
 import type { Unsubscriber } from './queue';
 import { ytcQueue } from './queue';
-import { isValidFrameInfo } from './chat-utils';
+// import { isValidFrameInfo } from './chat-utils';
+import sha1 from 'sha-1';
+import { chatReportUserOptions, ChatUserActions, ChatReportUserOptions } from '../ts/chat-constants';
 
 // const interceptors: Chat.Interceptors[] = [];
-let interceptor: Chat.Interceptor = { clients: [] };
+const interceptor: Chat.Interceptor = { clients: [] };
 
 const isYtcInterceptor = (i: Chat.Interceptors): i is Chat.YtcInterceptor =>
   i.source === 'ytc';
 
-const getPortFrameInfo = (port: Chat.Port): Chat.UncheckedFrameInfo => {
-  return {
-    tabId: port.sender?.tab?.id,
-    frameId: port.sender?.frameId
+interface YtCfg {
+  data_: {
+    INNERTUBE_API_KEY: string;
+    INNERTUBE_CONTEXT: any;
   };
-};
+}
+
+// const getPortFrameInfo = (port: Chat.Port): Chat.UncheckedFrameInfo => {
+//   return {
+//     tabId: port.sender?.tab?.id,
+//     frameId: port.sender?.frameId
+//   };
+// };
 
 /**
  * Returns true if both FrameInfos are the same frame.
  */
-const compareFrameInfo = (a: Chat.FrameInfo, b: Chat.FrameInfo): boolean => {
-  return a.tabId === b.tabId && a.frameId === b.frameId;
-};
+// const compareFrameInfo = (a: Chat.FrameInfo, b: Chat.FrameInfo): boolean => {
+//   return a.tabId === b.tabId && a.frameId === b.frameId;
+// };
 
 /**
  * Returns the index of the interceptor with a matching FrameInfo.
@@ -243,7 +252,7 @@ const registerClient = (
  * Parses the given YTC json response, and adds it to the queue of the
  * interceptor that sent it.
  */
-const processMessageChunk = (port: Chat.Port, message: Chat.JsonMsg): void => {
+export const processMessageChunk = (message: Chat.JsonMsg): void => {
   const json = message.json;
   // const interceptor = findInterceptorFromPort(port, { message });
   if (!isYtcInterceptor(interceptor)) return;
@@ -259,7 +268,7 @@ const processMessageChunk = (port: Chat.Port, message: Chat.JsonMsg): void => {
 /**
  * Parses a sent message and adds a fake message entry.
  */
-const processSentMessage = (port: Chat.Port, message: Chat.JsonMsg): void => {
+export const processSentMessage = (message: Chat.JsonMsg): void => {
   const json = message.json;
   // const interceptor = findInterceptorFromPort(port, { message });
   if (!isYtcInterceptor(interceptor)) return;
@@ -285,8 +294,8 @@ const processSentMessage = (port: Chat.Port, message: Chat.JsonMsg): void => {
 /**
  * Parses and sets initial message data and metadata.
  */
-const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
-  const json = message.json;
+export const setInitialData = (json: string): void => {
+  // const json = message.json;
   // const interceptor = findInterceptorFromPort(port, { message });
   if (!isYtcInterceptor(interceptor)) return;
 
@@ -314,7 +323,7 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
 /**
  * Updates the player progress of the queue of the interceptor.
  */
-const updatePlayerProgress = (port: Chat.Port, playerProgress: number, isFromYt?: boolean): void => {
+export const updatePlayerProgress = (playerProgress: number, isFromYt?: boolean): void => {
   // const interceptor = findInterceptorFromPort(port, { playerProgress });
   if (!isYtcInterceptor(interceptor)) return;
 
@@ -325,7 +334,7 @@ const updatePlayerProgress = (port: Chat.Port, playerProgress: number, isFromYt?
  * Sets the theme of the interceptor, and sends the new theme to any currently
  * registered clients.
  */
-const setTheme = (port: Chat.Port, dark: boolean): void => {
+export const setTheme = (dark: boolean): void => {
   // const interceptor = findInterceptorFromPort(port, { dark });
   if (!isYtcInterceptor(interceptor)) return;
 
@@ -359,28 +368,143 @@ const sendLtlMessage = (port: Chat.Port, message: Chat.LtlMessage): void => {
   );
 };
 
-const executeChatAction = (
-  port: Chat.Port,
-  message: Chat.executeChatActionMsg
-): void => {
+const executeChatAction = async (
+  // port: Chat.Port,
+  message: Ytc.ParsedMessage,
+  ytcfg: YtCfg,
+  action: ChatUserActions,
+  reportOption?: ChatReportUserOptions
+): Promise<void> => {
   // const interceptor = findInterceptorFromClient(port);
-  interceptor.port?.postMessage(message);
-};
+  // interceptor.port?.postMessage(message);
 
-const sendChatUserActionResponse = (
-  port: Chat.Port,
-  message: Chat.chatUserActionResponse
-): void => {
-  // const interceptor = findInterceptorFromPort(port, { message });
-  // if (!interceptor) return;
+  if (message.params == null) return;
+
+  const fetcher = async (...args: any[]): Promise<any> => {
+    return await new Promise((resolve) => {
+      const encoded = JSON.stringify(args);
+      window.addEventListener('proxyFetchResponse', (e) => {
+        const response = JSON.parse((e as CustomEvent).detail);
+        resolve(response);
+      });
+      window.dispatchEvent(new CustomEvent('proxyFetchRequest', {
+        detail: encoded
+      }));
+    });
+  };
+
+  let success = true;
+  try {
+    // const action = msg.action;
+    const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
+    const contextMenuUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?params=' +
+      `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
+    const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
+    function getCookie(name: string): string {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
+      return '';
+    }
+    const time = Math.floor(Date.now() / 1000);
+    const SAPISID = getCookie('__Secure-3PAPISID');
+    const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
+    const auth = `SAPISIDHASH ${time}_${sha}`;
+    const heads = {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: '*/*',
+        Authorization: auth
+      },
+      method: 'POST'
+    };
+    const res = await fetcher(contextMenuUrl, {
+      ...heads,
+      body: JSON.stringify({ context: baseContext })
+    });
+    function parseServiceEndpoint(serviceEndpoint: any, prop: string): { params: string, context: any } {
+      const { clickTrackingParams, [prop]: { params } } = serviceEndpoint;
+      const clonedContext = JSON.parse(JSON.stringify(baseContext));
+      clonedContext.clickTracking = {
+        clickTrackingParams
+      };
+      return {
+        params,
+        context: clonedContext
+      };
+    }
+    if (action === ChatUserActions.BLOCK) {
+      const { params, context } = parseServiceEndpoint(
+        res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[1]
+          .menuNavigationItemRenderer.navigationEndpoint.confirmDialogEndpoint
+          .content.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint,
+        'moderateLiveChatEndpoint'
+      );
+      await fetcher(`https://www.youtube.com/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+        ...heads,
+        body: JSON.stringify({
+          params,
+          context
+        })
+      });
+    } else if (action === ChatUserActions.REPORT_USER) {
+      const { params, context } = parseServiceEndpoint(
+        res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[0].menuServiceItemRenderer.serviceEndpoint,
+        'getReportFormEndpoint'
+      );
+      const modal = await fetcher(`https://www.youtube.com/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
+        ...heads,
+        body: JSON.stringify({
+          params,
+          context
+        })
+      });
+      const index = chatReportUserOptions.findIndex(d => d.value === reportOption);
+      const options = modal.actions[0].openPopupAction.popup.reportFormModalRenderer.optionsSupportedRenderers.optionsRenderer.items;
+      const submitEndpoint = options[index].optionSelectableItemRenderer.submitEndpoint;
+      const clickTrackingParams = submitEndpoint.clickTrackingParams;
+      const flagAction = submitEndpoint.flagEndpoint.flagAction;
+      context.clickTracking = {
+        clickTrackingParams
+      };
+      await fetcher(`https://www.youtube.com/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
+        ...heads,
+        body: JSON.stringify({
+          action: flagAction,
+          context
+        })
+      });
+    }
+  } catch (e) {
+    console.debug('Error executing chat action', e);
+    success = false;
+  }
 
   interceptor.clients.forEach(
-    (clientPort) => clientPort.postMessage(message)
+    (clientPort) => clientPort.postMessage({
+      type: 'chatUserActionResponse',
+      action: action,
+      message,
+      success
+    })
   );
 };
 
+// const sendChatUserActionResponse = (
+//   port: Chat.Port,
+//   message: Chat.chatUserActionResponse
+// ): void => {
+//   // const interceptor = findInterceptorFromPort(port, { message });
+//   // if (!interceptor) return;
+
+//   interceptor.clients.forEach(
+//     (clientPort) => clientPort.postMessage(message)
+//   );
+// };
+
 export const initInterceptor = (
   source: Chat.InterceptorSource,
+  ytcfg: YtCfg,
   isReplay?: boolean
 ): void => {
   if (source === 'ytc') {
@@ -410,21 +534,21 @@ export const initInterceptor = (
         case 'registerClient':
           registerClient(port, message.getInitialData);
           break;
-        case 'processMessageChunk':
-          processMessageChunk(port, message);
-          break;
-        case 'processSentMessage':
-          processSentMessage(port, message);
-          break;
-        case 'setInitialData':
-          setInitialData(port, message);
-          break;
-        case 'updatePlayerProgress':
-          updatePlayerProgress(port, message.playerProgress, message.isFromYt);
-          break;
-        case 'setTheme':
-          setTheme(port, message.dark);
-          break;
+        // case 'processMessageChunk':
+        //   processMessageChunk(port, message);
+        //   break;
+        // case 'processSentMessage':
+        //   processSentMessage(port, message);
+        //   break;
+        // case 'setInitialData':
+        //   setInitialData(port, message);
+        //   break;
+        // case 'updatePlayerProgress':
+        //   updatePlayerProgress(port, message.playerProgress, message.isFromYt);
+        //   break;
+        // case 'setTheme':
+        //   setTheme(port, message.dark);
+        //   break;
         case 'getTheme':
           getTheme(port);
           break;
@@ -432,11 +556,11 @@ export const initInterceptor = (
           sendLtlMessage(port, message.message);
           break;
         case 'executeChatAction':
-          executeChatAction(port, message);
+          executeChatAction(message.message, ytcfg, message.action, message.reportOption).catch(console.error);
           break;
-        case 'chatUserActionResponse':
-          sendChatUserActionResponse(port, message);
-          break;
+        // case 'chatUserActionResponse':
+        //   sendChatUserActionResponse(port, message);
+        //   break;
         default:
           console.error('Unknown message type', port, message);
           break;

@@ -136,7 +136,7 @@ declare namespace Chat {
     type: 'executeChatAction';
     message: Ytc.ParsedMessage;
     action: ChatUserActions;
-    reportOption?: ChatReportUserOptions;
+    reportOption?: import('../chat-constants').ChatReportUserOptions;
   }
 
   type BackgroundMessage =
@@ -157,7 +157,7 @@ declare namespace Chat {
     // frameInfo: FrameInfo;
     // port?: Port;
     clients: Port[];
-    source: InterceptorSource;
+    source?: InterceptorSource;
   }
 
   interface YtcInterceptor extends Interceptor {
