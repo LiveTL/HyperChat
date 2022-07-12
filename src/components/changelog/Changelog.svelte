@@ -1,22 +1,24 @@
 <ul class="list-disc list-inside">
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
-    Fixed issues with live/top chat switching
+    Membership gifting is now <i>partially</i> supported! You
+    can view gifted memberships in the chat, but opting in to
+    receive gifts has not yet been implemented (coming soon-ish?).
   </li>
   <li class="ml-3.5">
-    Show names of chat emojis and membership badges on mouseover
+    Add message highlighting for @mentions
   </li>
   <li class="ml-3.5">
-    Show alert chip when HyperChat updates while disabled
-  </li>
-  <li class="ml-3.5">
-    Improve superchat and membership join/milestone tickers
+    Fix links in welcome message
   </li>
 </ul>
 <ul class="list-disc list-inside">
   <strong>What's still cooking in the usual room:</strong>
   <li class="ml-3.5">
-    Gifted memberships
+    Opt-in procedure for gifted memberships
+  </li>
+  <li class="ml-3.5">
+    Migration to Manifest V3
   </li>
   <li class="ml-3.5">
     Updated screenshots, store listing, and trailer video
