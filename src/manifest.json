@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "HyperChat by LiveTL",
   "homepage_url": "https://livetl.app/en/hyperchat/",
   "description": "YouTube chat, but it's fast and sleek!",
@@ -26,10 +26,9 @@
     }
   ],
   "background": {
-    "scripts": ["scripts/chat-background.ts"],
-    "persistent": true
+    "service_worker": "scripts/chat-background.ts"
   },
-  "browser_action": {
+  "action": {
     "default_icon": {
       "48": "assets/logo-48.png",
       "128": "assets/logo-128.png"
