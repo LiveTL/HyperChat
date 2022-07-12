@@ -205,10 +205,10 @@
   resolved "https://registry.npmjs.org/@tsconfig/svelte/-/svelte-2.0.1.tgz"
   integrity sha512-aqkICXbM1oX5FfgZd2qSSAGdyo/NRxjWCamxoyi3T8iVQnzGge19HhDYzZ6NrVOW7bhcWNSq9XexWFtMzbB24A==
 
-"@types/chrome@^0.0.149":
-  version "0.0.149"
-  resolved "https://registry.npmjs.org/@types/chrome/-/chrome-0.0.149.tgz"
-  integrity sha512-JDhaXtMXqkRAzXbj4pOTciZytHSXmIOvlDDVLQdb++UdGP8fKCN4OZ0HgAq+ycFeIxzUiwlRaGmFD9mSiZRMnA==
+"@types/chrome@^0.0.193":
+  version "0.0.193"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.193.tgz#cd0dc5033f27a243d228aebe566c3ec19ef17e36"
+  integrity sha512-R8C84oqvk8A8C8G1viBd8qLpDr86Y/jwD+KLgzUekbIT9RGds6a9GnlQyg8P7ltnGogTMHkiEQK0ZlcrvTeo3Q==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"

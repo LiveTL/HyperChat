@@ -22,10 +22,10 @@ export const getBrowser = (): Browser => {
   return Browser.CHROME;
 };
 
-const params = new URLSearchParams(window.location.search);
-export const paramsTabId = params.get('tabid');
-export const paramsFrameId = params.get('frameid');
-export const paramsIsReplay = params.get('isReplay');
+// const params = new URLSearchParams(window.location.search);
+// export const paramsTabId = params.get('tabid');
+// export const paramsFrameId = params.get('frameid');
+// export const paramsIsReplay = params.get('isReplay');
 
 export const enum Theme {
   YOUTUBE = 'YOUTUBE',

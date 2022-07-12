@@ -12,9 +12,9 @@
   import SuperchatViewDialog from './SuperchatViewDialog.svelte';
   import StickyBar from './StickyBar.svelte';
   import {
-    paramsTabId,
-    paramsFrameId,
-    paramsIsReplay,
+    // paramsTabId,
+    // paramsFrameId,
+    // paramsIsReplay,
     Theme,
     YoutubeEmojiRenderMode,
     chatUserActionsItems
@@ -46,6 +46,11 @@
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
+
+  const params = new URLSearchParams(window.location.search);
+  const paramsTabId = params.get('tabid');
+  const paramsFrameId = params.get('frameid');
+  const paramsIsReplay = params.get('isReplay');
 
   const CHAT_HISTORY_SIZE = 150;
   const TRUNCATE_SIZE = 20;
@@ -253,23 +258,22 @@
       return;
     }
 
-    const frameInfo = {
-      tabId: parseInt(paramsTabId),
-      frameId: parseInt(paramsFrameId)
-    };
+    // const frameInfo = {
+    //   tabId: parseInt(paramsTabId),
+    //   frameId: parseInt(paramsFrameId)
+    // };
 
-    $port = chrome.runtime.connect();
+    // $port = chrome.runtime.connect();
+    $port = chrome.tabs.connect(parseInt(paramsTabId), { frameId: parseInt(paramsFrameId) });
 
     $port?.onMessage.addListener(onPortMessage);
 
     $port?.postMessage({
       type: 'registerClient',
-      frameInfo,
       getInitialData: true
     });
     $port?.postMessage({
-      type: 'getTheme',
-      frameInfo
+      type: 'getTheme'
     });
   };
 

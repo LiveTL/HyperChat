@@ -15,7 +15,7 @@
     "@mdi/js": "^6.5.95",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.34",
     "@tsconfig/svelte": "^2.0.1",
-    "@types/chrome": "^0.0.149",
+    "@types/chrome": "^0.0.193",
     "@types/download": "8.0.1",
     "@typescript-eslint/eslint-plugin": "4",
     "@typescript-eslint/parser": "^4.28.5",
