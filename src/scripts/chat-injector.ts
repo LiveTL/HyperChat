@@ -54,7 +54,7 @@ const chatLoaded = async (): Promise<void> => {
   // Catch YT messages
   window.addEventListener('message', (d) => {
     if (d.data['yt-player-video-progress'] != null) {
-      updatePlayerProgress(d.data['yt-player-video-progress'], true);
+      updatePlayerProgress(d.data['yt-player-video-progress']);
     }
   });
 
