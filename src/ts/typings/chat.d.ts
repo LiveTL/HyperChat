@@ -154,8 +154,8 @@ declare namespace Chat {
   };
 
   interface Interceptor {
-    frameInfo: FrameInfo;
-    port?: Port;
+    // frameInfo: FrameInfo;
+    // port?: Port;
     clients: Port[];
     source: InterceptorSource;
   }
