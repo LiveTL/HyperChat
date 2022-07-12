@@ -1,7 +1,7 @@
-import type { Unsubscriber } from '../ts/queue';
-import { ytcQueue } from '../ts/queue';
-import { isValidFrameInfo } from '../ts/chat-utils';
-import { isLiveTL } from '../ts/chat-constants';
+import type { Unsubscriber } from './queue';
+import { ytcQueue } from './queue';
+import { isValidFrameInfo } from './chat-utils';
+import { isLiveTL } from './chat-constants';
 
 const interceptors: Chat.Interceptors[] = [];
 
