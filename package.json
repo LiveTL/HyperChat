@@ -5,8 +5,8 @@
   "scripts": {
     "build": "vite build",
     "package": "node utils/package.js",
-    "start": "cross-env MINIFY=false vite build --watch",
-    "start:none": "cross-env MINIFY=false BROWSER=none vite build --watch",
+    "start": "cross-env MINIFY=false BROWSER=none vite build --watch",
+    "start:chrome": "cross-env MINIFY=false BROWSER=chrome vite build --watch",
     "start:firefox": "cross-env MINIFY=false BROWSER=firefox vite build --watch",
     "format:check": "eslint ."
   },
@@ -51,6 +51,6 @@
     "tailwindcss": "^2.2.7",
     "typescript": "^4.3.5",
     "vite": "2.7.10",
-    "vite-plugin-web-extension": "^1.0.7"
+    "vite-plugin-web-extension": "^1.4.0"
   }
 }

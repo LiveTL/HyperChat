@@ -29,7 +29,7 @@ export default defineConfig({
         'hyperchat.html'
       ],
       disableAutoLaunch: process.env.BROWSER === 'none',
-      browser: process.env.BROWSER === 'firefox' ? 'firefox' : 'chrome',
+      browser: process.env.BROWSER === 'none' ? undefined : process.env.BROWSER,
       webExtConfig: {
         startUrl: 'https://www.youtube.com/watch?v=5qap5aO4i9A'
       }
