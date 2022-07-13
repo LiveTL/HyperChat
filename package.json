@@ -44,12 +44,12 @@
     "sha-1": "^1.0.0",
     "smelte": "^1.1.8",
     "svelte": "^3.45.0",
-    "svelte-check": "^2.2.3",
+    "svelte-check": "^2.8.0",
     "svelte-preprocess": "^4.7.4",
     "svelte-waypoint": "^0.1.4",
     "svelte-webext-stores": "^0.0.12",
     "tailwindcss": "^2.2.7",
-    "typescript": "^4.3.5",
+    "typescript": "^4.7.4",
     "vite": "2.7.10",
     "vite-plugin-web-extension": "^1.0.7"
   }
