@@ -51,6 +51,7 @@ export const isChatMessage = (a: Chat.MessageAction): boolean =>
   !a.message.superChat && !a.message.superSticker && !a.message.membership;
 
 export const isAllEmoji = (a: Chat.MessageAction): boolean =>
+  a.message.message.some(m => m.type === 'text') &&
   a.message.message.every(m => m.type === 'emoji' || (m.type === 'text' && m.text.trim() === ''));
 
 export const checkInjected = (error: string): boolean => {
