@@ -76,13 +76,9 @@ declare namespace Chat {
     success: boolean;
   }
 
-  type InterceptorActions =
-    executeChatActionMsg | chatUserActionResponse |
-    checkMembershipGiftingMsg | checkMembershipGiftingResponse;
-
   type BackgroundResponse =
     Actions | InitialData | ThemeUpdate | LtlMessageResponse |
-    registerClientResponse | InterceptorActions;
+    registerClientResponse | executeChatActionMsg | chatUserActionResponse;
 
   type InterceptorSource = 'ytc' | 'ltlMessage';
 
@@ -143,19 +139,10 @@ declare namespace Chat {
     reportOption?: ChatReportUserOptions;
   }
 
-  interface checkMembershipGiftingMsg {
-    type: 'checkMembershipGifting';
-  }
-
-  interface checkMembershipGiftingResponse {
-    type: 'checkMembershipGiftingResponse';
-    result: boolean;
-  }
-
   type BackgroundMessage =
     RegisterInterceptorMsg | RegisterClientMsg | processJsonMsg |
     setInitialDataMsg | updatePlayerProgressMsg | setThemeMsg | getThemeMsg |
-    RegisterYtcInterceptorMsg | sendLtlMessageMsg | InterceptorActions;
+    RegisterYtcInterceptorMsg | sendLtlMessageMsg | executeChatActionMsg | chatUserActionResponse;
 
   type Port = Omit<chrome.runtime.Port, 'postMessage' | 'onMessage'> & {
     postMessage: (message: BackgroundMessage | BackgroundResponse) => void;

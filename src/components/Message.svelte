@@ -9,11 +9,10 @@
     showUserBadges,
     hoveredItem,
     port,
-    selfChannelId,
-    hasMembershipGiftingEnabled
+    selfChannelId
   } from '../ts/storage';
   import { chatUserActionsItems, Theme } from '../ts/chat-constants';
-  import { checkMembershipGifting, useBanHammer } from '../ts/chat-actions';
+  import { useBanHammer } from '../ts/chat-actions';
   import { mdiGift } from '@mdi/js';
 
   export let message: Ytc.ParsedMessage;
@@ -70,13 +69,6 @@
     value: d.value.toString(),
     onClick: () => useBanHammer(message, d.value, $port)
   }));
-
-  const triggerGiftCheck = () => {
-    if ($hasMembershipGiftingEnabled === null) {
-      checkMembershipGifting($port);
-    }
-    return true;
-  };
 </script>
 
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -145,7 +137,7 @@
       {forceTLColor}
       class={message.membershipGiftRedeem ? 'text-gray-700 dark:text-gray-600 italic font-medium' : ''}
     />
-    {#if message.membershipGiftRedeem && triggerGiftCheck()}
+    {#if message.membershipGiftRedeem}
       <svg
         height="1em"
         width="1em"

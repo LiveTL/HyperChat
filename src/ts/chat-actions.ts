@@ -28,11 +28,3 @@ export function useBanHammer(
     });
   }
 }
-
-export function checkMembershipGifting(
-  port: Chat.Port | null
-): void {
-  port?.postMessage({
-    type: 'checkMembershipGifting'
-  });
-}
