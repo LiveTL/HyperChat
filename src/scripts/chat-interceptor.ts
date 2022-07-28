@@ -182,6 +182,7 @@ const chatLoaded = async (): Promise<void> => {
         });
       } else if (msg.type === 'toggleMembershipGifting') {
         let currentValue = false;
+        let channelName = '';
         try {
           const d = msg.prompt.buttonRenderer;
           if (d.isDisabled) return;
@@ -208,12 +209,13 @@ const chatLoaded = async (): Promise<void> => {
           }
           const optRenderer = popup.onResponseReceivedActions[0].openPopupAction.popup.sponsorshipsGiftingOptInRenderer;
           currentValue = optRenderer.initialOptInStatus === 'SPONSORSHIPS_GIFTING_OPT_IN_STATUS_ENABLED';
+          channelName = optRenderer.subtitle.runs[1].text;
           if (msg.newValue !== null) {
             const { optInCommand, optOutCommand }: {
               optInCommand: optCommand;
               optOutCommand: optCommand;
             } = optRenderer;
-            const toggle = msg.newValue ? optOutCommand : optInCommand;
+            const toggle = msg.newValue ? optInCommand : optOutCommand;
             const res = await (await fetcher(toggle.commandMetaData.webCommandMetadata.apiUrl, {
               ...heads,
               body: JSON.stringify({
@@ -235,9 +237,9 @@ const chatLoaded = async (): Promise<void> => {
         port.postMessage({
           type: 'toggleMembershipGiftingResponse',
           success,
-          enabled: currentValue
+          enabled: currentValue,
+          channelName
         });
-        console.log('toggleMembershipGiftingResponse', 'success:', success, 'enabled:', currentValue);
       }
     });
   });

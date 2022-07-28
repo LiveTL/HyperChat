@@ -153,6 +153,7 @@ declare namespace Chat {
     type: 'toggleMembershipGiftingResponse';
     success: boolean;
     enabled: boolean;
+    channelName: string;
   }
 
   type BackgroundMessage =

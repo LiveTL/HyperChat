@@ -42,7 +42,7 @@
     lastOpenedVersion,
     selfChannelName,
     enableHighlightedMentions,
-    membershipGiftingEnabledOnChannel
+    membershipGiftingStatus
   } from '../ts/storage';
   import { version } from '../manifest.json';
 
@@ -238,16 +238,18 @@
         }
         break;
       case 'toggleMembershipGiftingResponse':
-        if (response.success) $membershipGiftingEnabledOnChannel = response.enabled;
-        else {
+        if ($membershipGiftingStatus !== null) {
           $alertDialog = {
-            title: 'Error',
-            message: 'An error occured while toggling membership gifting settings. ' +
-                     'Please try again from the membership information panel in ' +
-                     "YouTube's membership information interface.",
+            title: response.success ? 'Success!' : 'Error',
+            message: (response.success
+              ? `Membership gift reception was successfully enabled for "${response.channelName}". You can opt out again through`
+              : `An error occured while toggling membership gifting settings for "${response.channelName}".
+               Please try again from `
+            ) + "the membership information panel in YouTube's interface.",
             color: 'error'
           };
         }
+        $membershipGiftingStatus = { enabled: response.enabled };
         break;
       case 'registerClientResponse':
         break;

@@ -1,7 +1,7 @@
 <script lang="ts">
   import Message from './Message.svelte';
   import MessageRun from './MessageRuns.svelte';
-  import { showProfileIcons, membershipGiftingEnabledOnChannel, port } from '../ts/storage';
+  import { showProfileIcons, membershipGiftingStatus, port } from '../ts/storage';
   import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
   import { fetchOrToggleMembershipGifting } from '../ts/chat-actions';
   import GiftedMembershipToggle from './GiftedMembershipToggle.svelte';
@@ -18,7 +18,7 @@
   $: isMilestoneChat = message.message.length > 0;
 
   $: primaryText = (membership || membershipGift)?.headerPrimaryText;
-  $: optInPrompt = membershipGift?.optInPrompt || {
+  $: optInPrompt = membershipGift?.optInPrompt; /* || {
     buttonRenderer: {
       style: 'STYLE_TEXT',
       size: 'SIZE_DEFAULT',
@@ -49,9 +49,10 @@
         }
       }
     }
-};
-  $: if (optInPrompt && $membershipGiftingEnabledOnChannel === null) {
-    fetchOrToggleMembershipGifting(optInPrompt, $port, false);
+  }; */
+  $: if (optInPrompt && $membershipGiftingStatus === undefined) {
+    $membershipGiftingStatus = null;
+    fetchOrToggleMembershipGifting(optInPrompt, $port, null);
   }
 </script>
 
@@ -86,7 +87,7 @@
           src={membershipGift.image.src}
           alt={membershipGift.image.alt}
           title={membershipGift.image.alt} />
-          {#if optInPrompt && $membershipGiftingEnabledOnChannel === false}
+          {#if optInPrompt && $membershipGiftingStatus?.enabled === false}
             <GiftedMembershipToggle optInPrompt={optInPrompt} />
           {/if}
       {/if}
