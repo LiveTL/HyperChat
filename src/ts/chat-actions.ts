@@ -32,11 +32,11 @@ export function useBanHammer(
 export function fetchOrToggleMembershipGifting(
   prompt: Ytc.OptInPrompt,
   port: Chat.Port | null,
-  toggle: boolean
+  newValue: boolean | null
 ): void {
   port?.postMessage({
     type: 'toggleMembershipGifting',
     prompt,
-    readonly: !toggle
+    newValue
   });
 }

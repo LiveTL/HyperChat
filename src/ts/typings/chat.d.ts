@@ -146,7 +146,7 @@ declare namespace Chat {
   interface toggleMembershipGiftingMsg {
     type: 'toggleMembershipGifting';
     prompt: OptInPrompt;
-    readonly: boolean;
+    newValue: boolean | null;
   }
 
   interface toggleMembershipGiftingResponse {

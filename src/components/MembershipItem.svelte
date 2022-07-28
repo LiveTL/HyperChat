@@ -3,8 +3,8 @@
   import MessageRun from './MessageRuns.svelte';
   import { showProfileIcons, membershipGiftingEnabledOnChannel, port } from '../ts/storage';
   import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
-  import { mdiInformation } from '@mdi/js';
   import { fetchOrToggleMembershipGifting } from '../ts/chat-actions';
+  import GiftedMembershipToggle from './GiftedMembershipToggle.svelte';
 
   export let message: Ytc.ParsedMessage;
 
@@ -87,18 +87,7 @@
           alt={membershipGift.image.alt}
           title={membershipGift.image.alt} />
           {#if optInPrompt && $membershipGiftingEnabledOnChannel === false}
-            <div class="w-full flex justify-center  cursor-pointer" on:click={() => {
-              if (optInPrompt) fetchOrToggleMembershipGifting(optInPrompt, $port, true);
-            }}>
-              <span class="rounded-full px-2 py-1" style="background-color: #{milestoneChatBackground};">
-                <svg height="16" width="16" viewBox="0 0 24 24" class="inline-block">
-                  <path d={mdiInformation} fill="white"/>
-                </svg>
-                <span class="text-white underline">
-                  Opt into membership gift reception for this channel
-                </span>
-              </span>
-            </div>
+            <GiftedMembershipToggle optInPrompt={optInPrompt} />
           {/if}
       {/if}
     </div>

@@ -208,12 +208,12 @@ const chatLoaded = async (): Promise<void> => {
           }
           const optRenderer = popup.onResponseReceivedActions[0].openPopupAction.popup.sponsorshipsGiftingOptInRenderer;
           currentValue = optRenderer.initialOptInStatus === 'SPONSORSHIPS_GIFTING_OPT_IN_STATUS_ENABLED';
-          if (!msg.readonly) {
+          if (msg.newValue !== null) {
             const { optInCommand, optOutCommand }: {
               optInCommand: optCommand;
               optOutCommand: optCommand;
             } = optRenderer;
-            const toggle = currentValue ? optOutCommand : optInCommand;
+            const toggle = msg.newValue ? optOutCommand : optInCommand;
             const res = await (await fetcher(toggle.commandMetaData.webCommandMetadata.apiUrl, {
               ...heads,
               body: JSON.stringify({
@@ -226,7 +226,7 @@ const chatLoaded = async (): Promise<void> => {
               })
             })).json();
             success = res.feedbackResponse[0].isProcessed as boolean;
-            if (success) currentValue = !currentValue;
+            if (success) currentValue = msg.newValue;
           }
         } catch (e) {
           console.debug('Error executing toggle membership gifting', e);
