@@ -18,8 +18,38 @@
   $: isMilestoneChat = message.message.length > 0;
 
   $: primaryText = (membership || membershipGift)?.headerPrimaryText;
-  $: optInPrompt = membershipGift?.optInPrompt;
-  // ;
+  $: optInPrompt = membershipGift?.optInPrompt || {
+    buttonRenderer: {
+      style: 'STYLE_TEXT',
+      size: 'SIZE_DEFAULT',
+      isDisabled: false,
+      text: {
+        runs: [
+          {
+            text: 'Allow Gifts'
+          }
+        ]
+      },
+      icon: {
+        iconType: 'GIFT'
+      },
+      trackingParams: 'CBsQ6P8IIhMInMjxqNCa-QIVwSqtBh17WA1Q',
+      command: {
+        clickTrackingParams: 'CBsQ6P8IIhMInMjxqNCa-QIVwSqtBh17WA1Q',
+        commandMetadata: {
+          webCommandMetadata: {
+            sendPost: true,
+            apiUrl: '/youtubei/v1/browse'
+          }
+        },
+        browseEndpoint: {
+          browseId: 'FEgifting_opt_in',
+          params: 'igcaChhVQzNuNXVHdTE4Rm9DeTIzZ2dXV3A4dEE%3D',
+          navigationType: 'BROWSE_NAVIGATION_TYPE_STAY_ON_PAGE'
+        }
+      }
+    }
+};
   $: if (optInPrompt && $membershipGiftingEnabledOnChannel === null) {
     fetchOrToggleMembershipGifting(optInPrompt, $port, false);
   }
