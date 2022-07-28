@@ -225,6 +225,34 @@ declare namespace Ytc {
         image: Thumbnails;
       };
     };
+    optInPrompt?: {
+      buttonRenderer: {
+        style: string;
+        size: string;
+        isDisabled: boolean;
+        text: {
+          runs: RunsObj;
+        };
+        icon: {
+          iconType: string;
+        };
+        trackingParams: string;
+        command: {
+          clickTrackingParams: string;
+          commandMetadata: {
+            webCommandMetadata: {
+              sendPost: boolean;
+              apiUrl: string;
+            };
+          };
+          browseEndpoint: {
+            browseId: string;
+            params: string;
+            navigationType: string;
+          };
+        };
+      };
+    };
   }
 
   interface PlaceholderRenderer { // No idea what the purpose of this is

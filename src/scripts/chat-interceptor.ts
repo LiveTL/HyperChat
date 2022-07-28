@@ -85,101 +85,166 @@ const chatLoaded = async (): Promise<void> => {
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     port.onMessage.addListener(async (msg) => {
-      if (msg.type !== 'executeChatAction') return;
-      const message = msg.message;
-      if (message.params == null) return;
       let success = true;
-      try {
-        // const action = msg.action;
-        const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
-        const contextMenuUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?params=' +
-          `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
-        const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
-        function getCookie(name: string): string {
-          const value = `; ${document.cookie}`;
-          const parts = value.split(`; ${name}=`);
-          if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
-          return '';
-        }
-        const time = Math.floor(Date.now() / 1000);
-        const SAPISID = getCookie('__Secure-3PAPISID');
-        const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
-        const auth = `SAPISIDHASH ${time}_${sha}`;
-        const heads = {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: '*/*',
-            Authorization: auth
-          },
-          method: 'POST'
-        };
-        const res = await fetcher(contextMenuUrl, {
-          ...heads,
-          body: JSON.stringify({ context: baseContext })
-        });
-        function parseServiceEndpoint(serviceEndpoint: any, prop: string): { params: string, context: any } {
-          const { clickTrackingParams, [prop]: { params } } = serviceEndpoint;
-          const clonedContext = JSON.parse(JSON.stringify(baseContext));
-          clonedContext.clickTracking = {
-            clickTrackingParams
-          };
-          return {
-            params,
-            context: clonedContext
-          };
-        }
-        if (msg.action === ChatUserActions.BLOCK) {
-          const { params, context } = parseServiceEndpoint(
-            res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[1]
-              .menuNavigationItemRenderer.navigationEndpoint.confirmDialogEndpoint
-              .content.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint,
-            'moderateLiveChatEndpoint'
-          );
-          await fetcher(`https://www.youtube.com/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
-            ...heads,
-            body: JSON.stringify({
-              params,
-              context
-            })
-          });
-        } else if (msg.action === ChatUserActions.REPORT_USER) {
-          const { params, context } = parseServiceEndpoint(
-            res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[0].menuServiceItemRenderer.serviceEndpoint,
-            'getReportFormEndpoint'
-          );
-          const modal = await fetcher(`https://www.youtube.com/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
-            ...heads,
-            body: JSON.stringify({
-              params,
-              context
-            })
-          });
-          const index = chatReportUserOptions.findIndex(d => d.value === msg.reportOption);
-          const options = modal.actions[0].openPopupAction.popup.reportFormModalRenderer.optionsSupportedRenderers.optionsRenderer.items;
-          const submitEndpoint = options[index].optionSelectableItemRenderer.submitEndpoint;
-          const clickTrackingParams = submitEndpoint.clickTrackingParams;
-          const flagAction = submitEndpoint.flagEndpoint.flagAction;
-          context.clickTracking = {
-            clickTrackingParams
-          };
-          await fetcher(`https://www.youtube.com/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
-            ...heads,
-            body: JSON.stringify({
-              action: flagAction,
-              context
-            })
-          });
-        }
-      } catch (e) {
-        console.debug('Error executing chat action', e);
-        success = false;
+      const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
+      const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
+      function getCookie(name: string): string {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
+        return '';
       }
-      port.postMessage({
-        type: 'chatUserActionResponse',
-        action: msg.action,
-        message,
-        success
-      });
+      const time = Math.floor(Date.now() / 1000);
+      const SAPISID = getCookie('__Secure-3PAPISID');
+      const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
+      const auth = `SAPISIDHASH ${time}_${sha}`;
+      const heads = {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: '*/*',
+          Authorization: auth
+        },
+        method: 'POST'
+      };
+      function parseServiceEndpoint(serviceEndpoint: any, prop: string): { params: string, context: any } {
+        const { clickTrackingParams, [prop]: { params } } = serviceEndpoint;
+        const clonedContext = JSON.parse(JSON.stringify(baseContext));
+        clonedContext.clickTracking = {
+          clickTrackingParams
+        };
+        return {
+          params,
+          context: clonedContext
+        };
+      }
+      if (msg.type === 'executeChatAction') {
+        const message = msg.message;
+        if (message.params == null) return;
+        try {
+          // const action = msg.action;
+          const contextMenuUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?params=' +
+            `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
+          const res = await fetcher(contextMenuUrl, {
+            ...heads,
+            body: JSON.stringify({ context: baseContext })
+          });
+          if (msg.action === ChatUserActions.BLOCK) {
+            const { params, context } = parseServiceEndpoint(
+              res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[1]
+                .menuNavigationItemRenderer.navigationEndpoint.confirmDialogEndpoint
+                .content.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint,
+              'moderateLiveChatEndpoint'
+            );
+            await fetcher(`https://www.youtube.com/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+              ...heads,
+              body: JSON.stringify({
+                params,
+                context
+              })
+            });
+          } else if (msg.action === ChatUserActions.REPORT_USER) {
+            const { params, context } = parseServiceEndpoint(
+              res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[0].menuServiceItemRenderer.serviceEndpoint,
+              'getReportFormEndpoint'
+            );
+            const modal = await fetcher(`https://www.youtube.com/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
+              ...heads,
+              body: JSON.stringify({
+                params,
+                context
+              })
+            });
+            const index = chatReportUserOptions.findIndex(d => d.value === msg.reportOption);
+            const options = modal.actions[0].openPopupAction.popup.reportFormModalRenderer.optionsSupportedRenderers.optionsRenderer.items;
+            const submitEndpoint = options[index].optionSelectableItemRenderer.submitEndpoint;
+            const clickTrackingParams = submitEndpoint.clickTrackingParams;
+            const flagAction = submitEndpoint.flagEndpoint.flagAction;
+            context.clickTracking = {
+              clickTrackingParams
+            };
+            await fetcher(`https://www.youtube.com/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
+              ...heads,
+              body: JSON.stringify({
+                action: flagAction,
+                context
+              })
+            });
+          }
+        } catch (e) {
+          console.debug('Error executing chat action', e);
+          success = false;
+        }
+        port.postMessage({
+          type: 'chatUserActionResponse',
+          action: msg.action,
+          message,
+          success
+        });
+      } else if (msg.type === 'toggleMembershipGifting') {
+        let currentValue: boolean = false;
+        try {
+          const renderer = msg.renderer;
+          if (!renderer.optInPrompt || renderer.optInPrompt.buttonRenderer.isDisabled) return;
+          const d = renderer.optInPrompt.buttonRenderer;
+          const { params, context } = parseServiceEndpoint(d.command, 'browseEndpoint');
+          const popup = await (await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${apiKey}&prettyPrint=false`, {
+            ...heads,
+            body: JSON.stringify({
+              context,
+              params,
+              browseId: d.command.browseEndpoint.browseId
+            })
+          })).json();
+          interface optCommand {
+            clickTrackingParams: string;
+            commandMetaData: {
+              webCommandMetadata: {
+                apiUrl: string;
+                sendPost: boolean;
+              };
+            };
+            feedbackEndpoint: {
+              feedbackToken: string;
+            };
+          }
+          const optRenderer = popup.onResponseReceivedActions[0].openPopupAction.popup.sponsorshipsGiftingOptInRenderer;
+          currentValue = optRenderer.initialOptInStatus === 'SPONSORSHIPS_GIFTING_OPT_IN_STATUS_ENABLED';
+          if (msg.readonly) {
+            port.postMessage({
+              type: 'toggleMembershipGiftingResponse',
+              success: true,
+              enabled: currentValue
+            });
+          } else {
+            const { optInCommand, optOutCommand }: {
+              optInCommand: optCommand;
+              optOutCommand: optCommand;
+            } = optRenderer;
+            const toggle = currentValue ? optOutCommand : optInCommand;
+            const res = await (await fetcher(toggle.commandMetaData.webCommandMetadata.apiUrl, {
+              ...heads,
+              body: JSON.stringify({
+                context,
+                feedbackToken: {
+                  0: toggle.feedbackEndpoint.feedbackToken
+                },
+                isFeedbackTokenUnencrypted: false,
+                shouldMerge: false
+              })
+            })).json();
+            success = res.feedbackResponse[0].isProcessed as boolean;
+            if (success) currentValue = !currentValue;
+          }
+        } catch (e) {
+          console.debug('Error executing toggle membership gifting', e);
+          success = false;
+        }
+        port.postMessage({
+          type: 'toggleMembershipGiftingResponse',
+          success,
+          enabled: currentValue
+        });
+      }
     });
   });
 
