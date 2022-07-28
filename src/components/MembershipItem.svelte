@@ -4,7 +4,7 @@
   import { showProfileIcons, membershipGiftingEnabledOnChannel, port } from '../ts/storage';
   import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
   import { mdiInformation } from '@mdi/js';
-  import { fetchMembershipGifting } from '../ts/chat-actions';
+  import { fetchOrToggleMembershipGifting } from '../ts/chat-actions';
 
   export let message: Ytc.ParsedMessage;
 
@@ -18,41 +18,10 @@
   $: isMilestoneChat = message.message.length > 0;
 
   $: primaryText = (membership || membershipGift)?.headerPrimaryText;
-  $: optInPrompt = {
-    buttonRenderer: {
-      style: 'STYLE_TEXT',
-      size: 'SIZE_DEFAULT',
-      isDisabled: false,
-      text: {
-        runs: [
-          {
-            text: 'Allow Gifts'
-          }
-        ]
-      },
-      icon: {
-        iconType: 'GIFT'
-      },
-      trackingParams: 'CBsQ6P8IIhMInMjxqNCa-QIVwSqtBh17WA1Q',
-      command: {
-        clickTrackingParams: 'CBsQ6P8IIhMInMjxqNCa-QIVwSqtBh17WA1Q',
-        commandMetadata: {
-          webCommandMetadata: {
-            sendPost: true,
-            apiUrl: '/youtubei/v1/browse'
-          }
-        },
-        browseEndpoint: {
-          browseId: 'FEgifting_opt_in',
-          params: 'igcaChhVQzNuNXVHdTE4Rm9DeTIzZ2dXV3A4dEE%3D',
-          navigationType: 'BROWSE_NAVIGATION_TYPE_STAY_ON_PAGE'
-        }
-      }
-    }
-  };
-  // membershipGift?.optInPrompt;
+  $: optInPrompt = membershipGift?.optInPrompt;
+  // ;
   $: if (optInPrompt && $membershipGiftingEnabledOnChannel === null) {
-    fetchMembershipGifting(optInPrompt, $port);
+    fetchOrToggleMembershipGifting(optInPrompt, $port, false);
   }
 </script>
 
@@ -88,7 +57,9 @@
           alt={membershipGift.image.alt}
           title={membershipGift.image.alt} />
           {#if optInPrompt && $membershipGiftingEnabledOnChannel === false}
-            <div class="w-full flex justify-center  cursor-pointer">
+            <div class="w-full flex justify-center  cursor-pointer" on:click={() => {
+              if (optInPrompt) fetchOrToggleMembershipGifting(optInPrompt, $port, true);
+            }}>
               <span class="rounded-full px-2 py-1" style="background-color: #{milestoneChatBackground};">
                 <svg height="16" width="16" viewBox="0 0 24 24" class="inline-block">
                   <path d={mdiInformation} fill="white"/>
