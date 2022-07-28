@@ -9,6 +9,7 @@
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
   import ReportBanDialog from './ReportBanDialog.svelte';
+  import AlertDialog from './AlertDialog.svelte';
   import SuperchatViewDialog from './SuperchatViewDialog.svelte';
   import StickyBar from './StickyBar.svelte';
   import {
@@ -238,6 +239,15 @@
         break;
       case 'toggleMembershipGiftingResponse':
         if (response.success) $membershipGiftingEnabledOnChannel = response.enabled;
+        else {
+          $alertDialog = {
+            title: 'Error',
+            message: 'An error occured while toggling membership gifting settings. ' +
+                     'Please try again from the membership information panel in ' +
+                     "YouTube's membership information interface.",
+            color: 'error'
+          };
+        }
         break;
       case 'registerClientResponse':
         break;
@@ -345,6 +355,7 @@
 
 <ReportBanDialog />
 <SuperchatViewDialog />
+<AlertDialog />
 
 <svelte:window on:resize={() => {
   scrollToBottom();

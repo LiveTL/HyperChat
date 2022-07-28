@@ -4,8 +4,7 @@
     chatReportUserOptions
   } from '../ts/chat-constants';
   import {
-    reportDialog,
-    alertDialog
+    reportDialog
   } from '../ts/storage';
   import Dialog from './common/Dialog.svelte';
   import type { Writable } from 'svelte/store';
@@ -28,17 +27,5 @@
       $reportDialog?.callback($optionStore);
       $reportDialog = null;
     }} color="error" disabled={!$optionStore}>Report</Button>
-  </div>
-</Dialog>
-
-<Dialog active={Boolean($alertDialog)} noCloseButton>
-  <svelte:fragment slot="title">{$alertDialog?.title}</svelte:fragment>
-  <div>
-    {$alertDialog?.message}
-  </div>
-  <div slot="actions">
-    <Button on:click={() => {
-      $alertDialog = null;
-    }} color="primary">OK</Button>
   </div>
 </Dialog>
