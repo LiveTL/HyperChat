@@ -28,3 +28,14 @@ export function useBanHammer(
     });
   }
 }
+
+export function fetchMembershipGifting(
+  prompt: Ytc.OptInPrompt,
+  port: Chat.Port | null
+): void {
+  port?.postMessage({
+    type: 'toggleMembershipGifting',
+    prompt,
+    readonly: true
+  });
+}

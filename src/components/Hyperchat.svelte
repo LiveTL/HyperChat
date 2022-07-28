@@ -40,7 +40,8 @@
     enableStickySuperchatBar,
     lastOpenedVersion,
     selfChannelName,
-    enableHighlightedMentions
+    enableHighlightedMentions,
+    membershipGiftingEnabledOnChannel
   } from '../ts/storage';
   import { version } from '../manifest.json';
 
@@ -234,6 +235,9 @@
             }
           );
         }
+        break;
+      case 'toggleMembershipGiftingResponse':
+        if (response.success) $membershipGiftingEnabledOnChannel = response.enabled;
         break;
       case 'registerClientResponse':
         break;

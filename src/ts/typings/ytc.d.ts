@@ -218,6 +218,35 @@ declare namespace Ytc {
     headerSubtext: SimpleTextObj | RunsObj;
   }
 
+  interface OptInPrompt {
+    buttonRenderer: {
+      style: string;
+      size: string;
+      isDisabled: boolean;
+      text: {
+        runs: Array<{text: string}>;
+      };
+      icon: {
+        iconType: string;
+      };
+      trackingParams: string;
+      command: {
+        clickTrackingParams: string;
+        commandMetadata: {
+          webCommandMetadata: {
+            sendPost: boolean;
+            apiUrl: string;
+          };
+        };
+        browseEndpoint: {
+          browseId: string;
+          params: string;
+          navigationType: string;
+        };
+      };
+    };
+  }
+
   interface MembershipGiftPurchaseRenderer extends IRenderer {
     header: {
       liveChatSponsorshipsHeaderRenderer: TextMessageRenderer & {
@@ -225,34 +254,7 @@ declare namespace Ytc {
         image: Thumbnails;
       };
     };
-    optInPrompt?: {
-      buttonRenderer: {
-        style: string;
-        size: string;
-        isDisabled: boolean;
-        text: {
-          runs: Array<{text: string}>;
-        };
-        icon: {
-          iconType: string;
-        };
-        trackingParams: string;
-        command: {
-          clickTrackingParams: string;
-          commandMetadata: {
-            webCommandMetadata: {
-              sendPost: boolean;
-              apiUrl: string;
-            };
-          };
-          browseEndpoint: {
-            browseId: string;
-            params: string;
-            navigationType: string;
-          };
-        };
-      };
-    };
+    optInPrompt?: OptInPrompt;
   }
 
   interface PlaceholderRenderer { // No idea what the purpose of this is
@@ -352,7 +354,7 @@ declare namespace Ytc {
   interface ParsedMembershipGiftPurchase {
     headerPrimaryText: ParsedRun[];
     image: ParsedImage;
-    optInPrompt?: MembershipGiftPurchaseRenderer['optInPrompt'];
+    optInPrompt?: OptInPrompt;
   }
 
   interface ParsedMessage {

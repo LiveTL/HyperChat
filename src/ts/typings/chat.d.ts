@@ -145,7 +145,7 @@ declare namespace Chat {
 
   interface toggleMembershipGiftingMsg {
     type: 'toggleMembershipGifting';
-    renderer: Ytc.MembershipGiftPurchaseRenderer;
+    prompt: OptInPrompt;
     readonly: boolean;
   }
 

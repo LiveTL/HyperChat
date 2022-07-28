@@ -1,9 +1,10 @@
 <script lang="ts">
   import Message from './Message.svelte';
   import MessageRun from './MessageRuns.svelte';
-  import { showProfileIcons } from '../ts/storage';
+  import { showProfileIcons, membershipGiftingEnabledOnChannel, port } from '../ts/storage';
   import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
   import { mdiInformation } from '@mdi/js';
+  import { fetchMembershipGifting } from '../ts/chat-actions';
 
   export let message: Ytc.ParsedMessage;
 
@@ -50,6 +51,9 @@
     }
   };
   // membershipGift?.optInPrompt;
+  $: if (optInPrompt && $membershipGiftingEnabledOnChannel === null) {
+    fetchMembershipGifting(optInPrompt, $port);
+  }
 </script>
 
 {#if membership || membershipGift}
@@ -83,7 +87,7 @@
           src={membershipGift.image.src}
           alt={membershipGift.image.alt}
           title={membershipGift.image.alt} />
-          {#if optInPrompt}
+          {#if optInPrompt && $membershipGiftingEnabledOnChannel === false}
             <div class="w-full flex justify-center  cursor-pointer">
               <span class="rounded-full px-2 py-1" style="background-color: #{milestoneChatBackground};">
                 <svg height="16" width="16" viewBox="0 0 24 24" class="inline-block">

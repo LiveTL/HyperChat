@@ -181,11 +181,10 @@ const chatLoaded = async (): Promise<void> => {
           success
         });
       } else if (msg.type === 'toggleMembershipGifting') {
-        let currentValue: boolean = false;
+        let currentValue = false;
         try {
-          const renderer = msg.renderer;
-          if (!renderer.optInPrompt || renderer.optInPrompt.buttonRenderer.isDisabled) return;
-          const d = renderer.optInPrompt.buttonRenderer;
+          const d = msg.prompt.buttonRenderer;
+          if (d.isDisabled) return;
           const { params, context } = parseServiceEndpoint(d.command, 'browseEndpoint');
           const popup = await (await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${apiKey}&prettyPrint=false`, {
             ...heads,
@@ -209,13 +208,7 @@ const chatLoaded = async (): Promise<void> => {
           }
           const optRenderer = popup.onResponseReceivedActions[0].openPopupAction.popup.sponsorshipsGiftingOptInRenderer;
           currentValue = optRenderer.initialOptInStatus === 'SPONSORSHIPS_GIFTING_OPT_IN_STATUS_ENABLED';
-          if (msg.readonly) {
-            port.postMessage({
-              type: 'toggleMembershipGiftingResponse',
-              success: true,
-              enabled: currentValue
-            });
-          } else {
+          if (!msg.readonly) {
             const { optInCommand, optOutCommand }: {
               optInCommand: optCommand;
               optOutCommand: optCommand;
@@ -244,6 +237,7 @@ const chatLoaded = async (): Promise<void> => {
           success,
           enabled: currentValue
         });
+        console.log('toggleMembershipGiftingResponse', 'success:', success, 'enabled:', currentValue);
       }
     });
   });
