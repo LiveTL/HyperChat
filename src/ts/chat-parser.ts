@@ -160,7 +160,8 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
       image: {
         src: fixUrl(header.image.thumbnails[0].url),
         alt: 'gift'
-      }
+      },
+      optInPrompt: renderer.optInPrompt
     };
   } else if (actionItem.liveChatSponsorshipsGiftRedemptionAnnouncementRenderer) {
     item.membershipGiftRedeem = true;

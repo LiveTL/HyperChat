@@ -231,7 +231,7 @@ declare namespace Ytc {
         size: string;
         isDisabled: boolean;
         text: {
-          runs: RunsObj;
+          runs: Array<{text: string}>;
         };
         icon: {
           iconType: string;
@@ -352,6 +352,7 @@ declare namespace Ytc {
   interface ParsedMembershipGiftPurchase {
     headerPrimaryText: ParsedRun[];
     image: ParsedImage;
+    optInPrompt?: MembershipGiftPurchaseRenderer['optInPrompt'];
   }
 
   interface ParsedMessage {
