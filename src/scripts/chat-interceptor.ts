@@ -186,18 +186,18 @@ const chatLoaded = async (): Promise<void> => {
         try {
           const d = msg.prompt.buttonRenderer;
           if (d.isDisabled) return;
-          const { params, context } = parseServiceEndpoint(d.command, 'browseEndpoint');
-          const popup = await (await fetch(`https://www.youtube.com/youtubei/v1/browse?key=${apiKey}&prettyPrint=false`, {
+          let { params, context } = parseServiceEndpoint(d.command, 'browseEndpoint');
+          const popup = await fetcher(`https://www.youtube.com/youtubei/v1/browse?key=${apiKey}&prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
               context,
               params,
               browseId: d.command.browseEndpoint.browseId
             })
-          })).json();
+          });
           interface optCommand {
             clickTrackingParams: string;
-            commandMetaData: {
+            commandMetadata: {
               webCommandMetadata: {
                 apiUrl: string;
                 sendPost: boolean;
@@ -215,8 +215,21 @@ const chatLoaded = async (): Promise<void> => {
               optInCommand: optCommand;
               optOutCommand: optCommand;
             } = optRenderer;
+            console.log(optInCommand, optOutCommand);
             const toggle = msg.newValue ? optInCommand : optOutCommand;
-            const res = await (await fetcher(toggle.commandMetaData.webCommandMetadata.apiUrl, {
+            const pc = parseServiceEndpoint(toggle, 'feedbackEndpoint');
+            params = pc.params;
+            context = pc.context;
+            context.request = {
+              useSsl: true,
+              consistencyTokenJars: [
+                {
+                  encryptedTokenJarContents: toggle.feedbackEndpoint.feedbackToken
+                }
+              ],
+              internalExperimentFlags: []
+            };
+            const res = (await fetcher(`https://www.youtube.com${toggle.commandMetadata.webCommandMetadata.apiUrl}`, {
               ...heads,
               body: JSON.stringify({
                 context,
@@ -226,7 +239,8 @@ const chatLoaded = async (): Promise<void> => {
                 isFeedbackTokenUnencrypted: false,
                 shouldMerge: false
               })
-            })).json();
+            }));
+            console.log(res);
             success = res.feedbackResponse[0].isProcessed as boolean;
             if (success) currentValue = msg.newValue;
           }

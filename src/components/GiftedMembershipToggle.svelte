@@ -5,7 +5,7 @@
 </script>
 <div class="w-full flex justify-center cursor-pointer">
   <span class="rounded-full px-2 py-1 text-white" style="background-color: rgba(0, 0, 0, 0.2);" on:click={() => {
-    if (optInPrompt) fetchOrToggleMembershipGifting(optInPrompt, $port, !$membershipGiftingStatus);
+    if (optInPrompt) fetchOrToggleMembershipGifting(optInPrompt, $port, !($membershipGiftingStatus?.enabled));
   }}>
     Opt into membership gift reception
   </span>
