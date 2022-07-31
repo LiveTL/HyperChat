@@ -1,12 +1,15 @@
 <script lang="ts">
-  export let optInPrompt: Ytc.OptInPrompt;
-  import { port, membershipGiftingStatus } from '../ts/storage';
-  import { fetchOrToggleMembershipGifting } from '../ts/chat-actions';
+  import { port } from '../ts/storage';
+  import { toggleMembershipGifting } from '../ts/chat-actions';
+  import { mdiCogOutline } from '@mdi/js';
 </script>
-<div class="w-full flex justify-center cursor-pointer">
-  <span class="rounded-full px-2 py-1 text-white" style="background-color: rgba(0, 0, 0, 0.2);" on:click={() => {
-    if (optInPrompt) fetchOrToggleMembershipGifting(optInPrompt, $port, !($membershipGiftingStatus?.enabled));
-  }}>
-    Opt into membership gift reception
-  </span>
+<div
+  on:click={() => {
+    toggleMembershipGifting($port);
+  }}
+  style="transform: translateX(3.5px);"
+  class="rounded-full flex justify-center items-center cursor-pointer w-8 h-8">
+    <svg viewBox="0 0 24 24" style="height: 20px;">
+      <path d={mdiCogOutline} fill="white" />
+    </svg>
 </div>

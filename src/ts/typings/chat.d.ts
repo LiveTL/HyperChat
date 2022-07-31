@@ -145,15 +145,11 @@ declare namespace Chat {
 
   interface toggleMembershipGiftingMsg {
     type: 'toggleMembershipGifting';
-    prompt: OptInPrompt;
-    newValue: boolean | null;
   }
 
   interface toggleMembershipGiftingResponse {
     type: 'toggleMembershipGiftingResponse';
     success: boolean;
-    enabled: boolean;
-    channelName: string;
   }
 
   type BackgroundMessage =

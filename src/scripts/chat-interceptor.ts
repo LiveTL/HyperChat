@@ -181,78 +181,34 @@ const chatLoaded = async (): Promise<void> => {
           success
         });
       } else if (msg.type === 'toggleMembershipGifting') {
-        let currentValue = false;
-        let channelName = '';
+        const clickItem = async (selector: string, condition = () => true): Promise<void> => await new Promise((resolve, reject) => {
+          const interval = setInterval(() => {
+            const item = window.parent.document.querySelector(selector);
+            if (item != null) {
+              (item as HTMLButtonElement).click();
+              if (condition()) {
+                clearInterval(interval);
+                resolve();
+              }
+            }
+          }, 0);
+          setTimeout(() => {
+            clearInterval(interval);
+            reject(new Error(`Could not click ${selector}`));
+          }, 500);
+        });
         try {
-          const d = msg.prompt.buttonRenderer;
-          if (d.isDisabled) return;
-          let { params, context } = parseServiceEndpoint(d.command, 'browseEndpoint');
-          const popup = await fetcher(`https://www.youtube.com/youtubei/v1/browse?key=${apiKey}&prettyPrint=false`, {
-            ...heads,
-            body: JSON.stringify({
-              context,
-              params,
-              browseId: d.command.browseEndpoint.browseId
-            })
-          });
-          interface optCommand {
-            clickTrackingParams: string;
-            commandMetadata: {
-              webCommandMetadata: {
-                apiUrl: string;
-                sendPost: boolean;
-              };
-            };
-            feedbackEndpoint: {
-              feedbackToken: string;
-            };
-          }
-          const optRenderer = popup.onResponseReceivedActions[0].openPopupAction.popup.sponsorshipsGiftingOptInRenderer;
-          currentValue = optRenderer.initialOptInStatus === 'SPONSORSHIPS_GIFTING_OPT_IN_STATUS_ENABLED';
-          channelName = optRenderer.subtitle.runs[1].text;
-          if (msg.newValue !== null) {
-            const { optInCommand, optOutCommand }: {
-              optInCommand: optCommand;
-              optOutCommand: optCommand;
-            } = optRenderer;
-            console.log(optInCommand, optOutCommand);
-            const toggle = msg.newValue ? optInCommand : optOutCommand;
-            const pc = parseServiceEndpoint(toggle, 'feedbackEndpoint');
-            params = pc.params;
-            context = pc.context;
-            context.request = {
-              useSsl: true,
-              consistencyTokenJars: [
-                {
-                  encryptedTokenJarContents: toggle.feedbackEndpoint.feedbackToken
-                }
-              ],
-              internalExperimentFlags: []
-            };
-            const res = (await fetcher(`https://www.youtube.com${toggle.commandMetadata.webCommandMetadata.apiUrl}`, {
-              ...heads,
-              body: JSON.stringify({
-                context,
-                feedbackToken: {
-                  0: toggle.feedbackEndpoint.feedbackToken
-                },
-                isFeedbackTokenUnencrypted: false,
-                shouldMerge: false
-              })
-            }));
-            console.log(res);
-            success = res.feedbackResponse[0].isProcessed as boolean;
-            if (success) currentValue = msg.newValue;
-          }
+          await clickItem('div#owner .ytd-button-renderer .style-suggestive');
+          const s = '#items > ytd-menu-service-item-renderer:nth-child(3) > tp-yt-paper-item > yt-formatted-string';
+          await clickItem('.ytd-sponsorships-offer-renderer button', () => window.parent.document.querySelector(s) != null);
+          await clickItem(s);
         } catch (e) {
-          console.debug('Error executing toggle membership gifting', e);
+          console.debug('Error toggling membership gifting', e);
           success = false;
         }
         port.postMessage({
           type: 'toggleMembershipGiftingResponse',
-          success,
-          enabled: currentValue,
-          channelName
+          success
         });
       }
     });

@@ -41,8 +41,7 @@
     enableStickySuperchatBar,
     lastOpenedVersion,
     selfChannelName,
-    enableHighlightedMentions,
-    membershipGiftingStatus
+    enableHighlightedMentions
   } from '../ts/storage';
   import { version } from '../manifest.json';
 
@@ -238,18 +237,13 @@
         }
         break;
       case 'toggleMembershipGiftingResponse':
-        if ($membershipGiftingStatus !== null) {
+        if (!response.success) {
           $alertDialog = {
-            title: response.success ? 'Success!' : 'Error',
-            message: (response.success
-              ? `Membership gift reception was successfully enabled for "${response.channelName}". You can opt out again through`
-              : `An error occured while toggling membership gifting settings for "${response.channelName}".
-               Please try again from `
-            ) + "the membership information panel in YouTube's interface.",
+            title: 'Error',
+            message: "Please try again from YouTube's membership settings interface.",
             color: 'error'
           };
         }
-        $membershipGiftingStatus = { enabled: response.enabled };
         break;
       case 'registerClientResponse':
         break;

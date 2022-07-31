@@ -29,14 +29,10 @@ export function useBanHammer(
   }
 }
 
-export function fetchOrToggleMembershipGifting(
-  prompt: Ytc.OptInPrompt,
-  port: Chat.Port | null,
-  newValue: boolean | null
+export function toggleMembershipGifting(
+  port: Chat.Port | null
 ): void {
   port?.postMessage({
-    type: 'toggleMembershipGifting',
-    prompt,
-    newValue
+    type: 'toggleMembershipGifting'
   });
 }

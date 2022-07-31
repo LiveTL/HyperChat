@@ -79,4 +79,3 @@ export const currentProgress = writable(null as null | number);
 export const enableStickySuperchatBar = stores.addSyncStore('hc.enableStickySuperchatBar', true);
 export const enableHighlightedMentions = stores.addSyncStore('hc.enableHighlightedMentions', true);
 export const lastOpenedVersion = stores.addSyncStore('hc.lastOpenedVersion', '');
-export const membershipGiftingStatus = writable(undefined as undefined | null | { enabled: boolean });

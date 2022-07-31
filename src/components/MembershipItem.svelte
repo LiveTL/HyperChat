@@ -1,9 +1,8 @@
 <script lang="ts">
   import Message from './Message.svelte';
   import MessageRun from './MessageRuns.svelte';
-  import { showProfileIcons, membershipGiftingStatus, port } from '../ts/storage';
+  import { showProfileIcons } from '../ts/storage';
   import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
-  import { fetchOrToggleMembershipGifting } from '../ts/chat-actions';
   import GiftedMembershipToggle from './GiftedMembershipToggle.svelte';
 
   export let message: Ytc.ParsedMessage;
@@ -18,48 +17,12 @@
   $: isMilestoneChat = message.message.length > 0;
 
   $: primaryText = (membership || membershipGift)?.headerPrimaryText;
-  $: optInPrompt = membershipGift?.optInPrompt; /* || {
-    buttonRenderer: {
-      style: 'STYLE_TEXT',
-      size: 'SIZE_DEFAULT',
-      isDisabled: false,
-      text: {
-        runs: [
-          {
-            text: 'Allow Gifts'
-          }
-        ]
-      },
-      icon: {
-        iconType: 'GIFT'
-      },
-      trackingParams: 'CBsQ6P8IIhMInMjxqNCa-QIVwSqtBh17WA1Q',
-      command: {
-        clickTrackingParams: 'CBsQ6P8IIhMInMjxqNCa-QIVwSqtBh17WA1Q',
-        commandMetadata: {
-          webCommandMetadata: {
-            sendPost: true,
-            apiUrl: '/youtubei/v1/browse'
-          }
-        },
-        browseEndpoint: {
-          browseId: 'FEgifting_opt_in',
-          params: 'igcaChhVQzNuNXVHdTE4Rm9DeTIzZ2dXV3A4dEE%3D',
-          navigationType: 'BROWSE_NAVIGATION_TYPE_STAY_ON_PAGE'
-        }
-      }
-    }
-  }; */
-  $: if (optInPrompt && $membershipGiftingStatus === undefined) {
-    $membershipGiftingStatus = null;
-    fetchOrToggleMembershipGifting(optInPrompt, $port, null);
-  }
 </script>
 
 {#if membership || membershipGift}
   <div class={classes} style="background-color: #{membershipBackground};">
     <div
-      class="p-2"
+      class="p-2 relative"
       style="{isMilestoneChat ? `background-color: #${milestoneChatBackground};` : ''}"
     >
       {#if $showProfileIcons}
@@ -82,14 +45,14 @@
         <MessageRun runs={membership.headerSubtext} />
       {/if}
       {#if membershipGift}
-        <img
-          class="h-10 w-10 float-right"
-          src={membershipGift.image.src}
-          alt={membershipGift.image.alt}
-          title={membershipGift.image.alt} />
-          {#if optInPrompt && $membershipGiftingStatus?.enabled === false}
-            <GiftedMembershipToggle optInPrompt={optInPrompt} />
-          {/if}
+        <div class="float-right inline-flex flex-row items-center">
+          <img
+            class="h-10 w-10"
+            src={membershipGift.image.src}
+            alt={membershipGift.image.alt}
+            title={membershipGift.image.alt} />
+          <GiftedMembershipToggle />
+        </div>
       {/if}
     </div>
     {#if isMilestoneChat}
