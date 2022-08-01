@@ -46,6 +46,10 @@ const chatLoaded = async (): Promise<void> => {
   const params = new URLSearchParams();
   params.set('tabid', frameInfo.tabId.toString());
   params.set('frameid', frameInfo.frameId.toString());
+  try {
+    params.set('isYtFrame', window.parent.location.href !== window.location.href ? '1' : '0');
+  } catch {
+  }
   if (frameIsReplay) params.set('isReplay', 'true');
   const source = chrome.runtime.getURL(
     (isLiveTL ? 'hyperchat/index.html' : 'hyperchat.html') +
