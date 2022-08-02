@@ -1,15 +1,19 @@
+<script lang="ts">
+  const d = new Date(1659837600 * 1000);
+</script>
+
 <ul class="list-disc list-inside">
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
-    Membership gifting is now <i>partially</i> supported! You
-    can view gifted memberships in the chat, but opting in to
-    receive gifts has not yet been implemented (coming soon-ish?).
+    I (Kento, developer of HyperChat, LiveTL, etc.) will be going on Kamishiro Taishi's
+    "TLTalk" show! Tune in on {d.toLocaleDateString()} at {d.toLocaleTimeString()} to learn
+    more about what I do, how LiveTL came to be, and what we're working.
+    <a href="https://youtu.be/m0D9hsI2wuc" target="_blank" class="underline">
+      Bookmark the stream here.
+    </a>
   </li>
   <li class="ml-3.5">
-    Add message highlighting for @mentions
-  </li>
-  <li class="ml-3.5">
-    Fix links in welcome message
+    Fix missing gifted membership entries
   </li>
 </ul>
 <ul class="list-disc list-inside">
