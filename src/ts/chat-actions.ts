@@ -28,3 +28,11 @@ export function useBanHammer(
     });
   }
 }
+
+export function toggleMembershipGifting(
+  port: Chat.Port | null
+): void {
+  port?.postMessage({
+    type: 'toggleMembershipGifting'
+  });
+}

@@ -26,6 +26,7 @@ const params = new URLSearchParams(window.location.search);
 export const paramsTabId = params.get('tabid');
 export const paramsFrameId = params.get('frameid');
 export const paramsIsReplay = params.get('isReplay');
+export const isYtFrame = params.get('isYtFrame') === '1';
 
 export const enum Theme {
   YOUTUBE = 'YOUTUBE',

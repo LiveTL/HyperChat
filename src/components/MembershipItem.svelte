@@ -3,6 +3,7 @@
   import MessageRun from './MessageRuns.svelte';
   import { showProfileIcons } from '../ts/storage';
   import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
+  import GiftedMembershipToggle from './GiftedMembershipToggle.svelte';
 
   export let message: Ytc.ParsedMessage;
 
@@ -21,7 +22,7 @@
 {#if membership || membershipGift}
   <div class={classes} style="background-color: #{membershipBackground};">
     <div
-      class="p-2"
+      class="p-2 relative"
       style="{isMilestoneChat ? `background-color: #${milestoneChatBackground};` : ''}"
     >
       {#if $showProfileIcons}
@@ -44,11 +45,14 @@
         <MessageRun runs={membership.headerSubtext} />
       {/if}
       {#if membershipGift}
-        <img
-          class="h-10 w-10 float-right"
-          src={membershipGift.image.src}
-          alt={membershipGift.image.alt}
-          title={membershipGift.image.alt} />
+        <div class="float-right inline-flex flex-row items-center">
+          <img
+            class="h-10 w-10"
+            src={membershipGift.image.src}
+            alt={membershipGift.image.alt}
+            title={membershipGift.image.alt} />
+          <GiftedMembershipToggle />
+        </div>
       {/if}
     </div>
     {#if isMilestoneChat}

@@ -379,6 +379,26 @@ const sendChatUserActionResponse = (
   );
 };
 
+const toggleMembershipGifting = (
+  port: Chat.Port,
+  message: Chat.toggleMembershipGiftingMsg
+): void => {
+  const interceptor = findInterceptorFromClient(port);
+  interceptor?.port?.postMessage(message);
+};
+
+const sendMembershipGiftingResponse = (
+  port: Chat.Port,
+  message: Chat.toggleMembershipGiftingResponse
+): void => {
+  const interceptor = findInterceptorFromPort(port, { message });
+  if (!interceptor) return;
+
+  interceptor.clients.forEach(
+    (clientPort) => clientPort.postMessage(message)
+  );
+};
+
 chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((message: Chat.BackgroundMessage) => {
     switch (message.type) {
@@ -414,6 +434,12 @@ chrome.runtime.onConnect.addListener((port) => {
         break;
       case 'chatUserActionResponse':
         sendChatUserActionResponse(port, message);
+        break;
+      case 'toggleMembershipGifting':
+        toggleMembershipGifting(port, message);
+        break;
+      case 'toggleMembershipGiftingResponse':
+        sendMembershipGiftingResponse(port, message);
         break;
       default:
         console.error('Unknown message type', port, message);

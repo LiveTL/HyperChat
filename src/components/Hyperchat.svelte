@@ -9,6 +9,7 @@
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
   import ReportBanDialog from './ReportBanDialog.svelte';
+  import AlertDialog from './AlertDialog.svelte';
   import SuperchatViewDialog from './SuperchatViewDialog.svelte';
   import StickyBar from './StickyBar.svelte';
   import {
@@ -235,6 +236,15 @@
           );
         }
         break;
+      case 'toggleMembershipGiftingResponse':
+        if (!response.success) {
+          $alertDialog = {
+            title: 'Error',
+            message: "Please try again from YouTube's membership settings interface.",
+            color: 'error'
+          };
+        }
+        break;
       case 'registerClientResponse':
         break;
       default:
@@ -341,6 +351,7 @@
 
 <ReportBanDialog />
 <SuperchatViewDialog />
+<AlertDialog />
 
 <svelte:window on:resize={() => {
   scrollToBottom();

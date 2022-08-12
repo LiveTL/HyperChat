@@ -2,7 +2,7 @@
   import {
     focusedSuperchat
   } from '../ts/storage';
-  import Dialog from './common/Dialog.svelte';
+  import TransparentDialog from './common/TransparentDialog.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
 
@@ -14,21 +14,10 @@
   $: if (!open) closeDialog();
 </script>
 
-<Dialog bind:active={open} noCloseButton class="no-padding">
+<TransparentDialog bind:open>
   {#if ('superChat' in sc || 'superSticker' in sc)}
     <PaidMessage message={sc} />
   {:else}
     <MembershipItem message={sc} />
   {/if}
-</Dialog>
-
-<style>
-  :global(.no-padding>div):nth-child(1), :global(.no-padding>div):nth-child(3) {
-    display: none;
-  }
-  :global(.no-padding) {
-    padding: 0px !important;
-    margin: 1rem !important;
-    background-color: transparent !important;
-  }
-</style>
+</TransparentDialog>
