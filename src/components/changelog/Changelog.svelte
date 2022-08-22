@@ -1,19 +1,13 @@
-<script lang="ts">
-  const d = new Date(1659837600 * 1000);
-</script>
-
 <ul class="list-disc list-inside">
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
-    I (Kento, developer of HyperChat, LiveTL, etc.) will be going on Kamishiro Taishi's
-    "TLTalk" show! Tune in on {d.toLocaleDateString()} at {d.toLocaleTimeString()} to learn
-    more about who I am, how LiveTL came to be, and what we're working on.
-    <a href="https://youtu.be/m0D9hsI2wuc" target="_blank" class="underline">
-      Bookmark the stream here.
-    </a>
+    New RAM-saving tricks that work on more device types
   </li>
   <li class="ml-3.5">
-    Fix missing gifted membership entries
+    We are aware that the auto-translate feature is partially
+    broken due to changes on Google's end. We are all a little
+    busy at the moment, but we'll fix it as soon as we can.
+    Gomenasorry!
   </li>
 </ul>
 <ul class="list-disc list-inside">
