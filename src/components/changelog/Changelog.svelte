@@ -1,13 +1,9 @@
 <ul class="list-disc list-inside">
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
-    New RAM-saving tricks that work on more device types
-  </li>
-  <li class="ml-3.5">
-    We are aware that the auto-translate feature is partially
-    broken due to changes on Google's end. We are all a little
-    busy at the moment, but we'll fix it as soon as we can.
-    Gomenasorry!
+    Auto-translate was broken for some users due to breaking
+    changes on Google's end, but these issues have been fixed!
+    Please keep in mind that this feature is experimental.
   </li>
 </ul>
 <ul class="list-disc list-inside">
