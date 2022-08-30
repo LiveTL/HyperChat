@@ -316,9 +316,17 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
  */
 const updatePlayerProgress = (port: Chat.Port, playerProgress: number, isFromYt?: boolean): void => {
   const interceptor = findInterceptorFromPort(port, { playerProgress });
-  if (!interceptor || !isYtcInterceptor(interceptor)) return;
+  if (!interceptor) return;
 
-  interceptor.queue.updatePlayerProgress(playerProgress, isFromYt);
+  // yt needs logic for clearing chat messages and forcing updates
+  // yt's updatePlayerProgress will send the playerProgress message in the method
+  if (isYtcInterceptor(interceptor)) {
+    interceptor.queue.updatePlayerProgress(playerProgress, isFromYt);
+  }
+  // send to all twitch clients
+  else {
+    interceptor.clients.forEach(port => port.postMessage({ type: 'playerProgress', playerProgress }));
+  }
 };
 
 /**
