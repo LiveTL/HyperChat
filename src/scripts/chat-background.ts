@@ -322,9 +322,7 @@ const updatePlayerProgress = (port: Chat.Port, playerProgress: number, isFromYt?
   // yt's updatePlayerProgress will send the playerProgress message in the method
   if (isYtcInterceptor(interceptor)) {
     interceptor.queue.updatePlayerProgress(playerProgress, isFromYt);
-  }
-  // send to all twitch clients
-  else {
+  } else { // send to all twitch clients
     interceptor.clients.forEach(port => port.postMessage({ type: 'playerProgress', playerProgress }));
   }
 };
