@@ -333,7 +333,7 @@
   $: $enableStickySuperchatBar, pinned, topBarResized();
 
   const isMention = (msg: Ytc.ParsedMessage) => {
-    return msg.message.map(run => {
+    return $selfChannelName && msg.message.map(run => {
       if (run.type === 'text' || run.type === 'link') {
         return run.text;
       } else {
