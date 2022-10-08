@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "HyperChat by LiveTL",
   "homepage_url": "https://livetl.app/en/hyperchat/",
-  "description": "YouTube chat, but it's fast and sleek!",
+  "description": "Improved YouTube chat with CPU/RAM optimizations, customization options, and cutting-edge features!",
   "version": "2.6.8",
   "permissions": [
     "storage"
