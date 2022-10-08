@@ -1,20 +1,21 @@
+<script lang="ts">
+  import { isLiveTL } from '../../ts/chat-constants';
+  const trailer = chrome.runtime.getURL(
+    (isLiveTL ? 'hyperchat' : 'assets') + '/trailer.png'
+  );
+</script>
+
 <ul class="list-disc list-inside">
   <strong>On today's KFP menu:</strong>
-  <li class="ml-3.5">
-    Auto-translate was broken for some users due to breaking
-    changes on Google's end, but these issues have been fixed!
-    Please keep in mind that this feature is experimental.
-  </li>
+  <div style="width: 100%; display: flex; justify-content: center; margin: 8px 0px;">
+    <a href="https://www.youtube.com/watch?v=FU3YWQy_Rfs" target="_blank">
+      <img src={trailer} style="width: 150px; aspect-ratio: calc(16 / 9);" alt="HyperChat Trailer" class="rounded-sm" />
+    </a>
+  </div>
 </ul>
 <ul class="list-disc list-inside">
   <strong>What's still cooking in the usual room:</strong>
   <li class="ml-3.5">
-    Opt-in procedure for gifted memberships
-  </li>
-  <li class="ml-3.5">
     Migration to Manifest V3
-  </li>
-  <li class="ml-3.5">
-    Updated screenshots, store listing, and trailer video
   </li>
 </ul>

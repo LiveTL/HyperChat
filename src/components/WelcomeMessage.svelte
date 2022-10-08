@@ -91,7 +91,7 @@
           close
         </Icon>
       </span>
-      <span class="mr-0.5">
+      <span class="mr-0.5 w-full">
         <Changelog />
       </span>
     </p>
