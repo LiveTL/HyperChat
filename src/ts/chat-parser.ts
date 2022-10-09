@@ -260,6 +260,7 @@ const sortAction = (action: Ytc.ParsedAction, messageArray: Ytc.ParsedTimedItem[
 };
 
 const cheatTimestamps = (arr: Ytc.ParsedMessage[]): void => {
+  if (arr.length === 0) return;
   const earliest = arr[0].showtime;
   const delta = Date.now() - earliest;
   arr.forEach(item => {
