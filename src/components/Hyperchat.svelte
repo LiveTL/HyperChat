@@ -355,7 +355,7 @@
   {#if $enableStickySuperchatBar}
     <StickyBar />
   {/if}
-  <div class="w-full min-h-0 flex justify-end flex-col relative">
+  <div class="w-screen min-h-0 flex justify-end flex-col relative">
     <div bind:this={div} on:scroll={checkAtBottom} class="content overflow-y-scroll">
       <div style="height: {topBarSize}px;" />
       {#each messageActions as action (action.message.messageId)}
