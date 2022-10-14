@@ -302,7 +302,7 @@
     $showProfileIcons, $showUsernames, $showTimestamps, $showUserBadges
   );
 
-  const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25 flex flex-col justify-between';
+  const containerClass = 'h-screen w-screen text-black dark:text-white dark:bg-black dark:bg-opacity-25 flex flex-col justify-between max-w-none';
 
   const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
   const isMembership = (action: Chat.MessageAction) => (action.message.membership || action.message.membershipGiftPurchase);
