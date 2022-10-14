@@ -6893,10 +6893,10 @@ svelte-waypoint@^0.1.4:
   resolved "https://registry.npmjs.org/svelte-waypoint/-/svelte-waypoint-0.1.4.tgz"
   integrity sha512-UEqoXZjJeKj2sWlAIsBOFjxjMn+KP8aFCc/zjdmZi1cCOE59z6T2C+I6ZaAf8EmNQqNzfZVB/Lci4Ci9spzXAw==
 
-svelte-webext-stores@^0.0.12:
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/svelte-webext-stores/-/svelte-webext-stores-0.0.12.tgz#b3ab0b1cfd6bcd2c2aaf066b69dd09a01bda695c"
-  integrity sha512-kEn5thYuvWqeK9FoXNcyKtM8eoRCbEdFZ6N9xPl6FBKPk1OTlIMvFbTmrfHeC5osA7BX/VGbwv4TbicZHdJ3mA==
+svelte-webext-stores@^0.0.13:
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/svelte-webext-stores/-/svelte-webext-stores-0.0.13.tgz#de0baf2188d2d1713aff847c57565199508af217"
+  integrity sha512-Ru4k67E1gj3lTvZXvHeFECn1YzJF1ZNYE7X4F7UQFxytOEqCaVyQMSnE8gGKU1+gpAJUAD6O69ZSEsGStvimUg==
 
 svelte@^3.31.2, svelte@^3.49.0:
   version "3.49.0"
