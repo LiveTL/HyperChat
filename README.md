@@ -11,6 +11,8 @@
 
 ## Building from Source
 
+> Note: The repo expects a Linux or Unix-like environment. If you are on Windows, use WSL.
+
 Clone the repository:
 
 ```bash
