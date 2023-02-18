@@ -29,7 +29,13 @@ yarn # install dependencies
 Build or serve the extension:
 
 ```bash
-yarn start # watch mode
-yarn build # production mode
+yarn dev:firefox # devserver for firefox extension
+yarn dev:chrome # devserver for chrome extension
+yarn start # alias to yarn dev:chrome for backwards compat
+yarn start:none # alias to yarn dev:chrome for backwards compat
+yarn start:firefox # devserver + open extension in firefox
+yarn start:chrome # devserver + open extension in chrome
+yarn build # production mode (firefox)
+yarn build:chrome # production mode (chrome)
 VERSION=x.x.x yarn build
 ```

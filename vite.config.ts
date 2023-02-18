@@ -29,10 +29,10 @@ export default defineConfig({
         'hyperchat.html',
         'scripts/chat-interceptor.ts'
       ],
-      disableAutoLaunch: process.env.BROWSER === 'none',
+      disableAutoLaunch: process.env.HC_AUTOLAUNCH === undefined,
       browser: process.env.BROWSER === undefined ? 'firefox' : process.env.BROWSER,
       webExtConfig: {
-        startUrl: 'https://www.youtube.com/watch?v=5qap5aO4i9A'
+        startUrl: 'https://www.youtube.com/watch?v=jfKfPfyJRdk'
       }
     }),
     svelte({
