@@ -30,7 +30,7 @@ export default defineConfig({
         'scripts/chat-interceptor.ts'
       ],
       disableAutoLaunch: process.env.BROWSER === 'none',
-      browser: process.env.BROWSER === 'none' ? undefined : process.env.BROWSER,
+      browser: process.env.BROWSER === undefined ? 'firefox' : process.env.BROWSER,
       webExtConfig: {
         startUrl: 'https://www.youtube.com/watch?v=5qap5aO4i9A'
       }
@@ -47,6 +47,11 @@ export default defineConfig({
         transform: (content) => {
           const newManifest = JSON.parse(content.toString());
           newManifest.incognito = 'split';
+          if ('scripts' in newManifest.background) {
+            newManifest.background = {
+              service_worker: newManifest.background.scripts[0]
+            };
+          }
           return JSON.stringify(newManifest, null, 2);
         },
         rename: 'manifest.chrome.json'

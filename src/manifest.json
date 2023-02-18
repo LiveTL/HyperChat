@@ -24,7 +24,10 @@
       "all_frames": true
     }
   ],
-  "background": {
+  "{{firefox}}.background": {
+    "scripts": ["scripts/chat-background.ts"]
+  },
+  "{{chrome}}.background": {
     "service_worker": "scripts/chat-background.ts"
   },
   "action": {
