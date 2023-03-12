@@ -3,8 +3,9 @@
   "version": "69.42.0",
   "private": true,
   "scripts": {
-    "build": "vite build",
+    "build": "yarn build:chrome",
     "build:chrome": "cross-env BROWSER=chrome vite build",
+    "build:firefox": "cross-env BROWSER=firefox vite build",
     "package": "node utils/package.js",
     "dev:chrome": "cross-env MINIFY=false BROWSER=chrome vite build --watch",
     "dev:firefox": "cross-env MINIFY=false BROWSER=firefox vite build --watch",
