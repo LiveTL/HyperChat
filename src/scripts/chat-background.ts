@@ -1,4 +1,4 @@
-import { isLiveTL } from '../ts/chat-constants';
+import { isLiveTL, Browser, getBrowser } from '../ts/chat-constants';
 
 chrome.action.onClicked.addListener(() => {
   if (isLiveTL) {
@@ -18,3 +18,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }, () => {});
   }
 });
+
+// ff doesn't support extension to content script raw messaging yet
+// so we proxy the messaging
+if (getBrowser() == Browser.FIREFOX) {
+  chrome.runtime.onConnect.addListener(hc => {
+    // frameId and tabId should be int
+    const { frameId, tabId } = JSON.parse(hc.name);
+    const interceptorPort = chrome.tabs.connect(tabId, { frameId });
+    interceptorPort.onMessage.addListener(msg => {
+      hc.postMessage(msg);
+    });
+    hc.onMessage.addListener(msg => {
+      interceptorPort.postMessage(msg);
+    });
+  });
+}

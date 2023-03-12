@@ -15,6 +15,8 @@
     // paramsTabId,
     // paramsFrameId,
     // paramsIsReplay,
+    getBrowser,
+    Browser,
     Theme,
     YoutubeEmojiRenderMode,
     chatUserActionsItems
@@ -258,13 +260,17 @@
       return;
     }
 
-    // const frameInfo = {
-    //   tabId: parseInt(paramsTabId),
-    //   frameId: parseInt(paramsFrameId)
-    // };
+    // ff doesn't support extension to content script raw messaging yet
+    if (getBrowser() == Browser.FIREFOX) {
+      const frameInfo = {
+        tabId: parseInt(paramsTabId),
+        frameId: parseInt(paramsFrameId)
+      };
 
-    // $port = chrome.runtime.connect();
-    $port = chrome.tabs.connect(parseInt(paramsTabId), { frameId: parseInt(paramsFrameId) });
+      $port = chrome.runtime.connect({ name: JSON.stringify(frameInfo) });
+    } else {
+      $port = chrome.tabs.connect(parseInt(paramsTabId), { frameId: parseInt(paramsFrameId) });
+    }
 
     $port?.onMessage.addListener(onPortMessage);
 
