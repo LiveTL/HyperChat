@@ -35,7 +35,8 @@ yarn start # alias to yarn dev:chrome for backwards compat
 yarn start:none # alias to yarn dev:chrome for backwards compat
 yarn start:firefox # devserver + open extension in firefox
 yarn start:chrome # devserver + open extension in chrome
-yarn build # production mode (firefox)
+yarn build # production mode (chrome)
 yarn build:chrome # production mode (chrome)
+yarn build:firefox # production mode (firefox)
 VERSION=x.x.x yarn build
 ```
