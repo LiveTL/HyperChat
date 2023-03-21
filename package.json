@@ -3,11 +3,16 @@
   "version": "69.42.0",
   "private": true,
   "scripts": {
-    "build": "vite build",
+    "build": "yarn build:chrome",
+    "build:chrome": "cross-env BROWSER=chrome vite build",
+    "build:firefox": "cross-env BROWSER=firefox vite build",
     "package": "node utils/package.js",
-    "start": "cross-env MINIFY=false BROWSER=none vite build --watch",
-    "start:chrome": "cross-env MINIFY=false BROWSER=chrome vite build --watch",
-    "start:firefox": "cross-env MINIFY=false BROWSER=firefox vite build --watch",
+    "dev:chrome": "cross-env MINIFY=false BROWSER=chrome vite build --watch",
+    "dev:firefox": "cross-env MINIFY=false BROWSER=firefox vite build --watch",
+    "start": "yarn dev:chrome",
+    "start:none": "yarn dev:chrome",
+    "start:chrome": "cross-env HC_AUTOLAUNCH=menace yarn dev:chrome",
+    "start:firefox": "cross-env HC_AUTOLAUNCH=menace yarn dev:firefox",
     "format:check": "eslint ."
   },
   "devDependencies": {

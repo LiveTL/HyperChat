@@ -29,10 +29,10 @@ export default defineConfig({
         'hyperchat.html',
         'scripts/chat-interceptor.ts'
       ],
-      disableAutoLaunch: process.env.BROWSER === 'none',
-      browser: process.env.BROWSER === 'none' ? undefined : process.env.BROWSER,
+      disableAutoLaunch: process.env.HC_AUTOLAUNCH === undefined,
+      browser: process.env.BROWSER === undefined ? 'chrome' : process.env.BROWSER,
       webExtConfig: {
-        startUrl: 'https://www.youtube.com/watch?v=5qap5aO4i9A'
+        startUrl: 'https://www.youtube.com/watch?v=jfKfPfyJRdk'
       }
     }),
     svelte({
@@ -46,10 +46,17 @@ export default defineConfig({
         dest: 'build/',
         transform: (content) => {
           const newManifest = JSON.parse(content.toString());
-          newManifest.incognito = 'split';
+          if ('incognito' in newManifest) {
+            delete newManifest.incognito;
+          }
+          if ('service_worker' in newManifest.background) {
+            newManifest.background = {
+              scripts: [newManifest.background.service_worker]
+            };
+          }
           return JSON.stringify(newManifest, null, 2);
         },
-        rename: 'manifest.chrome.json'
+        rename: 'manifest.firefox.json'
       }]
     })
   ]
