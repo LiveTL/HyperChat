@@ -7,7 +7,7 @@
 
 <ul class="list-disc list-inside">
   <div>
-    Apologies for the lack of updates recently! We've been quite busy.
+    Apologies for the lack of updates recently! We've been busy.
   </div>
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
