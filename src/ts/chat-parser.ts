@@ -4,6 +4,7 @@ import {
   isMembershipRenderer,
   isMembershipGiftPurchaseRenderer
 } from './chat-utils';
+import { currentDomain } from './chat-constants';
 
 // Source: https://stackoverflow.com/a/64396666
 const standardEmoji =
@@ -20,7 +21,7 @@ const fixUrl = (url: string): string => {
   if (url.startsWith('//')) {
     return 'https:' + url;
   } else if (url.startsWith('/')) {
-    return 'https://www.youtube.com' + url;
+    return `${currentDomain}${url}`;
   } else {
     return url;
   }
@@ -120,7 +121,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     params: messageRenderer.contextMenuEndpoint?.liveChatItemContextMenuEndpoint.params
   };
   if (channelId != null) {
-    item.author.url = `https://www.youtube.com/channel/${channelId}`;
+    item.author.url = `${currentDomain}/channel/${channelId}`;
   }
 
   if (isPaidMessageRenderer(renderer)) {

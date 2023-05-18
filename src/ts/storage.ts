@@ -1,4 +1,4 @@
-import { webExtStores } from 'svelte-webext-stores';
+import { webExtStores } from '@livetl/svelte-webext-stores';
 import { derived, readable, writable } from 'svelte/store';
 import type { Writable } from 'svelte/store';
 import { getClient, AvailableLanguages } from 'iframe-translator';

@@ -4,6 +4,7 @@ import sha1 from 'sha-1';
 import { chatReportUserOptions, ChatUserActions, isLiveTL } from '../ts/chat-constants';
 
 function injectedFunction(): void {
+  const currentDomain = (location.protocol + '//' + location.host);
   for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
     window.addEventListener(eventName, event => {
       event.stopImmediatePropagation();
@@ -16,7 +17,7 @@ function injectedFunction(): void {
     const url = request.url;
     const result = await fetchFallback(...args);
 
-    const ytApi = (end: string): string => `https://www.youtube.com/youtubei/v1/live_chat${end}`;
+    const ytApi = (end: string): string => `${currentDomain}/youtubei/v1/live_chat${end}`;
     const isReceiving = url.startsWith(ytApi('/get_live_chat'));
     const isSending = url.startsWith(ytApi('/send_message'));
     const action = isReceiving ? 'messageReceive' : 'messageSent';
@@ -90,9 +91,10 @@ const chatLoaded = async (): Promise<void> => {
       if (message.params == null) return;
       let success = true;
       try {
+        const currentDomain = (location.protocol + '//' + location.host);
         // const action = msg.action;
         const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
-        const contextMenuUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?params=' +
+        const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
           `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
         const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
         function getCookie(name: string): string {
@@ -103,7 +105,7 @@ const chatLoaded = async (): Promise<void> => {
         }
         const time = Math.floor(Date.now() / 1000);
         const SAPISID = getCookie('__Secure-3PAPISID');
-        const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
+        const sha = sha1(`${time} ${SAPISID} ${currentDomain}`);
         const auth = `SAPISIDHASH ${time}_${sha}`;
         const heads = {
           headers: {
@@ -135,7 +137,7 @@ const chatLoaded = async (): Promise<void> => {
               .content.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint,
             'moderateLiveChatEndpoint'
           );
-          await fetcher(`https://www.youtube.com/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+          await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
               params,
@@ -147,7 +149,7 @@ const chatLoaded = async (): Promise<void> => {
             res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[0].menuServiceItemRenderer.serviceEndpoint,
             'getReportFormEndpoint'
           );
-          const modal = await fetcher(`https://www.youtube.com/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
+          const modal = await fetcher(`${currentDomain}/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
               params,
@@ -162,7 +164,7 @@ const chatLoaded = async (): Promise<void> => {
           context.clickTracking = {
             clickTrackingParams
           };
-          await fetcher(`https://www.youtube.com/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
+          await fetcher(`${currentDomain}/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
               action: flagAction,

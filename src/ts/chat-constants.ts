@@ -101,3 +101,4 @@ export const chatUserActionsItems = [
 
 export const membershipBackground = '0f9d58';
 export const milestoneChatBackground = '107516';
+export const currentDomain = location.protocol.includes('youtube') ? (location.protocol + '//' + location.host) : 'https://www.youtube.com';
