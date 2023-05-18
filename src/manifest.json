@@ -3,7 +3,7 @@
   "name": "HyperChat by LiveTL",
   "homepage_url": "https://livetl.app/en/hyperchat/",
   "description": "Improved YouTube chat with CPU/RAM optimizations, customization options, and cutting-edge features!",
-  "version": "2.6.8",
+  "version": "2.6.9",
   "permissions": [
     "storage"
   ],
