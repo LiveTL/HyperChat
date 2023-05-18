@@ -1,4 +1,4 @@
-import { webExtStores } from 'svelte-webext-stores';
+import { webExtStores } from '@livetl/svelte-webext-stores';
 import { derived, readable, writable } from 'svelte/store';
 import type { Writable } from 'svelte/store';
 import { getClient, AvailableLanguages } from 'iframe-translator';
@@ -79,3 +79,4 @@ export const currentProgress = writable(null as null | number);
 export const enableStickySuperchatBar = stores.addSyncStore('hc.enableStickySuperchatBar', true);
 export const enableHighlightedMentions = stores.addSyncStore('hc.enableHighlightedMentions', true);
 export const lastOpenedVersion = stores.addSyncStore('hc.lastOpenedVersion', '');
+export const bytesUsed = stores.addSyncStore('hc.bytes.used', 0);

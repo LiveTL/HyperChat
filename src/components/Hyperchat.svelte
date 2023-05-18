@@ -261,7 +261,7 @@
     }
 
     // ff doesn't support extension to content script raw messaging yet
-    if (getBrowser() == Browser.FIREFOX) {
+    if (getBrowser() === Browser.FIREFOX) {
       const frameInfo = {
         tabId: parseInt(paramsTabId),
         frameId: parseInt(paramsFrameId)

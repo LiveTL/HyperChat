@@ -46,5 +46,11 @@
     "page": "options.html",
     "open_in_tab": true
   },
-  "{{chrome}}.incognito": "split"
+  "{{chrome}}.incognito": "split",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{51076d9a-d4c2-11ed-af84-706655572bfb}",
+      "strict_min_version": "42.0"
+    }
+  }
 }

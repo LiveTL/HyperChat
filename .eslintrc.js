@@ -48,6 +48,7 @@ module.exports = {
     ],
     'no-extra-semi': 'off',
     '@typescript-eslint/no-extra-semi': 'error',
+    '@typescript-eslint/no-floating-promises': 'off',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': [
       'error',
