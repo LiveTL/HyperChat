@@ -5,6 +5,8 @@ import {
   isMembershipGiftPurchaseRenderer
 } from './chat-utils';
 
+const currentDomain = location.protocol.includes('youtube') ? (location.protocol + '//' + location.host) : 'https://www.youtube.com';
+
 // Source: https://stackoverflow.com/a/64396666
 const standardEmoji =
   /^[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{1F9B0}-\u{1F9B3}]$/u;
@@ -20,7 +22,7 @@ const fixUrl = (url: string): string => {
   if (url.startsWith('//')) {
     return 'https:' + url;
   } else if (url.startsWith('/')) {
-    return 'https://www.youtube.com' + url;
+    return `${currentDomain}${url}`;
   } else {
     return url;
   }
@@ -120,7 +122,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
     params: messageRenderer.contextMenuEndpoint?.liveChatItemContextMenuEndpoint.params
   };
   if (channelId != null) {
-    item.author.url = `https://www.youtube.com/channel/${channelId}`;
+    item.author.url = `${currentDomain}/channel/${channelId}`;
   }
 
   if (isPaidMessageRenderer(renderer)) {

@@ -1,20 +1,31 @@
+<script lang="ts">
+  // import { isLiveTL } from '../../ts/chat-constants';
+  // const trailer = chrome.runtime.getURL(
+  //   (isLiveTL ? 'hyperchat' : 'assets') + '/trailer.png'
+  // );
+</script>
+
 <ul class="list-disc list-inside">
+  <div>
+    Apologies for the lack of updates recently! We've been busy.
+  </div>
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
-    Auto-translate was broken for some users due to breaking
-    changes on Google's end, but these issues have been fixed!
-    Please keep in mind that this feature is experimental.
+    Mitigated some sources of lag/hanging
+  </li>
+  <li class="ml-3.5">
+    Full support for receiving membership gifts
+  </li>
+  <li class="ml-3.5">
+    YouTube Studio live chat support
   </li>
 </ul>
 <ul class="list-disc list-inside">
-  <strong>What's still cooking in the usual room:</strong>
+  <strong>What we're still cooking:</strong>
   <li class="ml-3.5">
-    Opt-in procedure for gifted memberships
+    Manifest v3 migration
   </li>
   <li class="ml-3.5">
-    Migration to Manifest V3
-  </li>
-  <li class="ml-3.5">
-    Updated screenshots, store listing, and trailer video
+    Support for raids, polls, Q&A, etc.
   </li>
 </ul>

@@ -13,7 +13,13 @@ export const getBrowser = (): Browser => {
   if (navigator.userAgent.includes('Firefox')) {
     return Browser.FIREFOX;
   }
-  if (isAndroid || window.chrome == null) {
+  let w: any;
+  try {
+    w = window;
+  } catch {
+    w = self;
+  }
+  if (isAndroid || w.chrome == null) {
     return Browser.ANDROID;
   }
   if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {

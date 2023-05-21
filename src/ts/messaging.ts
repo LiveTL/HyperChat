@@ -3,6 +3,8 @@ import { ytcQueue } from './queue';
 import sha1 from 'sha-1';
 import { chatReportUserOptions, ChatUserActions, ChatReportUserOptions } from '../ts/chat-constants';
 
+const currentDomain = location.protocol.includes('youtube') ? (location.protocol + '//' + location.host) : 'https://www.youtube.com';
+
 let interceptor: Chat.Interceptor = { clients: [] };
 
 const isYtcInterceptor = (i: Chat.Interceptors, showError = false, ...debug: any[]): i is Chat.YtcInterceptor => {
@@ -201,7 +203,7 @@ const executeChatAction = async (
   let success = true;
   try {
     const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
-    const contextMenuUrl = 'https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?params=' +
+    const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
       `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
     const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
     function getCookie(name: string): string {
@@ -212,7 +214,7 @@ const executeChatAction = async (
     }
     const time = Math.floor(Date.now() / 1000);
     const SAPISID = getCookie('__Secure-3PAPISID');
-    const sha = sha1(`${time} ${SAPISID} https://www.youtube.com`);
+    const sha = sha1(`${time} ${SAPISID} ${currentDomain}`);
     const auth = `SAPISIDHASH ${time}_${sha}`;
     const heads = {
       headers: {
@@ -244,7 +246,7 @@ const executeChatAction = async (
           .content.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint,
         'moderateLiveChatEndpoint'
       );
-      await fetcher(`https://www.youtube.com/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+      await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           params,
@@ -256,7 +258,7 @@ const executeChatAction = async (
         res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[0].menuServiceItemRenderer.serviceEndpoint,
         'getReportFormEndpoint'
       );
-      const modal = await fetcher(`https://www.youtube.com/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
+      const modal = await fetcher(`${currentDomain}/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           params,
@@ -271,7 +273,7 @@ const executeChatAction = async (
       context.clickTracking = {
         clickTrackingParams
       };
-      await fetcher(`https://www.youtube.com/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
+      await fetcher(`${currentDomain}/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           action: flagAction,

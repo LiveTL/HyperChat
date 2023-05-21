@@ -12,7 +12,8 @@ window.fetch = async (...args) => {
   const url = request.url;
   const result = await fetchFallback(...args);
 
-  const ytApi = (end: string): string => `https://www.youtube.com/youtubei/v1/live_chat${end}`;
+  const currentDomain = (location.protocol + '//' + location.host);
+  const ytApi = (end: string): string => `${currentDomain}/youtubei/v1/live_chat${end}`;
   const isReceiving = url.startsWith(ytApi('/get_live_chat'));
   const isSending = url.startsWith(ytApi('/send_message'));
   const action = isReceiving ? 'messageReceive' : 'messageSent';
