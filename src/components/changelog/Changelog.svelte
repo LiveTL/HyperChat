@@ -6,18 +6,9 @@
 </script>
 
 <ul class="list-disc list-inside">
-  <div>
-    Apologies for the lack of updates recently! We've been busy.
-  </div>
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
-    Mitigated some sources of lag/hanging
-  </li>
-  <li class="ml-3.5">
-    Full support for receiving membership gifts
-  </li>
-  <li class="ml-3.5">
-    YouTube Studio live chat support
+    Messages now "catch up" after scrolling
   </li>
 </ul>
 <ul class="list-disc list-inside">
