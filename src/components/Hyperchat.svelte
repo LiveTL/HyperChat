@@ -112,10 +112,15 @@
     messageActions = messageActions;
   };
 
+  let piledMessages: Chat.MessagesAction[] = [];
+
   const newMessages = (
     messagesAction: Chat.MessagesAction, isInitial: boolean
   ) => {
-    if (!isAtBottom) return;
+    if (!isAtBottom) {
+      piledMessages = [...piledMessages, messagesAction];
+      return;
+    }
     // On replays' initial data, only show messages with negative timestamp
     if (isInitial && isReplay) {
       messageActions.push(...filterTickers(messagesAction.messages).filter(
@@ -126,6 +131,14 @@
     }
     if (!isInitial) checkTruncateMessages();
   };
+
+  $: if (isAtBottom && piledMessages.length > 0) {
+    for (const messagesAction of piledMessages) {
+      newMessages(messagesAction, false);
+    }
+    piledMessages = [];
+  }
+
 
   const onBonk = (bonk: Ytc.ParsedBonk) => {
     messageActions.forEach((action) => {
