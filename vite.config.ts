@@ -27,7 +27,8 @@ export default defineConfig({
       ],
       additionalInputs: [
         'hyperchat.html',
-        'scripts/chat-interceptor.ts'
+        'scripts/chat-interceptor.ts',
+        'scripts/chat-metagetter.ts'
       ],
       disableAutoLaunch: process.env.HC_AUTOLAUNCH === undefined,
       browser: process.env.BROWSER === undefined ? 'chrome' : process.env.BROWSER,

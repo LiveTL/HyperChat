@@ -22,8 +22,18 @@ const hcWarning = 'An existing HyperChat button has been detected. This ' +
 const chatLoaded = async (): Promise<void> => {
   if (!isLiveTL && checkInjected(hcWarning)) return;
 
+  const metagetter = document.createElement('script');
+  metagetter.src = chrome.runtime.getURL('scripts/chat-metagetter.js');
+  const ytcfg: any = await new Promise((resolve) => {
+    window.addEventListener('fetchMeta', (event) => {
+      resolve(JSON.parse((event as any).detail as string));
+    });
+    document.body.appendChild(metagetter);
+  });
+  console.log(ytcfg);
+
   // Init and inject interceptor
-  initInterceptor('ytc', window.ytcfg, frameIsReplay);
+  initInterceptor('ytc', ytcfg, frameIsReplay);
   window.addEventListener('messageReceive', (d) => {
     processMessageChunk((d as CustomEvent).detail);
   });
