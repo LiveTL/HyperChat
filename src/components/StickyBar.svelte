@@ -40,7 +40,7 @@
 {#if open}
   <div
     class="w-full overflow-y-hidden overflow-x-scroll scroll-on-hover items-start flex-none"
-    style="--scrollbar-bg-color: #{$isDark ? '202020' : 'ffffff'};"
+    style="--scrollbar-bg-color: #{$isDark ? '0f0f0f' : 'ffffff'};"
     bind:this={scrollableElem}
   >
     <div
