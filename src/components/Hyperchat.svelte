@@ -42,7 +42,8 @@
     enableStickySuperchatBar,
     lastOpenedVersion,
     selfChannelName,
-    enableHighlightedMentions
+    enableHighlightedMentions,
+    ytDark
   } from '../ts/storage';
   import { version } from '../manifest.json';
 
@@ -63,7 +64,6 @@
   let isAtBottom = true;
   let truncateInterval: number;
   const isReplay = paramsIsReplay;
-  let ytDark = false;
   const smelteDark = dark();
 
   type MessageBlocker = (a: Chat.MessageAction) => boolean;
@@ -233,7 +233,7 @@
         $selfChannel = response.selfChannel;
         break;
       case 'themeUpdate':
-        ytDark = response.dark;
+        $ytDark = response.dark;
         break;
       case 'chatUserActionResponse':
         $alertDialog = {
@@ -315,7 +315,7 @@
     if (truncateInterval) window.clearInterval(truncateInterval);
   });
 
-  $: updateTheme($theme, ytDark);
+  $: updateTheme($theme, $ytDark);
   // Scroll to bottom when any of these settings change
   $: ((..._a: any[]) => scrollToBottom())(
     $showProfileIcons, $showUsernames, $showTimestamps, $showUserBadges
