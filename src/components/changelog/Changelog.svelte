@@ -10,6 +10,9 @@
   <li class="ml-3.5">
     Messages now "catch up" after scrolling
   </li>
+  <li class="ml-3.5">
+    New dark theme palette to match YouTube
+  </li>
 </ul>
 <ul class="list-disc list-inside">
   <strong>What we're still cooking:</strong>
