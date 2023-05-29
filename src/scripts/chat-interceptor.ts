@@ -47,7 +47,7 @@ const chatLoaded = async (): Promise<void> => {
 
   // Register interceptor
   const port: Chat.Port = chrome.runtime.connect();
-  port.postMessage({ type: 'registerInterceptor', source: 'ytc', isReplay });
+  port.postMessage({ type: 'registerInterceptor', source: 'ytc', isReplay: isReplay() });
 
   // Send JSON response to clients
   window.addEventListener('messageReceive', (d) => {

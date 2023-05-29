@@ -75,6 +75,7 @@ export const isDark = derived(theme, ($theme) => {
     $theme === Theme.YOUTUBE && window.location.search.includes('dark')
   );
 });
+export const ytDark = writable(false);
 export const currentProgress = writable(null as null | number);
 export const enableStickySuperchatBar = stores.addSyncStore('hc.enableStickySuperchatBar', true);
 export const enableHighlightedMentions = stores.addSyncStore('hc.enableHighlightedMentions', true);
