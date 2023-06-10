@@ -112,14 +112,16 @@
       <span class="align-middle" class:hidden={!$showUserBadges}>
         {#if moderator}
           <Icon class="inline align-middle" small>build</Icon>
-        {:else if verified}
+        {/if}
+        {#if verified}
           <Icon
             class="inline align-middle text-gray-500"
             small
           >
             verified
           </Icon>
-        {:else if member && message.author.customBadge}
+        {/if}
+        {#if member && message.author.customBadge}
           <img
             class="h-4 w-4 inline align-middle"
             src={message.author.customBadge.src}

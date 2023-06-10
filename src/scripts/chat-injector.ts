@@ -33,7 +33,7 @@ const chatLoaded = async (): Promise<void> => {
   console.log(ytcfg);
 
   // Init and inject interceptor
-  initInterceptor('ytc', ytcfg, frameIsReplay);
+  initInterceptor('ytc', ytcfg, frameIsReplay());
   window.addEventListener('messageReceive', (d) => {
     processMessageChunk((d as CustomEvent).detail);
   });
@@ -107,7 +107,7 @@ const chatLoaded = async (): Promise<void> => {
   const params = new URLSearchParams();
   params.set('tabid', frameInfo.tabId.toString());
   params.set('frameid', frameInfo.frameId.toString());
-  if (frameIsReplay) params.set('isReplay', 'true');
+  if (frameIsReplay()) params.set('isReplay', 'true');
   const source = chrome.runtime.getURL(
     (isLiveTL ? 'hyperchat/index.html' : 'hyperchat.html') +
     `?${params.toString()}`
