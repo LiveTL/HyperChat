@@ -5,10 +5,8 @@
   "description": "Improved YouTube chat with CPU/RAM optimizations, customization options, and cutting-edge features!",
   "version": "3.0.0",
   "permissions": [
-    "storage",
-    "declarativeNetRequest"
+    "storage"
   ],
-  "host_permissions": ["*://*.youtube.com/"],
   "icons": {
     "48": "assets/logo-48.png",
     "128": "assets/logo-128.png"
@@ -37,13 +35,6 @@
       "all_frames": true
     }
   ],
-  "declarative_net_request" : {
-    "rule_resources" : [{
-      "id": "removeHeader",
-      "enabled": true,
-      "path": "removeHeader.json"
-    }]
-  },
   "{{firefox}}.background": {
     "scripts": ["scripts/chat-background.ts"]
   },

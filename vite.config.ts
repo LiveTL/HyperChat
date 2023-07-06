@@ -27,7 +27,6 @@ export default defineConfig({
       ],
       additionalInputs: [
         'hyperchat.html',
-        'removeHeader.json',
         'scripts/chat-interceptor.ts',
         'scripts/chat-metagetter.ts'
       ],
@@ -40,10 +39,6 @@ export default defineConfig({
     svelte({
       configFile: path.resolve(__dirname, 'svelte.config.js'),
       emitCss: false
-    }),
-    copy({
-      hook: 'writeBundle',
-      targets: [{ src: 'src/removeHeader.json', dest: 'build/' }]
     }),
     copy({
       hook: 'writeBundle',
