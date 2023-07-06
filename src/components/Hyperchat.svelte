@@ -274,17 +274,12 @@
       return;
     }
 
-    // ff doesn't support extension to content script raw messaging yet
-    if (getBrowser() === Browser.FIREFOX) {
-      const frameInfo = {
-        tabId: parseInt(paramsTabId),
-        frameId: parseInt(paramsFrameId)
-      };
+    const frameInfo = {
+      tabId: parseInt(paramsTabId),
+      frameId: parseInt(paramsFrameId)
+    };
 
-      $port = chrome.runtime.connect({ name: JSON.stringify(frameInfo) });
-    } else {
-      $port = chrome.tabs.connect(parseInt(paramsTabId), { frameId: parseInt(paramsFrameId) });
-    }
+    $port = chrome.runtime.connect({ name: JSON.stringify(frameInfo) });
 
     $port?.onMessage.addListener(onPortMessage);
 
