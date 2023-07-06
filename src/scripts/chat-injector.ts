@@ -108,10 +108,7 @@ const chatLoaded = async (): Promise<void> => {
   params.set('tabid', frameInfo.tabId.toString());
   params.set('frameid', frameInfo.frameId.toString());
   if (frameIsReplay()) params.set('isReplay', 'true');
-  const source = chrome.runtime.getURL(
-    (isLiveTL ? 'hyperchat/index.html' : 'hyperchat.html') +
-    `?${params.toString()}`
-  );
+  const source = `https://www.youtube.com/hyperchat?${params.toString()}`;
 
   const ytcItemList = document.querySelector('#chat>#item-list');
   if (!ytcItemList) {

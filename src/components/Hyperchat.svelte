@@ -1,6 +1,6 @@
 <script lang="ts">
   import '../stylesheets/scrollbar.css';
-  import { onDestroy, afterUpdate, tick } from 'svelte';
+  import { onDestroy, onMount, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import dark from 'smelte/src/dark';
   import WelcomeMessage from './WelcomeMessage.svelte';
@@ -264,6 +264,7 @@
   };
 
   // Doesn't work well with onMount, so onLoad will have to do
+  // Update: use onMount because hc now mounts in content script
   const onLoad = () => {
     $lastOpenedVersion = version;
     document.body.classList.add('overflow-hidden');
@@ -295,6 +296,8 @@
       type: 'getTheme'
     });
   };
+
+  onMount(onLoad);
 
   const onRefresh = () => {
     if (isAtBottom) {

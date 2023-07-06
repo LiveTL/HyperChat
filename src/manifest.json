@@ -26,6 +26,15 @@
       ],
       "css": ["stylesheets/titlebar.css"],
       "all_frames": true
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/hyperchat*"
+      ],
+      "js": [
+        "scripts/chat-mounter.ts"
+      ],
+      "all_frames": true
     }
   ],
   "declarative_net_request" : {
