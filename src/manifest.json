@@ -27,7 +27,7 @@
     },
     {
       "matches": [
-        "https://www.youtube.com/hyperchat*"
+        "https://www.youtube.com/live_chat?v=Lq9eqHDKJPE&*"
       ],
       "js": [
         "scripts/chat-mounter.ts"

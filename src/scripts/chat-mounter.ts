@@ -3,8 +3,9 @@ import tailwind from 'smelte/src/tailwind.css?inline';
 
 const mount = (): void => {
   console.log('[HyperChat] mounted hyperchat as content script');
-  document.head.innerHTML = '';
-  document.body.innerHTML = '';
+
+  document.documentElement.style.cssText = 'background-color: transparent !important;';
+  document.body.style.cssText = 'background-color: transparent !important;';
 
   const font = document.createElement('link');
   font.href = (
@@ -22,5 +23,9 @@ const mount = (): void => {
   console.log(new Hyperchat({
     target: document.body
   }));
+  setTimeout(() => {
+    document.querySelector('yt-live-chat-app')?.remove();
+  }, 1);
 };
+
 mount();
