@@ -1,0 +1,8 @@
+#error-page {
+  display: none !important;
+}
+
+body {
+  font: unset;
+  background-color: transparent !important;
+}

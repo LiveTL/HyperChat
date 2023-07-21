@@ -32,7 +32,7 @@
       "js": [
         "scripts/chat-mounter.ts"
       ],
-      "css": ["stylesheets/scrollbar.css"],
+      "css": ["stylesheets/scrollbar.css", "stylesheets/page404.css"],
       "all_frames": true
     }
   ],
