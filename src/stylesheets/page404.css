@@ -1,0 +1,8 @@
+yt-formatted-string {
+  display: none !important;
+}
+
+body {
+  font: unset;
+  background-color: transparent !important;
+}

@@ -24,6 +24,16 @@
       ],
       "css": ["stylesheets/titlebar.css"],
       "all_frames": true
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/live_chat?v=Lq9eqHDKJPE&hyperchat=1&*"
+      ],
+      "js": [
+        "scripts/chat-mounter.ts"
+      ],
+      "css": ["stylesheets/scrollbar.css", "stylesheets/page404.css"],
+      "all_frames": true
     }
   ],
   "{{firefox}}.background": {

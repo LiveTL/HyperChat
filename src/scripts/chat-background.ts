@@ -1,4 +1,4 @@
-import { isLiveTL, Browser, getBrowser } from '../ts/chat-constants';
+import { isLiveTL } from '../ts/chat-constants';
 
 const noUpdateKeys = new Set(['hc.bytes.used', 'hc.bytes.update']);
 const oneDay = 1000 * 60 * 60 * 24;
@@ -25,21 +25,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-// ff doesn't support extension to content script raw messaging yet
-// so we proxy the messaging
-if (getBrowser() === Browser.FIREFOX) {
-  chrome.runtime.onConnect.addListener(hc => {
-    // frameId and tabId should be int
-    const { frameId, tabId } = JSON.parse(hc.name);
-    const interceptorPort = chrome.tabs.connect(tabId, { frameId });
-    interceptorPort.onMessage.addListener(msg => {
-      hc.postMessage(msg);
-    });
-    hc.onMessage.addListener(msg => {
-      interceptorPort.postMessage(msg);
-    });
+chrome.runtime.onConnect.addListener(hc => {
+  // frameId and tabId should be int
+  const { frameId, tabId } = JSON.parse(hc.name);
+  const interceptorPort = chrome.tabs.connect(tabId, { frameId });
+  interceptorPort.onMessage.addListener(msg => {
+    hc.postMessage(msg);
   });
-}
+  hc.onMessage.addListener(msg => {
+    interceptorPort.postMessage(msg);
+  });
+});
 
 // see https://i.imgur.com/cGciqrX.png
 chrome.storage.local.onChanged.addListener(changes => {
