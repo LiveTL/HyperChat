@@ -109,7 +109,7 @@ const chatLoaded = async (): Promise<void> => {
   params.set('frameid', frameInfo.frameId.toString());
   if (frameIsReplay()) params.set('isReplay', 'true');
   // inject into an empty 404 page
-  const source = `https://www.youtube.com/live_chat?v=Lq9eqHDKJPE&${params.toString()}`;
+  const source = `https://www.youtube.com/live_chat?v=Lq9eqHDKJPE&hyperchat=1&${params.toString()}`;
 
   const ytcItemList = document.querySelector('#chat>#item-list');
   if (!ytcItemList) {
