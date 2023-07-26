@@ -8,18 +8,21 @@
 <ul class="list-disc list-inside">
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
-    Messages now "catch up" after scrolling
+    Fixed hangs caused by malformed blue superchats
   </li>
   <li class="ml-3.5">
-    New dark theme palette to match YouTube
+    Fixed role indicators for verified moderators
   </li>
 </ul>
 <ul class="list-disc list-inside">
   <strong>What we're still cooking:</strong>
   <li class="ml-3.5">
-    Manifest v3 migration
+    Manifest v3 migration (nearing completion!)
   </li>
   <li class="ml-3.5">
-    Support for raids, polls, Q&A, etc.
+    Cross-extension compatibility (e.g. rikaikun, 10ten)
+  </li>
+  <li class="ml-3.5">
+    Improved support for raids, polls, Q&A, etc.
   </li>
 </ul>
