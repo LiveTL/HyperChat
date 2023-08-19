@@ -10,7 +10,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, 'build'),
     emptyOutDir: true,
-    minify: process.env.MINIFY !== 'false'
+    minify: process.env.MINIFY !== 'false' ? 'terser' : false
   },
   plugins: [
     browserExtension({
