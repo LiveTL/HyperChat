@@ -55,7 +55,7 @@
     "svelte-waypoint": "^0.1.4",
     "tailwindcss": "^2.2.7",
     "typescript": "4.3.5",
-    "vite": "3.2.7",
+    "vite": "2.9.16",
     "vite-plugin-web-extension": "^1.4.0"
   }
 }

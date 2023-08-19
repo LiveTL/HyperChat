@@ -41,12 +41,6 @@ export default defineConfig({
       emitCss: false
     }),
     copy({
-      targets: [
-        { src: 'build/*.css', dest: 'build/stylesheets' },
-        { src: 'build/*.js', dest: 'build/scripts' },
-      ]
-    }),
-    copy({
       hook: 'writeBundle',
       targets: [{
         src: 'build/manifest.json',
