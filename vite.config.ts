@@ -5,15 +5,6 @@ import path from 'path';
 import copy from 'rollup-plugin-copy';
 import manifest from './src/manifest.json';
 
-const copyObj = {
-  targets: [
-    { src: 'build/*.css', dest: 'build/stylesheets' },
-    { src: 'build/*.js', dest: 'build/scripts' }
-  ],
-  concurrency: 1,
-  suppressErrors: true
-};
-
 export default defineConfig({
   root: 'src',
   build: {
@@ -50,12 +41,10 @@ export default defineConfig({
       emitCss: false
     }),
     copy({
-      ...copyObj,
-      hook: 'buildStart'
-    }),
-    copy({
-      ...copyObj,
-      hook: 'writeBundle'
+      targets: [
+        { src: 'build/*.css', dest: 'build/stylesheets' },
+        { src: 'build/*.js', dest: 'build/scripts' },
+      ]
     }),
     copy({
       hook: 'writeBundle',
