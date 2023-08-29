@@ -4,6 +4,8 @@ import tailwind from 'smelte/src/tailwind.css?inline';
 const mount = (): void => {
   console.log('[HyperChat] mounted hyperchat as content script');
 
+  document.querySelector('#player')?.remove();
+
   document.documentElement.style.cssText = 'background-color: transparent !important;';
   document.body.style.cssText = 'background-color: transparent !important;';
 
