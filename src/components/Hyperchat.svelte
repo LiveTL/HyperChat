@@ -366,7 +366,7 @@
 <svelte:window on:resize={() => {
   scrollToBottom();
   topBarResized();
-}} on:load={onLoad} />
+}} />
 
 <div class={containerClass} style="font-size: 13px">
   {#if $enableStickySuperchatBar}
