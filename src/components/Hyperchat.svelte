@@ -257,6 +257,8 @@
         break;
       case 'registerClientResponse':
         break;
+      case 'ping':
+        break;
       default:
         console.error('Unknown payload type', { port, response });
         break;
@@ -265,7 +267,7 @@
 
   // Doesn't work well with onMount, so onLoad will have to do
   // Update: use onMount because hc now mounts in content script
-  const onLoad = () => {
+  const onLoad = (): () => void => {
     $lastOpenedVersion = version;
     document.body.classList.add('overflow-hidden');
 
@@ -290,6 +292,13 @@
     $port?.postMessage({
       type: 'getTheme'
     });
+
+    // service worker gets shut down after 30s of not receiving events
+    const interval = setInterval(() => $port?.postMessage({
+      type: 'ping'
+    }), 15_000);
+
+    return () => clearInterval(interval);
   };
 
   onMount(onLoad);
