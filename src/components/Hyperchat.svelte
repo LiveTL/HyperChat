@@ -267,7 +267,7 @@
 
   // Doesn't work well with onMount, so onLoad will have to do
   // Update: use onMount because hc now mounts in content script
-  const onLoad = (): () => void => {
+  const onLoad = (): (() => void) | undefined => {
     $lastOpenedVersion = version;
     document.body.classList.add('overflow-hidden');
 
