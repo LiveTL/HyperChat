@@ -67,3 +67,25 @@ export const checkInjected = (error: string): boolean => {
   }
   return false;
 };
+
+export const useReconnect = <T extends Chat.Port>(connect: () => T): T & { destroy: () => void } => {
+  let actualPort = connect();
+  const onDisconnect = (): void => {
+    actualPort = connect();
+    actualPort.onDisconnect.addListener(onDisconnect);
+  };
+  actualPort.onDisconnect.addListener(onDisconnect);
+
+  return {
+    ...actualPort,
+    get name() { return actualPort.name; },
+    get disconnect() { return actualPort.disconnect; },
+    get postMessage() { return actualPort.postMessage; },
+    get onMessage() { return actualPort.onMessage; },
+    get onDisconnect() { return actualPort.onDisconnect; },
+    destroy: () => {
+      actualPort.onDisconnect.removeListener(onDisconnect);
+      actualPort.disconnect();
+    }
+  };
+};

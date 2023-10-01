@@ -19,9 +19,18 @@
     Browser,
     Theme,
     YoutubeEmojiRenderMode,
-    chatUserActionsItems
+    chatUserActionsItems,
+
+    ChatReportUserOptions
+
   } from '../ts/chat-constants';
-  import { isAllEmoji, isChatMessage, isPrivileged, responseIsAction } from '../ts/chat-utils';
+  import {
+    isAllEmoji,
+    isChatMessage,
+    isPrivileged,
+    responseIsAction,
+    useReconnect
+  } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
   import {
     theme,
@@ -281,24 +290,31 @@
       frameId: parseInt(paramsFrameId)
     };
 
-    $port = chrome.runtime.connect({ name: JSON.stringify(frameInfo) });
+    let hasRun = false;
+    $port = useReconnect(() => {
+      const port = chrome.runtime.connect({
+        name: JSON.stringify(frameInfo)
+      }) as Chat.Port;
 
-    $port?.onMessage.addListener(onPortMessage);
+      port.onMessage.addListener(onPortMessage);
 
-    $port?.postMessage({
-      type: 'registerClient',
-      getInitialData: true
+      port.postMessage({
+        type: 'registerClient',
+        getInitialData: true
+      });
+
+      if (!hasRun) {
+        port.postMessage({
+          type: 'getTheme'
+        });
+      }
+
+      hasRun = true;
+
+      return port;
     });
-    $port?.postMessage({
-      type: 'getTheme'
-    });
 
-    // service worker gets shut down after 30s of not receiving events
-    const interval = setInterval(() => $port?.postMessage({
-      type: 'ping'
-    }), 15_000);
-
-    return () => clearInterval(interval);
+    return () => $port?.destroy && $port?.destroy();
   };
 
   onMount(onLoad);
