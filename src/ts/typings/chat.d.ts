@@ -154,6 +154,7 @@ declare namespace Chat {
         callback: (message: BackgroundResponse, port: Port) => void
       ) => void;
     };
+    destroy?: () => void;
   };
 
   interface Interceptor {
