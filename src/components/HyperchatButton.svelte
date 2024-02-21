@@ -68,6 +68,11 @@
     float: right;
     display: flex;
     user-select: none;
+    transform: translateY(-50%);
+  }
+
+  :global(#view-selector) {
+    transform: translateY(50%);
   }
 
   .toggleButton {
