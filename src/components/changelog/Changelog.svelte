@@ -8,7 +8,7 @@
 <ul class="list-disc list-inside">
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
-    Fixed HC button alignment
+    Fixed HC button alignment (again)
   </li>
 </ul>
 <ul class="list-disc list-inside">
