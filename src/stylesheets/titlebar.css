@@ -1,11 +1,16 @@
 #primary-content {
-  display: flex;
   flex-direction: row;
-  align-items: center;
+  display: flex;
+  justify-content: space-between;
 }
 
 #view-selector {
   flex-grow: 1;
+  width: 100%;
+}
+
+#primary-content>#title {
+  width: 0px;
 }
 
 #view-selector #label #label-text {
