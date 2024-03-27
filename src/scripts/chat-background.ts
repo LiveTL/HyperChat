@@ -10,7 +10,7 @@ chrome.action.onClicked.addListener(() => {
   if (isLiveTL) {
     chrome.tabs.create({ url: 'https://livetl.app' }, () => {});
   } else {
-    chrome.tabs.create({ url: 'https://livetl.app/en/hyperchat/' }, () => {});
+    chrome.tabs.create({ url: 'https://livetl.app/hyperchat' }, () => {});
   }
 });
 
