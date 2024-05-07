@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "HyperChat [Improved YouTube Chat]",
-  "homepage_url": "https://livetl.app/en/hyperchat/",
+  "homepage_url": "https://livetl.app/hyperchat",
   "description": "Improved YouTube chat with CPU/RAM optimizations, customization options, and cutting-edge features!",
   "version": "3.0.0",
   "permissions": [
