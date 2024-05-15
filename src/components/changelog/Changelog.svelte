@@ -8,12 +8,12 @@
 <ul class="list-disc list-inside">
   <strong>On today's KFP menu:</strong>
   <li class="ml-3.5">
-    Fixed HC button alignment (again)
+    Fix broken click interactions
   </li>
 </ul>
 <ul class="list-disc list-inside">
   <strong>What we're still cooking:</strong>
   <li class="ml-3.5">
-    HyperChat v3 Update (currently in beta!)
+    HyperChat v3 Update (now testing!)
   </li>
 </ul>
