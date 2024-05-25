@@ -79,8 +79,8 @@ export const useReconnect = <T extends Chat.Port>(connect: () => T): T & { destr
   return {
     ...actualPort,
     get name() { return actualPort.name; },
-    get disconnect() { return actualPort.disconnect; },
-    get postMessage() { return actualPort.postMessage; },
+    disconnect(...args) { return actualPort.disconnect(...args); },
+    postMessage(...args) { return actualPort.postMessage(...args); },
     get onMessage() { return actualPort.onMessage; },
     get onDisconnect() { return actualPort.onDisconnect; },
     destroy: () => {
