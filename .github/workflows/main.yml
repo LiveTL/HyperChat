@@ -11,11 +11,14 @@ jobs:
         with: 
           submodules: 'recursive'
       - uses: c-hive/gha-yarn-cache@v1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
       - name: Install modules
         run: yarn
-      - name: Build extensions
+      - name: Build Chrome
         run: |
-          VERSION=$(echo -n ${{ github.ref }} | sed 's/[refs\/tagv]//g') yarn build
+          VERSION=$(echo -n "${{ github.ref }}" | sed 's/[refs\/tagv]//g' | sed 's/-.*//') yarn build:chrome
           yarn package
       - name: Upload Chrome package to release
         uses: svenstaro/upload-release-action@v2
@@ -25,6 +28,10 @@ jobs:
           asset_name: HyperChat-Chrome.zip
           tag: ${{ github.ref }}
           overwrite: true
+      - name: Build Firefox
+        run: |
+          VERSION=$(echo -n "${{ github.ref }}" | sed 's/[refs\/tagv]//g' | sed 's/-.*//') yarn build:firefox
+          yarn package
       - name: Upload Firefox package to release
         uses: svenstaro/upload-release-action@v2
         with:

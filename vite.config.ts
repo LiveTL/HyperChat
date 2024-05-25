@@ -59,6 +59,13 @@ export default defineConfig({
         },
         rename: 'manifest.firefox.json'
       }]
-    })
+    }),
+    copy({
+      hook: 'writeBundle',
+      targets: [{
+        src: 'src/stylesheets/*',
+        dest: 'build/stylesheets'
+      }]
+    }),
   ]
 });
