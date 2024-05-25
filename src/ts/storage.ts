@@ -4,11 +4,14 @@ import type { Writable } from 'svelte/store';
 import { getClient, AvailableLanguages } from 'iframe-translator';
 import type { IframeTranslatorClient, AvailableLanguageCodes } from 'iframe-translator';
 import { ChatReportUserOptions, Theme, YoutubeEmojiRenderMode } from './chat-constants';
+import { SugoiTranslatorOffline } from './sugoi-translator-offline';
 
 export const stores = webExtStores();
 
 export const hcEnabled = stores.addSyncStore('hc.enabled', true);
 export const translateTargetLanguage = stores.addSyncStore('hc.translateTargetLanguage', '' as '' | AvailableLanguageCodes);
+export const sugoiTranslatorOfflineClient = readable(new SugoiTranslatorOffline());
+export const sugoiTranslatorOfflineEnabled = stores.addSyncStore('sugoiTranslatorOffline.enabled', false);
 export const translatorClient = readable(null as (null | IframeTranslatorClient), (set) => {
   let client: IframeTranslatorClient | null = null;
   const destroyIf = (): void => {

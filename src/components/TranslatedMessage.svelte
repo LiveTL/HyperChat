@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { refreshScroll, translatorClient, translateTargetLanguage } from '../ts/storage';
+  import { refreshScroll, translatorClient, translateTargetLanguage, sugoiTranslatorOfflineClient, sugoiTranslatorOfflineEnabled } from '../ts/storage';
   import Icon from './common/Icon.svelte';
   import { Theme } from '../ts/chat-constants';
 
@@ -20,9 +20,28 @@
     });
   }
 
+  $: if ($sugoiTranslatorOfflineEnabled) {
+    try {
+        $sugoiTranslatorOfflineClient.translate(text).then(result => {
+        if (result !== text) {
+          translatedLanguage = $translateTargetLanguage;
+          translatedMessage = result;
+          $refreshScroll = true;
+        }
+      })
+    } catch(e) {
+      // do nothing, Sugoi Translator Offline server is not available
+    }
+  }
+
   $: showTL = Boolean(translatedMessage && !showOriginal && translatedMessage.trim() !== text.trim());
 
   $: if ($translateTargetLanguage !== translatedLanguage) {
+    translatedMessage = '';
+    translatedLanguage = '';
+  }
+
+  $: if (!$sugoiTranslatorOfflineEnabled) {
     translatedMessage = '';
     translatedLanguage = '';
   }
