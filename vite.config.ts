@@ -19,6 +19,9 @@ export default defineConfig({
           ...manifest,
           version: (process.env.VERSION ?? '') || manifest.version
         };
+        if ('browser_specific_settings' in newManifest && process.env.ADDON_ID) {
+          newManifest.browser_specific_settings.gecko.id = process.env.ADDON_ID;
+        }
         return newManifest;
       },
       assets: 'assets',

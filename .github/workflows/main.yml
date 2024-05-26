@@ -5,6 +5,8 @@ on:
       - published
 jobs:
   build:
+    env:
+      ADDON_ID: "{14a15c41-13f4-498e-986c-7f00435c4d00}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
