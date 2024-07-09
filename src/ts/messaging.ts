@@ -138,7 +138,7 @@ export const setInitialData = (json: string): void => {
     ?.addLiveChatTextMessageFromTemplateAction?.template
     ?.liveChatTextMessageRenderer ?? {
     authorName: {
-      simpleText: parsedJson.continuationContents.liveChatContinuation.viewerName
+      simpleText: parsedJson.continuationContents?.liveChatContinuation?.viewerName
     }
   };
 
