@@ -304,7 +304,7 @@ const setInitialData = (port: Chat.Port, message: Chat.JsonMsg): void => {
     ?.addLiveChatTextMessageFromTemplateAction?.template
     ?.liveChatTextMessageRenderer ?? {
     authorName: {
-      simpleText: parsedJson.continuationContents?.liveChatContinuation?.viewerName
+      simpleText: parsedJson?.continuationContents?.liveChatContinuation?.viewerName
     }
   };
 
