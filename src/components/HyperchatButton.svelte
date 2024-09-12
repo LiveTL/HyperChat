@@ -65,7 +65,7 @@
 
 <style>
   :global(div#contents.style-scope.yt-live-chat-renderer) {
-    z-index: 100;
+    z-index: 2;
   }
 
   #hc-buttons {
