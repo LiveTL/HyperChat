@@ -61,6 +61,9 @@
     </div>
     {#if !shorten && !dismissed}
       <div class="mt-1 whitespace-pre-line" transition:slide|local={{ duration: 300 }}>
+        <MessageRun runs={summary.subheader} deleted forceDark forceTLColor={Theme.DARK}/>
+      </div>
+      <div class="mt-1 whitespace-pre-line" transition:slide|local={{ duration: 300 }}>
         <MessageRun runs={summary.summary} forceDark forceTLColor={Theme.DARK}/>
       </div>
     {/if}
