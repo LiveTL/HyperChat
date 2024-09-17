@@ -383,6 +383,7 @@ declare namespace Ytc {
   interface ParsedSummary {
     type: 'summary';
     header: ParsedRun[];
+    subheader: ParsedRun[];
     summary: ParsedRun[];
     id: string;
     icon?: {

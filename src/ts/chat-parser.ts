@@ -64,12 +64,10 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
 const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean | undefined, bannerTimeoutMs: number | undefined): Ytc.ParsedSummary | undefined => {
   const baseRenderer = renderer.liveChatBannerChatSummaryRenderer!;
   const runs = parseMessageRuns(renderer.liveChatBannerChatSummaryRenderer?.chatSummary.runs);
-  if (runs[2].type === 'text') {
-    runs[2].text = '(' + runs[2].text + ')';
-  }
   const item: Ytc.ParsedSummary = {
     type: 'summary',
-    header: runs.slice(0, 3),
+    header: [runs[0]],
+    subheader: [runs[2]],
     summary: runs.slice(4),
     icon: baseRenderer.icon && {
       iconType: baseRenderer.icon?.iconType.toLowerCase(),
