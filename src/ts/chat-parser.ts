@@ -61,6 +61,25 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
   return parsedRuns;
 };
 
+const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean | undefined, bannerTimeoutMs: number | undefined): Ytc.ParsedSummary | undefined => {
+  const baseRenderer = renderer.liveChatBannerChatSummaryRenderer!;
+  const runs = parseMessageRuns(renderer.liveChatBannerChatSummaryRenderer?.chatSummary.runs);
+  if (runs[2].type === 'text') {
+    runs[2].text = '(' + runs[2].text + ')';
+  }
+  const item: Ytc.ParsedSummary = {
+    type: 'summary',
+    header: runs.slice(0, 3),
+    summary: runs.slice(4),
+    icon: baseRenderer.icon && {
+      iconType: baseRenderer.icon?.iconType.toLowerCase(),
+    },
+    id: baseRenderer.liveChatSummaryId,
+    showtime: isEphemeral ? (bannerTimeoutMs ?? 0) / 1000 : 0,
+  };
+  return item;
+}
+
 const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false, liveTimeoutOrReplayMs = 0): Ytc.ParsedMessage | undefined => {
   const actionItem = action.item;
   const renderer = actionItem.liveChatTextMessageRenderer ??
@@ -183,8 +202,11 @@ const parseMessageDeletedAction = (action: Ytc.MessageDeletedAction): Ytc.Parsed
   };
 };
 
-const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned | undefined => {
+const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned | Ytc.ParsedSummary | undefined => {
   const baseRenderer = action.bannerRenderer.liveChatBannerRenderer;
+  if (baseRenderer.contents.liveChatBannerChatSummaryRenderer) {
+    return parseChatSummary(baseRenderer.contents, action.bannerProperties?.isEphemeral, action.bannerProperties?.bannerTimeoutMs);
+  }
   const parsedContents = parseAddChatItemAction(
     { item: baseRenderer.contents }, true
   );
@@ -229,7 +251,7 @@ const processCommonAction = (
   if (action.addChatItemAction) {
     return parseAddChatItemAction(action.addChatItemAction, isReplay, liveTimeoutOrReplayMs);
   } else if (action.addBannerToLiveChatCommand) {
-    return parsePinnedMessageAction(action.addBannerToLiveChatCommand);
+    return parseBannerAction(action.addBannerToLiveChatCommand);
   } else if (action.removeBannerForLiveChatCommand) {
     return { type: 'unpin' } as const;
   } else if (action.addLiveChatTickerItemAction) {
