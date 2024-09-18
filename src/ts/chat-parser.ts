@@ -61,14 +61,33 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
   return parsedRuns;
 };
 
+const splitRunsByNewline = (runs: Ytc.ParsedRun[], maxSplit: number = -1): Ytc.ParsedRun[][] => {
+  // takes an array of runs, finds newline-only runs, and splits the array by them, up to maxSplit times
+  let currSplit = 0;
+  const output: Ytc.ParsedRun[][] = [];
+  output.push(runs.reduce((acc: Ytc.ParsedRun[], run: Ytc.ParsedRun) => {
+    if (run.type === 'text' && run.text === '\n' && (maxSplit == -1 || currSplit < maxSplit)) {
+      currSplit++;
+      output.push(acc);
+      return [];
+    }
+    acc.push(run);
+    return acc;
+  }, []));
+  return output;
+}
+
 const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean | undefined, bannerTimeoutMs: number | undefined): Ytc.ParsedSummary | undefined => {
   const baseRenderer = renderer.liveChatBannerChatSummaryRenderer!;
   const runs = parseMessageRuns(renderer.liveChatBannerChatSummaryRenderer?.chatSummary.runs);
+  const splitRuns = splitRunsByNewline(runs, 2);
   const item: Ytc.ParsedSummary = {
     type: 'summary',
-    header: [runs[0]],
-    subheader: [runs[2]],
-    summary: runs.slice(4),
+    item: {
+      header: splitRuns[0],
+      subheader: splitRuns[1],
+      message: splitRuns[2],
+    },
     icon: baseRenderer.icon && {
       iconType: baseRenderer.icon?.iconType.toLowerCase(),
     },
