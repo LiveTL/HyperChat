@@ -40,7 +40,7 @@
             {/if}
           </Icon>
         </span>
-        {#each summary.header as run}
+        {#each summary.item.header as run}
           {#if run.type === 'text'}
             <span class="align-middle">{run.text}</span>
           {/if}
@@ -61,10 +61,10 @@
     </div>
     {#if !shorten && !dismissed}
       <div class="mt-1 whitespace-pre-line" transition:slide|local={{ duration: 300 }}>
-        <MessageRun runs={summary.subheader} deleted forceDark forceTLColor={Theme.DARK}/>
+        <MessageRun runs={summary.item.subheader} deleted forceDark forceTLColor={Theme.DARK}/>
       </div>
       <div class="mt-1 whitespace-pre-line" transition:slide|local={{ duration: 300 }}>
-        <MessageRun runs={summary.summary} forceDark forceTLColor={Theme.DARK}/>
+        <MessageRun runs={summary.item.message} forceDark forceTLColor={Theme.DARK}/>
       </div>
     {/if}
   </div>
