@@ -81,11 +81,18 @@ const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean | unde
   const baseRenderer = renderer.liveChatBannerChatSummaryRenderer!;
   const runs = parseMessageRuns(renderer.liveChatBannerChatSummaryRenderer?.chatSummary.runs);
   const splitRuns = splitRunsByNewline(runs, 2);
+  const subheader = splitRuns[1].map(run => {
+    if (run.type === 'text') {
+      return { type: 'link', text: run.text, url: 'https://support.google.com/youtube/thread/18138167?hl=en&msgid=284199217' } as Ytc.ParsedLinkRun;
+    } else {
+      return run;
+    }
+  });
   const item: Ytc.ParsedSummary = {
     type: 'summary',
     item: {
       header: splitRuns[0],
-      subheader: splitRuns[1],
+      subheader: subheader,
       message: splitRuns[2],
     },
     icon: baseRenderer.icon && {
