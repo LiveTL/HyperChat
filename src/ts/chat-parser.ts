@@ -102,9 +102,6 @@ const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean, banne
       subheader: subheader,
       message: splitRuns[2],
     },
-    icon: baseRenderer.icon && {
-      iconType: baseRenderer.icon?.iconType.toLowerCase(),
-    },
     id: baseRenderer.liveChatSummaryId,
     showtime: isEphemeral ? (bannerTimeoutMs / 1000) : 0,
   };
