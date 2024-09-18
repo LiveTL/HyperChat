@@ -29,6 +29,7 @@
     showUsernames,
     showTimestamps,
     showUserBadges,
+    showChatSummary,
     refreshScroll,
     emojiRenderMode,
     useSystemEmojis,
@@ -398,9 +399,9 @@
         </div>
       {/each}
     </div>
-    {#if summary || pinned}
+    {#if (summary && $showChatSummary) || pinned}
       <div class="absolute top-0 w-full" bind:this={topBar}>
-        {#if summary}
+        {#if summary && $showChatSummary}
           <div class="mx-1.5 mt-1.5">
             <ChatSummary summary={summary} on:resize={topBarResized} />
           </div>
