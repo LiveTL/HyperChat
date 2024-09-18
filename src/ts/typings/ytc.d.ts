@@ -388,10 +388,6 @@ declare namespace Ytc {
       message: ParsedRun[];
     };
     id: string;
-    icon?: {
-      /** Unlocalized string */
-      iconType: string;
-    };
     showtime: number;
   }
 
