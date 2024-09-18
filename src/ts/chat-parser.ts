@@ -81,6 +81,10 @@ const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean | unde
   const baseRenderer = renderer.liveChatBannerChatSummaryRenderer!;
   const runs = parseMessageRuns(renderer.liveChatBannerChatSummaryRenderer?.chatSummary.runs);
   const splitRuns = splitRunsByNewline(runs, 2);
+  if (splitRuns.length < 3) {
+    // YT probably changed the format, refuse to do anything to avoid breaking
+    return;
+  }
   const subheader = splitRuns[1].map(run => {
     if (run.type === 'text') {
       return { type: 'link', text: run.text, url: 'https://support.google.com/youtube/thread/18138167?hl=en&msgid=284199217' } as Ytc.ParsedLinkRun;
