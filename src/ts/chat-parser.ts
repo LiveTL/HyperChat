@@ -78,6 +78,9 @@ const splitRunsByNewline = (runs: Ytc.ParsedRun[], maxSplit: number = -1): Ytc.P
 }
 
 const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean | undefined, bannerTimeoutMs: number | undefined): Ytc.ParsedSummary | undefined => {
+  if (!renderer.liveChatBannerChatSummaryRenderer) {
+    return;
+  }
   const baseRenderer = renderer.liveChatBannerChatSummaryRenderer!;
   const runs = parseMessageRuns(renderer.liveChatBannerChatSummaryRenderer?.chatSummary.runs);
   const splitRuns = splitRunsByNewline(runs, 2);
