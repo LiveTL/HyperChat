@@ -77,7 +77,7 @@ const splitRunsByNewline = (runs: Ytc.ParsedRun[], maxSplit: number = -1): Ytc.P
   return output;
 }
 
-const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean | undefined, bannerTimeoutMs: number | undefined): Ytc.ParsedSummary | undefined => {
+const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean, bannerTimeoutMs: number): Ytc.ParsedSummary | undefined => {
   if (!renderer.liveChatBannerChatSummaryRenderer) {
     return;
   }
@@ -106,7 +106,7 @@ const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean | unde
       iconType: baseRenderer.icon?.iconType.toLowerCase(),
     },
     id: baseRenderer.liveChatSummaryId,
-    showtime: isEphemeral ? (bannerTimeoutMs ?? 0) / 1000 : 0,
+    showtime: isEphemeral ? (bannerTimeoutMs / 1000) : 0,
   };
   return item;
 }
@@ -236,7 +236,7 @@ const parseMessageDeletedAction = (action: Ytc.MessageDeletedAction): Ytc.Parsed
 const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned | Ytc.ParsedSummary | undefined => {
   const baseRenderer = action.bannerRenderer.liveChatBannerRenderer;
   if (baseRenderer.contents.liveChatBannerChatSummaryRenderer) {
-    return parseChatSummary(baseRenderer.contents, action.bannerProperties?.isEphemeral, action.bannerProperties?.bannerTimeoutMs);
+    return parseChatSummary(baseRenderer.contents, action.bannerProperties?.isEphemeral ?? false, action.bannerProperties?.bannerTimeoutMs ?? 0);
   }
   const parsedContents = parseAddChatItemAction(
     { item: baseRenderer.contents }, true
