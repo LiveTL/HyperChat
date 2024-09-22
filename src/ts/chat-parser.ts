@@ -61,21 +61,18 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
   return parsedRuns;
 };
 
-const splitRunsByNewline = (runs: Ytc.ParsedRun[], maxSplit: number = -1): Ytc.ParsedRun[][] => {
-  // takes an array of runs, finds newline-only runs, and splits the array by them, up to maxSplit times
-  let currSplit = 0;
-  const output: Ytc.ParsedRun[][] = [];
-  output.push(runs.reduce((acc: Ytc.ParsedRun[], run: Ytc.ParsedRun) => {
-    if (run.type === 'text' && run.text === '\n' && (maxSplit == -1 || currSplit < maxSplit)) {
-      currSplit++;
-      output.push(acc);
-      return [];
+// takes an array of runs, finds newline-only runs, and splits the array by them, up to maxSplit times
+// final output will have maximum length of maxSplit + 1
+// maxSplit = -1 will have no limit for splits
+const splitRunsByNewline = (runs: Ytc.ParsedRun[], maxSplit: number = -1): Ytc.ParsedRun[][] => 
+  runs.reduce((acc: Ytc.ParsedRun[][], run: Ytc.ParsedRun) => {
+    if (run.type === 'text' && run.text === '\n' && (maxSplit == -1 || acc.length <= maxSplit)) {
+      acc.push([]);
+    } else {
+      acc[acc.length - 1].push(run);
     }
-    acc.push(run);
     return acc;
-  }, []));
-  return output;
-}
+  }, [[]]);
 
 const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean, bannerTimeoutMs: number): Ytc.ParsedSummary | undefined => {
   if (!renderer.liveChatBannerChatSummaryRenderer) {
