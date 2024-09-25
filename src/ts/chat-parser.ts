@@ -88,7 +88,7 @@ const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean, banne
   const subheader = splitRuns[1].map(run => {
     if (run.type === 'text') {
       // turn subheader into a link to YT's support page detailing the AI summary feature
-      return { type: 'link', text: run.text, url: 'https://support.google.com/youtube/thread/18138167?hl=en&msgid=284199217' } as Ytc.ParsedLinkRun;
+      return { type: 'link', text: run.text, url: 'https://support.google.com/youtube/thread/18138167?msgid=284199217' } as Ytc.ParsedLinkRun;
     } else {
       return run;
     }
