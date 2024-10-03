@@ -88,6 +88,10 @@ declare namespace Ytc {
         };
       };
     };
+    bannerProperties?: {
+      isEphemeral: boolean;
+      bannerTimeoutMs: number;
+    }
   }
 
   interface AddTickerAction {
@@ -227,6 +231,15 @@ declare namespace Ytc {
     };
   }
 
+  interface ChatSummaryRenderer {
+    liveChatSummaryId: string;
+    chatSummary: RunsObj;
+    icon?: {
+      /** Unlocalized string */
+      iconType: string;
+    };
+  }
+
   interface PlaceholderRenderer { // No idea what the purpose of this is
     id: string;
     timestampUsec: IntString;
@@ -248,6 +261,8 @@ declare namespace Ytc {
     liveChatSponsorshipsGiftPurchaseAnnouncementRenderer?: MembershipGiftPurchaseRenderer;
     /** Membership gift redemption */
     liveChatSponsorshipsGiftRedemptionAnnouncementRenderer?: TextMessageRenderer;
+    /** AI Chat Summary */
+    liveChatBannerChatSummaryRenderer?: ChatSummaryRenderer;
     /** ??? */
     liveChatPlaceholderItemRenderer?: PlaceholderRenderer;
   }
@@ -365,13 +380,24 @@ declare namespace Ytc {
     };
   }
 
+  interface ParsedSummary {
+    type: 'summary';
+    item: {
+      header: ParsedRun[];
+      subheader: ParsedRun[];
+      message: ParsedRun[];
+    };
+    id: string;
+    showtime: number;
+  }
+
   interface ParsedTicker extends ParsedMessage {
     type: 'ticker';
     tickerDuration: number;
     detailText?: string;
   }
 
-  type ParsedMisc = ParsedPinned | { type: 'unpin'};
+  type ParsedMisc = ParsedPinned | ParsedSummary | { type: 'unpin' };
 
   type ParsedTimedItem = ParsedMessage | ParsedTicker;
 
