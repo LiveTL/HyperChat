@@ -39,7 +39,7 @@
     "express": "4.17.3",
     "iframe-translator": "^0.3.5",
     "is-dark-color": "^1.2.0",
-    "postcss": "^8.3.6",
+    "postcss": "^8.4.31",
     "postcss-extend": "^1.0.5",
     "postcss-import": "^14.0.2",
     "postcss-input-range": "^4.0.0",
