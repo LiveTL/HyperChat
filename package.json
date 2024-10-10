@@ -37,7 +37,7 @@
     "eslint-plugin-promise": "4",
     "eslint-plugin-svelte3": "^3.2.0",
     "express": "4.17.3",
-    "iframe-translator": "^0.3.5",
+    "iframe-translator": "^0.3.7",
     "is-dark-color": "^1.2.0",
     "postcss": "^8.3.6",
     "postcss-extend": "^1.0.5",
