@@ -6,6 +6,7 @@
   import WelcomeMessage from './WelcomeMessage.svelte';
   import Message from './Message.svelte';
   import PinnedMessage from './PinnedMessage.svelte';
+  import ChatSummary from './ChatSummary.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
   import ReportBanDialog from './ReportBanDialog.svelte';
@@ -39,6 +40,7 @@
     showUsernames,
     showTimestamps,
     showUserBadges,
+    showChatSummary,
     refreshScroll,
     emojiRenderMode,
     useSystemEmojis,
@@ -69,6 +71,7 @@
   let messageActions: (Chat.MessageAction | Welcome)[] = [];
   const messageKeys = new Set<string>();
   let pinned: Ytc.ParsedPinned | null;
+  let summary: Ytc.ParsedSummary | null;
   let div: HTMLElement;
   let isAtBottom = true;
   let truncateInterval: number;
@@ -198,6 +201,9 @@
         break;
       case 'delete':
         onDelete(action.deletion);
+        break;
+      case 'summary':
+        summary = action;
         break;
       case 'pin':
         pinned = action;
@@ -426,11 +432,18 @@
         </div>
       {/each}
     </div>
-    {#if pinned}
+    {#if (summary && $showChatSummary) || pinned}
       <div class="absolute top-0 w-full" bind:this={topBar}>
-        <div class="mx-1.5 mt-1.5">
-          <PinnedMessage pinned={pinned} on:resize={topBarResized} />
-        </div>
+        {#if summary && $showChatSummary}
+          <div class="mx-1.5 mt-1.5">
+            <ChatSummary summary={summary} on:resize={topBarResized} />
+          </div>
+        {/if}
+        {#if pinned}
+          <div class="mx-1.5 mt-1.5">
+            <PinnedMessage pinned={pinned} on:resize={topBarResized} />
+          </div>
+        {/if}
       </div>
     {/if}
     {#if !isAtBottom}

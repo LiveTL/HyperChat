@@ -62,6 +62,51 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
   return parsedRuns;
 };
 
+// takes an array of runs, finds newline-only runs, and splits the array by them, up to maxSplit times
+// final output will have maximum length of maxSplit + 1
+// maxSplit = -1 will have no limit for splits
+const splitRunsByNewline = (runs: Ytc.ParsedRun[], maxSplit: number = -1): Ytc.ParsedRun[][] => 
+  runs.reduce((acc: Ytc.ParsedRun[][], run: Ytc.ParsedRun) => {
+    if (run.type === 'text' && run.text === '\n' && (maxSplit == -1 || acc.length <= maxSplit)) {
+      acc.push([]);
+    } else {
+      acc[acc.length - 1].push(run);
+    }
+    return acc;
+  }, [[]]);
+
+const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean, bannerTimeoutMs: number): Ytc.ParsedSummary | undefined => {
+  if (!renderer.liveChatBannerChatSummaryRenderer) {
+    return;
+  }
+  const baseRenderer = renderer.liveChatBannerChatSummaryRenderer!;
+  const runs = parseMessageRuns(renderer.liveChatBannerChatSummaryRenderer?.chatSummary.runs);
+  const splitRuns = splitRunsByNewline(runs, 2);
+  if (splitRuns.length < 3) {
+    // YT probably changed the format, refuse to do anything to avoid breaking
+    return;
+  }
+  const subheader = splitRuns[1].map(run => {
+    if (run.type === 'text') {
+      // turn subheader into a link to YT's support page detailing the AI summary feature
+      return { type: 'link', text: run.text, url: 'https://support.google.com/youtube/thread/18138167?msgid=284199217' } as Ytc.ParsedLinkRun;
+    } else {
+      return run;
+    }
+  });
+  const item: Ytc.ParsedSummary = {
+    type: 'summary',
+    item: {
+      header: splitRuns[0],
+      subheader: subheader,
+      message: splitRuns[2],
+    },
+    id: baseRenderer.liveChatSummaryId,
+    showtime: isEphemeral ? (bannerTimeoutMs / 1000) : 0,
+  };
+  return item;
+}
+
 const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false, liveTimeoutOrReplayMs = 0): Ytc.ParsedMessage | undefined => {
   const actionItem = action.item;
   const renderer = actionItem.liveChatTextMessageRenderer ??
@@ -184,8 +229,11 @@ const parseMessageDeletedAction = (action: Ytc.MessageDeletedAction): Ytc.Parsed
   };
 };
 
-const parsePinnedMessageAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned | undefined => {
+const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned | Ytc.ParsedSummary | undefined => {
   const baseRenderer = action.bannerRenderer.liveChatBannerRenderer;
+  if (baseRenderer.contents.liveChatBannerChatSummaryRenderer) {
+    return parseChatSummary(baseRenderer.contents, action.bannerProperties?.isEphemeral ?? false, action.bannerProperties?.bannerTimeoutMs ?? 0);
+  }
   const parsedContents = parseAddChatItemAction(
     { item: baseRenderer.contents }, true
   );
@@ -230,7 +278,7 @@ const processCommonAction = (
   if (action.addChatItemAction) {
     return parseAddChatItemAction(action.addChatItemAction, isReplay, liveTimeoutOrReplayMs);
   } else if (action.addBannerToLiveChatCommand) {
-    return parsePinnedMessageAction(action.addBannerToLiveChatCommand);
+    return parseBannerAction(action.addBannerToLiveChatCommand);
   } else if (action.removeBannerForLiveChatCommand) {
     return { type: 'unpin' } as const;
   } else if (action.addLiveChatTickerItemAction) {
