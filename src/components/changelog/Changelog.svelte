@@ -8,12 +8,12 @@
 <ul class="list-disc list-inside">
   <strong>Serving in our latest update:</strong>
   <li class="ml-3.5">
-    Fixed broken chat rules dialog
+    YouTube AI chat summary integration
   </li>
 </ul>
 <ul class="list-disc list-inside">
   <strong>What's still cooking at KFP:</strong>
   <li class="ml-3.5">
-    YouTube AI chat summary integrations 
+    Live redirect (raid) notifications
   </li>
 </ul>
