@@ -1,6 +1,6 @@
 import HcButton from '../components/HyperchatButton.svelte';
 import { getFrameInfoAsync, isValidFrameInfo, frameIsReplay, checkInjected } from '../ts/chat-utils';
-import { isLiveTL, isAndroid } from '../ts/chat-constants';
+import { isLiveTL } from '../ts/chat-constants';
 import { hcEnabled, autoLiveChat } from '../ts/storage';
 
 // const isFirefox = navigator.userAgent.includes('Firefox');
@@ -75,13 +75,6 @@ const chatLoaded = async (): Promise<void> => {
     return;
   }
   ytcTicker.remove();
-
-  // Hide input panel on android
-  if (isAndroid) {
-    const inputPanel = document.querySelector('#input-panel');
-    if (!inputPanel) return;
-    (inputPanel as HTMLElement).style.display = 'none';
-  }
 
   if (await autoLiveChat.get()) {
     const live = document.querySelector<HTMLElement>('tp-yt-paper-listbox#menu > :nth-child(2)');
