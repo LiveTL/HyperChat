@@ -335,9 +335,9 @@ export const parseChatResponse = (response: string, isReplay: boolean): Ytc.Pars
   const miscArray: Ytc.ParsedMisc[] = [];
 
   const liveTimeoutMs = 0;
-    // base.continuations[0].timedContinuationData?.timeoutMs ??
-    // base.continuations[0].invalidationContinuationData?.timeoutMs ?? 0;
-    // NOTE: this used to be a thing, but it seems to have been removed.
+  // base.continuations[0].timedContinuationData?.timeoutMs ??
+  // base.continuations[0].invalidationContinuationData?.timeoutMs ?? 0;
+  // NOTE: this used to be a thing, but it seems to have been removed.
 
   actionsArray.forEach((action) => {
     let parsedAction: Ytc.ParsedAction | undefined;
