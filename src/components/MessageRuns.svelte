@@ -45,7 +45,13 @@
         {#if deleted}
           <span>{run.text}</span>
         {:else}
-          <TranslatedMessage text={run.text} {forceTLColor} />
+          {#if run.styles?.includes('bold')}
+            <strong>
+              <TranslatedMessage text={run.text} {forceTLColor} />
+            </strong>
+          {:else}
+            <TranslatedMessage text={run.text} {forceTLColor} />
+          {/if}
         {/if}
       {:else if run.type === 'link'}
         <a

@@ -44,6 +44,7 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
     } else if (run.text != null) {
       parsedRuns.push({
         type: 'text',
+        styles: (run.bold ? ['bold'] : []).concat(run.deemphasize ? ['deemphasize'] : []),
         text: decodeURIComponent(escape(unescape(encodeURIComponent(
           run.text
         ))))
@@ -101,6 +102,34 @@ const parseChatSummary = (renderer: Ytc.AddChatItem, showtime: number): Ytc.Pars
       message: splitRuns[2],
     },
     id: baseRenderer.liveChatSummaryId,
+    showtime: showtime,
+  };
+  return item;
+}
+
+const parseRedirectBanner = (renderer: Ytc.AddChatItem, showtime: number): Ytc.ParsedRedirect | undefined => {
+  if (!renderer.liveChatBannerRedirectRenderer) {
+    return;
+  }
+  const baseRenderer = renderer.liveChatBannerRedirectRenderer!;
+  const profileIcon = {
+    src: fixUrl(baseRenderer.authorPhoto?.thumbnails[0].url ?? ''),
+    alt: 'Redirect profile icon'
+  };
+  const url = baseRenderer.inlineActionButton?.buttonRenderer.command.urlEndpoint?.url || 
+    (baseRenderer.inlineActionButton?.buttonRenderer.command.watchEndpoint?.videoId ?
+       "/watch?v=" + baseRenderer.inlineActionButton?.buttonRenderer.command.watchEndpoint?.videoId 
+       : '');
+  const item: Ytc.ParsedRedirect = {
+    type: 'redirect',
+    item: {
+      message: parseMessageRuns(baseRenderer.bannerMessage.runs),
+      profileIcon: profileIcon,
+      action: {
+        url: fixUrl(url),
+        text: parseMessageRuns(baseRenderer.inlineActionButton?.buttonRenderer.text?.runs),
+      }
+    },
     showtime: showtime,
   };
   return item;
@@ -228,7 +257,7 @@ const parseMessageDeletedAction = (action: Ytc.MessageDeletedAction): Ytc.Parsed
   };
 };
 
-const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned | Ytc.ParsedSummary | undefined => {
+const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedMisc | undefined => {
   const baseRenderer = action.bannerRenderer.liveChatBannerRenderer;
 
   // fold both auto-disappear and auto-collapse into just collapse for showtime
@@ -238,6 +267,9 @@ const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned | Ytc.
 
   if (baseRenderer.contents.liveChatBannerChatSummaryRenderer) {
     return parseChatSummary(baseRenderer.contents, showtime);
+  }
+  if (baseRenderer.contents.liveChatBannerRedirectRenderer) {
+    return parseRedirectBanner(baseRenderer.contents, showtime);
   }
   const parsedContents = parseAddChatItemAction(
     { item: baseRenderer.contents }, true
