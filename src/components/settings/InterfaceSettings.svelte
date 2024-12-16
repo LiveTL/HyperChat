@@ -60,7 +60,7 @@
   <Checkbox name="Show timestamps" store={showTimestamps} />
   <Checkbox name="Show usernames" store={showUsernames} />
   <Checkbox name="Show user badges" store={showUserBadges} />
-  <Checkbox name="Show YouTube's chat summary" store={showChatSummary} />
+  <Checkbox name="Show experimental YouTube chat summaries" store={showChatSummary} />
   <Checkbox name="Highlight mentions" store={enableHighlightedMentions} />
 </Card>
 
