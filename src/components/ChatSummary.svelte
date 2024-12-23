@@ -20,7 +20,7 @@
       clearTimeout(autoHideTimeout);
       autoHideTimeout = null;
     }
-   };
+  };
 
   $: if (summary) {
     dismissed = false;

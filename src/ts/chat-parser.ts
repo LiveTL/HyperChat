@@ -74,7 +74,7 @@ const splitRunsByNewline = (runs: Ytc.ParsedRun[], maxSplit: number = -1): Ytc.P
     return acc;
   }, [[]]);
 
-const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean, bannerTimeoutMs: number): Ytc.ParsedSummary | undefined => {
+const parseChatSummary = (renderer: Ytc.AddChatItem, showtime: number): Ytc.ParsedSummary | undefined => {
   if (!renderer.liveChatBannerChatSummaryRenderer) {
     return;
   }
@@ -101,7 +101,7 @@ const parseChatSummary = (renderer: Ytc.AddChatItem, isEphemeral: boolean, banne
       message: splitRuns[2],
     },
     id: baseRenderer.liveChatSummaryId,
-    showtime: isEphemeral ? bannerTimeoutMs : 0,
+    showtime: showtime,
   };
   return item;
 }
@@ -230,8 +230,14 @@ const parseMessageDeletedAction = (action: Ytc.MessageDeletedAction): Ytc.Parsed
 
 const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned | Ytc.ParsedSummary | undefined => {
   const baseRenderer = action.bannerRenderer.liveChatBannerRenderer;
+
+  // fold both auto-disappear and auto-collapse into just collapse for showtime
+  const showtime = action.bannerProperties?.isEphemeral
+   ? (action.bannerProperties?.bannerTimeoutMs || 0)
+   : 1000 * (action.bannerProperties?.autoCollapseDelay?.seconds || baseRenderer.bannerProperties?.autoCollapseDelay?.seconds || 0);
+
   if (baseRenderer.contents.liveChatBannerChatSummaryRenderer) {
-    return parseChatSummary(baseRenderer.contents, action.bannerProperties?.isEphemeral ?? false, action.bannerProperties?.bannerTimeoutMs ?? 0);
+    return parseChatSummary(baseRenderer.contents, showtime);
   }
   const parsedContents = parseAddChatItemAction(
     { item: baseRenderer.contents }, true
@@ -246,7 +252,8 @@ const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedPinned | Ytc.
         baseRenderer.header.liveChatBannerHeaderRenderer.text.runs
       ),
       contents: parsedContents
-    }
+    },
+    showtime: showtime,
   };
 };
 
