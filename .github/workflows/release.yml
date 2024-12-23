@@ -1,27 +1,35 @@
 name: Latest Release Build
+
 on:
   release:
     types:
       - published
+
 jobs:
   build:
     env:
       ADDON_ID: "{14a15c41-13f4-498e-986c-7f00435c4d00}"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with: 
-          submodules: 'recursive'
-      - uses: c-hive/gha-yarn-cache@v1
-      - uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: '22'
+          cache: 'yarn'
+
       - name: Install modules
         run: yarn
+
       - name: Build Chrome
         run: |
-          VERSION=$(echo -n "${{ github.ref }}" | sed 's/[refs\/tagv]//g' | sed 's/-.*//') yarn build:chrome
+          # Extract version number from the tag
+          VERSION=$(echo -n "${{ github.ref }}" | sed 's/[refs\/tagv]//g' | sed 's/-.*//')
+          yarn build:chrome
           yarn package
+
       - name: Upload Chrome package to release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -30,10 +38,14 @@ jobs:
           asset_name: HyperChat-Chrome.zip
           tag: ${{ github.ref }}
           overwrite: true
+
       - name: Build Firefox
         run: |
-          VERSION=$(echo -n "${{ github.ref }}" | sed 's/[refs\/tagv]//g' | sed 's/-.*//') yarn build:firefox
+          # Extract version number from the tag
+          VERSION=$(echo -n "${{ github.ref }}" | sed 's/[refs\/tagv]//g' | sed 's/-.*//')
+          yarn build:firefox
           yarn package
+
       - name: Upload Firefox package to release
         uses: svenstaro/upload-release-action@v2
         with:
