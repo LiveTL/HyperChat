@@ -1,26 +1,15 @@
 export const isLiveTL = false;
-export const isAndroid = false;
 // DO NOT EDIT THE ABOVE LINE. It is updated by webpack.
 
 export const enum Browser {
   FIREFOX,
   CHROME,
-  SAFARI,
-  ANDROID
+  SAFARI
 }
 
 export const getBrowser = (): Browser => {
   if (navigator.userAgent.includes('Firefox')) {
     return Browser.FIREFOX;
-  }
-  let w: any;
-  try {
-    w = window;
-  } catch {
-    w = self;
-  }
-  if (isAndroid || w.chrome == null) {
-    return Browser.ANDROID;
   }
   if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
     return Browser.SAFARI;
