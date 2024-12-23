@@ -86,11 +86,19 @@ declare namespace Ytc {
             text: RunsObj;
           };
         };
+        /** Gets used for pinned messages */
+        bannerProperties?: BannerPropertiesObj;
       };
     };
-    bannerProperties?: {
-      isEphemeral: boolean;
-      bannerTimeoutMs: number;
+    /** Gets used for chat summary/redirects */
+    bannerProperties?: BannerPropertiesObj;
+  }
+
+  interface BannerPropertiesObj {
+    isEphemeral?: boolean;
+    bannerTimeoutMs?: number;
+    autoCollapseDelay?: {
+      seconds: number;
     }
   }
 
@@ -378,6 +386,7 @@ declare namespace Ytc {
       header: ParsedRun[];
       contents: ParsedMessage;
     };
+    showtime: number;
   }
 
   interface ParsedSummary {
