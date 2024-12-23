@@ -1,12 +1,14 @@
 <script lang="ts">
   import { slide, fade } from 'svelte/transition';
-  import Message from './Message.svelte';
+  import MessageRun from './MessageRuns.svelte';
   import Tooltip from './common/Tooltip.svelte';
   import Icon from 'smelte/src/components/Icon';
   import { Theme } from '../ts/chat-constants';
   import { createEventDispatcher } from 'svelte';
+  import { showProfileIcons } from '../ts/storage';
+  import Button from 'smelte/src/components/Button';
 
-  export let pinned: Ytc.ParsedPinned;
+  export let redirect: Ytc.ParsedRedirect;
 
   let dismissed = false;
   let shorten = false;
@@ -21,12 +23,12 @@
       autoHideTimeout = null;
     }
   };
-  
-  $: if (pinned) {
+
+  $: if (redirect) {
     dismissed = false;
     shorten = false;
-    if (pinned.showtime) {
-      autoHideTimeout = setTimeout(() => { shorten = true; }, pinned.showtime);
+    if (redirect.showtime) {
+      autoHideTimeout = setTimeout(() => { shorten = true; }, redirect.showtime);
     }
   }
 
@@ -50,11 +52,7 @@
             {/if}
           </Icon>
         </span>
-        {#each pinned.item.header as run}
-          {#if run.type === 'text'}
-            <span class="align-middle">{run.text}</span>
-          {/if}
-        {/each}
+        <span class="align-middle">Redirect Notice</span>
       </div>
       <div class="flex-none self-end" style="transform: translateY(3px);">
         <Tooltip offsetY={0} small>
@@ -70,8 +68,20 @@
       </div>
     </div>
     {#if !shorten && !dismissed}
-      <div class="mt-1" transition:slide|local={{ duration: 300 }}>
-        <Message message={pinned.item.contents} forceDark forceTLColor={Theme.DARK} hideDropdown />
+      <div class="mt-1 whitespace-pre-line" transition:slide|local={{ duration: 300 }}>
+        {#if $showProfileIcons}
+          <img
+            class="h-5 w-5 inline align-middle rounded-full flex-none"
+            src={redirect.item.profileIcon.src}
+            alt={redirect.item.profileIcon.alt}
+          />
+        {/if}
+        <MessageRun runs={redirect.item.message} forceDark forceTLColor={Theme.DARK}/>
+      </div>
+      <div class="mt-1 whitespace-pre-line" transition:slide|local={{ duration: 300 }}>
+        <Button href={redirect.item.action.url} target="_blank" small>
+          <MessageRun runs={redirect.item.action.text} forceDark forceTLColor={Theme.DARK}/>
+        </Button>
       </div>
     {/if}
   </div>

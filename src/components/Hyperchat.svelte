@@ -46,6 +46,7 @@
     ytDark
   } from '../ts/storage';
   import { version } from '../manifest.json';
+  import RedirectBanner from './RedirectBanner.svelte';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
@@ -56,6 +57,8 @@
   const messageKeys = new Set<string>();
   let pinned: Ytc.ParsedPinned | null;
   let summary: Ytc.ParsedSummary | null;
+  let redirect: Ytc.ParsedRedirect | null;
+  $: hasBanner = pinned || redirect || (summary && $showChatSummary);
   let div: HTMLElement;
   let isAtBottom = true;
   let truncateInterval: number;
@@ -188,6 +191,9 @@
         break;
       case 'summary':
         summary = action;
+        break;
+      case 'redirect':
+        redirect = action;
         break;
       case 'pin':
         pinned = action;
@@ -399,11 +405,16 @@
         </div>
       {/each}
     </div>
-    {#if (summary && $showChatSummary) || pinned}
+    {#if hasBanner}
       <div class="absolute top-0 w-full" bind:this={topBar}>
         {#if summary && $showChatSummary}
           <div class="mx-1.5 mt-1.5">
             <ChatSummary summary={summary} on:resize={topBarResized} />
+          </div>
+        {/if}
+        {#if redirect}
+          <div class="mx-1.5 mt-1.5">
+            <RedirectBanner redirect={redirect} on:resize={topBarResized} />
           </div>
         {/if}
         {#if pinned}
