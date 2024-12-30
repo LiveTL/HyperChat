@@ -7,6 +7,7 @@
   import Message from './Message.svelte';
   import PinnedMessage from './PinnedMessage.svelte';
   import ChatSummary from './ChatSummary.svelte';
+  import RedirectBanner from './RedirectBanner.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
   import ReportBanDialog from './ReportBanDialog.svelte';
@@ -46,7 +47,6 @@
     ytDark
   } from '../ts/storage';
   import { version } from '../manifest.json';
-  import RedirectBanner from './RedirectBanner.svelte';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
