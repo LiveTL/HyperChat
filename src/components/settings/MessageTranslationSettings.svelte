@@ -1,6 +1,6 @@
 <script lang="ts">
   import {
-    translateTargetLanguage
+    translateTargetLanguage, sugoiTranslatorOfflineEnabled
   } from '../../ts/storage';
   import DropdownStore from '../common/DropdownStore.svelte';
   import Checkbox from '../common/CheckboxStore.svelte';
@@ -47,6 +47,10 @@
       }))
   ];
 </script>
+
+<span on:click={scrollToBottom}>
+  <Checkbox name="Translate chat messages with Sugoi Translator Offline (experimental, only supports JP -> EN)" store={sugoiTranslatorOfflineEnabled} />
+</span>
 
 <span on:click={scrollToBottom}>
   <Checkbox name="Translate chat messages with Google Translate (experimental)" store={enabled} />
