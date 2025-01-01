@@ -64,10 +64,6 @@
 </div>
 
 <style>
-  :global(div#contents.style-scope.yt-live-chat-renderer) {
-    z-index: 2;
-  }
-
   #hc-buttons {
     float: right;
     display: flex;

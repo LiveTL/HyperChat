@@ -10,14 +10,24 @@
 
   let dismissed = false;
   let shorten = false;
+  let autoHideTimeout: NodeJS.Timeout | null = null;
   const classes = 'rounded inline-flex flex-col overflow-visible ' +
    'bg-secondary-900 p-2 w-full text-white z-10 shadow';
 
-  const onShorten = () => { shorten = !shorten; };
-
+  const onShorten = () => { 
+    shorten = !shorten;
+    if (autoHideTimeout) {
+      clearTimeout(autoHideTimeout);
+      autoHideTimeout = null;
+    }
+  };
+  
   $: if (pinned) {
     dismissed = false;
     shorten = false;
+    if (pinned.showtime) {
+      autoHideTimeout = setTimeout(() => { shorten = true; }, pinned.showtime);
+    }
   }
 
   const dispatch = createEventDispatcher();
