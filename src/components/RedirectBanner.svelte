@@ -52,7 +52,7 @@
             {/if}
           </Icon>
         </span>
-        <span class="align-middle">Redirect Notice</span>
+        <span class="align-middle">Live Redirect Notice</span>
       </div>
       <div class="flex-none self-end" style="transform: translateY(3px);">
         <Tooltip offsetY={0} small>
@@ -78,9 +78,9 @@
         {/if}
         <MessageRun runs={redirect.item.message} forceDark forceTLColor={Theme.DARK}/>
       </div>
-      <div class="mt-1 whitespace-pre-line" transition:slide|local={{ duration: 300 }}>
+      <div class="mt-1 whitespace-pre-line flex justify-end" transition:slide|local={{ duration: 300 }}>
         <Button href={redirect.item.action.url} target="_blank" small>
-          <MessageRun runs={redirect.item.action.text} forceDark forceTLColor={Theme.DARK}/>
+          <MessageRun runs={redirect.item.action.text} forceDark forceTLColor={Theme.DARK} class="cursor-pointer" />
         </Button>
       </div>
     {/if}
