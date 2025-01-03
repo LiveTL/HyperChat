@@ -68,7 +68,7 @@
       </div>
     </div>
     {#if !shorten && !dismissed}
-      <div class="mt-1 whitespace-pre-line" transition:slide|local={{ duration: 300 }}>
+      <div class="inline-flex flex-row gap-2 break-words w-full overflow-visible" transition:slide|local={{ duration: 300 }}>
         {#if $showProfileIcons}
           <img
             class="h-5 w-5 inline align-middle rounded-full flex-none"
