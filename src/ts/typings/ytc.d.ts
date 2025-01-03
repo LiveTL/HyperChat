@@ -145,16 +145,14 @@ declare namespace Ytc {
   }
 
   interface ThumbnailsWithLabel extends Thumbnails {
-    accessibility?: {
-      accessibilityData: {
-        label: string;
-      };
-    };
+    accessibility?: AccessibilityObj;
   }
 
   /** Message run object */
   interface MessageRun {
     text?: string;
+    bold?: boolean;
+    deemphasize?: boolean;
     navigationEndpoint?: {
       commandMetadata: {
         webCommandMetadata: {
@@ -185,11 +183,7 @@ declare namespace Ytc {
         /** Unlocalized string */
         iconType: string;
       };
-      accessibility?: {
-        accessibilityData: {
-          label: string;
-        };
-      };
+      accessibility?: AccessibilityObj;
     };
   }
 
@@ -248,6 +242,35 @@ declare namespace Ytc {
     };
   }
 
+  interface RedirectRenderer {
+    bannerMessage: RunsObj;
+    authorPhoto?: Thumbnails;
+    inlineActionButton?: {
+      buttonRenderer: ButtonRenderer;
+    }
+    contextMenuButton?: {
+      buttonRenderer: ButtonRenderer;
+    }
+  }
+
+  interface ButtonRenderer {
+    style?: string;
+    size?: string;
+    icon?: string;
+    accessibility?: AccessibilityObj;
+    isDisabled?: boolean;
+    text?: RunsObj;
+    command: {
+      urlEndpoint?: {
+        url: string;
+        target: string;
+      }
+      watchEndpoint?: {
+        videoId: string;
+      }
+    }
+  }
+
   interface PlaceholderRenderer { // No idea what the purpose of this is
     id: string;
     timestampUsec: IntString;
@@ -271,6 +294,8 @@ declare namespace Ytc {
     liveChatSponsorshipsGiftRedemptionAnnouncementRenderer?: TextMessageRenderer;
     /** AI Chat Summary */
     liveChatBannerChatSummaryRenderer?: ChatSummaryRenderer;
+    /** Redirects */
+    liveChatBannerRedirectRenderer?: RedirectRenderer;
     /** ??? */
     liveChatPlaceholderItemRenderer?: PlaceholderRenderer;
   }
@@ -299,6 +324,12 @@ declare namespace Ytc {
     runs: MessageRun[];
   }
 
+  interface AccessibilityObj {
+    accessibilityData: {
+      label: string;
+    }
+  }
+
   /*
    * Parsed objects
    */
@@ -310,6 +341,7 @@ declare namespace Ytc {
   interface ParsedTextRun {
     type: 'text';
     text: string;
+    styles?: string[];
   }
 
   interface ParsedLinkRun {
@@ -400,13 +432,26 @@ declare namespace Ytc {
     showtime: number;
   }
 
+  interface ParsedRedirect {
+    type: 'redirect';
+    item: {
+      message: ParsedRun[];
+      profileIcon: ParsedImage;
+      action: {
+        url: string;
+        text: ParsedRun[];
+      }
+    };
+    showtime: number;
+  }
+
   interface ParsedTicker extends ParsedMessage {
     type: 'ticker';
     tickerDuration: number;
     detailText?: string;
   }
 
-  type ParsedMisc = ParsedPinned | ParsedSummary | { type: 'unpin' };
+  type ParsedMisc = ParsedPinned | ParsedSummary | ParsedRedirect | { type: 'unpin' };
 
   type ParsedTimedItem = ParsedMessage | ParsedTicker;
 
