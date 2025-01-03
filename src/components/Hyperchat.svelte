@@ -7,6 +7,7 @@
   import Message from './Message.svelte';
   import PinnedMessage from './PinnedMessage.svelte';
   import ChatSummary from './ChatSummary.svelte';
+  import RedirectBanner from './RedirectBanner.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
   import ReportBanDialog from './ReportBanDialog.svelte';
@@ -72,6 +73,33 @@
   const messageKeys = new Set<string>();
   let pinned: Ytc.ParsedPinned | null;
   let summary: Ytc.ParsedSummary | null;
+  let redirect: Ytc.ParsedRedirect | null;
+  // = {
+  //   type: 'redirect',
+  //   item: {
+  //     message: [
+  //       {
+  //         type: 'text',
+  //         text: 'Don\'t miss out! People are going to watch something from someone',
+  //       },
+  //     ],
+  //     profileIcon: {
+  //       src: 'https://picsum.photos/32',
+  //       alt: 'Redirect profile photo',
+  //     },
+  //     action: {
+  //       url: 'https://example.com/',
+  //       text: [
+  //         {
+  //           type: 'text',
+  //           text: 'Go Now',
+  //         },
+  //       ],
+  //     },
+  //   },
+  //   showtime: 5000,
+  // };
+  $: hasBanner = pinned || redirect || (summary && $showChatSummary);
   let div: HTMLElement;
   let isAtBottom = true;
   let truncateInterval: number;
@@ -204,6 +232,9 @@
         break;
       case 'summary':
         summary = action;
+        break;
+      case 'redirect':
+        redirect = action;
         break;
       case 'pin':
         pinned = action;
@@ -432,11 +463,16 @@
         </div>
       {/each}
     </div>
-    {#if (summary && $showChatSummary) || pinned}
+    {#if hasBanner}
       <div class="absolute top-0 w-full" bind:this={topBar}>
         {#if summary && $showChatSummary}
           <div class="mx-1.5 mt-1.5">
             <ChatSummary summary={summary} on:resize={topBarResized} />
+          </div>
+        {/if}
+        {#if redirect}
+          <div class="mx-1.5 mt-1.5">
+            <RedirectBanner redirect={redirect} on:resize={topBarResized} />
           </div>
         {/if}
         {#if pinned}
