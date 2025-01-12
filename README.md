@@ -21,9 +21,7 @@ See https://livetl.app/hyperchat/install
 
 ### ⚠️ WARNING ⚠️
 
-For legacy reasons, we have a `mv2` branch for Firefox support while the `main` branch houses the main MV3 version.
-
-TODO: we need to confirm whether the MV2 variant is still required for modern versions of Firefox.
+For legacy reasons, we have a `mv2` branch [the LiveTL extension](https://github.com/LiveTL/LiveTL)'s Manifest V2 Firefox variant, while the `main` branch houses the main Manifest V3 version that's published to stores.
 
 ### Development
 
@@ -42,25 +40,28 @@ cd hyperchat
 npm install # install dependencies
 ```
 
-Build or serve the extension:
+Serve the extension for local development:
 
 ```bash
-npm run dev:chrome # devserver for Chrome extension
-npm run dev:firefox # devserver for Firefox extension
+npm run dev:chrome    # devserver for Chrome extension
+npm run dev:firefox   # devserver for Firefox extension
 
-npm run start:chrome # devserver + open extension in Chrome
+npm run start:chrome  # devserver + open extension in Chrome
 npm run start:firefox # devserver + open extension in Firefox
-
-VERSION=X.Y.Z npm run build # production mode (Chrome & Firefox)
-VERSION=X.Y.Z npm run build:chrome # production mode (Chrome)
-VERSION=X.Y.Z npm run build:firefox # production mode (Firefox)
 ```
+
+Build production versions:
+
+```bash
+VERSION=X.Y.Z npm run build         # Chrome & Firefox
+VERSION=X.Y.Z npm run build:chrome  # just Chrome
+VERSION=X.Y.Z npm run build:firefox # just Firefox
+```
+
+The built ZIP files can be found in the `build` directory.
 
 ### Building for Production
 
-Our build script is an automated GitHub action. To simulate the build, please follow the steps outlined in the [Latest Release Build](.github/workflows/build.yml) workflow file.
+Our build script is an automated GitHub action. To simulate the build, please follow the steps outlined in the [Latest Release Build](.github/workflows/release.yml) workflow file.
 
-Clarifications:
-- `${{ github.ref }}` should evaluate to `vX.Y.Z`, where `X.Y.Z` is the version number.
-
-The built ZIP files can be found in the `build` directory.
+`${{ github.ref }}` should evaluate to `vX.Y.Z`, where `X.Y.Z` is the version number.

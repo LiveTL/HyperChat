@@ -8,10 +8,10 @@
     "build:firefox": "cross-env BROWSER=firefox vite build",
     "dev:chrome": "cross-env MINIFY=false BROWSER=chrome vite build --watch",
     "dev:firefox": "cross-env MINIFY=false BROWSER=firefox vite build --watch",
-    "start:chrome": "cross-env AUTOLAUNCH=false npm run dev:chrome",
-    "start:firefox": "cross-env AUTOLAUNCH=false npm run dev:firefox",
-    "format": "npm run format:check -- --fix",
-    "format:check": "eslint src"
+    "start:chrome": "cross-env AUTOLAUNCH=true npm run dev:chrome",
+    "start:firefox": "cross-env AUTOLAUNCH=true npm run dev:firefox",
+    "lint": "npm run lint:check -- --fix",
+    "lint:check": "eslint src"
   },
   "dependencies": {
     "@livetl/svelte-webext-stores": "^0.0.14",

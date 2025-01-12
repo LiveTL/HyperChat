@@ -39,7 +39,7 @@ export default defineConfig({
         'scripts/chat-interceptor.ts',
         'scripts/chat-metagetter.ts'
       ],
-      disableAutoLaunch: process.env.AUTOLAUNCH === 'false',
+      disableAutoLaunch: process.env.AUTOLAUNCH !== 'true',
       browser,
       webExtConfig: {
         startUrl: 'https://www.youtube.com/watch?v=jfKfPfyJRdk'

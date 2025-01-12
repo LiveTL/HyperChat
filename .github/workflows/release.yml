@@ -19,7 +19,7 @@ jobs:
 
       - run: |
           npm install
-          npm run format:check
+          npm run lint:check
 
           # Extract version number from the tag
           VERSION=$(echo -n "${{ github.ref }}" | sed 's/[refs\/tagv]//g' | sed 's/-.*//')
