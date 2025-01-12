@@ -1,14 +1,13 @@
 <script lang="ts">
   import { lastClosedVersion, refreshScroll } from '../ts/storage';
-  import { Browser, getBrowser, isLiveTL } from '../ts/chat-constants';
+  import { isLiveTL } from '../ts/chat-constants';
   import Changelog from './changelog/Changelog.svelte';
-  import { version } from '../manifest.json';
   import Icon from './common/Icon.svelte';
 
   const logo = chrome.runtime.getURL(
     (isLiveTL ? 'hyperchat' : 'assets') + '/logo.png'
   );
-  const reviewLink = getBrowser() === Browser.FIREFOX
+  const reviewLink = __BROWSER__ === 'firefox'
     ? 'https://addons.mozilla.org/en-US/firefox/addon/hyperchat/'
     : 'https://chrome.google.com/webstore/detail/hyperchat-optimized-youtu/naipgebhooiiccifflecbffmnjbabdbh';
   const classes = 'p-2 rounded inline-flex flex-col overflow-hidden ' +
@@ -36,7 +35,7 @@
     }
   ];
 
-  $: showChangelog = $lastClosedVersion !== version;
+  $: showChangelog = $lastClosedVersion !== __VERSION__;
 </script>
 
 <div class={classes}>
@@ -55,16 +54,16 @@
             $refreshScroll = true;
             e.preventDefault();
           }} class="underline text-primary-900 dark:text-primary-50">
-            v{version}
+            v{__VERSION__}
           </a>
         {:else}
-          v{version}
+          v{__VERSION__}
         {/if}
       </p>
       <div class="flex flex-wrap">
         {#each badges as badge, i}
           <p>
-            <a 
+            <a
               href={badge.href}
               class="underline text-primary-900 dark:text-primary-50"
               target="_blank"
@@ -82,7 +81,7 @@
   {#if showChangelog}
     <p class="leading-tight mt-1.5 flex flex-row">
       <span href="/" on:click={(e) => {
-        $lastClosedVersion = version;
+        $lastClosedVersion = __VERSION__;
         $refreshScroll = true;
         e.preventDefault();
       }}

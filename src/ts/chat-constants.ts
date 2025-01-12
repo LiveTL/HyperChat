@@ -1,22 +1,6 @@
 export const isLiveTL = false;
 // DO NOT EDIT THE ABOVE LINE. It is updated by webpack.
 
-export const enum Browser {
-  FIREFOX,
-  CHROME,
-  SAFARI
-}
-
-export const getBrowser = (): Browser => {
-  if (navigator.userAgent.includes('Firefox')) {
-    return Browser.FIREFOX;
-  }
-  if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
-    return Browser.SAFARI;
-  }
-  return Browser.CHROME;
-};
-
 // const params = new URLSearchParams(window.location.search);
 // export const paramsTabId = params.get('tabid');
 // export const paramsFrameId = params.get('frameid');

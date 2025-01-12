@@ -2,12 +2,16 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import path from 'path';
 import copy from 'rollup-plugin-copy';
 import { defineConfig } from 'vite';
-import browserExtension from 'vite-plugin-web-extension';
+import webExtension, { readJsonFile } from 'vite-plugin-web-extension';
 import zipPack from 'vite-plugin-zip-pack';
 
-import manifest from './src/manifest.json';
+const pkg = readJsonFile('package.json');
+const manifest = readJsonFile('src/manifest.json');
 
-const buildDir = `build/${process.env.BROWSER}`;
+const browser = process.env.BROWSER ?? 'chrome';
+const version = process.env.VERSION ?? pkg.version;
+
+const buildDir = `build/${browser}`;
 
 export default defineConfig({
   root: 'src',
@@ -16,11 +20,15 @@ export default defineConfig({
     emptyOutDir: true,
     minify: process.env.MINIFY !== 'false' ? 'terser' : false
   },
+  define: {
+    __BROWSER__: JSON.stringify(browser),
+    __VERSION__: JSON.stringify(version)
+  },
   plugins: [
-    browserExtension({
+    webExtension({
       manifest: () => ({
         ...manifest,
-        version: process.env.VERSION ?? manifest.version,
+        version
       }),
       assets: 'assets',
       watchFilePaths: [
@@ -32,7 +40,7 @@ export default defineConfig({
         'scripts/chat-metagetter.ts'
       ],
       disableAutoLaunch: process.env.HC_AUTOLAUNCH === undefined,
-      browser: process.env.BROWSER === undefined ? 'chrome' : process.env.BROWSER,
+      browser,
       webExtConfig: {
         startUrl: 'https://www.youtube.com/watch?v=jfKfPfyJRdk'
       }
@@ -51,7 +59,7 @@ export default defineConfig({
     zipPack({
       inDir: buildDir,
       outDir: 'build',
-      outFileName: `HyperChat-${process.env.BROWSER}.zip`
-    }),
+      outFileName: `HyperChat-${browser}.zip`
+    })
   ]
 });
