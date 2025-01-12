@@ -4,7 +4,7 @@ const noUpdateKeys = new Set(['hc.bytes.used', 'hc.bytes.update']);
 const oneDay = 1000 * 60 * 60 * 24;
 
 const storageget = (key: string): any => chrome.storage.local.get(key).then(r => r[key]);
-const defaultTo0 = (value: any): number => isNaN(value) ? 0 : value;
+const defaultTo0 = (value: any): number => Number.isNaN(value) ? 0 : value;
 
 chrome.action.onClicked.addListener(() => {
   if (isLiveTL) {
@@ -52,7 +52,7 @@ chrome.storage.local.onChanged.addListener(changes => {
   // avoid top-level async
   // see https://stackoverflow.com/a/53024910
   (async () => {
-    const toWrite = {};
+    const toWrite: Record<string, any> = {};
     const data = await Promise.all([
       storageget('hc.bytes.used'),
       storageget('hc.bytes.lastupdate')

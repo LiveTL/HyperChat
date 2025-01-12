@@ -1,3 +1,5 @@
+import type { Chat } from './typings/chat';
+
 export const getFrameInfoAsync = async (): Promise<Chat.UncheckedFrameInfo> => {
   return await new Promise(
     (resolve) =>

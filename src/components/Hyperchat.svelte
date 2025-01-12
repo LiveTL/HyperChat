@@ -14,9 +14,6 @@
   import SuperchatViewDialog from './SuperchatViewDialog.svelte';
   import StickyBar from './StickyBar.svelte';
   import {
-    // paramsTabId,
-    // paramsFrameId,
-    // paramsIsReplay,
     Theme,
     YoutubeEmojiRenderMode,
     chatUserActionsItems
@@ -52,6 +49,7 @@
     enableHighlightedMentions,
     ytDark
   } from '../ts/storage';
+  import type { Chat } from '../ts/typings/chat';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
@@ -345,7 +343,7 @@
       return port;
     });
 
-    return () => $port?.destroy && $port?.destroy();
+    return () => $port?.destroy?.();
   };
 
   onMount(onLoad);
