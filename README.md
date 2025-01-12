@@ -13,7 +13,9 @@
 
 ### ⚠️ WARNING ⚠️
 
-Due to unreliable Manifest v3 feature support in Firefox, we maintain both MV2 and MV3 versions of HyperChat in parallel. The MV2 variant sits in the `master` branch, while the MV3 variant sits on the `mv3` branch. When contributing, please ensure that you check out to the `master` branch to implement the features in MV2 first. Once the feature is stable, please open a separate PR to the `mv3` branch to port the feature to MV3.
+For legacy reasons, we have a `mv2` branch for Firefox support while the `main` branch houses the main MV3 version.
+
+TODO: we need to confirm whether the MV2 variant is still required for modern versions of Firefox.
 
 ### Development
 
@@ -29,7 +31,6 @@ Open the repository and npm install:
 
 ```bash
 cd hyperchat
-git checkout master # switch to master for MV2 first!
 npm install # install dependencies
 ```
 
