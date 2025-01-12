@@ -60,16 +60,16 @@
     },
     "default_popup": "options.html"
   },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
   "web_accessible_resources": [
     {
       "resources": ["*"],
       "matches": ["<all_urls>"]
     }
   ],
-  "options_ui": {
-    "page": "options.html",
-    "open_in_tab": true
-  },
   "{{chrome}}.incognito": "split",
   "{{firefox}}.browser_specific_settings": {
     "gecko": {
