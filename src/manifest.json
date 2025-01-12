@@ -1,5 +1,6 @@
 {
-  "manifest_version": 3,
+  "{{chrome}}.manifest_version": 3,
+  "{{firefox}}.manifest_version": 2,
   "name": "HyperChat [Improved YouTube Chat]",
   "homepage_url": "https://livetl.app/hyperchat",
   "description": "Improved YouTube chat with CPU/RAM optimizations, customization options, and cutting-edge features!",
@@ -36,23 +37,33 @@
       "all_frames": true
     }
   ],
-  "{{firefox}}.background": {
-    "scripts": ["scripts/chat-background.ts"]
-  },
   "{{chrome}}.background": {
     "service_worker": "scripts/chat-background.ts"
   },
-  "action": {
+  "{{firefox}}.background": {
+    "scripts": ["scripts/chat-background.ts"],
+    "persistent": true
+  },
+  "{{chrome}}.action": {
     "default_icon": {
       "48": "assets/logo-48.png",
       "128": "assets/logo-128.png"
     }
   },
-  "web_accessible_resources": [
+  "{{firefox}}.browser_action": {
+    "default_icon": {
+      "48": "assets/logo-48.png",
+      "128": "assets/logo-128.png"
+    }
+  },
+  "{{chrome}}.web_accessible_resources": [
     {
       "resources": [ "*" ],
       "matches": [ "<all_urls>" ]
     }
+  ],
+  "{{firefox}}.web_accessible_resources": [
+    "*"
   ],
   "options_ui": {
     "page": "options.html",
