@@ -3,6 +3,10 @@ on:
   push:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,10 +18,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'yarn'
 
-      - name: Install modules
-        run: yarn
+      - run: |
+          npm install
 
-      - name: Build
-        run: yarn build
+          # TODO: there's way too many errors right now
+          # npm run format:check
+
+          npm run build

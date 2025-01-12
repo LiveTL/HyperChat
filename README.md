@@ -30,20 +30,28 @@ Open the repository and npm install:
 ```bash
 cd hyperchat
 git checkout master # switch to master for MV2 first!
-yarn # install dependencies
+npm install # install dependencies
 ```
 
 Build or serve the extension:
 
 ```bash
-yarn dev:firefox # devserver for firefox extension
-yarn dev:chrome # devserver for chrome extension
-yarn start # alias to yarn dev:chrome for backwards compat
-yarn start:none # alias to yarn dev:chrome for backwards compat
-yarn start:firefox # devserver + open extension in firefox
-yarn start:chrome # devserver + open extension in chrome
-yarn build # production mode (chrome)
-yarn build:chrome # production mode (chrome)
-yarn build:firefox # production mode (firefox)
-VERSION=x.x.x yarn build
+npm run dev:chrome # devserver for Chrome extension
+npm run dev:firefox # devserver for Firefox extension
+
+npm run start:chrome # devserver + open extension in Chrome
+npm run start:firefox # devserver + open extension in Firefox
+
+VERSION=x.x.x npm run build # production mode (Chrome & Firefox)
+VERSION=x.x.x npm run build:chrome # production mode (Chrome)
+VERSION=x.x.x npm run build:firefox # production mode (Firefox)
 ```
+
+## Building for Production
+
+Our build script is an automated GitHub action. To simulate the build, please follow the steps outlined in the [Latest Release Build](.github/workflows/build.yml) workflow file.
+
+Clarifications:
+- `${{ github.ref }}` should evaluate to `vX.X.X`, where `X.X.X` is the version number.
+
+The built ZIP files can be found in the `build` directory.
