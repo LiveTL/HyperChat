@@ -7,8 +7,6 @@ on:
 
 jobs:
   build:
-    env:
-      ADDON_ID: "{14a15c41-13f4-498e-986c-7f00435c4d00}"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -18,39 +16,31 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'yarn'
 
-      - name: Install modules
-        run: yarn
+      - run: |
+          npm install
 
-      - name: Build Chrome
-        run: |
+          # TODO: there's way too many errors right now
+          # npm run format:check
+
           # Extract version number from the tag
           VERSION=$(echo -n "${{ github.ref }}" | sed 's/[refs\/tagv]//g' | sed 's/-.*//')
-          yarn build:chrome
-          yarn package
+          npm run build
 
       - name: Upload Chrome package to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/HyperChat-Chrome.zip
+          file: build/HyperChat-chrome.zip
           asset_name: HyperChat-Chrome.zip
           tag: ${{ github.ref }}
           overwrite: true
-
-      - name: Build Firefox
-        run: |
-          # Extract version number from the tag
-          VERSION=$(echo -n "${{ github.ref }}" | sed 's/[refs\/tagv]//g' | sed 's/-.*//')
-          yarn build:firefox
-          yarn package
 
       - name: Upload Firefox package to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/HyperChat-Firefox.zip
+          file: build/HyperChat-firefox.zip
           asset_name: HyperChat-Firefox.zip
           tag: ${{ github.ref }}
           overwrite: true
