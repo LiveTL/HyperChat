@@ -15,7 +15,7 @@
   onMount(() => {
     const unsub = translateTargetLanguage.subscribe(value => {
       $enabled = Boolean(value);
-      setTimeout(() => unsub(), 0);
+      setTimeout(() => { unsub(); }, 0);
     });
   });
   const priority: AvailableLanguageCodes[] = [

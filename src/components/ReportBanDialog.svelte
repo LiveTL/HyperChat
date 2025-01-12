@@ -1,8 +1,6 @@
 <script lang="ts">
-  import {
-    ChatReportUserOptions,
-    chatReportUserOptions
-  } from '../ts/chat-constants';
+  import type { ChatReportUserOptions } from '../ts/chat-constants';
+  import { chatReportUserOptions } from '../ts/chat-constants';
   import {
     reportDialog,
     alertDialog

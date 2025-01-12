@@ -37,6 +37,13 @@ module.exports = {
     }
   ],
   rules: {
+    // TODO: probably want to enable some of these
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/no-confusing-void-expression': 'off',
+    '@typescript-eslint/no-floating-promises': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-unused-expressions': 'off',
+
     'linebreak-style': [
       'error',
       'unix'

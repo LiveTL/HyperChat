@@ -11,12 +11,12 @@
   import Menu from 'smelte/src/components/Menu';
   import List from 'smelte/src/components/List';
   import Icon from './Icon.svelte';
-  type MenuItem = {
+  interface MenuItem {
     icon: string;
     value: string;
     text: string;
     onClick?: () => void;
-  };
+  }
   export let items: MenuItem[];
   export let visible = true;
   const id = genId();
@@ -29,7 +29,7 @@
   let offsetYStyle = '';
   const onItemClick = (item: MenuItem): void => {
     open = false;
-    if (!item || !item.onClick) return;
+    if (!item?.onClick) return;
     item.onClick();
   };
   const onOpenChange = async (open: boolean) => {
@@ -95,7 +95,7 @@
               {#each items as item}
                 <li
                   class={listItemClasses}
-                  on:click={() => onItemClick(item)}
+                  on:click={() => { onItemClick(item); }}
                   style="padding: 0.5em 1em"
                 >
                   <Icon class="pr-6">

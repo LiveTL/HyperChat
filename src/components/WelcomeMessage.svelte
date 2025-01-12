@@ -13,10 +13,10 @@
   const classes = 'p-2 rounded inline-flex flex-col overflow-hidden ' +
    'bg-secondary-50 dark:bg-secondary-600 w-full';
 
-  const badges: {
+  const badges: Array<{
     name: string;
     href: string;
-  }[] = [
+  }> = [
     {
       name: 'Review',
       href: reviewLink

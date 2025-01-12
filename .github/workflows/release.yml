@@ -19,12 +19,11 @@ jobs:
 
       - run: |
           npm install
-
-          # TODO: there's way too many errors right now
-          # npm run format:check
+          npm run format:check
 
           # Extract version number from the tag
           VERSION=$(echo -n "${{ github.ref }}" | sed 's/[refs\/tagv]//g' | sed 's/-.*//')
+
           npm run build
 
       - name: Upload Chrome package to release

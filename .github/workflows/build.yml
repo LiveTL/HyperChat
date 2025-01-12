@@ -21,8 +21,5 @@ jobs:
 
       - run: |
           npm install
-
-          # TODO: there's way too many errors right now
-          # npm run format:check
-
+          npm run format:check
           npm run build
