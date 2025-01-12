@@ -19,12 +19,6 @@ See https://livetl.app/hyperchat/install
 
 ## Building from Source
 
-### ⚠️ WARNING ⚠️
-
-For legacy reasons, we have a `mv2` branch for Firefox support while the `main` branch houses the main MV3 version.
-
-TODO: we need to confirm whether the MV2 variant is still required for modern versions of Firefox.
-
 ### Development
 
 > Note: The repo expects a Linux or Unix-like environment. If you are on Windows, use WSL.
