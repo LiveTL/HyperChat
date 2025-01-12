@@ -17,14 +17,9 @@
     // paramsTabId,
     // paramsFrameId,
     // paramsIsReplay,
-    getBrowser,
-    Browser,
     Theme,
     YoutubeEmojiRenderMode,
     chatUserActionsItems,
-
-    ChatReportUserOptions
-
   } from '../ts/chat-constants';
   import {
     isAllEmoji,
@@ -57,7 +52,6 @@
     enableHighlightedMentions,
     ytDark
   } from '../ts/storage';
-  import { version } from '../manifest.json';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
@@ -102,7 +96,7 @@
   $: hasBanner = pinned || redirect || (summary && $showChatSummary);
   let div: HTMLElement;
   let isAtBottom = true;
-  let truncateInterval: number;
+  let truncateInterval: number | undefined;
   const isReplay = paramsIsReplay;
   const smelteDark = dark();
 
@@ -314,7 +308,7 @@
   // Doesn't work well with onMount, so onLoad will have to do
   // Update: use onMount because hc now mounts in content script
   const onLoad = (): (() => void) | undefined => {
-    $lastOpenedVersion = version;
+    $lastOpenedVersion = __VERSION__;
     document.body.classList.add('overflow-hidden');
 
     if (paramsTabId == null || paramsFrameId == null || paramsTabId.length < 1 || paramsFrameId.length < 1) {
