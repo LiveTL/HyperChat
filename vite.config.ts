@@ -36,6 +36,7 @@ export default defineConfig({
       ],
       additionalInputs: [
         'hyperchat.html',
+        'scripts/mv2/chat-interceptor.ts',
         'scripts/chat-interceptor.ts',
         'scripts/chat-metagetter.ts'
       ],
