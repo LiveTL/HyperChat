@@ -9,6 +9,14 @@
 [![Commit Activity](https://img.shields.io/github/commit-activity/w/LiveTL/HyperChat)](https://github.com/LiveTL/HyperChat/commits/)
 [![Discord](https://img.shields.io/discord/780938154437640232.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/uJrV3tmthg)
 
+
+## Install
+
+HyperChat is available in the Chrome and Firefox stores.
+
+See https://livetl.app/hyperchat/install
+
+
 ## Building from Source
 
 ### ⚠️ WARNING ⚠️
@@ -43,16 +51,16 @@ npm run dev:firefox # devserver for Firefox extension
 npm run start:chrome # devserver + open extension in Chrome
 npm run start:firefox # devserver + open extension in Firefox
 
-VERSION=x.x.x npm run build # production mode (Chrome & Firefox)
-VERSION=x.x.x npm run build:chrome # production mode (Chrome)
-VERSION=x.x.x npm run build:firefox # production mode (Firefox)
+VERSION=X.Y.Z npm run build # production mode (Chrome & Firefox)
+VERSION=X.Y.Z npm run build:chrome # production mode (Chrome)
+VERSION=X.Y.Z npm run build:firefox # production mode (Firefox)
 ```
 
-## Building for Production
+### Building for Production
 
 Our build script is an automated GitHub action. To simulate the build, please follow the steps outlined in the [Latest Release Build](.github/workflows/build.yml) workflow file.
 
 Clarifications:
-- `${{ github.ref }}` should evaluate to `vX.X.X`, where `X.X.X` is the version number.
+- `${{ github.ref }}` should evaluate to `vX.Y.Z`, where `X.Y.Z` is the version number.
 
 The built ZIP files can be found in the `build` directory.
