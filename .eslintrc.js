@@ -1,4 +1,5 @@
 module.exports = {
+  root: true,
   env: {
     browser: true,
     es6: true,
@@ -22,17 +23,14 @@ module.exports = {
       processor: 'svelte3/svelte3',
       rules: {
         'import/first': 'off',
-        'import/no-duplicates': 'off',
-        'import/no-mutable-exports': 'off',
         'no-multiple-empty-lines': [
           'error',
           { max: 2 }
         ],
-        '@typescript-eslint/prefer-nullish-coalescing': 'off',
         // Causes false positives with reactive and auto subscriptions
         '@typescript-eslint/strict-boolean-expressions': 'off',
         'no-sequences': 'off',
-        'no-unused-expressions': 'off',
+        'svelte/missing-declaration': "off",
       }
     }
   ],
@@ -48,14 +46,11 @@ module.exports = {
       'error',
       'unix'
     ],
-    semi: 'off',
     '@typescript-eslint/semi': [
       'error',
       'always'
     ],
-    'no-extra-semi': 'off',
     '@typescript-eslint/no-extra-semi': 'error',
-    'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': [
       'error',
       {
@@ -63,7 +58,6 @@ module.exports = {
         argsIgnorePattern: '^_'
       }
     ],
-    'space-before-function-paren': 'off',
     '@typescript-eslint/space-before-function-paren': [
       'error',
       {
@@ -98,11 +92,17 @@ module.exports = {
     ],
   },
   settings: {
-    'svelte3/typescript': () => require('typescript')
+    'svelte3/typescript': () => require('typescript'),
+    'svelte3/ignore-warnings': (warning) => {
+      if (warning.code === 'a11y-click-events-have-key-events') {
+        return true;
+      }
+
+      if (warning.code === 'missing-declaration' && warning.message === "'__VERSION__' is not defined") {
+        return true;
+      }
+
+      return false;
+    },
   },
-  globals: {
-    Ytc: 'readonly',
-    Chat: 'readonly'
-  },
-  root: true
 };

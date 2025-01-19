@@ -15,10 +15,10 @@
   }
   $: isMilestoneChat = message.message.length > 0;
 
-  $: primaryText = (membership || membershipGift)?.headerPrimaryText;
+  $: primaryText = (membership ?? membershipGift)?.headerPrimaryText;
 </script>
 
-{#if membership || membershipGift}
+{#if membership ?? membershipGift}
   <div class={classes} style="background-color: #{membershipBackground};">
     <div
       class="p-2"

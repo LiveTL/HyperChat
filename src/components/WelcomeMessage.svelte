@@ -43,6 +43,7 @@
     <div class="relative">
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
     </div>
+
     <span class="ml-2 leading-tight">
       <h5 class="font-bold">HyperChat by LiveTL</h5>
       <p>
@@ -60,6 +61,7 @@
           v{__VERSION__}
         {/if}
       </p>
+
       <div class="flex flex-wrap">
         {#each badges as badge, i}
           <p>
@@ -78,6 +80,7 @@
       </div>
     </span>
   </div>
+
   {#if showChangelog}
     <p class="leading-tight mt-1.5 flex flex-row">
       <span href="/" on:click={(e) => {
@@ -109,6 +112,7 @@
       transform: translateY(0);
     }
   }
+
   .kiwawa-hat {
     position: absolute;
     top: -10px;

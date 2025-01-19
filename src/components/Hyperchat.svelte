@@ -91,7 +91,7 @@
   //   },
   //   showtime: 5000,
   // };
-  $: hasBanner = pinned || redirect || (summary && $showChatSummary);
+  $: hasBanner = pinned ?? redirect ?? (summary && $showChatSummary);
   let div: HTMLElement;
   let isAtBottom = true;
   let truncateInterval: number | undefined;
@@ -375,8 +375,8 @@
 
   const containerClass = 'hyperchat-root h-screen w-screen text-black dark:text-white bg-white bg-ytbg-light dark:bg-ytbg-dark flex flex-col justify-between max-w-none';
 
-  const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
-  const isMembership = (action: Chat.MessageAction) => (action.message.membership || action.message.membershipGiftPurchase);
+  const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat ?? action.message.superSticker);
+  const isMembership = (action: Chat.MessageAction) => (action.message.membership ?? action.message.membershipGiftPurchase);
   const isMessage = (action: Chat.MessageAction | Welcome): action is Chat.MessageAction =>
     (!isWelcome(action) && !isSuperchat(action) && !isMembership(action));
 
