@@ -1,11 +1,6 @@
 export const isLiveTL = false;
 // DO NOT EDIT THE ABOVE LINE. It is updated by webpack.
 
-// const params = new URLSearchParams(window.location.search);
-// export const paramsTabId = params.get('tabid');
-// export const paramsFrameId = params.get('frameid');
-// export const paramsIsReplay = params.get('isReplay');
-
 export const enum Theme {
   YOUTUBE = 'YOUTUBE',
   LIGHT = 'LIGHT',

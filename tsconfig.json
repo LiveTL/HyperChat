@@ -4,14 +4,11 @@
     "moduleResolution": "node",
     "outDir": "./build/",
     "baseUrl": "./src",
-    "allowJs": true,
-    "checkJs": false,
     "strict": true,
     "lib": [
       "DOM"
     ],
-    "target": "ES2017",
-    "resolveJsonModule": true
+    "target": "ES2017"
   },
   "include": [
     "src/**/*",
