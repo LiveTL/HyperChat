@@ -80,7 +80,7 @@
       </div>
       {#each poll.item.choices as choice}
         <div class="mt-1 w-full whitespace-pre-line flex justify-start" transition:slide|global={{ duration: 300 }}>
-          <MessageRun runs={choice.text} forceDark forceTLColor={Theme.DARK} class="cursor-pointer" />
+          <MessageRun runs={choice.text} forceDark forceTLColor={Theme.DARK} />
           <span class="ml-auto align-middle" transition:slide|global={{ duration: 300 }}>
             {choice.percentage}
           </span>
