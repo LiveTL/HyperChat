@@ -20,7 +20,7 @@
     shorten = !shorten;
   };
   
-  $: if (poll.actionId != prevId) {
+  $: if (poll.actionId !== prevId) {
     dismissed = false;
     shorten = false;
     prevId = poll.actionId;
