@@ -79,9 +79,9 @@
         <MessageRun runs={poll.item.question} forceDark forceTLColor={Theme.DARK}/>
       </div>
       {#each poll.item.choices as choice}
-        <div class="mt-1 w-full whitespace-pre-line flex justify-start" transition:slide|global={{ duration: 300 }}>
+        <div class="mt-1 w-full whitespace-pre-line flex justify-start items-end" transition:slide|global={{ duration: 300 }}>
           <MessageRun runs={choice.text} forceDark forceTLColor={Theme.DARK} />
-          <span class="ml-auto align-middle" transition:slide|global={{ duration: 300 }}>
+          <span class="ml-auto" transition:slide|global={{ duration: 300 }}>
             {choice.percentage}
           </span>
         </div>
