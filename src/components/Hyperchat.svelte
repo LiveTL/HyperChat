@@ -68,31 +68,6 @@
   let pinned: Ytc.ParsedPinned | null;
   let summary: Ytc.ParsedSummary | null;
   let redirect: Ytc.ParsedRedirect | null;
-  // = {
-  //   type: 'redirect',
-  //   item: {
-  //     message: [
-  //       {
-  //         type: 'text',
-  //         text: 'Don\'t miss out! People are going to watch something from someone',
-  //       },
-  //     ],
-  //     profileIcon: {
-  //       src: 'https://picsum.photos/32',
-  //       alt: 'Redirect profile photo',
-  //     },
-  //     action: {
-  //       url: 'https://example.com/',
-  //       text: [
-  //         {
-  //           type: 'text',
-  //           text: 'Go Now',
-  //         },
-  //       ],
-  //     },
-  //   },
-  //   showtime: 5000,
-  // };
   $: hasBanner = poll ?? pinned ?? redirect ?? (summary && $showChatSummary);
   let div: HTMLElement;
   let isAtBottom = true;
