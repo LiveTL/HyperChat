@@ -26,8 +26,6 @@
     prevId = poll.actionId;
   }
 
-  $: poll;
-
   const dispatch = createEventDispatcher();
   $: dismissed, shorten, dispatch('resize');
 </script>
