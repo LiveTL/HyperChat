@@ -83,7 +83,7 @@
   //   },
   //   showtime: 5000,
   // };
-  $: hasBanner = pinned || redirect || (summary && $showChatSummary);
+  $: hasBanner = pinned ?? redirect ?? (summary && $showChatSummary);
   let div: HTMLElement;
   let isAtBottom = true;
   let truncateInterval: number;
