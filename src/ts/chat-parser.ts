@@ -76,7 +76,7 @@ const splitRunsByNewline = (runs: Ytc.ParsedRun[], maxSplit: number = -1): Ytc.P
     return acc;
   }, [[]]);
 
-const parseChatSummary = (renderer: Ytc.AddChatItem, showtime: number): Ytc.ParsedSummary | undefined => {
+const parseChatSummary = (renderer: Ytc.AddChatItem, actionId: string, showtime: number): Ytc.ParsedSummary | undefined => {
   if (!renderer.liveChatBannerChatSummaryRenderer) {
     return;
   }
@@ -97,18 +97,18 @@ const parseChatSummary = (renderer: Ytc.AddChatItem, showtime: number): Ytc.Pars
   });
   const item: Ytc.ParsedSummary = {
     type: 'summary',
+    actionId: baseRenderer.liveChatSummaryId,
     item: {
       header: splitRuns[0],
       subheader: subheader,
       message: splitRuns[2],
     },
-    id: baseRenderer.liveChatSummaryId,
     showtime: showtime,
   };
   return item;
 }
 
-const parseRedirectBanner = (renderer: Ytc.AddChatItem, showtime: number): Ytc.ParsedRedirect | undefined => {
+const parseRedirectBanner = (renderer: Ytc.AddChatItem, actionId: string, showtime: number): Ytc.ParsedRedirect | undefined => {
   if (!renderer.liveChatBannerRedirectRenderer) {
     return;
   }
@@ -123,6 +123,7 @@ const parseRedirectBanner = (renderer: Ytc.AddChatItem, showtime: number): Ytc.P
        : '');
   const item: Ytc.ParsedRedirect = {
     type: 'redirect',
+    actionId: actionId,
     item: {
       message: parseMessageRuns(baseRenderer.bannerMessage.runs),
       profileIcon: profileIcon,
@@ -258,8 +259,44 @@ const parseMessageDeletedAction = (action: Ytc.MessageDeletedAction): Ytc.Parsed
   };
 };
 
+const parsePollRenderer = (baseRenderer: Ytc.PollRenderer): Ytc.ParsedPoll | undefined => {
+  if (!baseRenderer) {
+    return;
+  }
+  const profileIcon = {
+    src: fixUrl(baseRenderer.header.pollHeaderRenderer.thumbnail?.thumbnails[0].url ?? ''),
+    alt: 'Poll profile icon'
+  };
+  // TODO implement 'selected' field? YT doesn't use it in results.
+  return {
+    type: 'poll',
+    actionId: baseRenderer.liveChatPollId,
+    item: {
+      profileIcon: profileIcon,
+      header: parseMessageRuns(baseRenderer.header.pollHeaderRenderer.metadataText.runs),
+      question: parseMessageRuns(baseRenderer.header.pollHeaderRenderer.pollQuestion.runs),
+      choices: baseRenderer.choices.map((choice) => {
+        return {
+          text: parseMessageRuns(choice.text.runs),
+          selected: choice.selected,
+          ratio: choice.voteRatio,
+          percentage: choice.votePercentage?.simpleText
+        };
+      }),
+    }
+  };
+}
+
 const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedMisc | undefined => {
   const baseRenderer = action.bannerRenderer.liveChatBannerRenderer;
+
+  // polls can come through banner or through update actions, send both to the same parser
+  // actionId isn't needed as the pollRenderer contains liveChatPollId
+  if (baseRenderer.contents.pollRenderer) {
+    return parsePollRenderer(baseRenderer.contents.pollRenderer);
+  }
+
+  const actionId = baseRenderer.actionId;
 
   // fold both auto-disappear and auto-collapse into just collapse for showtime
   const showtime = action.bannerProperties?.isEphemeral
@@ -267,10 +304,10 @@ const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedMisc | undefi
    : 1000 * (action.bannerProperties?.autoCollapseDelay?.seconds || baseRenderer.bannerProperties?.autoCollapseDelay?.seconds || 0);
 
   if (baseRenderer.contents.liveChatBannerChatSummaryRenderer) {
-    return parseChatSummary(baseRenderer.contents, showtime);
+    return parseChatSummary(baseRenderer.contents, actionId, showtime);
   }
   if (baseRenderer.contents.liveChatBannerRedirectRenderer) {
-    return parseRedirectBanner(baseRenderer.contents, showtime);
+    return parseRedirectBanner(baseRenderer.contents, actionId, showtime);
   }
   const parsedContents = parseAddChatItemAction(
     { item: baseRenderer.contents }, true
@@ -280,6 +317,7 @@ const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedMisc | undefi
   }
   return {
     type: 'pin',
+    actionId: actionId,
     item: {
       header: parseMessageRuns(
         baseRenderer.header.liveChatBannerHeaderRenderer.text.runs
@@ -319,9 +357,14 @@ const processCommonAction = (
   } else if (action.addBannerToLiveChatCommand) {
     return parseBannerAction(action.addBannerToLiveChatCommand);
   } else if (action.removeBannerForLiveChatCommand) {
-    return { type: 'unpin' } as const;
+    return {
+      type: 'unpin',
+      targetActionId: action.removeBannerForLiveChatCommand.targetActionId,
+    } as Ytc.ParsedRemoveBanner;
   } else if (action.addLiveChatTickerItemAction) {
     return parseTickerAction(action.addLiveChatTickerItemAction, isReplay, liveTimeoutOrReplayMs);
+  } else if (action.updateLiveChatPollAction) {
+    return parsePollRenderer(action.updateLiveChatPollAction.pollToUpdate.pollRenderer);
   }
 };
 
