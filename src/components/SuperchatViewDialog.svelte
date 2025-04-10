@@ -1,12 +1,10 @@
 <script lang="ts">
-  import {
-    focusedSuperchat
-  } from '../ts/storage';
+  import { focusedSuperchat } from '../ts/storage';
   import Dialog from './common/Dialog.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
 
-  $: sc = $focusedSuperchat as Ytc.ParsedTimedItem;
+  $: sc = $focusedSuperchat!;
   let open = false;
   const openDialog = () => (open = true);
   const closeDialog = () => ($focusedSuperchat = null);

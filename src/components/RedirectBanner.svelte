@@ -16,7 +16,7 @@
   const classes = 'rounded inline-flex flex-col overflow-visible ' +
    'bg-secondary-900 p-2 w-full text-white z-10 shadow';
 
-  const onShorten = () => { 
+  const onShorten = () => {
     shorten = !shorten;
     if (autoHideTimeout) {
       clearTimeout(autoHideTimeout);

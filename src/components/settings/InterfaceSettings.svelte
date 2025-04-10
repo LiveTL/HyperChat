@@ -50,7 +50,7 @@
     <Radio store={theme} items={themeItems} />
   </div>
   <Checkbox name="Enable sticky superchat bar" store={enableStickySuperchatBar} />
-  {#if (superchatBarWasToggled || superchatBarWasDisabled) && $enableStickySuperchatBar}
+  {#if (superchatBarWasToggled ?? superchatBarWasDisabled) && $enableStickySuperchatBar}
     <i>The superchat bar will appear upon reload or when the next superchat arrives.</i>
   {/if}
 </Card>

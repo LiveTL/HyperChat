@@ -32,7 +32,7 @@
     : `text-translated-light ${forceTLColor === Theme.YOUTUBE ? 'dark:text-translated-dark' : ''}`;
 </script>
 
-<span 
+<span
   class={showTL ? translatedColor : ''}
   class:cursor-pointer={translatedMessage}
   class:entrance-animation={translatedMessage}
@@ -46,6 +46,7 @@
   <span>
     {showTL ? translatedMessage : text}
   </span>
+
   {#if translatedMessage}
     <span class="shifted-icon">
       <Icon xs={true} block={false}>
@@ -58,5 +59,5 @@
 <style>
   .shifted-icon  :global(.material-icons) {
     transform: translateY(1px);
-  }  
+  }
 </style>

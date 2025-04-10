@@ -8,23 +8,16 @@
   import PinnedMessage from './PinnedMessage.svelte';
   import ChatSummary from './ChatSummary.svelte';
   import RedirectBanner from './RedirectBanner.svelte';
+  import PollResults from './PollResults.svelte';
   import PaidMessage from './PaidMessage.svelte';
   import MembershipItem from './MembershipItem.svelte';
   import ReportBanDialog from './ReportBanDialog.svelte';
   import SuperchatViewDialog from './SuperchatViewDialog.svelte';
   import StickyBar from './StickyBar.svelte';
   import {
-    // paramsTabId,
-    // paramsFrameId,
-    // paramsIsReplay,
-    getBrowser,
-    Browser,
     Theme,
     YoutubeEmojiRenderMode,
-    chatUserActionsItems,
-
-    ChatReportUserOptions
-
+    chatUserActionsItems
   } from '../ts/chat-constants';
   import {
     isAllEmoji,
@@ -57,7 +50,7 @@
     enableHighlightedMentions,
     ytDark
   } from '../ts/storage';
-  import { version } from '../manifest.json';
+  import type { Chat } from '../ts/typings/chat';
 
   const welcome = { welcome: true, message: { messageId: 'welcome' } };
   type Welcome = typeof welcome;
@@ -69,40 +62,16 @@
 
   const CHAT_HISTORY_SIZE = 150;
   const TRUNCATE_SIZE = 20;
-  let messageActions: (Chat.MessageAction | Welcome)[] = [];
+  let messageActions: Array<Chat.MessageAction | Welcome> = [];
   const messageKeys = new Set<string>();
+  let poll: Ytc.ParsedPoll | null;
   let pinned: Ytc.ParsedPinned | null;
   let summary: Ytc.ParsedSummary | null;
   let redirect: Ytc.ParsedRedirect | null;
-  // = {
-  //   type: 'redirect',
-  //   item: {
-  //     message: [
-  //       {
-  //         type: 'text',
-  //         text: 'Don\'t miss out! People are going to watch something from someone',
-  //       },
-  //     ],
-  //     profileIcon: {
-  //       src: 'https://picsum.photos/32',
-  //       alt: 'Redirect profile photo',
-  //     },
-  //     action: {
-  //       url: 'https://example.com/',
-  //       text: [
-  //         {
-  //           type: 'text',
-  //           text: 'Go Now',
-  //         },
-  //       ],
-  //     },
-  //   },
-  //   showtime: 5000,
-  // };
-  $: hasBanner = pinned || redirect || (summary && $showChatSummary);
+  $: hasBanner = poll ?? pinned ?? redirect ?? (summary && $showChatSummary);
   let div: HTMLElement;
   let isAtBottom = true;
-  let truncateInterval: number;
+  let truncateInterval: number | undefined;
   const isReplay = paramsIsReplay;
   const smelteDark = dark();
 
@@ -230,6 +199,9 @@
       case 'delete':
         onDelete(action.deletion);
         break;
+      case 'poll':
+        poll = action;
+        break;
       case 'summary':
         summary = action;
         break;
@@ -240,7 +212,22 @@
         pinned = action;
         break;
       case 'unpin':
-        pinned = null;
+        if (action.targetActionId) {
+          if (action.targetActionId === pinned?.actionId) {
+            pinned = null;
+          }
+          if (action.targetActionId === summary?.actionId) {
+            summary = null;
+          }
+          if (action.targetActionId === poll?.actionId) {
+            poll = null;
+          }
+          if (action.targetActionId === redirect?.actionId) {
+            redirect = null;
+          }
+        } else {
+          pinned = null;
+        }
         break;
       case 'playerProgress':
         $currentProgress = action.playerProgress;
@@ -314,7 +301,7 @@
   // Doesn't work well with onMount, so onLoad will have to do
   // Update: use onMount because hc now mounts in content script
   const onLoad = (): (() => void) | undefined => {
-    $lastOpenedVersion = version;
+    $lastOpenedVersion = __VERSION__;
     document.body.classList.add('overflow-hidden');
 
     if (paramsTabId == null || paramsFrameId == null || paramsTabId.length < 1 || paramsFrameId.length < 1) {
@@ -351,7 +338,7 @@
       return port;
     });
 
-    return () => $port?.destroy && $port?.destroy();
+    return () => $port?.destroy?.();
   };
 
   onMount(onLoad);
@@ -377,14 +364,14 @@
 
   $: updateTheme($theme, $ytDark);
   // Scroll to bottom when any of these settings change
-  $: ((..._a: any[]) => scrollToBottom())(
+  $: ((..._a: any[]) => { scrollToBottom(); })(
     $showProfileIcons, $showUsernames, $showTimestamps, $showUserBadges
   );
 
   const containerClass = 'hyperchat-root h-screen w-screen text-black dark:text-white bg-white bg-ytbg-light dark:bg-ytbg-dark flex flex-col justify-between max-w-none';
 
-  const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat || action.message.superSticker);
-  const isMembership = (action: Chat.MessageAction) => (action.message.membership || action.message.membershipGiftPurchase);
+  const isSuperchat = (action: Chat.MessageAction) => (action.message.superChat ?? action.message.superSticker);
+  const isMembership = (action: Chat.MessageAction) => (action.message.membership ?? action.message.membershipGiftPurchase);
   const isMessage = (action: Chat.MessageAction | Welcome): action is Chat.MessageAction =>
     (!isWelcome(action) && !isSuperchat(action) && !isMembership(action));
 
@@ -409,7 +396,7 @@
       }
     }, 350);
   };
-  $: $enableStickySuperchatBar, pinned, topBarResized();
+  $: $enableStickySuperchatBar, hasBanner, topBarResized();
 
   const isMention = (msg: Ytc.ParsedMessage) => {
     return $selfChannelName && msg.message.map(run => {
@@ -443,10 +430,10 @@
           class:flex = {!isWelcome(action)}
           class:mention = {$enableHighlightedMentions && isMessage(action) && isMention(action.message)}
           class:mention-light = {!$smelteDark}
-          on:mouseover={() => setHover(action)}
-          on:focus={() => setHover(action)}
-          on:mouseout={() => setHover(null)}
-          on:blur={() => setHover(null)}
+          on:mouseover={() => { setHover(action); }}
+          on:focus={() => { setHover(action); }}
+          on:mouseout={() => { setHover(null); }}
+          on:blur={() => { setHover(null); }}
         >
           {#if isWelcome(action)}
             <WelcomeMessage />
@@ -465,6 +452,11 @@
     </div>
     {#if hasBanner}
       <div class="absolute top-0 w-full" bind:this={topBar}>
+        {#if poll}
+          <div class="mx-1.5 mt-1.5">
+            <PollResults poll={poll} on:resize={topBarResized} />
+          </div>
+        {/if}
         {#if summary && $showChatSummary}
           <div class="mx-1.5 mt-1.5">
             <ChatSummary summary={summary} on:resize={topBarResized} />

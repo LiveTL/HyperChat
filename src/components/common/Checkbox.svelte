@@ -18,7 +18,7 @@
   export let wrapperClass = '';
 
   $: if (value != null) {
-    checked = group.indexOf(value) >= 0;
+    checked = group.includes(value);
   }
 
   function groupUpdate() {

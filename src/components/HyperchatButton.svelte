@@ -3,7 +3,6 @@
   import { hcEnabled, lastOpenedVersion } from '../ts/storage';
   import { createPopup } from '../ts/chat-utils';
   import { mdiChevronRight, mdiClose, mdiCogOutline } from '@mdi/js';
-  import { version } from '../manifest.json';
 
   $: disabled = !$hcEnabled;
 
@@ -24,7 +23,7 @@
   let updated = false;
 
   lastOpenedVersion.ready().then(() => {
-    updated = !$hcEnabled && $lastOpenedVersion !== version;
+    updated = !$hcEnabled && $lastOpenedVersion !== __VERSION__;
   });
 </script>
 
@@ -37,7 +36,7 @@
       </svg>
       <div style="cursor: pointer;" on:click={() => {
         updated = false;
-        $lastOpenedVersion = version;
+        $lastOpenedVersion = __VERSION__;
       }}>
         <svg height="20" width="24" viewBox="0 0 24 24" class="close">
           <path d={mdiClose} fill="black"/>
@@ -214,15 +213,15 @@
     position: absolute;
     visibility: hidden;
     opacity: 0;
-    -webkit-transition: 
+    -webkit-transition:
       opacity 0.2s ease-in-out,
       visibility 0.2s ease-in-out,
       -webkit-transform 0.2s cubic-bezier(0.71, 1.7, 0.77, 1.24);
-    -moz-transition:    
+    -moz-transition:
       opacity 0.2s ease-in-out,
       visibility 0.2s ease-in-out,
       -moz-transform 0.2s cubic-bezier(0.71, 1.7, 0.77, 1.24);
-    transition:         
+    transition:
       opacity 0.2s ease-in-out,
       visibility 0.2s ease-in-out,
       transform 0.2s cubic-bezier(0.71, 1.7, 0.77, 1.24);
@@ -289,7 +288,7 @@
   [data-tooltip]:focus:after {
     -webkit-transform: translateY(-12px);
     -moz-transform:    translateY(-12px);
-    transform:         translateY(-12px); 
+    transform:         translateY(-12px);
   }
 
   /* Bottom */
@@ -314,7 +313,7 @@
   .tooltip-bottom:focus:after {
     -webkit-transform: translateY(12px);
     -moz-transform:    translateY(12px);
-    transform:         translateY(12px); 
+    transform:         translateY(12px);
   }
 
   .update-notification {

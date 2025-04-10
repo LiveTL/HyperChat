@@ -1,11 +1,10 @@
 <script lang="ts">
-  import { Theme } from '../ts/chat-constants';
-
+  import { Theme, YoutubeEmojiRenderMode } from '../ts/chat-constants';
+  
   import TranslatedMessage from './TranslatedMessage.svelte';
   import {
     emojiRenderMode, useSystemEmojis
   } from '../ts/storage';
-  import { YoutubeEmojiRenderMode } from '../ts/chat-constants';
 
   export let runs: Ytc.ParsedRun[] | null;
   export let forceDark = false;

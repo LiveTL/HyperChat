@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { mdiGift } from '@mdi/js';
   import { focusedSuperchat, showProfileIcons } from '../ts/storage';
   import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
-  import { mdiGift } from '@mdi/js';
 
   export let item: Ytc.ParsedTicker;
   export let fillPortion = 1;
@@ -30,6 +30,7 @@
       alt={item.author.profileIcon.alt}
     />
   {/if}
+
   <div class="absolute top-0 right-0 h-full" style="
     background-color: rgba(0, 0, 0, 0.1);
     width: {Math.round(fillPortion * 100)}%;
@@ -45,6 +46,7 @@
       <path d={mdiGift} fill="currentColor"/>
     </svg>
   {/if}
+
   <span
     class="font-bold align-middle {item.superChat ? 'underline' : ''}"
     style={item.superChat ? `color: #${item.superChat?.bodyTextColor}` : ''}

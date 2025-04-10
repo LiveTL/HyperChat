@@ -1,8 +1,6 @@
 <script lang="ts">
-  import {
-    ChatReportUserOptions,
-    chatReportUserOptions
-  } from '../ts/chat-constants';
+  import type { ChatReportUserOptions } from '../ts/chat-constants';
+  import { chatReportUserOptions } from '../ts/chat-constants';
   import {
     reportDialog,
     alertDialog
@@ -16,6 +14,7 @@
 
 <Dialog active={Boolean($reportDialog)} class="max-w-full max-h-full" style="height: 500px; width: 500px;">
   <svelte:fragment slot="title">Report User</svelte:fragment>
+
   <div>
     <RadioGroupStore
       store={optionStore}
@@ -23,6 +22,7 @@
       vertical
     />
   </div>
+
   <div slot="actions">
     <Button on:click={() => {
       $reportDialog?.callback($optionStore);
@@ -33,9 +33,11 @@
 
 <Dialog active={Boolean($alertDialog)} noCloseButton>
   <svelte:fragment slot="title">{$alertDialog?.title}</svelte:fragment>
+
   <div>
     {$alertDialog?.message}
   </div>
+
   <div slot="actions">
     <Button on:click={() => {
       $alertDialog = null;

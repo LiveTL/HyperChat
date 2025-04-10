@@ -1,19 +1,25 @@
 # HyperChat - Improved YouTube Chat
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![js-semistandard-style](https://img.shields.io/badge/code%20style-semistandard-brightgreen.svg)](https://github.com/standard/semistandard)
 [![Contributors](https://img.shields.io/github/contributors/LiveTL/HyperChat)](https://github.com/LiveTL/HyperChat/contributors)
 [![Issues](https://img.shields.io/github/issues/LiveTL/HyperChat)](https://github.com/LiveTL/HyperChat/issues)
-![Total Lines](https://img.shields.io/tokei/lines/github/LiveTL/HyperChat)
 ![Size](https://img.shields.io/github/repo-size/LiveTL/HyperChat)
 [![Commit Activity](https://img.shields.io/github/commit-activity/w/LiveTL/HyperChat)](https://github.com/LiveTL/HyperChat/commits/)
 [![Discord](https://img.shields.io/discord/780938154437640232.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/uJrV3tmthg)
+
+
+## Install
+
+HyperChat is available in the Chrome and Firefox stores.
+
+See https://livetl.app/hyperchat/install
+
 
 ## Building from Source
 
 ### ⚠️ WARNING ⚠️
 
-Due to unreliable Manifest v3 feature support in Firefox, we maintain both MV2 and MV3 versions of HyperChat in parallel. The MV2 variant sits in the `master` branch, while the MV3 variant sits on the `mv3` branch. When contributing, please ensure that you check out to the `master` branch to implement the features in MV2 first. Once the feature is stable, please open a separate PR to the `mv3` branch to port the feature to MV3.
+For legacy reasons, we have a `mv2` branch used by [the LiveTL extension](https://github.com/LiveTL/LiveTL)'s Manifest V2 Firefox variant, while the `main` branch houses the main Manifest V3 version that's published to stores.
 
 ### Development
 
@@ -28,22 +34,30 @@ git clone https://github.com/LiveTL/HyperChat
 Open the repository and npm install:
 
 ```bash
-cd hyperchat
-git checkout master # switch to master for MV2 first!
-yarn # install dependencies
+cd HyperChat
+npm install # install dependencies
 ```
 
-Build or serve the extension:
+Serve the extension for local development:
 
 ```bash
-yarn dev:firefox # devserver for firefox extension
-yarn dev:chrome # devserver for chrome extension
-yarn start # alias to yarn dev:chrome for backwards compat
-yarn start:none # alias to yarn dev:chrome for backwards compat
-yarn start:firefox # devserver + open extension in firefox
-yarn start:chrome # devserver + open extension in chrome
-yarn build # production mode (chrome)
-yarn build:chrome # production mode (chrome)
-yarn build:firefox # production mode (firefox)
-VERSION=x.x.x yarn build
+npm run dev:chrome    # devserver for Chrome extension
+npm run dev:firefox   # devserver for Firefox extension
+
+npm run start:chrome  # devserver + open extension in Chrome
+npm run start:firefox # devserver + open extension in Firefox
 ```
+
+### Building for Production
+
+Our build script is [an automated GitHub action](.github/workflows/release.yml), where `${{ github.ref }}` should evaluate to a tag in the format `vX.Y.Z` (where `X.Y.Z` is the version number).
+
+To simulate the build:
+
+```bash
+VERSION=X.Y.Z npm run build         # Chrome & Firefox
+VERSION=X.Y.Z npm run build:chrome  # just Chrome
+VERSION=X.Y.Z npm run build:firefox # just Firefox
+```
+
+The built ZIP files can be found in the `build` directory.

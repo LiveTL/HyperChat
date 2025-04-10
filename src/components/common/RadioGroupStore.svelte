@@ -2,7 +2,7 @@
   import type { Writable } from 'svelte/store';
   import { RadioButtonGroup, RadioButton } from 'smelte/src/components/RadioButton';
 
-  type RadioItem = { value: string | boolean, label: string };
+  interface RadioItem { value: string | boolean, label: string }
 
   /** Writable store for value updates. */
   export let store: Writable<string | boolean>;

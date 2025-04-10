@@ -54,7 +54,7 @@
       {#each $stickySuperchats as sc (sc.messageId)}
         <Chip
           item={sc}
-          fillPortion={Math.max(0, (($currentProgress || 0) - sc.showtime / 1000) / sc.tickerDuration)}
+          fillPortion={Math.max(0, (($currentProgress ?? 0) - sc.showtime / 1000) / sc.tickerDuration)}
         />
       {/each}
     </div>

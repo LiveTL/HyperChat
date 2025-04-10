@@ -1,23 +1,22 @@
 <script lang="ts">
   import { lastClosedVersion, refreshScroll } from '../ts/storage';
-  import { Browser, getBrowser, isLiveTL } from '../ts/chat-constants';
+  import { isLiveTL } from '../ts/chat-constants';
   import Changelog from './changelog/Changelog.svelte';
-  import { version } from '../manifest.json';
   import Icon from './common/Icon.svelte';
 
   const logo = chrome.runtime.getURL(
     (isLiveTL ? 'hyperchat' : 'assets') + '/logo.png'
   );
-  const reviewLink = getBrowser() === Browser.FIREFOX
+  const reviewLink = __BROWSER__ === 'firefox'
     ? 'https://addons.mozilla.org/en-US/firefox/addon/hyperchat/'
     : 'https://chrome.google.com/webstore/detail/hyperchat-optimized-youtu/naipgebhooiiccifflecbffmnjbabdbh';
   const classes = 'p-2 rounded inline-flex flex-col overflow-hidden ' +
    'bg-secondary-50 dark:bg-secondary-600 w-full';
 
-  const badges: {
+  const badges: Array<{
     name: string;
     href: string;
-  }[] = [
+  }> = [
     {
       name: 'Review',
       href: reviewLink
@@ -36,7 +35,7 @@
     }
   ];
 
-  $: showChangelog = $lastClosedVersion !== version;
+  $: showChangelog = $lastClosedVersion !== __VERSION__;
 </script>
 
 <div class={classes}>
@@ -44,6 +43,7 @@
     <div class="relative">
       <img class="rounded-full" width="44" height="44" src={logo} alt="logo">
     </div>
+
     <span class="ml-2 leading-tight">
       <h5 class="font-bold">HyperChat by LiveTL</h5>
       <p>
@@ -55,16 +55,17 @@
             $refreshScroll = true;
             e.preventDefault();
           }} class="underline text-primary-900 dark:text-primary-50">
-            v{version}
+            v{__VERSION__}
           </a>
         {:else}
-          v{version}
+          v{__VERSION__}
         {/if}
       </p>
+
       <div class="flex flex-wrap">
         {#each badges as badge, i}
           <p>
-            <a 
+            <a
               href={badge.href}
               class="underline text-primary-900 dark:text-primary-50"
               target="_blank"
@@ -79,10 +80,11 @@
       </div>
     </span>
   </div>
+
   {#if showChangelog}
     <p class="leading-tight mt-1.5 flex flex-row">
       <span href="/" on:click={(e) => {
-        $lastClosedVersion = version;
+        $lastClosedVersion = __VERSION__;
         $refreshScroll = true;
         e.preventDefault();
       }}
@@ -110,6 +112,7 @@
       transform: translateY(0);
     }
   }
+
   .kiwawa-hat {
     position: absolute;
     top: -10px;

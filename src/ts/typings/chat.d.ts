@@ -1,3 +1,6 @@
+import type { ChatReportUserOptions } from '../chat-constants';
+import type { Unsubscriber, YtcQueue } from '../queue';
+
 declare namespace Chat {
   interface MessageDeletedObj {
     replace: Ytc.ParsedRun[];
@@ -37,15 +40,15 @@ declare namespace Chat {
 
   type Actions = MessagesAction | BonkAction | DeleteAction | Ytc.ParsedMisc | PlayerProgressAction | ForceUpdate;
 
-  // interface UncheckedFrameInfo {
-  //   tabId: number | undefined;
-  //   frameId: number | undefined;
-  // }
+  interface UncheckedFrameInfo {
+    tabId: number | undefined;
+    frameId: number | undefined;
+  }
 
-  // interface FrameInfo {
-  //   tabId: number;
-  //   frameId: number;
-  // }
+  interface FrameInfo {
+    tabId: number;
+    frameId: number;
+  }
 
   interface InitialData {
     type: 'initialData';
@@ -139,7 +142,7 @@ declare namespace Chat {
     type: 'executeChatAction';
     message: Ytc.ParsedMessage;
     action: ChatUserActions;
-    reportOption?: import('../chat-constants').ChatReportUserOptions;
+    reportOption?: ChatReportUserOptions;
   }
 
   type BackgroundMessage =
@@ -167,8 +170,8 @@ declare namespace Chat {
   interface YtcInterceptor extends Interceptor {
     source: 'ytc';
     dark: boolean;
-    queue: import('../queue').YtcQueue;
-    queueUnsub?: import('../queue').Unsubscriber;
+    queue: YtcQueue;
+    queueUnsub?: Unsubscriber;
   }
 
   type Interceptors = Interceptor | YtcInterceptor;
