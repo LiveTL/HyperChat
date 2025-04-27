@@ -2,11 +2,11 @@
   import { slide, fade } from 'svelte/transition';
   import MessageRun from './MessageRuns.svelte';
   import Tooltip from './common/Tooltip.svelte';
+  import Button from 'smelte/src/components/Button';
   import Icon from 'smelte/src/components/Icon';
   import { Theme } from '../ts/chat-constants';
   import { createEventDispatcher } from 'svelte';
-  import { showProfileIcons } from '../ts/storage';
-  import Button from 'smelte/src/components/Button';
+  import { showProfileIcons, showTimestamps } from '../ts/storage';
 
   export let redirect: Ytc.ParsedRedirect;
 
@@ -53,6 +53,11 @@
           </Icon>
         </span>
         <span class="align-middle">Live Redirect Notice</span>
+        {#if redirect.timestamp && $showTimestamps}
+          <span class="text-xs ml-1 text-gray-400 dark:text-gray-600 align-middle">
+            {redirect.timestamp}
+          </span>
+        {/if}
       </div>
       <div class="flex-none self-end" style="transform: translateY(3px);">
         <Tooltip offsetY={0} small>
