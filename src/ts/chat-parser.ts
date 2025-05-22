@@ -117,10 +117,16 @@ const parseRedirectBanner = (renderer: Ytc.AddChatItem, actionId: string, showti
     src: fixUrl(baseRenderer.authorPhoto?.thumbnails[0].url ?? ''),
     alt: 'Redirect profile icon'
   };
-  const url = baseRenderer.inlineActionButton?.buttonRenderer.command.urlEndpoint?.url || 
-    (baseRenderer.inlineActionButton?.buttonRenderer.command.watchEndpoint?.videoId ?
-       "/watch?v=" + baseRenderer.inlineActionButton?.buttonRenderer.command.watchEndpoint?.videoId 
+  const buttonRenderer = baseRenderer.inlineActionButton?.buttonRenderer;
+  const url = buttonRenderer?.command.urlEndpoint?.url || 
+    (buttonRenderer?.command.watchEndpoint?.videoId ?
+       "/watch?v=" + buttonRenderer?.command.watchEndpoint?.videoId 
        : '');
+  const buttonRendererText = buttonRenderer?.text; 
+  const buttonText = buttonRendererText && (
+      ('runs' in buttonRendererText && parseMessageRuns(buttonRendererText.runs))
+      || ('simpleText' in buttonRendererText && [{ type: 'text', text: buttonRendererText.simpleText }] as Ytc.ParsedTextRun[])
+    ) || [];
   const item: Ytc.ParsedRedirect = {
     type: 'redirect',
     actionId: actionId,
@@ -129,7 +135,7 @@ const parseRedirectBanner = (renderer: Ytc.AddChatItem, actionId: string, showti
       profileIcon: profileIcon,
       action: {
         url: fixUrl(url),
-        text: parseMessageRuns(baseRenderer.inlineActionButton?.buttonRenderer.text?.runs),
+        text: buttonText,
       }
     },
     showtime: showtime,
@@ -268,6 +274,15 @@ const parsePollRenderer = (baseRenderer: Ytc.PollRenderer): Ytc.ParsedPoll | und
     src: fixUrl(baseRenderer.header.pollHeaderRenderer.thumbnail?.thumbnails[0].url ?? ''),
     alt: 'Poll profile icon'
   };
+  // only allow action if all the relevant fields are present for it
+  const buttonRenderer = baseRenderer.button?.buttonRenderer;
+  const actionButton = buttonRenderer?.command?.commandMetadata?.webCommandMetadata?.apiUrl &&
+    buttonRenderer?.text && 'simpleText' in buttonRenderer?.text &&
+    buttonRenderer?.command?.liveChatActionEndpoint?.params && {
+      api: buttonRenderer.command.commandMetadata.webCommandMetadata.apiUrl,
+      text: buttonRenderer.text.simpleText,
+      params: buttonRenderer.command.liveChatActionEndpoint.params
+    } || undefined;
   // TODO implement 'selected' field? YT doesn't use it in results.
   return {
     type: 'poll',
@@ -284,6 +299,7 @@ const parsePollRenderer = (baseRenderer: Ytc.PollRenderer): Ytc.ParsedPoll | und
           percentage: choice.votePercentage?.simpleText
         };
       }),
+      action: actionButton
     }
   };
 }
