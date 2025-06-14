@@ -11,7 +11,8 @@
     "start:chrome": "cross-env AUTOLAUNCH=true npm run dev:chrome",
     "start:firefox": "cross-env AUTOLAUNCH=true npm run dev:firefox",
     "lint": "npm run lint:check -- --fix",
-    "lint:check": "eslint src --max-warnings=0"
+    "lint:check": "eslint src --max-warnings=0",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@livetl/svelte-webext-stores": "^0.0.14",
@@ -33,6 +34,7 @@
     "eslint-config-standard-with-typescript": "^43.0.1",
     "eslint-plugin-svelte3": "^3.2.0",
     "npm-run-all": "^4.1.5",
+    "patch-package": "^8.0.0",
     "postcss": "^8.4.31",
     "postcss-extend": "^1.0.5",
     "postcss-import": "^14.0.2",
