@@ -5,6 +5,7 @@
   import Icon from 'smelte/src/components/Icon';
   import { Theme } from '../ts/chat-constants';
   import { createEventDispatcher } from 'svelte';
+  import { showTimestamps } from '../ts/storage';
 
   export let summary: Ytc.ParsedSummary;
 
@@ -55,6 +56,11 @@
             <span class="align-middle">{run.text}</span>
           {/if}
         {/each}
+        {#if summary.timestamp && $showTimestamps}
+          <span class="text-xs ml-1 text-gray-400 dark:text-gray-600 align-middle">
+            {summary.timestamp}
+          </span>
+        {/if}
       </div>
       <div class="flex-none self-end" style="transform: translateY(3px);">
         <Tooltip offsetY={0} small>
