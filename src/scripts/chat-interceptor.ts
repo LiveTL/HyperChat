@@ -114,7 +114,7 @@ const chatLoaded = async (): Promise<void> => {
         const time = Math.floor(Date.now() / 1000);
         const SAPISID = getCookie('__Secure-3PAPISID');
         const sha = sha1(`${time} ${SAPISID} ${currentDomain}`);
-        const auth = `SAPISIDHASH ${time}_${sha}`;
+        const auth = `SAPISIDHASH ${time}_${sha} SAPISID1PHASH ${time}_${sha} SAPISID3PHASH ${time}_${sha}`;
         const heads = {
           headers: {
             'Content-Type': 'application/json',
@@ -155,12 +155,12 @@ const chatLoaded = async (): Promise<void> => {
         // const action = msg.action;
         const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
         const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
-          `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
+          `${encodeURIComponent(message.params)}&pbj=1&prettyPrint=false`;
         const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
         const time = Math.floor(Date.now() / 1000);
         const SAPISID = getCookie('__Secure-3PAPISID');
         const sha = sha1(`${time} ${SAPISID} ${currentDomain}`);
-        const auth = `SAPISIDHASH ${time}_${sha}`;
+        const auth = `SAPISIDHASH ${time}_${sha} SAPISID1PHASH ${time}_${sha} SAPISID3PHASH ${time}_${sha}`;
         const heads = {
           headers: {
             'Content-Type': 'application/json',
