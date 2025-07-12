@@ -30,6 +30,10 @@ export enum ChatUserActions {
   REPORT_USER = 'REPORT_USER',
 }
 
+export enum ChatPollActions {
+  END_POLL = 'END_POLL',
+}
+
 export enum ChatReportUserOptions {
   UNWANTED_SPAM = 'UNWANTED_SPAM',
   PORN_OR_SEX = 'PORN_OR_SEX',
