@@ -1,7 +1,7 @@
 import { fixLeaks } from '../ts/ytc-fix-memleaks';
 import { frameIsReplay as isReplay, checkInjected } from '../ts/chat-utils';
 import sha1 from 'sha-1';
-import { chatReportUserOptions, ChatUserActions, isLiveTL } from '../ts/chat-constants';
+import { chatReportUserOptions, ChatUserActions, ChatPollActions, isLiveTL } from '../ts/chat-constants';
 
 function injectedFunction(): void {
   const currentDomain = (location.protocol + '//' + location.host);
@@ -84,9 +84,69 @@ const chatLoaded = async (): Promise<void> => {
       });
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    port.onMessage.addListener(async (msg) => {
-      if (msg.type !== 'executeChatAction') return;
+    function getCookie(name: string): string {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
+      return '';
+    }
+
+    function parseServiceEndpoint(baseContext: any, serviceEndpoint: any, prop: string): { params: string, context: any } {
+      const { clickTrackingParams, [prop]: { params } } = serviceEndpoint;
+      const clonedContext = JSON.parse(JSON.stringify(baseContext));
+      clonedContext.clickTracking = {
+        clickTrackingParams
+      };
+      return {
+        params,
+        context: clonedContext
+      };
+    }
+
+    /**
+     * Executes a poll action (e.g., ending a poll)
+     */
+    async function handlePollAction(msg: any, fetcher: (...args: any[]) => Promise<any>): Promise<void> {
+      try {
+        const currentDomain = (location.protocol + '//' + location.host);
+        const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
+        const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
+        const time = Math.floor(Date.now() / 1000);
+        const SAPISID = getCookie('__Secure-3PAPISID');
+        const sha = sha1(`${time} ${SAPISID} ${currentDomain}`);
+        const auth = `SAPISIDHASH ${time}_${sha} SAPISID1PHASH ${time}_${sha} SAPISID3PHASH ${time}_${sha}`;
+        const heads = {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: '*/*',
+            Authorization: auth
+          },
+          method: 'POST'
+        };
+
+        if (msg.action === ChatPollActions.END_POLL) {
+          const poll = msg.poll;
+          const params = poll.item.action?.params || '';
+          const url = poll.item.action?.url || '/youtubei/v1/live_chat/live_chat_action';
+          
+          // Call YouTube API to end the poll
+          await fetcher(`${currentDomain}${url}?key=${apiKey}&prettyPrint=false`, {
+            ...heads,
+            body: JSON.stringify({
+              params,
+              context: baseContext
+            })
+          });
+        }
+      } catch (e) {
+        console.debug('Error executing poll action', e);
+      }
+    }
+
+    /**
+     * Executes a chat action (e.g., blocking or reporting a user)
+     */
+    async function handleChatAction(msg: any, fetcher: (...args: any[]) => Promise<any>): Promise<void> {
       const message = msg.message;
       if (message.params == null) return;
       let success = true;
@@ -95,18 +155,12 @@ const chatLoaded = async (): Promise<void> => {
         // const action = msg.action;
         const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
         const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
-          `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
+          `${encodeURIComponent(message.params)}&pbj=1&prettyPrint=false`;
         const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
-        function getCookie(name: string): string {
-          const value = `; ${document.cookie}`;
-          const parts = value.split(`; ${name}=`);
-          if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
-          return '';
-        }
         const time = Math.floor(Date.now() / 1000);
         const SAPISID = getCookie('__Secure-3PAPISID');
         const sha = sha1(`${time} ${SAPISID} ${currentDomain}`);
-        const auth = `SAPISIDHASH ${time}_${sha}`;
+        const auth = `SAPISIDHASH ${time}_${sha} SAPISID1PHASH ${time}_${sha} SAPISID3PHASH ${time}_${sha}`;
         const heads = {
           headers: {
             'Content-Type': 'application/json',
@@ -119,19 +173,8 @@ const chatLoaded = async (): Promise<void> => {
           ...heads,
           body: JSON.stringify({ context: baseContext })
         });
-        function parseServiceEndpoint(serviceEndpoint: any, prop: string): { params: string, context: any } {
-          const { clickTrackingParams, [prop]: { params } } = serviceEndpoint;
-          const clonedContext = JSON.parse(JSON.stringify(baseContext));
-          clonedContext.clickTracking = {
-            clickTrackingParams
-          };
-          return {
-            params,
-            context: clonedContext
-          };
-        }
         if (msg.action === ChatUserActions.BLOCK) {
-          const { params, context } = parseServiceEndpoint(
+          const { params, context } = parseServiceEndpoint(baseContext,
             res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[1]
               .menuNavigationItemRenderer.navigationEndpoint.confirmDialogEndpoint
               .content.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint,
@@ -145,7 +188,7 @@ const chatLoaded = async (): Promise<void> => {
             })
           });
         } else if (msg.action === ChatUserActions.REPORT_USER) {
-          const { params, context } = parseServiceEndpoint(
+          const { params, context } = parseServiceEndpoint(baseContext,
             res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[0].menuServiceItemRenderer.serviceEndpoint,
             'getReportFormEndpoint'
           );
@@ -182,6 +225,17 @@ const chatLoaded = async (): Promise<void> => {
         message,
         success
       });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    port.onMessage.addListener(async (msg: any) => {
+      if (msg.type === 'executePollAction') {
+        return handlePollAction(msg, fetcher);
+      }
+      if (msg.type === 'executeChatAction') {
+        return handleChatAction(msg, fetcher);
+      }
+      return;
     });
   });
 

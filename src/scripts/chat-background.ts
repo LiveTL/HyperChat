@@ -373,6 +373,14 @@ const executeChatAction = (
   interceptor?.port?.postMessage(message);
 };
 
+const executePollAction = (
+  port: Chat.Port,
+  message: Chat.executePollActionMsg
+): void => {
+  const interceptor = findInterceptorFromClient(port);
+  interceptor?.port?.postMessage(message);
+};
+
 const sendChatUserActionResponse = (
   port: Chat.Port,
   message: Chat.chatUserActionResponse
@@ -417,6 +425,9 @@ chrome.runtime.onConnect.addListener((port) => {
         break;
       case 'executeChatAction':
         executeChatAction(port, message);
+        break;
+      case 'executePollAction':
+        executePollAction(port, message);
         break;
       case 'chatUserActionResponse':
         sendChatUserActionResponse(port, message);
