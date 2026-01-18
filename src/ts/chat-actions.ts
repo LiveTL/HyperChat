@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 import { ChatReportUserOptions, ChatUserActions } from './chat-constants';
 import { reportDialog } from './storage';
+import type { Chat } from './typings/chat';
 
 export function useBanHammer(
   message: Ytc.ParsedMessage,

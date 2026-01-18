@@ -3,7 +3,8 @@
   "version": "3.1.1",
   "private": true,
   "scripts": {
-    "build": "npm-run-all --parallel build:chrome build:firefox",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && npm-run-all --parallel build:chrome build:firefox",
     "build:chrome": "cross-env BROWSER=chrome vite build",
     "build:firefox": "cross-env BROWSER=firefox vite build",
     "dev:chrome": "cross-env MINIFY=false BROWSER=chrome vite build --watch",
