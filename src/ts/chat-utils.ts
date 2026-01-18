@@ -70,24 +70,33 @@ export const checkInjected = (error: string): boolean => {
   return false;
 };
 
-export const useReconnect = <T extends Chat.Port>(connect: () => T): T & { destroy: () => void } => {
-  let actualPort = connect();
-  const onDisconnect = (): void => {
-    actualPort = connect();
-    actualPort.onDisconnect.addListener(onDisconnect);
+type ReconnectingPort<T extends Chat.Port> =
+  Partial<Pick<T, 'name' | 'disconnect' | 'postMessage' | 'onMessage' | 'onDisconnect'>> &
+  { destroy: () => void };
+
+export const useReconnect = <T extends Chat.Port>(connect: () => Promise<T>): ReconnectingPort<T> => {
+  let actualPort: T | null = null;
+
+  const doConnect = async (): Promise<void> => {
+    actualPort = await connect();
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    actualPort.onDisconnect.addListener(doConnect);
   };
-  actualPort.onDisconnect.addListener(onDisconnect);
+  void doConnect();
 
   return {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     ...actualPort,
-    get name() { return actualPort.name; },
-    disconnect(...args) { return actualPort.disconnect(...args); },
-    postMessage(...args) { return actualPort.postMessage(...args); },
-    get onMessage() { return actualPort.onMessage; },
-    get onDisconnect() { return actualPort.onDisconnect; },
+    get name() { return actualPort?.name; },
+    disconnect(...args) { return actualPort?.disconnect(...args); },
+    postMessage(...args) { return actualPort?.postMessage(...args); },
+    get onMessage() { return actualPort?.onMessage; },
+    get onDisconnect() { return actualPort?.onDisconnect; },
     destroy: () => {
-      actualPort.onDisconnect.removeListener(onDisconnect);
-      actualPort.disconnect();
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      actualPort?.onDisconnect.removeListener(doConnect);
+      actualPort?.disconnect();
     }
   };
 };

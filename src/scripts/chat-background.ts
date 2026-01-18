@@ -26,14 +26,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 chrome.runtime.onConnect.addListener(hc => {
-  // frameId and tabId should be int
   const { frameId, tabId } = JSON.parse(hc.name) as { frameId: number, tabId: number };
   const interceptorPort = chrome.tabs.connect(tabId, { frameId });
-  interceptorPort.onMessage.addListener(msg => {
+
+  const onInterceptorMessage = (msg: any): void => {
     hc.postMessage(msg);
+  };
+  interceptorPort.onMessage.addListener(onInterceptorMessage);
+  interceptorPort.onDisconnect.addListener(() => {
+    interceptorPort.onMessage.removeListener(onInterceptorMessage);
+    hc.disconnect();
   });
-  hc.onMessage.addListener(msg => {
+
+  const onHcMessage = (msg: any): void => {
     interceptorPort.postMessage(msg);
+  };
+  hc.onMessage.addListener(onHcMessage);
+  hc.onDisconnect.addListener(() => {
+    hc.onMessage.removeListener(onHcMessage);
+    interceptorPort.disconnect();
   });
 });
 
