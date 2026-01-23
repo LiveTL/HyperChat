@@ -1,4 +1,5 @@
 import HcButton from '../components/HyperchatButton.svelte';
+import HcSettings from '../components/SettingsButton.svelte';
 import { getFrameInfoAsync, isValidFrameInfo, frameIsReplay, checkInjected } from '../ts/chat-utils';
 import { isLiveTL } from '../ts/chat-constants';
 import { hcEnabled, autoLiveChat } from '../ts/storage';
@@ -75,7 +76,7 @@ const chatLoaded = async (): Promise<void> => {
     setTheme(isDark);
     wasDark = isDark;
   };
-  new MutationObserver(sendTheme).observe(html, {
+  new MutationObserver(sendTheme).observe(document.body, {
     attributes: true
   });
   sendTheme();
@@ -89,9 +90,25 @@ const chatLoaded = async (): Promise<void> => {
     console.error('Failed to find #primary-content');
     return;
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const hcButton = new HcButton({
+  new HcButton({
     target: ytcPrimaryContent
+  });
+
+  // Inject HC settings
+  const injectSettings = (): void => {
+    // Prevent duplicates
+    if (document.getElementById('hc-settings')) return;
+    const ytcItemMenu = document.querySelector('tp-yt-paper-listbox#items');
+    if (!ytcItemMenu) return;
+
+    new HcSettings({
+      target: ytcItemMenu
+    });
+  }
+
+  new MutationObserver(injectSettings).observe(document.body, {
+    childList: true,
+    subtree: true
   });
 
   // Everything past this point will only run if HC is enabled
