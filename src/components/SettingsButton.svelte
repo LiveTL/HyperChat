@@ -2,10 +2,9 @@
   import { createPopup } from '../ts/chat-utils';
   import { isLiveTL } from '../ts/chat-constants';
   import outline from '../assets/outline.svg?raw';
-
-  const isDark = document.documentElement.getAttribute('dark') === '';
+  
   const openSettings = () => {
-    createPopup(chrome.runtime.getURL(`${isLiveTL ? 'hyperchat/' : ''}options.html${isDark ? '?dark' : ''}`));
+    createPopup(chrome.runtime.getURL(`${isLiveTL ? 'hyperchat/' : ''}options.html${document.documentElement.getAttribute('dark') === '' ? '?dark' : ''}`));
   };
 </script>
 
