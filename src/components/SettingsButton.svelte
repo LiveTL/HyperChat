@@ -10,15 +10,16 @@
 </script>
 
 <div id="hc-settings" on:click={openSettings} class="button">
-  <div class="buttonIconContainer">
-    <div class="buttonIcon">
+  <div class="button-icon-container">
+    <div class="button-icon">
       {@html outline}
     </div>
   </div>
-  <div class="buttonLabel">HyperChat Settings</div>
+  <div class="button-label">HyperChat Settings</div>
 </div>
 
 <style>
+  /* CSS Style as copied from BetterTTV albeit slightly modified: https://github.com/night/betterttv/blob/38daf2a12133286c6910db5bb39ccdfaf7a4ffd4/src/modules/settings/youtube/Settings.module.css */
   .button {
     display: flex;
     align-items: center;
@@ -31,12 +32,7 @@
     }
   }
 
-  /* youtube studio dropdown popups use different color for hover */
-  ytls-menu-popup-renderer .button:hover {
-    background-color: var(--yt-spec-white-1-alpha-20);
-  }
-
-  .buttonLabel {
+  .button-label {
     color: var(--yt-spec-text-primary);
     white-space: nowrap;
     font-family: sans-serif;
@@ -46,7 +42,7 @@
     -webkit-font-smoothing: var(--paper-font-subhead_-_-webkit-font-smoothing);
   }
 
-  .buttonIconContainer {
+  .button-icon-container {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -55,7 +51,7 @@
     height: 24px;
   }
   
-  .buttonIcon {
+  .button-icon {
     flex: none;
     fill: var(--yt-spec-text-primary);
   }
