@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { createPopup } from "../ts/chat-utils";
-  import { isLiveTL } from "../ts/chat-constants";
-  import outline from "../assets/outline.svg?raw";
+  import { createPopup } from '../ts/chat-utils';
+  import { isLiveTL } from '../ts/chat-constants';
+  import outline from '../assets/outline.svg?raw';
 
   const isDark = document.documentElement.getAttribute('dark') === '';
   const openSettings = () => {
