@@ -85,9 +85,6 @@ export const useReconnect = <T extends Chat.Port>(connect: () => Promise<T>): Re
   void doConnect();
 
   return {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    ...actualPort,
     get name() { return actualPort?.name; },
     disconnect(...args) { return actualPort?.disconnect(...args); },
     postMessage(...args) { return actualPort?.postMessage(...args); },
