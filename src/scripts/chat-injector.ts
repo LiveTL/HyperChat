@@ -5,6 +5,7 @@ import { isLiveTL } from '../ts/chat-constants';
 import { hcEnabled, autoLiveChat } from '../ts/storage';
 
 // const isFirefox = navigator.userAgent.includes('Firefox');
+let hcSettings: HcSettings | null = null;
 
 const hcWarning = 'An existing HyperChat button has been detected. This ' +
   'usually means both LiveTL and standalone HyperChat are enabled. ' +
@@ -30,20 +31,37 @@ const chatLoaded = async (): Promise<void> => {
 
   // Inject HC settings
   const injectSettings = (): void => {
-    // Prevent duplicates
-    if (document.getElementById('hc-settings')) return;
-    const ytcItemMenu = document.querySelector('tp-yt-paper-listbox#items');
-    if (!ytcItemMenu) return;
+    const destroyButton = (): void => {
+      if (hcSettings !== null) {
+        try {
+          hcSettings.$destroy();
+        } catch (_) {}
+      }
+    }
 
-    new HcSettings({
-      target: ytcItemMenu
-    });
+    const ytcItemMenu = document.querySelector('tp-yt-paper-listbox#items');
+    if (ytcItemMenu) {
+      // Prevent duplicates
+      if (document.getElementById('hc-settings')) return;
+
+      destroyButton();
+      hcSettings = new HcSettings({
+        target: ytcItemMenu
+      });
+
+      return;
+    }
+
+    destroyButton();
   };
 
-  new MutationObserver(injectSettings).observe(document.body, {
-    childList: true,
-    subtree: true
-  });
+  const chatApp = document.querySelector('yt-live-chat-app');
+  if (chatApp) {
+    new MutationObserver(injectSettings).observe(chatApp, {
+      childList: true,
+      subtree: true
+    });
+  }
 
   // Everything past this point will only run if HC is enabled
   if (!hyperChatEnabled) return;

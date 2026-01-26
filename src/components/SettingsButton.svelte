@@ -2,10 +2,25 @@
   import { createPopup } from '../ts/chat-utils';
   import { isLiveTL } from '../ts/chat-constants';
   import outline from '../assets/outline.svg?raw';
+  import { onDestroy, onMount } from "svelte";
+  
+  let instanceTracker = 0;
   
   const openSettings = () => {
     createPopup(chrome.runtime.getURL(`${isLiveTL ? 'hyperchat/' : ''}options.html${document.documentElement.getAttribute('dark') === '' ? '?dark' : ''}`));
   };
+  
+  const instanceLog = (n: number, state: string): void => {
+    console.log('[HyperChat] Settings button ' + state + '. Instances:', n)
+  }
+  
+  onMount(() => {
+    instanceLog(++instanceTracker, 'created');
+  });
+  
+  onDestroy(() => {
+    instanceLog(--instanceTracker, 'destroyed');
+  });
 </script>
 
 <div id="hc-settings" on:click={openSettings} class="button">
@@ -25,10 +40,11 @@
     padding: 0px 36px 0px 16px;
     cursor: pointer;
     min-height: 36px;
+  }
 
-    &:hover {
-      background-color: var(--yt-spec-10-percent-layer);
-    }
+  .button:hover {
+    background-color: var(--yt-spec-additive-background);
+    border-radius: 8px;
   }
 
   .button-label {
