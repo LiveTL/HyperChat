@@ -4,22 +4,16 @@
   import outline from '../assets/outline.svg?raw';
   import { onDestroy, onMount } from "svelte";
   
-  let instanceTracker = 0;
-  
   const openSettings = () => {
     createPopup(chrome.runtime.getURL(`${isLiveTL ? 'hyperchat/' : ''}options.html${document.documentElement.getAttribute('dark') === '' ? '?dark' : ''}`));
   };
   
-  const instanceLog = (n: number, state: string): void => {
-    console.log('[HyperChat] Settings button ' + state + '. Instances:', n)
-  }
-  
   onMount(() => {
-    instanceLog(++instanceTracker, 'created');
+    console.debug('[HyperChat] Settings button created');
   });
   
   onDestroy(() => {
-    instanceLog(--instanceTracker, 'destroyed');
+    console.debug('[HyperChat] Settings button destroyed');
   });
 </script>
 
@@ -50,10 +44,10 @@
   .button-label {
     color: var(--yt-spec-text-primary);
     white-space: nowrap;
-    font-family: sans-serif;
+    font-family: "Roboto", "Arial", sans-serif;
     font-size: 1.4rem;
     line-height: 2rem;
-    font-weight: 100;
+    font-weight: 400;
     -webkit-font-smoothing: var(--paper-font-subhead_-_-webkit-font-smoothing);
   }
 
@@ -67,7 +61,8 @@
   }
   
   .button-icon {
-    flex: none;
+    display: flex;
+    justify-content: center;
     fill: var(--yt-spec-text-primary);
   }
 </style>
