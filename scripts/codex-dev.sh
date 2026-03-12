@@ -15,6 +15,7 @@ BROWSER_LOG_FILE="$STATE_DIR/browser.log"
 WATCH_NPM_SCRIPT=""
 BUILD_NPM_SCRIPT=""
 EXT_PATH=""
+MODE_LABEL=""
 
 mkdir -p "$STATE_DIR"
 
@@ -26,6 +27,7 @@ detect_repo_scripts() {
     WATCH_NPM_SCRIPT="dev:chrome"
     BUILD_NPM_SCRIPT="build:chrome"
     EXT_PATH="$REPO_ROOT/build/chrome"
+    MODE_LABEL="mv3"
     return 0
   fi
 
@@ -36,6 +38,7 @@ detect_repo_scripts() {
     WATCH_NPM_SCRIPT="start"
     BUILD_NPM_SCRIPT="build"
     EXT_PATH="$REPO_ROOT/build"
+    MODE_LABEL="mv2"
     return 0
   fi
 
@@ -189,6 +192,7 @@ status() {
   else
     echo "watch: stopped"
   fi
+  echo "mode: $MODE_LABEL (watch=$WATCH_NPM_SCRIPT build=$BUILD_NPM_SCRIPT ext=$EXT_PATH)"
   if codex mcp list 2>/dev/null | rg -q '^chrome-devtools'; then
     echo "mcp: configured in Codex as chrome-devtools"
   else

@@ -1,10 +1,10 @@
-# HyperChat Codex Workflow
+# HyperChat Codex Workflow (MV3 Main)
 
 ## Branch Discipline
 
-- Make code changes on `mv2` first.
-- Do not implement feature/fix work directly on `main`/`mv3`.
-- If a task starts on another branch, switch to `mv2` before editing unless the user explicitly asks otherwise.
+- `main` is the MV3 integration branch.
+- Land generic feature/fix changes on `mv2` first, then merge into `main`.
+- On `main`, limit direct edits to MV3-specific adaptation, verification, and follow-up fixes after merge.
 
 ## Codex Dev Runtime
 
@@ -12,6 +12,7 @@
   - name: `chrome-devtools`
   - command: `npx -y chrome-devtools-mcp@latest --browserUrl=http://127.0.0.1:9222`
 - Use `scripts/codex-dev.sh watch` once per session to keep Chrome extension builds live in the background.
+- On `main`, this resolves to MV3 scripts (`dev:chrome`/`build:chrome`) and `build/chrome` output automatically.
 - Start headless browser testing only when explicitly requested (for example: "go test", "test this", "run browser test").
 - For test runs, use `scripts/codex-dev.sh go-test`. This guarantees:
   - MCP configuration is present
@@ -28,7 +29,7 @@
   - `src/manifest.json`
   - `vite.config.ts`
   - settings/storage/messaging code under `src/ts/**`
-- The reload is intentionally hard (full browser restart) to avoid stale MV2 background page state, service-worker/cache confusion in mixed tooling, and extension asset cache artifacts.
+- The reload is intentionally hard (full browser restart) to avoid stale MV3 service-worker state, extension cache artifacts, and mixed-profile debugging drift.
 
 ## Operational Commands
 
