@@ -12,6 +12,7 @@
   - name: `chrome-devtools`
   - command: `npx -y chrome-devtools-mcp@latest --browserUrl=http://127.0.0.1:9222`
 - Use `scripts/codex-dev.sh watch` once per session to keep Chrome extension builds live in the background.
+- On `mv2`, watcher mode prefers `npm run start:none` so build watch stays alive without separate browser autolaunch.
 - Start headless browser testing only when explicitly requested (for example: "go test", "test this", "run browser test").
 - For test runs, use `scripts/codex-dev.sh go-test`. This guarantees:
   - MCP configuration is present
@@ -29,6 +30,16 @@
   - `vite.config.ts`
   - settings/storage/messaging code under `src/ts/**`
 - The reload is intentionally hard (full browser restart) to avoid stale MV2 background page state, service-worker/cache confusion in mixed tooling, and extension asset cache artifacts.
+
+## UI Name Formatting
+
+- For chat author display, hide a leading `@` in UI text while keeping underlying identity data unchanged.
+- Use `src/ts/author-name.ts` (`formatAuthorName`) for this transformation and apply it at render points.
+
+## Testbed URL
+
+- Headless validation should open the same `startUrl` used by `vite.config.ts`.
+- `scripts/codex-dev.sh go-test` now does this automatically (defaulting by detected mode), and `TEST_URL` can override when needed.
 
 ## Operational Commands
 

@@ -7,6 +7,7 @@ STATE_DIR="$REPO_ROOT/.codex-runtime"
 PROFILE_DIR="${USER_DATA_DIR:-$REPO_ROOT/.codex-profile}"
 REMOTE_DEBUGGING_PORT="${REMOTE_DEBUGGING_PORT:-9222}"
 CHROME_BIN="${CHROME_BIN:-google-chrome}"
+TEST_URL="${TEST_URL:-}"
 
 WATCH_PID_FILE="$STATE_DIR/watch.pid"
 WATCH_LOG_FILE="$STATE_DIR/watch.log"
@@ -15,6 +16,8 @@ BROWSER_LOG_FILE="$STATE_DIR/browser.log"
 WATCH_NPM_SCRIPT=""
 BUILD_NPM_SCRIPT=""
 EXT_PATH=""
+MODE_LABEL=""
+DEFAULT_TEST_URL=""
 
 mkdir -p "$STATE_DIR"
 
@@ -26,6 +29,20 @@ detect_repo_scripts() {
     WATCH_NPM_SCRIPT="dev:chrome"
     BUILD_NPM_SCRIPT="build:chrome"
     EXT_PATH="$REPO_ROOT/build/chrome"
+    MODE_LABEL="mv3"
+    DEFAULT_TEST_URL="https://www.youtube.com/watch?v=jfKfPfyJRdk"
+    return 0
+  fi
+
+  if (
+    cd "$REPO_ROOT" &&
+    node -e 'const s=require("./package.json").scripts||{}; process.exit(s["start:none"] && s["build"] ? 0 : 1);'
+  ); then
+    WATCH_NPM_SCRIPT="start:none"
+    BUILD_NPM_SCRIPT="build"
+    EXT_PATH="$REPO_ROOT/build"
+    MODE_LABEL="mv2"
+    DEFAULT_TEST_URL="https://www.youtube.com/watch?v=5qap5aO4i9A"
     return 0
   fi
 
@@ -36,6 +53,8 @@ detect_repo_scripts() {
     WATCH_NPM_SCRIPT="start"
     BUILD_NPM_SCRIPT="build"
     EXT_PATH="$REPO_ROOT/build"
+    MODE_LABEL="mv2"
+    DEFAULT_TEST_URL="https://www.youtube.com/watch?v=5qap5aO4i9A"
     return 0
   fi
 
@@ -113,6 +132,9 @@ setup_mcp() {
 start_browser() {
   detect_repo_scripts
   resolve_chrome_bin
+  if [[ -z "$TEST_URL" ]]; then
+    TEST_URL="$DEFAULT_TEST_URL"
+  fi
   if [[ ! -f "$EXT_PATH/manifest.json" ]]; then
     echo "browser: extension build not found, running npm run $BUILD_NPM_SCRIPT"
     (
@@ -124,32 +146,37 @@ start_browser() {
   rm -rf "$PROFILE_DIR"
   mkdir -p "$PROFILE_DIR"
 
-  echo "browser: starting headless Chrome with extension"
-  nohup "$CHROME_BIN" \
-    --user-data-dir="$PROFILE_DIR" \
-    --remote-debugging-port="$REMOTE_DEBUGGING_PORT" \
-    --disable-gpu \
-    --headless=new \
-    --disable-extensions-except="$EXT_PATH" \
-    --load-extension="$EXT_PATH" \
-    --no-first-run \
-    --no-default-browser-check \
-    --disable-background-timer-throttling \
-    --disable-renderer-backgrounding \
-    --disable-dev-shm-usage \
-    --disable-features=IsolateOrigins,site-per-process,TranslateUI \
-    --disable-web-security \
-    --allow-running-insecure-content \
-    --allow-insecure-localhost \
-    --no-sandbox \
-    --disable-setuid-sandbox \
-    --noerrdialogs \
-    --disable-notifications \
-    --disable-translate \
-    --disable-infobars \
-    --autoplay-policy=no-user-gesture-required \
-    --enable-automation \
-    >"$BROWSER_LOG_FILE" 2>&1 &
+  local browser_args=(
+    --user-data-dir="$PROFILE_DIR"
+    --remote-debugging-port="$REMOTE_DEBUGGING_PORT"
+    --disable-gpu
+    --headless=new
+    --disable-extensions-except="$EXT_PATH"
+    --load-extension="$EXT_PATH"
+    --no-first-run
+    --no-default-browser-check
+    --disable-background-timer-throttling
+    --disable-renderer-backgrounding
+    --disable-dev-shm-usage
+    --disable-features=IsolateOrigins,site-per-process,TranslateUI
+    --disable-web-security
+    --allow-running-insecure-content
+    --allow-insecure-localhost
+    --no-sandbox
+    --disable-setuid-sandbox
+    --noerrdialogs
+    --disable-notifications
+    --disable-translate
+    --disable-infobars
+    --autoplay-policy=no-user-gesture-required
+    --enable-automation
+  )
+  if [[ -n "$TEST_URL" ]]; then
+    browser_args+=("$TEST_URL")
+  fi
+
+  echo "browser: starting headless Chrome with extension (url: $TEST_URL)"
+  nohup "$CHROME_BIN" "${browser_args[@]}" >"$BROWSER_LOG_FILE" 2>&1 &
 
   echo $! >"$BROWSER_PID_FILE"
   local pid
@@ -189,6 +216,11 @@ status() {
   else
     echo "watch: stopped"
   fi
+  echo "mode: $MODE_LABEL (watch=$WATCH_NPM_SCRIPT build=$BUILD_NPM_SCRIPT ext=$EXT_PATH)"
+  if [[ -z "$TEST_URL" ]]; then
+    TEST_URL="$DEFAULT_TEST_URL"
+  fi
+  echo "test-url: $TEST_URL"
   if codex mcp list 2>/dev/null | rg -q '^chrome-devtools'; then
     echo "mcp: configured in Codex as chrome-devtools"
   else
@@ -214,6 +246,9 @@ Commands:
   stop       Stop browser and watcher.
   status     Show process status and log directory.
   logs       Print paths for watch/browser logs.
+
+Environment:
+  TEST_URL   Optional override for the page opened in headless test browser.
 EOF
 }
 
