@@ -1,6 +1,7 @@
 <script lang="ts">
   import Message from './Message.svelte';
   import MessageRun from './MessageRuns.svelte';
+  import { formatAuthorName } from '../ts/author-name';
   import { showProfileIcons } from '../ts/storage';
   import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
 
@@ -14,6 +15,7 @@
     console.error('Not a membership item', { message });
   }
   $: isMilestoneChat = message.message.length > 0;
+  $: displayAuthorName = formatAuthorName(message.author.name);
 
   $: primaryText = (membership ?? membershipGift)?.headerPrimaryText;
 </script>
@@ -32,7 +34,7 @@
         />
       {/if}
       <span class="font-bold tracking-wide align-middle mr-3">
-        {message.author.name}
+        {displayAuthorName}
       </span>
       {#if primaryText && primaryText.length > 0}
         <MessageRun
