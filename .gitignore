@@ -18,3 +18,6 @@ npm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+.codex-runtime/
+.codex-profile/
