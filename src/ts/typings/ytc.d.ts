@@ -282,7 +282,7 @@ declare namespace Ytc {
     icon?: string;
     accessibility?: AccessibilityObj;
     isDisabled?: boolean;
-    text?: RunsObj; // | SimpleTextObj;
+    text?: RunsObj | SimpleTextObj;
     command: {
       commandMetadata?: {
         webCommandMetadata?: {
@@ -315,7 +315,9 @@ declare namespace Ytc {
       }
     }
     displayVoteResults?: boolean;
-    button?: ButtonRenderer;
+    button?: {
+      buttonRenderer: ButtonRenderer;
+    }
   }
 
   interface PollChoice {
@@ -520,8 +522,12 @@ declare namespace Ytc {
         ratio?: number;
         percentage?: string;
       }>;
+      action?: {
+        api: string;
+        params: string;
+        text: string;
+      }
     }
-    // TODO add 'action' for ending poll button
   }
 
   interface ParsedRemoveBanner {

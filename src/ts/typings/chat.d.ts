@@ -139,10 +139,17 @@ declare namespace Chat {
     reportOption?: ChatReportUserOptions;
   }
 
+  interface executePollActionMsg {
+    type: 'executePollAction';
+    poll: Ytc.ParsedPoll;
+    action: ChatPollActions;
+  }
+
   type BackgroundMessage =
     RegisterInterceptorMsg | RegisterClientMsg | processJsonMsg |
     setInitialDataMsg | updatePlayerProgressMsg | setThemeMsg | getThemeMsg |
-    RegisterYtcInterceptorMsg | sendLtlMessageMsg | executeChatActionMsg | chatUserActionResponse;
+    RegisterYtcInterceptorMsg | sendLtlMessageMsg | executeChatActionMsg | 
+    executePollActionMsg | chatUserActionResponse;
 
   type Port = Omit<chrome.runtime.Port, 'postMessage' | 'onMessage'> & {
     postMessage: (message: BackgroundMessage | BackgroundResponse) => void;
