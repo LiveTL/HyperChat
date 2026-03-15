@@ -40,3 +40,7 @@ yarn start # watch mode
 yarn build # production mode
 VERSION=x.x.x yarn build
 ```
+
+## Release
+
+Release steps for `mv2` and `mv3` are documented in [RELEASE_PROCESS.md](./RELEASE_PROCESS.md).
