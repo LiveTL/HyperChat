@@ -36,6 +36,12 @@
 - For chat author display, hide a leading `@` in UI text while keeping underlying identity data unchanged.
 - Use `src/ts/component-utils.ts` (`formatAuthorName`) for this transformation and apply it at render points.
 
+## Emoji Placeholder Handling
+
+- Treat legacy member emoji placeholders (`U+25A1`, rendered as `□`) as emoji-equivalent for filtering.
+- In `HIDE_ALL` mode, do not render these placeholders in `MessageRuns.svelte`.
+- For emoji-only spam detection, count placeholder-only text runs as emoji in `isAllEmoji`.
+
 ## Testbed URL
 
 - Headless validation should open the same `startUrl` used by `vite.config.ts`.

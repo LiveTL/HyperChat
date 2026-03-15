@@ -56,9 +56,22 @@ export const isPrivileged = (types: string[]): boolean =>
 export const isChatMessage = (a: Chat.MessageAction): boolean =>
   !a.message.superChat && !a.message.superSticker && !a.message.membership;
 
+const OBSOLETE_MEMBER_EMOJI_PLACEHOLDER = '\u25A1';
+
+export const textIsObsoleteMemberEmoji = (text: string): boolean => {
+  const nonWhitespace = text.replace(/\s/g, '');
+  return nonWhitespace.length > 0 &&
+    [...nonWhitespace].every(char => char === OBSOLETE_MEMBER_EMOJI_PLACEHOLDER);
+};
+
 export const isAllEmoji = (a: Chat.MessageAction): boolean =>
   a.message.message.length !== 0 &&
-  a.message.message.every(m => m.type === 'emoji' || (m.type === 'text' && m.text.trim() === ''));
+  a.message.message.every(m => m.type === 'emoji' || (
+    m.type === 'text' && (
+      m.text.trim() === '' ||
+      textIsObsoleteMemberEmoji(m.text)
+    )
+  ));
 
 export const checkInjected = (error: string): boolean => {
   if (document.querySelector('#hc-buttons')) {
