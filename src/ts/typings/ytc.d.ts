@@ -430,6 +430,7 @@ declare namespace Ytc {
     };
     id: string;
     showtime: number;
+    timestamp?: string;
   }
 
   interface ParsedRedirect {
@@ -443,6 +444,7 @@ declare namespace Ytc {
       }
     };
     showtime: number;
+    timestamp?: string;
   }
 
   interface ParsedTicker extends ParsedMessage {

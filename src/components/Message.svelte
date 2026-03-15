@@ -13,6 +13,7 @@
   } from '../ts/storage';
   import { chatUserActionsItems, Theme } from '../ts/chat-constants';
   import { useBanHammer } from '../ts/chat-actions';
+  import { formatAuthorName } from '../ts/author-name';
   import { mdiGift } from '@mdi/js';
 
   export let message: Ytc.ParsedMessage;
@@ -57,6 +58,7 @@
   $: if (deleted != null) {
     message.message = deleted.replace;
   }
+  $: displayAuthorName = formatAuthorName(message.author.name);
 
   $: showUserMargin = $showProfileIcons || $showUsernames || $showTimestamps ||
     ($showUserBadges && (moderator || verified || member));
@@ -106,7 +108,7 @@
           class="{nameClass} {nameColorClass}"
           class:hidden={!$showUsernames}
         >
-          {message.author.name}
+          {displayAuthorName}
         </span>
       </a>
       <span class="align-middle" class:hidden={!$showUserBadges}>

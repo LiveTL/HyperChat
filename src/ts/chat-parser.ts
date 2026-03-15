@@ -104,6 +104,7 @@ const parseChatSummary = (renderer: Ytc.AddChatItem, showtime: number): Ytc.Pars
     },
     id: baseRenderer.liveChatSummaryId,
     showtime: showtime,
+    timestamp: formatTimestamp(Date.now() * 1000),
   };
   return item;
 }
@@ -132,6 +133,7 @@ const parseRedirectBanner = (renderer: Ytc.AddChatItem, showtime: number): Ytc.P
       }
     },
     showtime: showtime,
+    timestamp: formatTimestamp(Date.now() * 1000),
   };
   return item;
 }

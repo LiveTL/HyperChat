@@ -29,3 +29,5 @@ pnpm-debug.log*
 *.zip
 artifacts
 .eslintcache
+.codex-runtime/
+.codex-profile/
