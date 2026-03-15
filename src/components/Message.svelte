@@ -13,7 +13,7 @@
   } from '../ts/storage';
   import { chatUserActionsItems, Theme } from '../ts/chat-constants';
   import { useBanHammer } from '../ts/chat-actions';
-  import { formatAuthorName } from '../ts/author-name';
+  import { formatAuthorName } from '../ts/component-utils';
   import { mdiGift } from '@mdi/js';
 
   export let message: Ytc.ParsedMessage;
