@@ -42,6 +42,11 @@
 - In `HIDE_ALL` mode, do not render these placeholders in `MessageRuns.svelte`.
 - For emoji-only spam detection, count placeholder-only text runs as emoji in `isAllEmoji`.
 
+## Block/Report Endpoint Handling
+
+- Do not assume fixed menu item indices from `get_item_context_menu` (YouTube may reorder menu items).
+- Resolve block/report actions by searching for endpoint types (`moderateLiveChatEndpoint`, `getReportFormEndpoint`) in the response tree.
+
 ## Testbed URL
 
 - Headless validation should open the same `startUrl` used by `vite.config.ts`.
