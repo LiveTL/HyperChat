@@ -13,7 +13,8 @@
     "start:none": "yarn dev:chrome",
     "start:chrome": "cross-env HC_AUTOLAUNCH=menace yarn dev:chrome",
     "start:firefox": "cross-env HC_AUTOLAUNCH=menace yarn dev:firefox",
-    "format:check": "eslint ."
+    "format:check": "eslint .",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^4.0.3",
@@ -39,6 +40,7 @@
     "express": "4.17.3",
     "iframe-translator": "^0.3.7",
     "is-dark-color": "^1.2.0",
+    "patch-package": "^8.0.0",
     "postcss": "^8.4.31",
     "postcss-extend": "^1.0.5",
     "postcss-import": "^14.0.2",
