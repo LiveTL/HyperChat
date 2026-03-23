@@ -46,6 +46,8 @@
 
 - Do not assume fixed menu item indices from `get_item_context_menu` (YouTube may reorder menu items).
 - Resolve block/report actions by searching for endpoint types (`moderateLiveChatEndpoint`, `getReportFormEndpoint`) in the response tree.
+- Always post `chatUserActionResponse` even when message context params are missing so UI state can fail gracefully.
+- Keep proxy fetch request/response events correlated by request id; do not use unscoped global listeners.
 
 ## Testbed URL
 

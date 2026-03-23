@@ -185,15 +185,25 @@ const executeChatAction = async (
   action: ChatUserActions,
   reportOption?: ChatReportUserOptions
 ): Promise<void> => {
-  if (message.params == null) return;
-
   const fetcher = async (...args: any[]): Promise<any> => {
-    return await new Promise((resolve) => {
-      const encoded = JSON.stringify(args);
-      window.addEventListener('proxyFetchResponse', (e) => {
-        const response = JSON.parse((e as CustomEvent).detail);
-        resolve(response);
-      });
+    return await new Promise((resolve, reject) => {
+      const id = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const encoded = JSON.stringify({ id, args });
+      const onFetchResponse = (e: Event): void => {
+        const response = JSON.parse((e as CustomEvent).detail) as {
+          id: string;
+          response?: any;
+          error?: string;
+        };
+        if (response.id !== id) return;
+        window.removeEventListener('proxyFetchResponse', onFetchResponse);
+        if (response.error != null) {
+          reject(new Error(response.error));
+          return;
+        }
+        resolve(response.response);
+      };
+      window.addEventListener('proxyFetchResponse', onFetchResponse);
       window.dispatchEvent(new CustomEvent('proxyFetchRequest', {
         detail: encoded
       }));
@@ -201,7 +211,13 @@ const executeChatAction = async (
   };
 
   let success = true;
+  if (message.params == null) {
+    success = false;
+  }
   try {
+    if (message.params == null) {
+      throw new Error('Missing context menu params for message');
+    }
     const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
     const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
       `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
@@ -268,13 +284,16 @@ const executeChatAction = async (
         throw new Error('Could not find moderate endpoint in context menu');
       }
       const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
-      await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           params,
           context
         })
       });
+      if (moderationResponse?.error != null || moderationResponse?.success === false) {
+        throw new Error('Moderation request failed');
+      }
     } else if (action === ChatUserActions.REPORT_USER) {
       const serviceEndpoint = findServiceEndpoint(res, 'getReportFormEndpoint');
       if (serviceEndpoint == null) {
@@ -307,13 +326,16 @@ const executeChatAction = async (
           clickTrackingParams
         };
       }
-      await fetcher(`${currentDomain}/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
+      const flagResponse = await fetcher(`${currentDomain}/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           action: flagAction,
           context
         })
       });
+      if (flagResponse?.error != null || flagResponse?.success === false) {
+        throw new Error('Report request failed');
+      }
     }
   } catch (e) {
     console.debug('Error executing chat action', e);
