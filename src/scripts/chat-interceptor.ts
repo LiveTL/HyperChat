@@ -32,12 +32,27 @@ function injectedFunction(): void {
   }));
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   window.addEventListener('proxyFetchRequest', async (event) => {
-    const args = JSON.parse((event as any).detail as string) as [string, any];
-    const request = await fetchFallback(...args);
-    const response = await request.json();
-    window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
-      detail: JSON.stringify(response)
-    }));
+    const payload = JSON.parse((event as any).detail as string) as {
+      id: string;
+      args: [string, any];
+    };
+    try {
+      const request = await fetchFallback(...payload.args);
+      const response = await request.json();
+      window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
+        detail: JSON.stringify({
+          id: payload.id,
+          response
+        })
+      }));
+    } catch (error) {
+      window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
+        detail: JSON.stringify({
+          id: payload.id,
+          error: String(error)
+        })
+      }));
+    }
   });
 }
 
@@ -72,12 +87,24 @@ const chatLoaded = async (): Promise<void> => {
       };
     });
     const fetcher = async (...args: any[]): Promise<any> => {
-      return await new Promise((resolve) => {
-        const encoded = JSON.stringify(args);
-        window.addEventListener('proxyFetchResponse', (e) => {
-          const response = JSON.parse((e as CustomEvent).detail);
-          resolve(response);
-        });
+      return await new Promise((resolve, reject) => {
+        const id = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const encoded = JSON.stringify({ id, args });
+        const onFetchResponse = (e: Event): void => {
+          const response = JSON.parse((e as CustomEvent).detail) as {
+            id: string;
+            response?: any;
+            error?: string;
+          };
+          if (response.id !== id) return;
+          window.removeEventListener('proxyFetchResponse', onFetchResponse);
+          if (response.error != null) {
+            reject(new Error(response.error));
+            return;
+          }
+          resolve(response.response);
+        };
+        window.addEventListener('proxyFetchResponse', onFetchResponse);
         window.dispatchEvent(new CustomEvent('proxyFetchRequest', {
           detail: encoded
         }));
@@ -88,9 +115,14 @@ const chatLoaded = async (): Promise<void> => {
     port.onMessage.addListener(async (msg) => {
       if (msg.type !== 'executeChatAction') return;
       const message = msg.message;
-      if (message.params == null) return;
       let success = true;
+      if (message.params == null) {
+        success = false;
+      }
       try {
+        if (message.params == null) {
+          throw new Error('Missing context menu params for message');
+        }
         const currentDomain = (location.protocol + '//' + location.host);
         // const action = msg.action;
         const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
@@ -159,13 +191,16 @@ const chatLoaded = async (): Promise<void> => {
             throw new Error('Could not find moderate endpoint in context menu');
           }
           const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
-          await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+          const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
               params,
               context
             })
           });
+          if (moderationResponse?.error != null || moderationResponse?.success === false) {
+            throw new Error('Moderation request failed');
+          }
         } else if (msg.action === ChatUserActions.REPORT_USER) {
           const serviceEndpoint = findServiceEndpoint(res, 'getReportFormEndpoint');
           if (serviceEndpoint == null) {
@@ -198,13 +233,16 @@ const chatLoaded = async (): Promise<void> => {
               clickTrackingParams
             };
           }
-          await fetcher(`${currentDomain}/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
+          const flagResponse = await fetcher(`${currentDomain}/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
               action: flagAction,
               context
             })
           });
+          if (flagResponse?.error != null || flagResponse?.success === false) {
+            throw new Error('Report request failed');
+          }
         }
       } catch (e) {
         console.debug('Error executing chat action', e);
