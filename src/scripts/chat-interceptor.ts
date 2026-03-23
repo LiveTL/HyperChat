@@ -23,17 +23,30 @@ window.fetch = async (...args) => {
   }
   return result;
 };
-// window.dispatchEvent(new CustomEvent('chatLoaded', {
-//   detail: JSON.stringify(window.ytcfg)
-// }));
+
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 window.addEventListener('proxyFetchRequest', async (event) => {
-  const args = JSON.parse((event as any).detail as string) as [string, any];
-  const request = await fetchFallback(...args);
-  const response = await request.json();
-  window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
-    detail: JSON.stringify(response)
-  }));
+  const payload = JSON.parse((event as any).detail as string) as {
+    id: string;
+    args: [string, any];
+  };
+  try {
+    const request = await fetchFallback(...payload.args);
+    const response = await request.json();
+    window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
+      detail: JSON.stringify({
+        id: payload.id,
+        response
+      })
+    }));
+  } catch (error) {
+    window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
+      detail: JSON.stringify({
+        id: payload.id,
+        error: String(error)
+      })
+    }));
+  }
 });
 
 fixLeaks();

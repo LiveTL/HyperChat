@@ -30,3 +30,8 @@ export const getDropdownOffsetY = async (div: HTMLElement, boundingDiv: HTMLElem
     return 'top-12';
   }
 };
+
+export const formatAuthorName = (name: string): string => {
+  if (!name.startsWith('@')) return name;
+  return name.slice(1);
+};

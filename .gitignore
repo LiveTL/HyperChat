@@ -19,3 +19,12 @@ npm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Vue Browser Extension Output
+*.pem
+*.pub
+*.zip
+artifacts
+.eslintcache
+.codex-runtime/
+.codex-profile/

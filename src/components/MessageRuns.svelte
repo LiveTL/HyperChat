@@ -1,10 +1,10 @@
 <script lang="ts">
   import { Theme, YoutubeEmojiRenderMode } from '../ts/chat-constants';
-  
   import TranslatedMessage from './TranslatedMessage.svelte';
   import {
     emojiRenderMode, useSystemEmojis
   } from '../ts/storage';
+  import { textIsObsoleteMemberEmoji } from '../ts/chat-utils';
 
   export let runs: Ytc.ParsedRun[] | null;
   export let forceDark = false;
@@ -41,15 +41,19 @@
   >
     {#each runs as run}
       {#if run.type === 'text'}
-        {#if deleted}
-          <span>{run.text}</span>
+        {#if $emojiRenderMode === YoutubeEmojiRenderMode.HIDE_ALL && textIsObsoleteMemberEmoji(run.text)}
+          <!-- Hide legacy member emoji placeholders (U+25A1) in hide-all mode. -->
         {:else}
-          {#if run.styles?.includes('bold')}
-            <strong>
-              <TranslatedMessage text={run.text} {forceTLColor} />
-            </strong>
+          {#if deleted}
+            <span>{run.text}</span>
           {:else}
-            <TranslatedMessage text={run.text} {forceTLColor} />
+            {#if run.styles?.includes('bold')}
+              <strong>
+                <TranslatedMessage text={run.text} {forceTLColor} />
+              </strong>
+            {:else}
+              <TranslatedMessage text={run.text} {forceTLColor} />
+            {/if}
           {/if}
         {/if}
       {:else if run.type === 'link'}

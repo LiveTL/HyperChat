@@ -185,15 +185,25 @@ const executeChatAction = async (
   action: ChatUserActions,
   reportOption?: ChatReportUserOptions
 ): Promise<void> => {
-  if (message.params == null) return;
-
   const fetcher = async (...args: any[]): Promise<any> => {
-    return await new Promise((resolve) => {
-      const encoded = JSON.stringify(args);
-      window.addEventListener('proxyFetchResponse', (e) => {
-        const response = JSON.parse((e as CustomEvent).detail);
-        resolve(response);
-      });
+    return await new Promise((resolve, reject) => {
+      const id = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const encoded = JSON.stringify({ id, args });
+      const onFetchResponse = (e: Event): void => {
+        const response = JSON.parse((e as CustomEvent).detail) as {
+          id: string;
+          response?: any;
+          error?: string;
+        };
+        if (response.id !== id) return;
+        window.removeEventListener('proxyFetchResponse', onFetchResponse);
+        if (response.error != null) {
+          reject(new Error(response.error));
+          return;
+        }
+        resolve(response.response);
+      };
+      window.addEventListener('proxyFetchResponse', onFetchResponse);
       window.dispatchEvent(new CustomEvent('proxyFetchRequest', {
         detail: encoded
       }));
@@ -201,7 +211,13 @@ const executeChatAction = async (
   };
 
   let success = true;
+  if (message.params == null) {
+    success = false;
+  }
   try {
+    if (message.params == null) {
+      throw new Error('Missing context menu params for message');
+    }
     const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
     const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
       `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
@@ -228,36 +244,62 @@ const executeChatAction = async (
       ...heads,
       body: JSON.stringify({ context: baseContext })
     });
+    function findServiceEndpoint(root: any, prop: string): any | null {
+      const queue = [root];
+      const visited = new Set<any>();
+      while (queue.length > 0) {
+        const current = queue.shift();
+        if (current == null || typeof current !== 'object' || visited.has(current)) continue;
+        visited.add(current);
+        if (typeof current?.[prop]?.params === 'string') {
+          return current;
+        }
+        for (const value of Object.values(current)) {
+          if (value != null && typeof value === 'object') {
+            queue.push(value);
+          }
+        }
+      }
+      return null;
+    }
     function parseServiceEndpoint(serviceEndpoint: any, prop: string): { params: string, context: any } {
+      if (typeof serviceEndpoint?.[prop]?.params !== 'string') {
+        throw new Error(`Missing service endpoint params for ${prop}`);
+      }
       const { clickTrackingParams, [prop]: { params } } = serviceEndpoint;
       const clonedContext = JSON.parse(JSON.stringify(baseContext));
-      clonedContext.clickTracking = {
-        clickTrackingParams
-      };
+      if (clickTrackingParams != null) {
+        clonedContext.clickTracking = {
+          clickTrackingParams
+        };
+      }
       return {
         params,
         context: clonedContext
       };
     }
     if (action === ChatUserActions.BLOCK) {
-      const { params, context } = parseServiceEndpoint(
-        res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[1]
-          .menuNavigationItemRenderer.navigationEndpoint.confirmDialogEndpoint
-          .content.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint,
-        'moderateLiveChatEndpoint'
-      );
-      await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+      const serviceEndpoint = findServiceEndpoint(res, 'moderateLiveChatEndpoint');
+      if (serviceEndpoint == null) {
+        throw new Error('Could not find moderate endpoint in context menu');
+      }
+      const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
+      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           params,
           context
         })
       });
+      if (moderationResponse?.error != null || moderationResponse?.success === false) {
+        throw new Error('Moderation request failed');
+      }
     } else if (action === ChatUserActions.REPORT_USER) {
-      const { params, context } = parseServiceEndpoint(
-        res.liveChatItemContextMenuSupportedRenderers.menuRenderer.items[0].menuServiceItemRenderer.serviceEndpoint,
-        'getReportFormEndpoint'
-      );
+      const serviceEndpoint = findServiceEndpoint(res, 'getReportFormEndpoint');
+      if (serviceEndpoint == null) {
+        throw new Error('Could not find report endpoint in context menu');
+      }
+      const { params, context } = parseServiceEndpoint(serviceEndpoint, 'getReportFormEndpoint');
       const modal = await fetcher(`${currentDomain}/youtubei/v1/flag/get_form?key=${apiKey}&prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
@@ -265,21 +307,35 @@ const executeChatAction = async (
           context
         })
       });
-      const index = chatReportUserOptions.findIndex(d => d.value === reportOption);
-      const options = modal.actions[0].openPopupAction.popup.reportFormModalRenderer.optionsSupportedRenderers.optionsRenderer.items;
-      const submitEndpoint = options[index].optionSelectableItemRenderer.submitEndpoint;
-      const clickTrackingParams = submitEndpoint.clickTrackingParams;
-      const flagAction = submitEndpoint.flagEndpoint.flagAction;
-      context.clickTracking = {
-        clickTrackingParams
-      };
-      await fetcher(`${currentDomain}/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
+      const options = modal?.actions?.[0]
+        ?.openPopupAction?.popup?.reportFormModalRenderer
+        ?.optionsSupportedRenderers?.optionsRenderer?.items;
+      if (!Array.isArray(options) || options.length < 1) {
+        throw new Error('Report options are missing');
+      }
+      const reportIndex = chatReportUserOptions.findIndex(d => d.value === reportOption);
+      const index = reportIndex >= 0 && reportIndex < options.length ? reportIndex : 0;
+      const submitEndpoint = options[index]?.optionSelectableItemRenderer?.submitEndpoint;
+      const clickTrackingParams = submitEndpoint?.clickTrackingParams;
+      const flagAction = submitEndpoint?.flagEndpoint?.flagAction;
+      if (flagAction == null) {
+        throw new Error('Report submit endpoint is missing');
+      }
+      if (clickTrackingParams != null) {
+        context.clickTracking = {
+          clickTrackingParams
+        };
+      }
+      const flagResponse = await fetcher(`${currentDomain}/youtubei/v1/flag/flag?key=${apiKey}&prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           action: flagAction,
           context
         })
       });
+      if (flagResponse?.error != null || flagResponse?.success === false) {
+        throw new Error('Report request failed');
+      }
     }
   } catch (e) {
     console.debug('Error executing chat action', e);
