@@ -6,6 +6,42 @@
 - Do not implement feature/fix work directly on `main`/`mv3`.
 - If a task starts on another branch, switch to `mv2` before editing unless the user explicitly asks otherwise.
 
+## House Style
+
+- Commit messages should be short, direct, and readable in `git log --oneline`.
+- Prefer active voice and concrete verbs:
+  - `hide @ in names`
+  - `fix lingering yt visuals`
+  - `agent upkeep`
+- Avoid padded scopes, issue-number prefixes, and changelog-style essays in commit subjects.
+- A slightly dry or funny commit is fine if it is still clear at a glance.
+- Prefer proper merges when carrying `mv2` work into `mv3` and `mv3-ltl`.
+- If MV3 needs follow-up adaptation, keep that as a small, explicit commit after the merge instead of rewriting history or hand-copying changes.
+
+## Code Patterns
+
+- Prefer editing existing modules and utilities over creating one-off files for tiny helpers.
+- If a helper obviously belongs in an existing shared utility file, put it there.
+- Put shared behavior on `mv2` first; `mv3` and `mv3-ltl` should usually be merge-plus-adaptation branches, not separate feature branches.
+- Keep MV3 adaptation narrow:
+  - preserve branch-specific build/runtime wiring
+  - change only what is required for manifest/background/injection differences
+- Prefer render-edge formatting over mutating raw identity data:
+  - keep parsed message/channel ids untouched
+  - transform display text at component or view-model boundaries
+- Prefer resilient lookups over brittle positions:
+  - endpoint/type detection over fixed menu indices
+  - semantic selectors/utilities over DOM-order assumptions
+- When a bug appears in multiple surfaces, prefer fixing the shared parser/messaging/util layer before patching several components by hand.
+
+## Changelog Style
+
+- Keep release bullets short and user-facing.
+- Prefer active voice:
+  - `Fix admin block/report actions`
+  - `Hide leading @ in names`
+- Avoid passive voice, filler, and overly technical internal wording unless the release note is specifically for maintainers.
+
 ## Codex Dev Runtime
 
 - Run `scripts/codex-dev.sh setup-mcp` once (or per fresh machine) to register the Codex MCP server:
