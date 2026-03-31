@@ -1,6 +1,7 @@
 import Hyperchat from '../components/Hyperchat.svelte';
 import tailwind from 'smelte/src/tailwind.css?inline';
 import { isLiveTL } from '../ts/chat-constants';
+import { stripYoutubePlayerStyles } from '../ts/chat-utils';
 
 const MOUNT_ROOT_ID = 'hyperchat-mount-root';
 const FONT_LINK_ID = 'hyperchat-font-link';
@@ -60,6 +61,7 @@ const ensureMountRoot = (): HTMLDivElement => {
 const mount = (): void => {
   console.log('[HyperChat] mounting hyperchat in embed frame');
   stripEmbedArtifacts();
+  stripYoutubePlayerStyles();
   document.documentElement.style.cssText = 'background-color: transparent !important;';
   document.body.style.cssText = 'margin: 0 !important; background-color: transparent !important; overflow: hidden !important;';
 
@@ -81,6 +83,13 @@ const mount = (): void => {
   }).observe(document.body, {
     childList: true
   });
+
+  if (document.head != null) {
+    new MutationObserver(stripYoutubePlayerStyles).observe(document.head, {
+      childList: true,
+      subtree: true
+    });
+  }
 };
 
 if (isLiveTL) {

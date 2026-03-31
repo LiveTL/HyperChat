@@ -5,6 +5,8 @@ export const getFrameInfoAsync = async (): Promise<Chat.UncheckedFrameInfo> => {
   );
 };
 
+const youtubePlayerStylesSelector = 'link[name="www-player"], link[href*="www-player.css"]';
+
 export const createPopup = (url: string): void => {
   chrome.runtime.sendMessage({ type: 'createPopup', url });
 };
@@ -79,6 +81,13 @@ export const checkInjected = (error: string): boolean => {
     return true;
   }
   return false;
+};
+
+export const stripYoutubePlayerStyles = (): void => {
+  if (document.head == null) return;
+  for (const link of Array.from(document.head.querySelectorAll<HTMLLinkElement>(youtubePlayerStylesSelector))) {
+    link.remove();
+  }
 };
 
 export const useReconnect = <T extends Chat.Port>(connect: () => T): T & { destroy: () => void } => {
