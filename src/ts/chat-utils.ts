@@ -7,6 +7,8 @@ export const getFrameInfoAsync = async (): Promise<Chat.UncheckedFrameInfo> => {
   );
 };
 
+const youtubePlayerStylesSelector = 'link[name="www-player"], link[href*="www-player.css"]';
+
 export const createPopup = (url: string): void => {
   chrome.runtime.sendMessage({ type: 'createPopup', url });
 };
@@ -83,39 +85,45 @@ export const checkInjected = (error: string): boolean => {
   return false;
 };
 
+export const stripYoutubePlayerStyles = (): void => {
+  if (document.head == null) return;
+  for (const link of Array.from(document.head.querySelectorAll<HTMLLinkElement>(youtubePlayerStylesSelector))) {
+    link.remove();
+  }
+};
+
 type ReconnectingPort<T extends Chat.Port> =
   Partial<Pick<T, 'name' | 'disconnect' | 'postMessage' | 'onMessage' | 'onDisconnect'>> &
   { destroy: () => void };
 
-  export const useReconnect = <T>(connect: () => Promise<T>): ReconnectingPort<T> => {
-    let actualPort: T | null = null;
-    const doConnect = async (): Promise<void> => {
-      actualPort = await connect();
-      // @ts-ignore
-      actualPort.onDisconnect.addListener(doConnect);
-    };
-    doConnect();
-  
-    return {
-      // @ts-ignore
-      ...actualPort,
-      // @ts-ignore
-      get name() { return actualPort.name; },
-      // @ts-ignore
-      disconnect(...args) { return actualPort.disconnect(...args); },
-      // @ts-ignore
-      postMessage(...args) { return actualPort.postMessage(...args); },
-      // @ts-ignore
-      get onMessage() { return actualPort.onMessage; },
-      // @ts-ignore
-      get onDisconnect() { return actualPort.onDisconnect; },
-      // @ts-ignore
-      destroy: () => {
-        // @ts-ignore
-        actualPort.onDisconnect.removeListener(onDisconnect);
-        // @ts-ignore
-        actualPort.disconnect();
-      }
-    };
+export const useReconnect = <T>(connect: () => Promise<T>): ReconnectingPort<T> => {
+  let actualPort: T | null = null;
+  const doConnect = async (): Promise<void> => {
+    actualPort = await connect();
+    // @ts-ignore
+    actualPort.onDisconnect.addListener(doConnect);
   };
+  doConnect();
+
+  return {
+    // @ts-ignore
+    ...actualPort,
+    // @ts-ignore
+    get name() { return actualPort.name; },
+    // @ts-ignore
+    disconnect(...args) { return actualPort.disconnect(...args); },
+    // @ts-ignore
+    postMessage(...args) { return actualPort.postMessage(...args); },
+    // @ts-ignore
+    get onMessage() { return actualPort.onMessage; },
+    // @ts-ignore
+    get onDisconnect() { return actualPort.onDisconnect; },
+    destroy: () => {
+      // @ts-ignore
+      actualPort.onDisconnect.removeListener(doConnect);
+      // @ts-ignore
+      actualPort.disconnect();
+    }
+  };
+};
   
