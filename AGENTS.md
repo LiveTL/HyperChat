@@ -5,6 +5,15 @@
 - Make code changes on `mv2` first.
 - Do not implement feature/fix work directly on `main`/`mv3`.
 - If a task starts on another branch, switch to `mv2` before editing unless the user explicitly asks otherwise.
+- If a task touches both HyperChat and LiveTL, HyperChat still goes first.
+- Cross-repo order is mandatory:
+  1. HyperChat `mv2`
+  2. HyperChat `mv3`
+  3. HyperChat `mv3-ltl`
+  4. LiveTL `develop`
+  5. LiveTL `mv3-fr`
+  6. LiveTL `release`
+- Never start cross-repo work in LiveTL when the HyperChat submodule also needs to change.
 
 ## House Style
 
