@@ -32,7 +32,8 @@ jobs:
           # Extract version number from the tag
           VERSION=$(echo -n "$RELEASE_TAG" | sed 's/^v//g' | sed 's/-.*//')
 
-          VERSION="$VERSION" npm run build
+          VERSION="$VERSION" npm run build:chrome
+          VERSION="$VERSION" npm run build:firefox
 
       - name: Upload Chrome package to release
         uses: svenstaro/upload-release-action@v2
