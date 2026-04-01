@@ -10,6 +10,14 @@ This repo ships from two branches and they are not versioned the same way.
 4. Validate and push `mv3`.
 5. Create releases from each branch.
 
+If the same task also affects LiveTL, do not begin in LiveTL. Finish this HyperChat ladder first, then bump the LiveTL submodule chain in this order:
+
+1. LiveTL `develop`
+2. LiveTL `mv3-fr`
+3. LiveTL `release`
+
+HyperChat is the upstream source for shared chat behavior. LiveTL is downstream packaging/integration work after that.
+
 ## Local Validation
 
 On `mv2`:
