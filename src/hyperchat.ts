@@ -1,7 +1,8 @@
 import Hyperchat from './components/Hyperchat.svelte';
 import 'smelte/src/tailwind.css';
-import { stripYoutubePlayerStyles } from './ts/chat-utils';
+import { stripYoutubePlayerShell, stripYoutubePlayerStyles } from './ts/chat-utils';
 
+stripYoutubePlayerShell();
 stripYoutubePlayerStyles();
 
 const hyperchat = new Hyperchat({
