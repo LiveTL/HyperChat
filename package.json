@@ -1,9 +1,10 @@
 {
   "name": "HyperChat",
-  "version": "69.42.0",
+  "version": "3.2.0",
   "private": true,
   "scripts": {
-    "build": "npm-run-all --parallel build:chrome build:firefox",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && npm-run-all --parallel build:chrome build:firefox",
     "build:chrome": "cross-env BROWSER=chrome vite build",
     "build:firefox": "cross-env BROWSER=firefox vite build",
     "dev:chrome": "cross-env MINIFY=false BROWSER=chrome vite build --watch",
@@ -14,7 +15,7 @@
     "start:firefox": "cross-env AUTOLAUNCH=true npm run dev:firefox",
     "format:check": "eslint .",
     "lint": "npm run lint:check -- --fix",
-    "lint:check": "eslint src --max-warnings=0",
+    "lint:check": "eslint . --max-warnings=0",
     "postinstall": "patch-package"
   },
   "dependencies": {

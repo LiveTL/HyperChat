@@ -66,7 +66,7 @@ const parseMessageRuns = (runs?: Ytc.MessageRun[]): Ytc.ParsedRun[] => {
 // takes an array of runs, finds newline-only runs, and splits the array by them, up to maxSplit times
 // final output will have maximum length of maxSplit + 1
 // maxSplit = -1 will have no limit for splits
-const splitRunsByNewline = (runs: Ytc.ParsedRun[], maxSplit: number = -1): Ytc.ParsedRun[][] => 
+const splitRunsByNewline = (runs: Ytc.ParsedRun[], maxSplit: number = -1): Ytc.ParsedRun[][] =>
   runs.reduce((acc: Ytc.ParsedRun[][], run: Ytc.ParsedRun) => {
     if (run.type === 'text' && run.text === '\n' && (maxSplit == -1 || acc.length <= maxSplit)) {
       acc.push([]);
@@ -80,7 +80,7 @@ const parseChatSummary = (renderer: Ytc.AddChatItem, actionId: string, showtime:
   if (!renderer.liveChatBannerChatSummaryRenderer) {
     return;
   }
-  const baseRenderer = renderer.liveChatBannerChatSummaryRenderer!;
+  const baseRenderer = renderer.liveChatBannerChatSummaryRenderer;
   const runs = parseMessageRuns(renderer.liveChatBannerChatSummaryRenderer?.chatSummary.runs);
   const splitRuns = splitRunsByNewline(runs, 2);
   if (splitRuns.length < 3) {
@@ -100,44 +100,44 @@ const parseChatSummary = (renderer: Ytc.AddChatItem, actionId: string, showtime:
     actionId: baseRenderer.liveChatSummaryId,
     item: {
       header: splitRuns[0],
-      subheader: subheader,
-      message: splitRuns[2],
+      subheader,
+      message: splitRuns[2]
     },
-    showtime: showtime,
-    timestamp: formatTimestamp(Date.now() * 1000),
+    showtime,
+    timestamp: formatTimestamp(Date.now() * 1000)
   };
   return item;
-}
+};
 
 const parseRedirectBanner = (renderer: Ytc.AddChatItem, actionId: string, showtime: number): Ytc.ParsedRedirect | undefined => {
   if (!renderer.liveChatBannerRedirectRenderer) {
     return;
   }
-  const baseRenderer = renderer.liveChatBannerRedirectRenderer!;
+  const baseRenderer = renderer.liveChatBannerRedirectRenderer;
   const profileIcon = {
     src: fixUrl(baseRenderer.authorPhoto?.thumbnails[0].url ?? ''),
     alt: 'Redirect profile icon'
   };
-  const url = baseRenderer.inlineActionButton?.buttonRenderer.command.urlEndpoint?.url || 
-    (baseRenderer.inlineActionButton?.buttonRenderer.command.watchEndpoint?.videoId ?
-       "/watch?v=" + baseRenderer.inlineActionButton?.buttonRenderer.command.watchEndpoint?.videoId 
-       : '');
+  const url = baseRenderer.inlineActionButton?.buttonRenderer.command.urlEndpoint?.url ||
+    (baseRenderer.inlineActionButton?.buttonRenderer.command.watchEndpoint?.videoId
+      ? '/watch?v=' + baseRenderer.inlineActionButton?.buttonRenderer.command.watchEndpoint?.videoId
+      : '');
   const item: Ytc.ParsedRedirect = {
     type: 'redirect',
-    actionId: actionId,
+    actionId,
     item: {
       message: parseMessageRuns(baseRenderer.bannerMessage.runs),
-      profileIcon: profileIcon,
+      profileIcon,
       action: {
         url: fixUrl(url),
-        text: parseMessageRuns(baseRenderer.inlineActionButton?.buttonRenderer.text?.runs),
+        text: parseMessageRuns(baseRenderer.inlineActionButton?.buttonRenderer.text?.runs)
       }
     },
-    showtime: showtime,
-    timestamp: formatTimestamp(Date.now() * 1000),
+    showtime,
+    timestamp: formatTimestamp(Date.now() * 1000)
   };
   return item;
-}
+};
 
 const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false, liveTimeoutOrReplayMs = 0): Ytc.ParsedMessage | undefined => {
   const actionItem = action.item;
@@ -152,12 +152,14 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
   }
 
   const isGiftPurchase = isMembershipGiftPurchaseRenderer(renderer);
-  const messageRenderer = isGiftPurchase ? renderer.header.liveChatSponsorshipsHeaderRenderer : renderer;
+  const messageRenderer: Ytc.TextMessageRenderer = isGiftPurchase
+    ? (renderer as Ytc.MembershipGiftPurchaseRenderer).header.liveChatSponsorshipsHeaderRenderer
+    : renderer as Ytc.TextMessageRenderer;
 
   const authorTypes: string[] = [];
   let customBadge: Ytc.ParsedImage | undefined;
   if (messageRenderer.authorBadges) {
-    messageRenderer.authorBadges.forEach((badge) => {
+    messageRenderer.authorBadges.forEach((badge: Ytc.AuthorBadge) => {
       const badgeRenderer = badge.liveChatAuthorBadgeRenderer;
       const iconType = badgeRenderer.icon?.iconType;
       if (iconType != null) {
@@ -233,7 +235,7 @@ const parseAddChatItemAction = (action: Ytc.AddChatItemAction, isReplay = false,
         : parseMessageRuns(renderer.headerSubtext.runs)
     };
   } else if (isGiftPurchase) {
-    const header = renderer.header.liveChatSponsorshipsHeaderRenderer;
+    const header = (renderer as Ytc.MembershipGiftPurchaseRenderer).header.liveChatSponsorshipsHeaderRenderer;
     item.membershipGiftPurchase = {
       headerPrimaryText: parseMessageRuns(header.primaryText.runs),
       image: {
@@ -274,7 +276,7 @@ const parsePollRenderer = (baseRenderer: Ytc.PollRenderer): Ytc.ParsedPoll | und
     type: 'poll',
     actionId: baseRenderer.liveChatPollId,
     item: {
-      profileIcon: profileIcon,
+      profileIcon,
       header: parseMessageRuns(baseRenderer.header.pollHeaderRenderer.metadataText.runs),
       question: parseMessageRuns(baseRenderer.header.pollHeaderRenderer.pollQuestion.runs),
       choices: baseRenderer.choices.map((choice) => {
@@ -284,10 +286,10 @@ const parsePollRenderer = (baseRenderer: Ytc.PollRenderer): Ytc.ParsedPoll | und
           ratio: choice.voteRatio,
           percentage: choice.votePercentage?.simpleText
         };
-      }),
+      })
     }
   };
-}
+};
 
 const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedMisc | undefined => {
   const baseRenderer = action.bannerRenderer.liveChatBannerRenderer;
@@ -302,8 +304,8 @@ const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedMisc | undefi
 
   // fold both auto-disappear and auto-collapse into just collapse for showtime
   const showtime = action.bannerProperties?.isEphemeral
-   ? (action.bannerProperties?.bannerTimeoutMs || 0)
-   : 1000 * (action.bannerProperties?.autoCollapseDelay?.seconds || baseRenderer.bannerProperties?.autoCollapseDelay?.seconds || 0);
+    ? (action.bannerProperties?.bannerTimeoutMs || 0)
+    : 1000 * (action.bannerProperties?.autoCollapseDelay?.seconds || baseRenderer.bannerProperties?.autoCollapseDelay?.seconds || 0);
 
   if (baseRenderer.contents.liveChatBannerChatSummaryRenderer) {
     return parseChatSummary(baseRenderer.contents, actionId, showtime);
@@ -319,14 +321,14 @@ const parseBannerAction = (action: Ytc.AddPinnedAction): Ytc.ParsedMisc | undefi
   }
   return {
     type: 'pin',
-    actionId: actionId,
+    actionId,
     item: {
       header: parseMessageRuns(
         baseRenderer.header.liveChatBannerHeaderRenderer.text.runs
       ),
       contents: parsedContents
     },
-    showtime: showtime,
+    showtime
   };
 };
 
@@ -361,7 +363,7 @@ const processCommonAction = (
   } else if (action.removeBannerForLiveChatCommand) {
     return {
       type: 'unpin',
-      targetActionId: action.removeBannerForLiveChatCommand.targetActionId,
+      targetActionId: action.removeBannerForLiveChatCommand.targetActionId
     } as Ytc.ParsedRemoveBanner;
   } else if (action.addLiveChatTickerItemAction) {
     return parseTickerAction(action.addLiveChatTickerItemAction, isReplay, liveTimeoutOrReplayMs);

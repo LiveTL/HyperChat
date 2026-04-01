@@ -2,6 +2,7 @@ import type { Unsubscriber } from './queue';
 import { ytcQueue } from './queue';
 import sha1 from 'sha-1';
 import { chatReportUserOptions, ChatUserActions, ChatReportUserOptions } from '../ts/chat-constants';
+import type { Chat } from './typings/chat';
 
 const currentDomain = location.protocol.includes('youtube') ? (location.protocol + '//' + location.host) : 'https://www.youtube.com';
 

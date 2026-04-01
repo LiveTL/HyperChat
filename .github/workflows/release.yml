@@ -4,27 +4,36 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to build and upload
+        required: true
+        type: string
 
 jobs:
   build:
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
 
       - run: |
-          npm install
+          npm ci
           npm run lint:check
 
           # Extract version number from the tag
-          VERSION=$(echo -n "${{ github.ref }}" | sed 's/[refs\/tagv]//g' | sed 's/-.*//')
+          VERSION=$(echo -n "$RELEASE_TAG" | sed 's/^v//g' | sed 's/-.*//')
 
-          npm run build
+          VERSION="$VERSION" npm run build:chrome
+          VERSION="$VERSION" npm run build:firefox
 
       - name: Upload Chrome package to release
         uses: svenstaro/upload-release-action@v2
@@ -32,7 +41,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: build/HyperChat-chrome.zip
           asset_name: HyperChat-Chrome.zip
-          tag: ${{ github.ref }}
+          tag: ${{ env.RELEASE_TAG }}
           overwrite: true
 
       - name: Upload Firefox package to release
@@ -41,5 +50,5 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: build/HyperChat-firefox.zip
           asset_name: HyperChat-Firefox.zip
-          tag: ${{ github.ref }}
+          tag: ${{ env.RELEASE_TAG }}
           overwrite: true

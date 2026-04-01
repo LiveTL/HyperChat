@@ -4,6 +4,7 @@ import type { Writable } from 'svelte/store';
 import { getClient, AvailableLanguages } from 'iframe-translator';
 import type { IframeTranslatorClient, AvailableLanguageCodes } from 'iframe-translator';
 import { ChatReportUserOptions, Theme, YoutubeEmojiRenderMode } from './chat-constants';
+import type { Chat } from './typings/chat';
 
 export const stores = webExtStores();
 

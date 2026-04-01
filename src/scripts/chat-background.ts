@@ -26,11 +26,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 chrome.runtime.onConnect.addListener(hc => {
-  // frameId and tabId should be int
-  const { tabId, frameId } = JSON.parse(hc.name);
+  const { frameId, tabId } = JSON.parse(hc.name) as { frameId: number, tabId: number };
   const interceptorPort = chrome.tabs.connect(tabId, { frameId });
 
-  const onInterceptorMessage = (msg): void => {
+  const onInterceptorMessage = (msg: any): void => {
     hc.postMessage(msg);
   };
   interceptorPort.onMessage.addListener(onInterceptorMessage);
@@ -39,7 +38,7 @@ chrome.runtime.onConnect.addListener(hc => {
     hc.disconnect();
   });
 
-  const onHcMessage = (msg): void => {
+  const onHcMessage = (msg: any): void => {
     interceptorPort.postMessage(msg);
   };
   hc.onMessage.addListener(onHcMessage);
@@ -50,7 +49,9 @@ chrome.runtime.onConnect.addListener(hc => {
 });
 
 // see https://i.imgur.com/cGciqrX.png
-chrome.storage.local.onChanged.addListener(changes => {
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== 'local') return;
+
   let delta = 0;
   for (const key of Object.keys(changes)) {
     if (noUpdateKeys.has(key)) continue;

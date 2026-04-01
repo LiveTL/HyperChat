@@ -64,4 +64,4 @@ The built ZIP files can be found in the `build` directory.
 
 ## Release
 
-Release steps for `mv2` and `mv3` are documented in [RELEASE_PROCESS.md](./RELEASE_PROCESS.md).
+Release steps for `mv2`, `main`, and `mv3-ltl` are documented in [RELEASE_PROCESS.md](./RELEASE_PROCESS.md).

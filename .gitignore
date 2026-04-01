@@ -1,7 +1,6 @@
 .DS_Store
 node_modules
 build
-package-lock.json
 .eslintcache
 
 # local env files
@@ -20,11 +19,5 @@ npm-debug.log*
 *.sln
 *.sw?
 
-# Vue Browser Extension Output
-*.pem
-*.pub
-*.zip
-artifacts
-.eslintcache
 .codex-runtime/
 .codex-profile/

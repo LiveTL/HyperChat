@@ -8,6 +8,7 @@ export const getFrameInfoAsync = async (): Promise<Chat.UncheckedFrameInfo> => {
 };
 
 const youtubePlayerStylesSelector = 'link[name="www-player"], link[href*="www-player.css"]';
+const youtubePlayerShellSelectors = ['#player', '#player-controls', '.player-unavailable', 'yt-live-chat-app', 'ytd-app', 'ytm-app'];
 
 export const createPopup = (url: string): void => {
   chrome.runtime.sendMessage({ type: 'createPopup', url });
@@ -85,6 +86,10 @@ export const checkInjected = (error: string): boolean => {
   return false;
 };
 
+type ReconnectingPort<T extends Chat.Port> =
+  Partial<Pick<T, 'name' | 'disconnect' | 'postMessage' | 'onMessage' | 'onDisconnect'>> &
+  { destroy: () => void };
+
 export const stripYoutubePlayerStyles = (): void => {
   if (document.head == null) return;
   for (const link of Array.from(document.head.querySelectorAll<HTMLLinkElement>(youtubePlayerStylesSelector))) {
@@ -92,38 +97,32 @@ export const stripYoutubePlayerStyles = (): void => {
   }
 };
 
-type ReconnectingPort<T extends Chat.Port> =
-  Partial<Pick<T, 'name' | 'disconnect' | 'postMessage' | 'onMessage' | 'onDisconnect'>> &
-  { destroy: () => void };
+export const stripYoutubePlayerShell = (): void => {
+  for (const selector of youtubePlayerShellSelectors) {
+    document.querySelector(selector)?.remove();
+  }
+};
 
-export const useReconnect = <T>(connect: () => Promise<T>): ReconnectingPort<T> => {
+export const useReconnect = <T extends Chat.Port>(connect: () => Promise<T>): ReconnectingPort<T> => {
   let actualPort: T | null = null;
+
   const doConnect = async (): Promise<void> => {
     actualPort = await connect();
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     actualPort.onDisconnect.addListener(doConnect);
   };
-  doConnect();
+  void doConnect();
 
   return {
-    // @ts-ignore
-    ...actualPort,
-    // @ts-ignore
-    get name() { return actualPort.name; },
-    // @ts-ignore
-    disconnect(...args) { return actualPort.disconnect(...args); },
-    // @ts-ignore
-    postMessage(...args) { return actualPort.postMessage(...args); },
-    // @ts-ignore
-    get onMessage() { return actualPort.onMessage; },
-    // @ts-ignore
-    get onDisconnect() { return actualPort.onDisconnect; },
+    get name() { return actualPort?.name; },
+    disconnect(...args) { return actualPort?.disconnect(...args); },
+    postMessage(...args) { return actualPort?.postMessage(...args); },
+    get onMessage() { return actualPort?.onMessage; },
+    get onDisconnect() { return actualPort?.onDisconnect; },
     destroy: () => {
-      // @ts-ignore
-      actualPort.onDisconnect.removeListener(doConnect);
-      // @ts-ignore
-      actualPort.disconnect();
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      actualPort?.onDisconnect.removeListener(doConnect);
+      actualPort?.disconnect();
     }
   };
 };
-  

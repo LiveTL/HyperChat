@@ -68,7 +68,7 @@
   let pinned: Ytc.ParsedPinned | null;
   let summary: Ytc.ParsedSummary | null;
   let redirect: Ytc.ParsedRedirect | null;
-  $: hasBanner = poll ?? pinned ?? redirect ?? (summary && $showChatSummary);
+  $: hasBanner = Boolean(poll ?? pinned ?? redirect ?? (summary != null && $showChatSummary));
   let div: HTMLElement;
   let isAtBottom = true;
   let truncateInterval: number | undefined;

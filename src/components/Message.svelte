@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { mdiGift } from '@mdi/js';
   import MessageRun from './MessageRuns.svelte';
   import Icon from './common/Icon.svelte';
   import Menu from './common/Menu.svelte';
@@ -16,6 +15,7 @@
   import { useBanHammer } from '../ts/chat-actions';
   import type { Chat } from '../ts/typings/chat';
   import { formatAuthorName } from '../ts/component-utils';
+  import { mdiGift } from '@mdi/js';
 
   export let message: Ytc.ParsedMessage;
   export let deleted: Chat.MessageDeletedObj | null = null;
@@ -70,7 +70,7 @@
     icon: d.icon,
     text: d.text,
     value: d.value.toString(),
-    onClick: () => { useBanHammer(message, d.value, $port); }
+    onClick: () => useBanHammer(message, d.value, $port)
   }));
 </script>
 

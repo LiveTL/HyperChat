@@ -148,7 +148,7 @@ declare namespace Chat {
   type BackgroundMessage =
     RegisterInterceptorMsg | RegisterClientMsg | processJsonMsg |
     setInitialDataMsg | updatePlayerProgressMsg | setThemeMsg | getThemeMsg |
-    RegisterYtcInterceptorMsg | sendLtlMessageMsg | executeChatActionMsg | chatUserActionResponse;
+    RegisterYtcInterceptorMsg | sendLtlMessageMsg | executeChatActionMsg | chatUserActionResponse | Ping;
 
   type Port = Omit<chrome.runtime.Port, 'postMessage' | 'onMessage'> & {
     postMessage: (message: BackgroundMessage | BackgroundResponse) => void;
