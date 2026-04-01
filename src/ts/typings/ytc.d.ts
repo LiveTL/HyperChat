@@ -34,11 +34,8 @@ declare namespace Ytc {
   interface ReplayAction {
     addChatItemAction?: AddChatItemAction;
     addBannerToLiveChatCommand?: AddPinnedAction;
-    removeBannerForLiveChatCommand?: {
-      targetActionId: string;
-    };
+    removeBannerForLiveChatCommand?: unknown;
     addLiveChatTickerItemAction?: AddTickerAction;
-    updateLiveChatPollAction?: UpdatePollAction;
   }
 
   /** Expected YTC action object */
@@ -89,7 +86,6 @@ declare namespace Ytc {
             text: RunsObj;
           };
         };
-        actionId: string;
         /** Gets used for pinned messages */
         bannerProperties?: BannerPropertiesObj;
       };
@@ -150,12 +146,6 @@ declare namespace Ytc {
 
   interface ThumbnailsWithLabel extends Thumbnails {
     accessibility?: AccessibilityObj;
-  }
-
-  interface UpdatePollAction {
-    pollToUpdate: {
-      pollRenderer: PollRenderer;
-    };
   }
 
   /** Message run object */
@@ -243,19 +233,6 @@ declare namespace Ytc {
     };
   }
 
-  interface EngagementMessageRenderer {
-    message: RunsObj[];
-    id: string;
-    timestampUsec?: IntString;
-    icon?: {
-      /** Unlocalized string */
-      iconType: string;
-    };
-    actionButton?: {
-      buttonRenderer: ButtonRenderer;
-    }
-  }
-
   interface ChatSummaryRenderer {
     liveChatSummaryId: string;
     chatSummary: RunsObj;
@@ -282,17 +259,8 @@ declare namespace Ytc {
     icon?: string;
     accessibility?: AccessibilityObj;
     isDisabled?: boolean;
-    text?: RunsObj; // | SimpleTextObj;
+    text?: RunsObj;
     command: {
-      commandMetadata?: {
-        webCommandMetadata?: {
-          apiUrl?: string;
-          sendPost?: boolean;
-        }
-      }
-      liveChatActionEndpoint?: {
-        params: string;
-      }
       urlEndpoint?: {
         url: string;
         target: string;
@@ -301,28 +269,6 @@ declare namespace Ytc {
         videoId: string;
       }
     }
-  }
-
-  interface PollRenderer {
-    choices: PollChoice[];
-    liveChatPollId: string;
-    header: {
-      pollHeaderRenderer: {
-        pollQuestion: RunsObj;
-        thumbnail: Thumbnails;
-        metadataText: RunsObj;
-        liveChatPollType: string;
-      }
-    }
-    displayVoteResults?: boolean;
-    button?: ButtonRenderer;
-  }
-
-  interface PollChoice {
-    text: RunsObj;
-    selected: boolean;
-    voteRatio?: number;
-    votePercentage?: SimpleTextObj;
   }
 
   interface PlaceholderRenderer { // No idea what the purpose of this is
@@ -350,10 +296,6 @@ declare namespace Ytc {
     liveChatBannerChatSummaryRenderer?: ChatSummaryRenderer;
     /** Redirects */
     liveChatBannerRedirectRenderer?: RedirectRenderer;
-    /** Poll start */
-    pollRenderer?: PollRenderer;
-    /** Poll end + other in-chat announcements TODO */
-    liveChatViewerEngagementMessageRenderer?: EngagementMessageRenderer;
     /** ??? */
     liveChatPlaceholderItemRenderer?: PlaceholderRenderer;
   }
@@ -472,7 +414,6 @@ declare namespace Ytc {
 
   interface ParsedPinned {
     type: 'pin';
-    actionId: string;
     item: {
       header: ParsedRun[];
       contents: ParsedMessage;
@@ -482,19 +423,18 @@ declare namespace Ytc {
 
   interface ParsedSummary {
     type: 'summary';
-    actionId: string;
     item: {
       header: ParsedRun[];
       subheader: ParsedRun[];
       message: ParsedRun[];
     };
+    id: string;
     showtime: number;
     timestamp?: string;
   }
 
   interface ParsedRedirect {
     type: 'redirect';
-    actionId: string;
     item: {
       message: ParsedRun[];
       profileIcon: ParsedImage;
@@ -507,35 +447,13 @@ declare namespace Ytc {
     timestamp?: string;
   }
 
-  interface ParsedPoll {
-    type: 'poll';
-    actionId: string;
-    item: {
-      header: ParsedRun[];
-      profileIcon: ParsedImage;
-      question: ParsedRun[];
-      choices: Array<{
-        text: ParsedRun[];
-        selected: boolean;
-        ratio?: number;
-        percentage?: string;
-      }>;
-    }
-    // TODO add 'action' for ending poll button
-  }
-
-  interface ParsedRemoveBanner {
-    type: 'unpin';
-    targetActionId: string;
-  }
-
   interface ParsedTicker extends ParsedMessage {
     type: 'ticker';
     tickerDuration: number;
     detailText?: string;
   }
 
-  type ParsedMisc = ParsedPinned | ParsedSummary | ParsedRedirect | ParsedPoll | ParsedRemoveBanner;
+  type ParsedMisc = ParsedPinned | ParsedSummary | ParsedRedirect | { type: 'unpin' };
 
   type ParsedTimedItem = ParsedMessage | ParsedTicker;
 

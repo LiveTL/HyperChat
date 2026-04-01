@@ -1,7 +1,7 @@
 <script lang="ts">
   import Message from './Message.svelte';
   import MessageRun from './MessageRuns.svelte';
-  import { formatAuthorName } from '../ts/author-name';
+  import { formatAuthorName } from '../ts/component-utils';
   import { showProfileIcons } from '../ts/storage';
   import { membershipBackground, milestoneChatBackground } from '../ts/chat-constants';
 
