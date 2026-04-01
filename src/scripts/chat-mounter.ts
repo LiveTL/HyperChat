@@ -1,16 +1,14 @@
 import Hyperchat from '../components/Hyperchat.svelte';
 import tailwind from 'smelte/src/tailwind.css?inline';
 import { isLiveTL } from '../ts/chat-constants';
-import { stripYoutubePlayerStyles } from '../ts/chat-utils';
+import { stripYoutubePlayerShell, stripYoutubePlayerStyles } from '../ts/chat-utils';
 
 const MOUNT_ROOT_ID = 'hyperchat-mount-root';
 const FONT_LINK_ID = 'hyperchat-font-link';
 const TAILWIND_STYLE_ID = 'hyperchat-tailwind-style';
 
 const stripEmbedArtifacts = (): void => {
-  for (const selector of ['#player', '.player-unavailable', 'yt-live-chat-app', 'ytd-app', 'ytm-app']) {
-    document.querySelector(selector)?.remove();
-  }
+  stripYoutubePlayerShell();
 };
 
 const ensureHeadAssets = (): void => {

@@ -2,9 +2,11 @@
 
 ## Branch Discipline
 
-- `main` is the MV3 integration branch.
-- Land generic feature/fix changes on `mv2` first, then merge into `main`.
-- On `main`, limit direct edits to MV3-specific adaptation, verification, and follow-up fixes after merge.
+- Make code changes on `mv2` first.
+- `main` is the real MV3 branch now.
+- `mv3` is historical. Do not use it as the normal MV3 source branch for new work or cross-repo sync.
+- Do not implement feature/fix work directly on `main`.
+- If a task starts on another branch, switch to `mv2` before editing unless the user explicitly asks otherwise.
 - If a task touches both HyperChat and LiveTL, HyperChat still goes first.
 - Cross-repo order is mandatory:
   1. HyperChat `mv2`
@@ -25,6 +27,7 @@
 - Avoid padded scopes, issue-number prefixes, and changelog-style essays in commit subjects.
 - A slightly dry or funny commit is fine if it is still clear at a glance.
 - Prefer proper merges when carrying `mv2` work into `main` and `mv3-ltl`.
+- Carry `main` into `mv3-ltl`. Do not treat `mv3` as the normal hop between them.
 - If MV3 needs follow-up adaptation, keep that as a small, explicit commit after the merge instead of rewriting history or hand-copying changes.
 
 ## Code Patterns
@@ -32,6 +35,7 @@
 - Prefer editing existing modules and utilities over creating one-off files for tiny helpers.
 - If a helper obviously belongs in an existing shared utility file, put it there.
 - Put shared behavior on `mv2` first; `main` and `mv3-ltl` should usually be merge-plus-adaptation branches, not separate feature branches.
+- Keep `mv3-ltl` branching from the current `main` line once `main` has the intended HC changes.
 - Keep MV3 adaptation narrow:
   - preserve branch-specific build/runtime wiring
   - change only what is required for manifest/background/injection differences
@@ -115,7 +119,7 @@
 ## Embed 404 Notes (MV3)
 
 - The MV3 embed fallback page (`/embed/hyperchat_embed`) can render a centered YouTube logo/error artifact if page elements are not fully removed.
-- In `src/scripts/chat-mounter.ts`, treat the HyperChat mount root as the only allowed direct `body` child and aggressively remove fallback embed artifacts.
+- In `src/scripts/chat-mounter.ts`, treat the HyperChat mount root as the only allowed direct `body` child and aggressively remove fallback embed artifacts, including `#player-controls`.
 - If the logo reappears in browser tests, prioritize checking `chat-mounter.ts` cleanup selectors and page timing behavior before touching parser/UI code.
 
 ## Operational Commands
