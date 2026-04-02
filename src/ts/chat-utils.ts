@@ -5,7 +5,12 @@ export const getFrameInfoAsync = async (): Promise<Chat.UncheckedFrameInfo> => {
   );
 };
 
-const youtubePlayerStylesSelector = 'link[name="www-player"], link[href*="www-player.css"]';
+const youtubePlayerStylesSelector = [
+  'link[name="www-player"]',
+  'link[href*="www-player.css"]',
+  'link[name="embed-ui"]',
+  'link[href*="ytembeds"]'
+].join(', ');
 const youtubePlayerShellSelectors = ['#player', '#player-controls', '.player-unavailable', 'yt-live-chat-app', 'ytd-app', 'ytm-app'];
 
 export const createPopup = (url: string): void => {
