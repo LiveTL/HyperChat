@@ -34,8 +34,15 @@ declare namespace Ytc {
   interface ReplayAction {
     addChatItemAction?: AddChatItemAction;
     addBannerToLiveChatCommand?: AddPinnedAction;
-    removeBannerForLiveChatCommand?: unknown;
+    removeBannerForLiveChatCommand?: {
+      targetActionId: string;
+    };
     addLiveChatTickerItemAction?: AddTickerAction;
+    updateLiveChatPollAction?: {
+      pollToUpdate: {
+        pollRenderer: PollRenderer;
+      };
+    };
   }
 
   /** Expected YTC action object */
@@ -86,6 +93,8 @@ declare namespace Ytc {
             text: RunsObj;
           };
         };
+        /** Used for identifying the banner action */
+        actionId: string;
         /** Gets used for pinned messages */
         bannerProperties?: BannerPropertiesObj;
       };
@@ -276,6 +285,23 @@ declare namespace Ytc {
     timestampUsec: IntString;
   }
 
+  interface PollRenderer {
+    liveChatPollId: string;
+    header: {
+      pollHeaderRenderer: {
+        pollQuestion: RunsObj;
+        metadataText: RunsObj;
+        thumbnail?: Thumbnails;
+      };
+    };
+    choices: Array<{
+      text: RunsObj;
+      selected: boolean;
+      voteRatio?: number;
+      votePercentage?: SimpleTextObj;
+    }>;
+  }
+
   type Renderers = TextMessageRenderer | PaidMessageRenderer |
   PaidStickerRenderer | MembershipRenderer | MembershipGiftPurchaseRenderer;
 
@@ -298,6 +324,8 @@ declare namespace Ytc {
     liveChatBannerRedirectRenderer?: RedirectRenderer;
     /** ??? */
     liveChatPlaceholderItemRenderer?: PlaceholderRenderer;
+    /** Poll */
+    pollRenderer?: PollRenderer;
   }
 
   interface TickerRenderer { // Doesn't have a timestamp but ID is always a paid message id
@@ -414,6 +442,7 @@ declare namespace Ytc {
 
   interface ParsedPinned {
     type: 'pin';
+    actionId: string;
     item: {
       header: ParsedRun[];
       contents: ParsedMessage;
@@ -423,18 +452,19 @@ declare namespace Ytc {
 
   interface ParsedSummary {
     type: 'summary';
+    actionId: string;
     item: {
       header: ParsedRun[];
       subheader: ParsedRun[];
       message: ParsedRun[];
     };
-    id: string;
     showtime: number;
     timestamp?: string;
   }
 
   interface ParsedRedirect {
     type: 'redirect';
+    actionId: string;
     item: {
       message: ParsedRun[];
       profileIcon: ParsedImage;
@@ -447,13 +477,34 @@ declare namespace Ytc {
     timestamp?: string;
   }
 
+  interface ParsedPoll {
+    type: 'poll';
+    actionId: string;
+    item: {
+      profileIcon: ParsedImage;
+      header: ParsedRun[];
+      question: ParsedRun[];
+      choices: Array<{
+        text: ParsedRun[];
+        selected: boolean;
+        ratio?: number;
+        percentage?: string;
+      }>;
+    };
+  }
+
+  interface ParsedRemoveBanner {
+    type: 'unpin';
+    targetActionId: string;
+  }
+
   interface ParsedTicker extends ParsedMessage {
     type: 'ticker';
     tickerDuration: number;
     detailText?: string;
   }
 
-  type ParsedMisc = ParsedPinned | ParsedSummary | ParsedRedirect | { type: 'unpin' };
+  type ParsedMisc = ParsedPinned | ParsedSummary | ParsedRedirect | ParsedPoll | ParsedRemoveBanner;
 
   type ParsedTimedItem = ParsedMessage | ParsedTicker;
 
