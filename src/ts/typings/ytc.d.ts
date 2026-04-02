@@ -89,6 +89,7 @@ declare namespace Ytc {
             text: RunsObj;
           };
         };
+        /** Used for identifying the banner action */
         actionId: string;
         /** Gets used for pinned messages */
         bannerProperties?: BannerPropertiesObj;
@@ -330,6 +331,23 @@ declare namespace Ytc {
     timestampUsec: IntString;
   }
 
+  interface PollRenderer {
+    liveChatPollId: string;
+    header: {
+      pollHeaderRenderer: {
+        pollQuestion: RunsObj;
+        metadataText: RunsObj;
+        thumbnail?: Thumbnails;
+      };
+    };
+    choices: Array<{
+      text: RunsObj;
+      selected: boolean;
+      voteRatio?: number;
+      votePercentage?: SimpleTextObj;
+    }>;
+  }
+
   type Renderers = TextMessageRenderer | PaidMessageRenderer |
   PaidStickerRenderer | MembershipRenderer | MembershipGiftPurchaseRenderer;
 
@@ -356,6 +374,8 @@ declare namespace Ytc {
     liveChatViewerEngagementMessageRenderer?: EngagementMessageRenderer;
     /** ??? */
     liveChatPlaceholderItemRenderer?: PlaceholderRenderer;
+    /** Poll */
+    pollRenderer?: PollRenderer;
   }
 
   interface TickerRenderer { // Doesn't have a timestamp but ID is always a paid message id
@@ -511,8 +531,13 @@ declare namespace Ytc {
     type: 'poll';
     actionId: string;
     item: {
+<<<<<<< HEAD
       header: ParsedRun[];
       profileIcon: ParsedImage;
+=======
+      profileIcon: ParsedImage;
+      header: ParsedRun[];
+>>>>>>> main
       question: ParsedRun[];
       choices: Array<{
         text: ParsedRun[];
@@ -520,8 +545,12 @@ declare namespace Ytc {
         ratio?: number;
         percentage?: string;
       }>;
+<<<<<<< HEAD
     }
     // TODO add 'action' for ending poll button
+=======
+    };
+>>>>>>> main
   }
 
   interface ParsedRemoveBanner {
