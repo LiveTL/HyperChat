@@ -461,6 +461,10 @@
 </div>
 
 <style>
+  .hyperchat-root {
+    font-family: var(--pure-material-font, "Roboto", "Segoe UI", BlinkMacSystemFont, system-ui, -apple-system, sans-serif);
+  }
+
   .hover-highlight {
     background-color: transparent;
   }
