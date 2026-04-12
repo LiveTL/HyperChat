@@ -11,7 +11,6 @@ const youtubePlayerStylesSelector = [
   'link[name="embed-ui"]',
   'link[href*="ytembeds"]'
 ].join(', ');
-const preservedEmbedBodyChildSelector = '#iframe-translator';
 const youtubePlayerShellSelectors = ['#player', '#player-controls', '.player-unavailable', 'yt-live-chat-app', 'ytd-app', 'ytm-app'];
 
 export const createPopup = (url: string): void => {
@@ -103,5 +102,3 @@ export const stripYoutubePlayerShell = (): void => {
   }
 };
 
-export const shouldPreserveEmbedBodyChild = (child: Element): boolean =>
-  child.matches(preservedEmbedBodyChildSelector);
