@@ -11,6 +11,8 @@ import {
   setTheme
 } from '../ts/messaging';
 
+const isFirefox = navigator.userAgent.includes('Firefox');
+
 const hcWarning = 'An existing HyperChat button has been detected. This ' +
   'usually means both LiveTL and standalone HyperChat are enabled. ' +
   'LiveTL already includes HyperChat, so please enable only one of them.\n\n' +
@@ -22,6 +24,18 @@ const getScriptURL = (path: string): string => {
     return chrome.runtime.getURL('submodules/chat/src/scripts/' + path);
   }
   return chrome.runtime.getURL('scripts/' + path);
+};
+
+const ensureLiveTLTranslatorHost = (): void => {
+  if (!isLiveTL || !isFirefox) return;
+  if (document.querySelector('#hc-ltl-translator-host')) return;
+
+  const script = document.createElement('script');
+  script.id = 'hc-ltl-translator-host';
+  script.src = chrome.runtime.getURL('chat-translation-host.bundle.js');
+  script.onload = () => script.remove();
+  script.onerror = () => script.remove();
+  (document.head ?? document.documentElement).appendChild(script);
 };
 
 const chatLoaded = async (): Promise<void> => {
@@ -103,6 +117,8 @@ const chatLoaded = async (): Promise<void> => {
 
   // Everything past this point will only run if HC is enabled
   if (!hyperChatEnabled) return;
+
+  ensureLiveTLTranslatorHost();
 
   const frameInfo = await getFrameInfoAsync();
   if (!isValidFrameInfo(frameInfo)) {
