@@ -3,13 +3,25 @@ import { getFrameInfoAsync, isValidFrameInfo, frameIsReplay, checkInjected } fro
 import { isLiveTL } from '../ts/chat-constants';
 import { hcEnabled, autoLiveChat } from '../ts/storage';
 
-// const isFirefox = navigator.userAgent.includes('Firefox');
+const isFirefox = navigator.userAgent.includes('Firefox');
 
 const hcWarning = 'An existing HyperChat button has been detected. This ' +
   'usually means both LiveTL and standalone HyperChat are enabled. ' +
   'LiveTL already includes HyperChat, so please enable only one of them.\n\n' +
   'Having multiple instances of the same scripts running WILL cause ' +
   'problems such as chat messages not loading.';
+
+const ensureLiveTLTranslatorHost = (): void => {
+  if (!isLiveTL || !isFirefox) return;
+  if (document.querySelector('#hc-ltl-translator-host')) return;
+
+  const script = document.createElement('script');
+  script.id = 'hc-ltl-translator-host';
+  script.src = chrome.runtime.getURL('chat-translation-host.bundle.js');
+  script.onload = () => script.remove();
+  script.onerror = () => script.remove();
+  (document.head ?? document.documentElement).appendChild(script);
+};
 
 const chatLoaded = async (): Promise<void> => {
   if (!isLiveTL && checkInjected(hcWarning)) return;
@@ -37,6 +49,8 @@ const chatLoaded = async (): Promise<void> => {
     return;
   }
 
+  ensureLiveTLTranslatorHost();
+
   // Inject hyperchat
   const frameInfo = await getFrameInfoAsync();
   if (!isValidFrameInfo(frameInfo)) {
@@ -54,19 +68,6 @@ const chatLoaded = async (): Promise<void> => {
   ytcItemList.outerHTML = `
   <iframe id="hyperchat" src="${source}" style="border: 0px; width: 100%; height: 100%;"/>
   `;
-  // const hyperchat = document.querySelector('#hyperchat') as HTMLIFrameElement;
-  // if (!hyperchat) {
-  //   console.error('Failed to find #hyperchat');
-  //   return;
-  // }
-  // if (isFirefox || isLiveTL) {
-  //   const scale = 0.8;
-  //   const inverse = `${Math.round((1 / scale) * 10000) / 100}%`;
-  //   hyperchat.style.transformOrigin = '0px 0px';
-  //   hyperchat.style.minWidth = inverse;
-  //   hyperchat.style.minHeight = inverse;
-  //   hyperchat.style.transform = `scale(${scale})`;
-  // }
 
   // Remove ticker element
   const ytcTicker = document.querySelector('#ticker');

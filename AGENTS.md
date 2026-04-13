@@ -114,6 +114,7 @@
   - extension args: `--disable-extensions-except=<build>` and `--load-extension=<build>`
 - Firefox validation in this environment must set `HOME=/root` before launching browser automation as root, or Firefox exits early with a root/session ownership error.
 - For Firefox runtime checks, prefer `https://www.youtube.com/live_chat?v=jfKfPfyJRdk&is_popout=1` for deterministic chat-frame loading in headless mode.
+- Packaged LiveTL Firefox translation is a special case: keep the request bridge in HC, but host the actual translator iframe on the YouTube page side. Do not call `iframe-translator`'s default `getClient()` directly from the MV2 webpack page-host path; its `import.meta.env.DEV` check can bundle to `(void 0).DEV` and fail at runtime.
 
 ## Embed 404 Notes (MV3)
 
