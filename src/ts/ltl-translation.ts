@@ -1,5 +1,5 @@
 import type { AvailableLanguageCodes, IframeTranslatorClient } from 'iframe-translator';
-import { Browser, getBrowser, isLiveTL } from './chat-constants';
+import { isLiveTL } from './chat-constants';
 
 const REQUEST_TYPE = 'hc-ltl-translate-request';
 const RESPONSE_TYPE = 'hc-ltl-translate-response';
@@ -26,7 +26,7 @@ const isObject = (value: unknown): value is Record<string, unknown> => {
 
 export const shouldUseLiveTLTranslatorBridge = (): boolean => {
   return isLiveTL &&
-    getBrowser() === Browser.FIREFOX &&
+    navigator.userAgent.includes('Firefox') &&
     window.parent !== window;
 };
 
