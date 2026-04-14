@@ -1,5 +1,5 @@
+import { getClient } from 'iframe-translator';
 import type { IframeTranslatorClient } from 'iframe-translator';
-import { getSafeTranslatorClient } from '../ts/iframe-translator-safe';
 import { isLiveTLTranslateRequest, makeLiveTLTranslateResponse } from '../ts/ltl-translation';
 
 declare global {
@@ -15,7 +15,7 @@ if (!window.__hcLiveTLTranslatorHostRegistered) {
 
   const getTranslatorClientAsync = async (): Promise<IframeTranslatorClient> => {
     try {
-      translatorClientPromise ??= getSafeTranslatorClient();
+      translatorClientPromise ??= getClient();
       return await translatorClientPromise;
     } catch (error) {
       translatorClientPromise = null;
