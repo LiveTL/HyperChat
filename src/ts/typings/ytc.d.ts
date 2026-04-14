@@ -531,13 +531,8 @@ declare namespace Ytc {
     type: 'poll';
     actionId: string;
     item: {
-<<<<<<< HEAD
-      header: ParsedRun[];
-      profileIcon: ParsedImage;
-=======
       profileIcon: ParsedImage;
       header: ParsedRun[];
->>>>>>> main
       question: ParsedRun[];
       choices: Array<{
         text: ParsedRun[];
@@ -545,12 +540,7 @@ declare namespace Ytc {
         ratio?: number;
         percentage?: string;
       }>;
-<<<<<<< HEAD
-    }
-    // TODO add 'action' for ending poll button
-=======
     };
->>>>>>> main
   }
 
   interface ParsedRemoveBanner {
