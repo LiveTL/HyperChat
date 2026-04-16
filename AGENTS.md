@@ -18,7 +18,7 @@
 - Never start cross-repo work in LiveTL when the HyperChat submodule also needs to change.
 - If the task also requires syncing YtcFilter (YTCF), do it after HyperChat `main` is updated:
   - merge HyperChat `main` into YTCF `master`
-  - keep YTCF release notes and its in-product changelog in the strict one-line, lowercase, user-facing style documented in YTCF’s `AGENTS.md`
+  - keep YTCF release notes and its in-product changelog in the strict one-line, lowercase, user-facing style documented in YTCF's `AGENTS.md`
 
 ## House Style
 
