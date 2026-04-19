@@ -4,132 +4,20 @@ import { chatReportUserOptions, ChatUserActions, isLiveTL } from '../ts/chat-con
 import sha1 from 'sha-1';
 
 function injectedFunction(): void {
-  const currentDomain = (location.protocol + '//' + location.host);
-
-  // Capture YouTube's own Innertube headers from real page requests and reuse them
-  // for our proxied requests. YT keeps changing which headers gate privileged actions.
-  const innertubeHeaderAllowlist = new Set([
-    'authorization',
-    'x-goog-authuser',
-    'x-goog-visitor-id',
-    'x-origin',
-    'x-youtube-bootstrap-logged-in',
-    'x-youtube-client-name',
-    'x-youtube-client-version',
-    'x-browser-validation',
-    'x-browser-channel',
-    'x-browser-year',
-    'x-browser-copyright'
-  ]);
-  let lastInnertubeHeaders: Record<string, string> = {};
-
-  const captureInnertubeHeaders = (headers: Headers): void => {
-    const captured: Record<string, string> = {};
-    headers.forEach((value, name) => {
-      const key = name.toLowerCase();
-      if (!innertubeHeaderAllowlist.has(key)) return;
-      captured[key] = value;
-    });
-    if (Object.keys(captured).length > 0) {
-      lastInnertubeHeaders = { ...lastInnertubeHeaders, ...captured };
-    }
-  };
-
-  const isInnertubeUrl = (url: string): boolean => url.startsWith(`${currentDomain}/youtubei/`);
-
-  // For privileged actions, the serialized `ytcfg.data_.INNERTUBE_CONTEXT` we can read from the
-  // content script is not always identical to what YT uses in real page requests (notably it can
-  // differ in `adSignalsInfo` and `clickTracking`). Use the real page-side `ytcfg.get(...)` value
-  // when available, and preserve only intentional clickTracking overrides from our payload.
-  const getPageInnertubeContext = (): any | null => {
-    const ytcfgAny = (window as any).ytcfg as any;
-    try {
-      if (ytcfgAny?.get instanceof Function) {
-        return ytcfgAny.get('INNERTUBE_CONTEXT');
-      }
-    } catch {
-      // Best-effort only.
-    }
-    return ytcfgAny?.data_?.INNERTUBE_CONTEXT ?? null;
-  };
-
-  const gzipUtf8 = async (text: string): Promise<Uint8Array> => {
-    const cs = new (window as any).CompressionStream('gzip') as CompressionStream;
-    const writer = cs.writable.getWriter();
-    await writer.write(new TextEncoder().encode(text));
-    await writer.close();
-    const ab = await new Response(cs.readable).arrayBuffer();
-    return new Uint8Array(ab);
-  };
-
-  const normalizeInnertubeInit = async (
-    url: string,
-    init: RequestInit | undefined
-  ): Promise<RequestInit | undefined> => {
-    if (!isInnertubeUrl(url)) return init;
-
-    const next: RequestInit = { ...(init ?? {}) };
-    if (next.mode == null) next.mode = 'same-origin';
-
-    const headers = new Headers(next.headers as any);
-    next.headers = headers;
-
-    if (typeof next.body === 'string') {
-      try {
-        const parsed = JSON.parse(next.body) as any;
-        if (parsed?.context != null && typeof parsed.context === 'object') {
-          const pageContext = getPageInnertubeContext();
-          if (pageContext != null) {
-            const overrideClickTracking = parsed.context?.clickTracking;
-            parsed.context = pageContext;
-            if (overrideClickTracking?.clickTrackingParams != null) {
-              parsed.context = { ...parsed.context, clickTracking: overrideClickTracking };
-            }
-            next.body = JSON.stringify(parsed);
-          }
-        }
-      } catch {
-        // Best-effort only.
-      }
-    }
-
-    // YT's own Innertube transport often gzips POST bodies (`content-encoding: gzip`). Some
-    // endpoints seem picky, so match the native transport when possible.
-    if (
-      typeof next.body === 'string' &&
-      headers.get('content-encoding') == null &&
-      (headers.get('content-type') ?? '').includes('application/json') &&
-      typeof (window as any).CompressionStream === 'function'
-    ) {
-      headers.set('content-encoding', 'gzip');
-      next.body = await gzipUtf8(next.body);
-    }
-
-    return next;
-  };
-
   for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
     window.addEventListener(eventName, event => {
       event.stopImmediatePropagation();
     }, true);
   }
+
   const fetchFallback = window.fetch;
   (window as any).fetchFallback = fetchFallback;
   window.fetch = async (...args) => {
-    const input = args[0] as unknown;
-    const url = typeof input === 'string' ? input : (input as Request).url;
-    const init = (args.length > 1 ? args[1] : undefined) as RequestInit | undefined;
-    try {
-      if (typeof input !== 'string') {
-        captureInnertubeHeaders((input as Request).headers);
-      } else if (init?.headers != null) {
-        captureInnertubeHeaders(new Headers(init.headers as any));
-      }
-    } catch {
-      // Best-effort only.
-    }
-    const result = await fetchFallback(...args);
+    const request = args[0] as Request;
+    const url = request.url;
+    const result = await (fetchFallback as any)(...args);
 
+    const currentDomain = (location.protocol + '//' + location.host);
     const ytApi = (end: string): string => `${currentDomain}/youtubei/v1/live_chat${end}`;
     const isReceiving = url.startsWith(ytApi('/get_live_chat'));
     const isSending = url.startsWith(ytApi('/send_message'));
@@ -150,22 +38,7 @@ function injectedFunction(): void {
       args: [RequestInfo, RequestInit?];
     };
     try {
-      const [input, init] = payload.args;
-      const url = typeof input === 'string' ? input : input.url;
-      let mergedInit: RequestInit | undefined = init;
-      if (isInnertubeUrl(url)) {
-        const headers = new Headers(init?.headers as any);
-        for (const [k, v] of Object.entries(lastInnertubeHeaders)) {
-          if (!headers.has(k)) headers.set(k, v);
-        }
-        mergedInit = {
-          ...init,
-          headers
-        };
-      }
-      mergedInit = await normalizeInnertubeInit(url, mergedInit);
-
-      const request = await fetchFallback(input, mergedInit);
+      const request = await (fetchFallback as any)(...payload.args);
       const response = await request.json();
       window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
         detail: JSON.stringify({
@@ -248,29 +121,6 @@ const chatLoaded = async (): Promise<void> => {
         return '';
       };
 
-      // YT sometimes gates privileged chat actions behind an `Authorization: SAPISIDHASH ...` header.
-      // We prefer forwarding YouTube's own header from real page requests (see page-side proxy),
-      // but when that hasn't been captured yet we can compute a compatible fallback.
-      const buildSapisidAuth = (): string | null => {
-        const origin = `${location.protocol}//${location.host}`;
-        const time = Math.floor(Date.now() / 1000);
-        const parts: string[] = [];
-
-        const sapisid3p = getCookie('__Secure-3PAPISID') || getCookie('SAPISID');
-        if (sapisid3p) {
-          parts.push(`SAPISIDHASH ${time}_${sha1(`${time} ${sapisid3p} ${origin}`)}`);
-        }
-        const sapisid1p = getCookie('__Secure-1PAPISID');
-        if (sapisid1p) {
-          parts.push(`SAPISID1PHASH ${time}_${sha1(`${time} ${sapisid1p} ${origin}`)}`);
-        }
-        const sapisid3ph = getCookie('__Secure-3PAPISID');
-        if (sapisid3ph) {
-          parts.push(`SAPISID3PHASH ${time}_${sha1(`${time} ${sapisid3ph} ${origin}`)}`);
-        }
-        return parts.length > 0 ? parts.join(' ') : null;
-      };
-
       if (msg.type !== 'executeChatAction') return;
       const message = msg.message;
       const debugAction = msg.action === ChatUserActions.DELETE_MESSAGE;
@@ -283,13 +133,16 @@ const chatLoaded = async (): Promise<void> => {
           throw new Error('Missing context menu params for message');
         }
         const currentDomain = (location.protocol + '//' + location.host);
+        const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
         const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
-          `${encodeURIComponent(message.params)}&pbj=1&prettyPrint=false`;
+          `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
         const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
         // Do not override Innertube headers like X-Goog-Visitor-Id here. Those can differ from
         // ytcfg.context.client.visitorData in subtle ways and cause YT to treat the request as logged out.
         // Instead, let the page-side proxy merge the latest headers from real YT requests.
-        const auth = buildSapisidAuth();
+        const time = Math.floor(Date.now() / 1000);
+        const sapisid = getCookie('__Secure-3PAPISID') || getCookie('SAPISID');
+        const auth = sapisid ? `SAPISIDHASH ${time}_${sha1(`${time} ${sapisid} ${currentDomain}`)}` : null;
         const heads = {
           headers: {
             'Content-Type': 'application/json',
@@ -396,7 +249,7 @@ const chatLoaded = async (): Promise<void> => {
             throw new Error('Could not find moderate endpoint in context menu');
           }
           const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
-          const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?prettyPrint=false`, {
+          const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
               params,
@@ -417,7 +270,7 @@ const chatLoaded = async (): Promise<void> => {
               paramsPrefix: params.slice(0, 24)
             });
           }
-          const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?prettyPrint=false`, {
+          const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
               params,
