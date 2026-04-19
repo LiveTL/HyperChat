@@ -182,28 +182,14 @@ const chatLoaded = async (): Promise<void> => {
         const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
           `${encodeURIComponent(message.params)}&pbj=1&prettyPrint=false`;
         const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json',
-          Accept: '*/*'
-        };
-
-        const visitorData = baseContext?.client?.visitorData;
-        if (typeof visitorData === 'string' && visitorData.length > 0) {
-          headers['X-Goog-Visitor-Id'] = visitorData;
-        }
-        headers['X-Origin'] = currentDomain;
-
-        const identityToken = (ytcfg as any)?.data_?.ID_TOKEN;
-        if (typeof identityToken === 'string' && identityToken.length > 0) {
-          headers['X-Youtube-Identity-Token'] = identityToken;
-        }
-        const sessionIndex = (ytcfg as any)?.data_?.SESSION_INDEX;
-        if (sessionIndex != null) {
-          headers['X-Goog-AuthUser'] = String(sessionIndex);
-        }
-
+        // Do not override Innertube headers like X-Goog-Visitor-Id here. Those can differ from
+        // ytcfg.context.client.visitorData in subtle ways and cause YT to treat the request as logged out.
+        // Instead, let the page-side proxy merge the latest headers from real YT requests.
         const heads = {
-          headers,
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: '*/*'
+          },
           method: 'POST' as const
         };
         const res = await fetcher(contextMenuUrl, {
