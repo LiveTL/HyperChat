@@ -50,3 +50,4 @@ window.addEventListener('proxyFetchRequest', async (event) => {
 });
 
 fixLeaks();
+
