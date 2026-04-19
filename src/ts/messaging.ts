@@ -229,11 +229,14 @@ const executeChatAction = async (
         'Content-Type': 'application/json',
         Accept: '*/*'
       },
-      method: 'POST' as const
+      method: 'POST' as const,
+      mode: 'same-origin' as const
     };
+    const contextMenuContext = JSON.parse(JSON.stringify(baseContext));
+    delete contextMenuContext.clickTracking;
     const res = await fetcher(contextMenuUrl, {
       ...heads,
-      body: JSON.stringify({ context: baseContext })
+      body: JSON.stringify({ context: contextMenuContext })
     });
     function findServiceEndpoint(root: any, prop: string): any | null {
       const queue = [root];
