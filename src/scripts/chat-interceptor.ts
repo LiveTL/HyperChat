@@ -56,7 +56,7 @@ window.fetch = async (...args) => {
     // Best-effort only.
   }
 
-  const result = await fetchFallback(...args as any);
+  const result = await (fetchFallback as any)(...args);
 
   const ytApi = (end: string): string => `${currentDomain}/youtubei/v1/live_chat${end}`;
   const isReceiving = url.startsWith(ytApi('/get_live_chat'));
@@ -109,4 +109,3 @@ window.addEventListener('proxyFetchRequest', async (event) => {
 });
 
 fixLeaks();
-

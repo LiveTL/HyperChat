@@ -1,6 +1,5 @@
 import type { Unsubscriber } from './queue';
 import { ytcQueue } from './queue';
-import sha1 from 'sha-1';
 import { chatReportUserOptions, ChatUserActions, ChatReportUserOptions } from '../ts/chat-constants';
 import type { Chat } from './typings/chat';
 
@@ -221,23 +220,12 @@ const executeChatAction = async (
     }
     const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
     const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
-      `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
+      `${encodeURIComponent(message.params)}&pbj=1&prettyPrint=false`;
     const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
-    function getCookie(name: string): string {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
-      return '';
-    }
-    const time = Math.floor(Date.now() / 1000);
-    const SAPISID = getCookie('__Secure-3PAPISID');
-    const sha = sha1(`${time} ${SAPISID} ${currentDomain}`);
-    const auth = `SAPISIDHASH ${time}_${sha}`;
     const heads = {
       headers: {
         'Content-Type': 'application/json',
-        Accept: '*/*',
-        Authorization: auth
+        Accept: '*/*'
       },
       method: 'POST'
     };
@@ -314,7 +302,7 @@ const executeChatAction = async (
         throw new Error('Could not find moderate endpoint in context menu');
       }
       const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
-      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           params,
@@ -325,12 +313,12 @@ const executeChatAction = async (
         throw new Error('Moderation request failed');
       }
     } else if (action === ChatUserActions.DELETE_MESSAGE) {
-      const serviceEndpoint = findDeleteMessageEndpoint(res) ?? findServiceEndpoint(res, 'moderateLiveChatEndpoint');
+      const serviceEndpoint = findDeleteMessageEndpoint(res);
       if (serviceEndpoint == null) {
         throw new Error('Could not find delete endpoint in context menu');
       }
       const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
-      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           params,
