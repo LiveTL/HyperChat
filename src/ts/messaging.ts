@@ -290,6 +290,7 @@ const executeChatAction = async (
     function findDeleteMessageEndpoint(root: any): any | null {
       const queue = [root];
       const visited = new Set<any>();
+      const candidates: Array<{ iconType?: string, label?: string, endpoint: any }> = [];
       while (queue.length > 0) {
         const current = queue.shift();
         if (current == null || typeof current !== 'object' || visited.has(current)) continue;
@@ -304,9 +305,7 @@ const executeChatAction = async (
         ) as string | undefined;
         // Prefer stable identifiers (DELETE icon + moderate endpoint) over localized label text.
         if (typeof endpoint?.moderateLiveChatEndpoint?.params === 'string') {
-          if (iconType === 'DELETE' || label === 'Remove') {
-            return endpoint;
-          }
+          candidates.push({ iconType, label, endpoint });
         }
         for (const value of Object.values(current)) {
           if (value != null && typeof value === 'object') {
@@ -314,6 +313,16 @@ const executeChatAction = async (
           }
         }
       }
+      for (const c of candidates) {
+        if (c.iconType === 'DELETE') return c.endpoint;
+      }
+      for (const c of candidates) {
+        const l = (c.label ?? '').toLowerCase();
+        if (l.includes('remove') || l.includes('delete') || l.includes('retract') || l.includes('unsend')) {
+          return c.endpoint;
+        }
+      }
+      if (candidates.length === 1) return candidates[0].endpoint;
       return null;
     }
     if (action === ChatUserActions.BLOCK) {
