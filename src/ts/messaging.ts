@@ -1,6 +1,5 @@
 import type { Unsubscriber } from './queue';
 import { ytcQueue } from './queue';
-import sha1 from 'sha-1';
 import { chatReportUserOptions, ChatUserActions, ChatReportUserOptions } from '../ts/chat-constants';
 import type { Chat } from './typings/chat';
 
@@ -221,23 +220,12 @@ const executeChatAction = async (
     }
     const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
     const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
-      `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
+      `${encodeURIComponent(message.params)}&pbj=1&prettyPrint=false`;
     const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
-    function getCookie(name: string): string {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
-      return '';
-    }
-    const time = Math.floor(Date.now() / 1000);
-    const SAPISID = getCookie('__Secure-3PAPISID');
-    const sha = sha1(`${time} ${SAPISID} ${currentDomain}`);
-    const auth = `SAPISIDHASH ${time}_${sha}`;
     const heads = {
       headers: {
         'Content-Type': 'application/json',
-        Accept: '*/*',
-        Authorization: auth
+        Accept: '*/*'
       },
       method: 'POST'
     };
@@ -279,13 +267,58 @@ const executeChatAction = async (
         context: clonedContext
       };
     }
+    function findDeleteMessageEndpoint(root: any): any | null {
+      const queue = [root];
+      const visited = new Set<any>();
+      while (queue.length > 0) {
+        const current = queue.shift();
+        if (current == null || typeof current !== 'object' || visited.has(current)) continue;
+        visited.add(current);
+        const menu = current?.menuServiceItemRenderer;
+        const iconType = menu?.icon?.iconType;
+        const endpoint = menu?.serviceEndpoint;
+        const label = (
+          Array.isArray(menu?.text?.runs)
+            ? menu.text.runs.map((r: any) => r?.text).filter(Boolean).join('')
+            : menu?.text?.simpleText
+        ) as string | undefined;
+        // Prefer stable identifiers (DELETE icon + moderate endpoint) over localized label text.
+        if (typeof endpoint?.moderateLiveChatEndpoint?.params === 'string') {
+          if (iconType === 'DELETE' || label === 'Remove') {
+            return endpoint;
+          }
+        }
+        for (const value of Object.values(current)) {
+          if (value != null && typeof value === 'object') {
+            queue.push(value);
+          }
+        }
+      }
+      return null;
+    }
     if (action === ChatUserActions.BLOCK) {
       const serviceEndpoint = findServiceEndpoint(res, 'moderateLiveChatEndpoint');
       if (serviceEndpoint == null) {
         throw new Error('Could not find moderate endpoint in context menu');
       }
       const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
-      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?prettyPrint=false`, {
+        ...heads,
+        body: JSON.stringify({
+          params,
+          context
+        })
+      });
+      if (moderationResponse?.error != null || moderationResponse?.success === false) {
+        throw new Error('Moderation request failed');
+      }
+    } else if (action === ChatUserActions.DELETE_MESSAGE) {
+      const serviceEndpoint = findDeleteMessageEndpoint(res);
+      if (serviceEndpoint == null) {
+        throw new Error('Could not find delete endpoint in context menu');
+      }
+      const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
+      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           params,
