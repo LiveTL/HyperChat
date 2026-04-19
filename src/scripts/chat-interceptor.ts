@@ -1,10 +1,41 @@
 import { fixLeaks } from '../ts/ytc-fix-memleaks';
 import { frameIsReplay as isReplay, checkInjected } from '../ts/chat-utils';
-import sha1 from 'sha-1';
 import { chatReportUserOptions, ChatUserActions, isLiveTL } from '../ts/chat-constants';
 
 function injectedFunction(): void {
   const currentDomain = (location.protocol + '//' + location.host);
+
+  // Capture YouTube's own Innertube headers from real page requests and reuse them
+  // for our proxied requests. YT keeps changing which headers gate privileged actions.
+  const innertubeHeaderAllowlist = new Set([
+    'x-goog-authuser',
+    'x-goog-visitor-id',
+    'x-origin',
+    'x-youtube-bootstrap-logged-in',
+    'x-youtube-client-name',
+    'x-youtube-client-version',
+    'x-youtube-identity-token',
+    'x-browser-validation',
+    'x-browser-channel',
+    'x-browser-year',
+    'x-browser-copyright'
+  ]);
+  let lastInnertubeHeaders: Record<string, string> = {};
+
+  const captureInnertubeHeaders = (headers: Headers): void => {
+    const captured: Record<string, string> = {};
+    headers.forEach((value, name) => {
+      const key = name.toLowerCase();
+      if (!innertubeHeaderAllowlist.has(key)) return;
+      captured[key] = value;
+    });
+    if (Object.keys(captured).length > 0) {
+      lastInnertubeHeaders = { ...lastInnertubeHeaders, ...captured };
+    }
+  };
+
+  const isInnertubeUrl = (url: string): boolean => url.startsWith(`${currentDomain}/youtubei/`);
+
   for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
     window.addEventListener(eventName, event => {
       event.stopImmediatePropagation();
@@ -13,8 +44,18 @@ function injectedFunction(): void {
   const fetchFallback = window.fetch;
   (window as any).fetchFallback = fetchFallback;
   window.fetch = async (...args) => {
-    const request = args[0] as Request;
-    const url = request.url;
+    const input = args[0] as unknown;
+    const url = typeof input === 'string' ? input : (input as Request).url;
+    const init = (args.length > 1 ? args[1] : undefined) as RequestInit | undefined;
+    try {
+      if (typeof input !== 'string') {
+        captureInnertubeHeaders((input as Request).headers);
+      } else if (init?.headers != null) {
+        captureInnertubeHeaders(new Headers(init.headers as any));
+      }
+    } catch {
+      // Best-effort only.
+    }
     const result = await fetchFallback(...args);
 
     const ytApi = (end: string): string => `${currentDomain}/youtubei/v1/live_chat${end}`;
@@ -34,10 +75,24 @@ function injectedFunction(): void {
   window.addEventListener('proxyFetchRequest', async (event) => {
     const payload = JSON.parse((event as any).detail as string) as {
       id: string;
-      args: [string, any];
+      args: [RequestInfo, RequestInit?];
     };
     try {
-      const request = await fetchFallback(...payload.args);
+      const [input, init] = payload.args;
+      const url = typeof input === 'string' ? input : input.url;
+      let mergedInit = init;
+      if (isInnertubeUrl(url)) {
+        const headers = new Headers(init?.headers as any);
+        for (const [k, v] of Object.entries(lastInnertubeHeaders)) {
+          if (!headers.has(k)) headers.set(k, v);
+        }
+        mergedInit = {
+          ...init,
+          headers
+        };
+      }
+
+      const request = await fetchFallback(input, mergedInit);
       const response = await request.json();
       window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
         detail: JSON.stringify({
@@ -124,26 +179,13 @@ const chatLoaded = async (): Promise<void> => {
           throw new Error('Missing context menu params for message');
         }
         const currentDomain = (location.protocol + '//' + location.host);
-        // const action = msg.action;
-        const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
         const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
-          `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
+          `${encodeURIComponent(message.params)}&pbj=1&prettyPrint=false`;
         const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
-        function getCookie(name: string): string {
-          const value = `; ${document.cookie}`;
-          const parts = value.split(`; ${name}=`);
-          if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
-          return '';
-        }
-        const time = Math.floor(Date.now() / 1000);
-        const SAPISID = getCookie('__Secure-3PAPISID');
-        const sha = sha1(`${time} ${SAPISID} ${currentDomain}`);
-        const auth = `SAPISIDHASH ${time}_${sha}`;
         const heads = {
           headers: {
             'Content-Type': 'application/json',
-            Accept: '*/*',
-            Authorization: auth
+            Accept: '*/*'
           },
           method: 'POST'
         };
@@ -220,7 +262,7 @@ const chatLoaded = async (): Promise<void> => {
             throw new Error('Could not find moderate endpoint in context menu');
           }
           const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
-          const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+          const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
               params,
@@ -231,12 +273,12 @@ const chatLoaded = async (): Promise<void> => {
             throw new Error('Moderation request failed');
           }
         } else if (msg.action === ChatUserActions.DELETE_MESSAGE) {
-          const serviceEndpoint = findDeleteMessageEndpoint(res) ?? findServiceEndpoint(res, 'moderateLiveChatEndpoint');
+          const serviceEndpoint = findDeleteMessageEndpoint(res);
           if (serviceEndpoint == null) {
             throw new Error('Could not find delete endpoint in context menu');
           }
           const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
-          const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
+          const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
               params,
@@ -247,6 +289,7 @@ const chatLoaded = async (): Promise<void> => {
             throw new Error('Moderation request failed');
           }
         } else if (msg.action === ChatUserActions.REPORT_USER) {
+          const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
           const serviceEndpoint = findServiceEndpoint(res, 'getReportFormEndpoint');
           if (serviceEndpoint == null) {
             throw new Error('Could not find report endpoint in context menu');
