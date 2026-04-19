@@ -1,4 +1,5 @@
 import { fixLeaks } from '../ts/ytc-fix-memleaks';
+import sha1 from 'sha-1';
 
 const currentDomain = (location.protocol + '//' + location.host);
 
@@ -33,6 +34,36 @@ const captureInnertubeHeaders = (headers: Headers): void => {
 
 const isInnertubeUrl = (url: string): boolean => url.startsWith(`${currentDomain}/youtubei/`);
 
+const getCookie = (name: string): string => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
+  return '';
+};
+
+// Best-effort fallback when we haven't yet captured YT's own `Authorization` header.
+// Keeps privileged actions (block/report/delete) working on pages where YouTube doesn't
+// send an `authorization` header through `fetch()` often enough for us to capture it.
+const buildSapisidAuth = (): string | null => {
+  const origin = `${location.protocol}//${location.host}`;
+  const time = Math.floor(Date.now() / 1000);
+  const parts: string[] = [];
+
+  const sapisid3p = getCookie('__Secure-3PAPISID') || getCookie('SAPISID');
+  if (sapisid3p) {
+    parts.push(`SAPISIDHASH ${time}_${sha1(`${time} ${sapisid3p} ${origin}`)}`);
+  }
+  const sapisid1p = getCookie('__Secure-1PAPISID');
+  if (sapisid1p) {
+    parts.push(`SAPISID1PHASH ${time}_${sha1(`${time} ${sapisid1p} ${origin}`)}`);
+  }
+  const sapisid3ph = getCookie('__Secure-3PAPISID');
+  if (sapisid3ph) {
+    parts.push(`SAPISID3PHASH ${time}_${sha1(`${time} ${sapisid3ph} ${origin}`)}`);
+  }
+  return parts.length > 0 ? parts.join(' ') : null;
+};
+
 // For privileged actions, the serialized `ytcfg.data_.INNERTUBE_CONTEXT` that our extension code sees
 // can differ from the context YT actually uses for real page requests (notably `adSignalsInfo` and
 // `clickTracking`). When proxying Innertube calls from the page, rewrite the request payload to use
@@ -51,7 +82,7 @@ const getPageInnertubeContext = (): any | null => {
 };
 
 const gzipUtf8 = async (text: string): Promise<Uint8Array> => {
-  const cs = new (window as any).CompressionStream('gzip') as CompressionStream;
+  const cs = new (window as any).CompressionStream('gzip') as any;
   const writer = cs.writable.getWriter();
   await writer.write(new TextEncoder().encode(text));
   await writer.close();
@@ -70,6 +101,11 @@ const normalizeInnertubeInit = async (
 
   const headers = new Headers(next.headers as any);
   next.headers = headers;
+
+  if (headers.get('authorization') == null) {
+    const auth = buildSapisidAuth();
+    if (auth != null) headers.set('authorization', auth);
+  }
 
   if (typeof next.body === 'string') {
     try {
