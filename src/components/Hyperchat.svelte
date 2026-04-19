@@ -20,7 +20,8 @@
     paramsIsReplay,
     Theme,
     YoutubeEmojiRenderMode,
-    chatUserActionsItems
+    chatUserActionsItems,
+    ChatUserActions
   } from '../ts/chat-constants';
   import { isAllEmoji, isChatMessage, isPrivileged, responseIsAction } from '../ts/chat-utils';
   import Button from 'smelte/src/components/Button';
@@ -268,6 +269,13 @@
           color: response.success ? 'primary' : 'error'
         };
         if (response.success) {
+          if (response.action === ChatUserActions.DELETE_MESSAGE) {
+            onDelete({
+              messageId: response.message.messageId,
+              replacedMessage: [{ text: '[message retracted]' }]
+            });
+            break;
+          }
           messageActions = messageActions.filter(
             (a) => {
               if (isWelcome(a)) return true;

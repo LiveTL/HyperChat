@@ -7,7 +7,7 @@ export function useBanHammer(
   action: ChatUserActions,
   port: Chat.Port | null
 ): void {
-  if (action === ChatUserActions.BLOCK) {
+  if (action === ChatUserActions.BLOCK || action === ChatUserActions.DELETE_MESSAGE) {
     port?.postMessage({
       type: 'executeChatAction',
       message,
