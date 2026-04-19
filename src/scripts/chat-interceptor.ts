@@ -214,6 +214,7 @@ const chatLoaded = async (): Promise<void> => {
     port.onMessage.addListener(async (msg) => {
       if (msg.type !== 'executeChatAction') return;
       const message = msg.message;
+      const debugAction = msg.action === ChatUserActions.DELETE_MESSAGE;
       let success = true;
       if (message.params == null) {
         success = false;
@@ -239,10 +240,32 @@ const chatLoaded = async (): Promise<void> => {
         };
         const contextMenuContext = JSON.parse(JSON.stringify(baseContext));
         delete contextMenuContext.clickTracking;
+        if (debugAction) {
+          console.debug('[hc] delete: get_item_context_menu', {
+            url: contextMenuUrl,
+            messageId: message.messageId,
+            paramsPrefix: message.params.slice(0, 24)
+          });
+        }
         const res = await fetcher(contextMenuUrl, {
           ...heads,
           body: JSON.stringify({ context: contextMenuContext })
         });
+        if (debugAction) {
+          const iconTypes: string[] = [];
+          try {
+            const json = JSON.stringify(res);
+            // Very rough: just to quickly see if the response contains DELETE menu items at all.
+            if (json.includes('"iconType":"DELETE"')) iconTypes.push('DELETE');
+            if (json.includes('"iconType":"BLOCK"')) iconTypes.push('BLOCK');
+            if (json.includes('"getReportFormEndpoint"')) iconTypes.push('REPORT');
+          } catch {}
+          console.debug('[hc] delete: context menu response', {
+            hasResponse: res != null,
+            keys: res != null && typeof res === 'object' ? Object.keys(res) : null,
+            hints: iconTypes
+          });
+        }
         function findServiceEndpoint(root: any, prop: string): any | null {
           const queue = [root];
           const visited = new Set<any>();
@@ -328,6 +351,11 @@ const chatLoaded = async (): Promise<void> => {
             throw new Error('Could not find delete endpoint in context menu');
           }
           const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
+          if (debugAction) {
+            console.debug('[hc] delete: moderate', {
+              paramsPrefix: params.slice(0, 24)
+            });
+          }
           const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?prettyPrint=false`, {
             ...heads,
             body: JSON.stringify({
@@ -335,6 +363,15 @@ const chatLoaded = async (): Promise<void> => {
               context
             })
           });
+          if (debugAction) {
+            console.debug('[hc] delete: moderate response', {
+              keys: moderationResponse != null && typeof moderationResponse === 'object'
+                ? Object.keys(moderationResponse)
+                : null,
+              hasError: moderationResponse?.error != null,
+              success: moderationResponse?.success
+            });
+          }
           if (moderationResponse?.error != null || moderationResponse?.success === false) {
             throw new Error('Moderation request failed');
           }
