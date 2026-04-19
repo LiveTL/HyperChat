@@ -8,6 +8,7 @@ function injectedFunction(): void {
   // Capture YouTube's own Innertube headers from real page requests and reuse them
   // for our proxied requests. YT keeps changing which headers gate privileged actions.
   const innertubeHeaderAllowlist = new Set([
+    'authorization',
     'x-goog-authuser',
     'x-goog-visitor-id',
     'x-origin',
