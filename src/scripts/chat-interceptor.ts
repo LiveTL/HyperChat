@@ -32,6 +32,51 @@ const captureInnertubeHeaders = (headers: Headers): void => {
 
 const isInnertubeUrl = (url: string): boolean => url.startsWith(`${currentDomain}/youtubei/`);
 
+// For privileged actions, the serialized `ytcfg.data_.INNERTUBE_CONTEXT` that our extension code sees
+// can differ from the context YT actually uses for real page requests (notably `adSignalsInfo` and
+// `clickTracking`). When proxying Innertube calls from the page, rewrite the request payload to use
+// the real page-side `ytcfg.get('INNERTUBE_CONTEXT')` value and preserve only intentional clickTracking
+// overrides.
+const getPageInnertubeContext = (): any | null => {
+  const ytcfgAny = (window as any).ytcfg as any;
+  try {
+    if (ytcfgAny?.get instanceof Function) {
+      return ytcfgAny.get('INNERTUBE_CONTEXT');
+    }
+  } catch {
+    // Best-effort only.
+  }
+  return ytcfgAny?.data_?.INNERTUBE_CONTEXT ?? null;
+};
+
+const normalizeInnertubeInit = (url: string, init: RequestInit | undefined): RequestInit | undefined => {
+  if (!isInnertubeUrl(url)) return init;
+
+  const next: RequestInit = { ...(init ?? {}) };
+  if (next.mode == null) next.mode = 'same-origin';
+
+  if (typeof next.body === 'string') {
+    try {
+      const parsed = JSON.parse(next.body) as any;
+      if (parsed?.context != null && typeof parsed.context === 'object') {
+        const pageContext = getPageInnertubeContext();
+        if (pageContext != null) {
+          const overrideClickTracking = parsed.context?.clickTracking;
+          parsed.context = pageContext;
+          if (overrideClickTracking?.clickTrackingParams != null) {
+            parsed.context = { ...parsed.context, clickTracking: overrideClickTracking };
+          }
+          next.body = JSON.stringify(parsed);
+        }
+      }
+    } catch {
+      // Best-effort only.
+    }
+  }
+
+  return next;
+};
+
 for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
   window.addEventListener(eventName, event => {
     event.stopImmediatePropagation();
@@ -77,7 +122,7 @@ window.addEventListener('proxyFetchRequest', async (event) => {
   try {
     const [input, init] = payload.args;
     const url = typeof input === 'string' ? input : input.url;
-    let mergedInit = init;
+    let mergedInit: RequestInit | undefined = init;
     if (isInnertubeUrl(url)) {
       const headers = new Headers(init?.headers as any);
       for (const [k, v] of Object.entries(lastInnertubeHeaders)) {
@@ -88,6 +133,7 @@ window.addEventListener('proxyFetchRequest', async (event) => {
         headers
       };
     }
+    mergedInit = normalizeInnertubeInit(url, mergedInit);
 
     const request = await fetchFallback(input, mergedInit);
     const response = await request.json();
