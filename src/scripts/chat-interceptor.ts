@@ -1,6 +1,7 @@
 import { fixLeaks } from '../ts/ytc-fix-memleaks';
 import { frameIsReplay as isReplay, checkInjected } from '../ts/chat-utils';
 import { chatReportUserOptions, ChatUserActions, isLiveTL } from '../ts/chat-constants';
+import sha1 from 'sha-1';
 
 function injectedFunction(): void {
   const currentDomain = (location.protocol + '//' + location.host);
@@ -240,6 +241,36 @@ const chatLoaded = async (): Promise<void> => {
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     port.onMessage.addListener(async (msg) => {
+      const getCookie = (name: string): string => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
+        return '';
+      };
+
+      // YT sometimes gates privileged chat actions behind an `Authorization: SAPISIDHASH ...` header.
+      // We prefer forwarding YouTube's own header from real page requests (see page-side proxy),
+      // but when that hasn't been captured yet we can compute a compatible fallback.
+      const buildSapisidAuth = (): string | null => {
+        const origin = `${location.protocol}//${location.host}`;
+        const time = Math.floor(Date.now() / 1000);
+        const parts: string[] = [];
+
+        const sapisid3p = getCookie('__Secure-3PAPISID') || getCookie('SAPISID');
+        if (sapisid3p) {
+          parts.push(`SAPISIDHASH ${time}_${sha1(`${time} ${sapisid3p} ${origin}`)}`);
+        }
+        const sapisid1p = getCookie('__Secure-1PAPISID');
+        if (sapisid1p) {
+          parts.push(`SAPISID1PHASH ${time}_${sha1(`${time} ${sapisid1p} ${origin}`)}`);
+        }
+        const sapisid3ph = getCookie('__Secure-3PAPISID');
+        if (sapisid3ph) {
+          parts.push(`SAPISID3PHASH ${time}_${sha1(`${time} ${sapisid3ph} ${origin}`)}`);
+        }
+        return parts.length > 0 ? parts.join(' ') : null;
+      };
+
       if (msg.type !== 'executeChatAction') return;
       const message = msg.message;
       const debugAction = msg.action === ChatUserActions.DELETE_MESSAGE;
@@ -258,10 +289,12 @@ const chatLoaded = async (): Promise<void> => {
         // Do not override Innertube headers like X-Goog-Visitor-Id here. Those can differ from
         // ytcfg.context.client.visitorData in subtle ways and cause YT to treat the request as logged out.
         // Instead, let the page-side proxy merge the latest headers from real YT requests.
+        const auth = buildSapisidAuth();
         const heads = {
           headers: {
             'Content-Type': 'application/json',
-            Accept: '*/*'
+            Accept: '*/*',
+            ...(auth != null ? { Authorization: auth } : {})
           },
           method: 'POST' as const,
           mode: 'same-origin' as const
