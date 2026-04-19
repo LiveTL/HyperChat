@@ -7,18 +7,18 @@ function injectedFunction(): void {
 
   // Capture YouTube's own Innertube headers from real page requests and reuse them
   // for our proxied requests. YT keeps changing which headers gate privileged actions.
-const innertubeHeaderAllowlist = new Set([
-  'x-goog-authuser',
-  'x-goog-visitor-id',
-  'x-origin',
-  'x-youtube-bootstrap-logged-in',
-  'x-youtube-client-name',
-  'x-youtube-client-version',
-  'x-browser-validation',
-  'x-browser-channel',
-  'x-browser-year',
-  'x-browser-copyright'
-]);
+  const innertubeHeaderAllowlist = new Set([
+    'x-goog-authuser',
+    'x-goog-visitor-id',
+    'x-origin',
+    'x-youtube-bootstrap-logged-in',
+    'x-youtube-client-name',
+    'x-youtube-client-version',
+    'x-browser-validation',
+    'x-browser-channel',
+    'x-browser-year',
+    'x-browser-copyright'
+  ]);
   let lastInnertubeHeaders: Record<string, string> = {};
 
   const captureInnertubeHeaders = (headers: Headers): void => {
@@ -34,6 +34,50 @@ const innertubeHeaderAllowlist = new Set([
   };
 
   const isInnertubeUrl = (url: string): boolean => url.startsWith(`${currentDomain}/youtubei/`);
+
+  // For privileged actions, the serialized `ytcfg.data_.INNERTUBE_CONTEXT` we can read from the
+  // content script is not always identical to what YT uses in real page requests (notably it can
+  // differ in `adSignalsInfo` and `clickTracking`). Use the real page-side `ytcfg.get(...)` value
+  // when available, and preserve only intentional clickTracking overrides from our payload.
+  const getPageInnertubeContext = (): any | null => {
+    const ytcfgAny = (window as any).ytcfg as any;
+    try {
+      if (ytcfgAny?.get instanceof Function) {
+        return ytcfgAny.get('INNERTUBE_CONTEXT');
+      }
+    } catch {
+      // Best-effort only.
+    }
+    return ytcfgAny?.data_?.INNERTUBE_CONTEXT ?? null;
+  };
+
+  const normalizeInnertubeInit = (url: string, init: RequestInit | undefined): RequestInit | undefined => {
+    if (!isInnertubeUrl(url)) return init;
+
+    const next: RequestInit = { ...(init ?? {}) };
+    if (next.mode == null) next.mode = 'same-origin';
+
+    if (typeof next.body === 'string') {
+      try {
+        const parsed = JSON.parse(next.body) as any;
+        if (parsed?.context != null && typeof parsed.context === 'object') {
+          const pageContext = getPageInnertubeContext();
+          if (pageContext != null) {
+            const overrideClickTracking = parsed.context?.clickTracking;
+            parsed.context = pageContext;
+            if (overrideClickTracking?.clickTrackingParams != null) {
+              parsed.context = { ...parsed.context, clickTracking: overrideClickTracking };
+            }
+            next.body = JSON.stringify(parsed);
+          }
+        }
+      } catch {
+        // Best-effort only.
+      }
+    }
+
+    return next;
+  };
 
   for (const eventName of ['visibilitychange', 'webkitvisibilitychange', 'blur']) {
     window.addEventListener(eventName, event => {
@@ -79,7 +123,7 @@ const innertubeHeaderAllowlist = new Set([
     try {
       const [input, init] = payload.args;
       const url = typeof input === 'string' ? input : input.url;
-      let mergedInit = init;
+      let mergedInit: RequestInit | undefined = init;
       if (isInnertubeUrl(url)) {
         const headers = new Headers(init?.headers as any);
         for (const [k, v] of Object.entries(lastInnertubeHeaders)) {
@@ -90,6 +134,7 @@ const innertubeHeaderAllowlist = new Set([
           headers
         };
       }
+      mergedInit = normalizeInnertubeInit(url, mergedInit);
 
       const request = await fetchFallback(input, mergedInit);
       const response = await request.json();
@@ -189,11 +234,14 @@ const chatLoaded = async (): Promise<void> => {
             'Content-Type': 'application/json',
             Accept: '*/*'
           },
-          method: 'POST' as const
+          method: 'POST' as const,
+          mode: 'same-origin' as const
         };
+        const contextMenuContext = JSON.parse(JSON.stringify(baseContext));
+        delete contextMenuContext.clickTracking;
         const res = await fetcher(contextMenuUrl, {
           ...heads,
-          body: JSON.stringify({ context: baseContext })
+          body: JSON.stringify({ context: contextMenuContext })
         });
         function findServiceEndpoint(root: any, prop: string): any | null {
           const queue = [root];
