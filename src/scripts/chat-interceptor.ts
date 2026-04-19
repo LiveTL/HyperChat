@@ -49,11 +49,26 @@ const getPageInnertubeContext = (): any | null => {
   return ytcfgAny?.data_?.INNERTUBE_CONTEXT ?? null;
 };
 
-const normalizeInnertubeInit = (url: string, init: RequestInit | undefined): RequestInit | undefined => {
+const gzipUtf8 = async (text: string): Promise<Uint8Array> => {
+  const cs = new (window as any).CompressionStream('gzip') as CompressionStream;
+  const writer = cs.writable.getWriter();
+  await writer.write(new TextEncoder().encode(text));
+  await writer.close();
+  const ab = await new Response(cs.readable).arrayBuffer();
+  return new Uint8Array(ab);
+};
+
+const normalizeInnertubeInit = async (
+  url: string,
+  init: RequestInit | undefined
+): Promise<RequestInit | undefined> => {
   if (!isInnertubeUrl(url)) return init;
 
   const next: RequestInit = { ...(init ?? {}) };
   if (next.mode == null) next.mode = 'same-origin';
+
+  const headers = new Headers(next.headers as any);
+  next.headers = headers;
 
   if (typeof next.body === 'string') {
     try {
@@ -72,6 +87,17 @@ const normalizeInnertubeInit = (url: string, init: RequestInit | undefined): Req
     } catch {
       // Best-effort only.
     }
+  }
+
+  // Match YT's native transport: gzip JSON POST bodies when possible.
+  if (
+    typeof next.body === 'string' &&
+    headers.get('content-encoding') == null &&
+    (headers.get('content-type') ?? '').includes('application/json') &&
+    typeof (window as any).CompressionStream === 'function'
+  ) {
+    headers.set('content-encoding', 'gzip');
+    next.body = await gzipUtf8(next.body);
   }
 
   return next;
@@ -136,7 +162,7 @@ window.addEventListener('proxyFetchRequest', async (event) => {
         headers
       };
     }
-    mergedInit = normalizeInnertubeInit(url, mergedInit);
+    mergedInit = await normalizeInnertubeInit(url, mergedInit);
 
     if (hcAction === 'delete' && isInnertubeUrl(url)) {
       try {
