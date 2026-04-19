@@ -123,8 +123,11 @@ window.addEventListener('proxyFetchRequest', async (event) => {
     const [input, init] = payload.args;
     const url = typeof input === 'string' ? input : input.url;
     let mergedInit: RequestInit | undefined = init;
+    let hcAction: string | null = null;
     if (isInnertubeUrl(url)) {
       const headers = new Headers(init?.headers as any);
+      hcAction = headers.get('x-hc-action');
+      if (hcAction != null) headers.delete('x-hc-action');
       for (const [k, v] of Object.entries(lastInnertubeHeaders)) {
         if (!headers.has(k)) headers.set(k, v);
       }
@@ -135,8 +138,33 @@ window.addEventListener('proxyFetchRequest', async (event) => {
     }
     mergedInit = normalizeInnertubeInit(url, mergedInit);
 
+    if (hcAction === 'delete' && isInnertubeUrl(url)) {
+      try {
+        const bodyStr = typeof mergedInit?.body === 'string' ? mergedInit?.body : '';
+        const parsed = bodyStr ? JSON.parse(bodyStr) : null;
+        console.debug('[hc] delete: proxy request', {
+          url,
+          mode: (mergedInit as any)?.mode ?? null,
+          hasBody: bodyStr.length > 0,
+          bodyKeys: parsed != null && typeof parsed === 'object' ? Object.keys(parsed) : null,
+          contextKeys: parsed?.context != null && typeof parsed.context === 'object' ? Object.keys(parsed.context) : null
+        });
+      } catch (e) {
+        console.debug('[hc] delete: proxy request (unparsed)', { url, err: String(e) });
+      }
+    }
+
     const request = await fetchFallback(input, mergedInit);
     const response = await request.json();
+    if (hcAction === 'delete' && isInnertubeUrl(url)) {
+      console.debug('[hc] delete: proxy response', {
+        url,
+        ok: request.ok,
+        status: request.status,
+        keys: response != null && typeof response === 'object' ? Object.keys(response) : null,
+        hasError: (response as any)?.error != null
+      });
+    }
     window.dispatchEvent(new CustomEvent('proxyFetchResponse', {
       detail: JSON.stringify({
         id: payload.id,

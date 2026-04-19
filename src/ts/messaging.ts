@@ -227,7 +227,10 @@ const executeChatAction = async (
     const heads = {
       headers: {
         'Content-Type': 'application/json',
-        Accept: '*/*'
+        Accept: '*/*',
+        // Debugging hook: the page-side proxy will strip this header before sending the request.
+        // Helps correlate the final normalized request/response in the live_chat page console.
+        'X-HC-Action': action === ChatUserActions.DELETE_MESSAGE ? 'delete' : 'other'
       },
       method: 'POST' as const,
       mode: 'same-origin' as const
