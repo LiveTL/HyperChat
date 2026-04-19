@@ -11,7 +11,6 @@ const innertubeHeaderAllowlist = new Set([
   'x-youtube-bootstrap-logged-in',
   'x-youtube-client-name',
   'x-youtube-client-version',
-  'x-youtube-identity-token',
   'x-browser-validation',
   'x-browser-channel',
   'x-browser-year',
