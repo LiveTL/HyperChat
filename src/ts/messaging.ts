@@ -2,6 +2,7 @@ import type { Unsubscriber } from './queue';
 import { ytcQueue } from './queue';
 import { chatReportUserOptions, ChatUserActions, ChatReportUserOptions } from '../ts/chat-constants';
 import type { Chat } from './typings/chat';
+import sha1 from 'sha-1';
 
 const currentDomain = location.protocol.includes('youtube') ? (location.protocol + '//' + location.host) : 'https://www.youtube.com';
 
@@ -189,6 +190,7 @@ const executeChatAction = async (
     return await new Promise((resolve, reject) => {
       const id = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
       const encoded = JSON.stringify({ id, args });
+      let timeout = 0;
       const onFetchResponse = (e: Event): void => {
         const response = JSON.parse((e as CustomEvent).detail) as {
           id: string;
@@ -196,6 +198,7 @@ const executeChatAction = async (
           error?: string;
         };
         if (response.id !== id) return;
+        window.clearTimeout(timeout);
         window.removeEventListener('proxyFetchResponse', onFetchResponse);
         if (response.error != null) {
           reject(new Error(response.error));
@@ -203,6 +206,10 @@ const executeChatAction = async (
         }
         resolve(response.response);
       };
+      timeout = window.setTimeout(() => {
+        window.removeEventListener('proxyFetchResponse', onFetchResponse);
+        reject(new Error('proxy fetch timed out'));
+      }, 5000);
       window.addEventListener('proxyFetchResponse', onFetchResponse);
       window.dispatchEvent(new CustomEvent('proxyFetchRequest', {
         detail: encoded
@@ -220,17 +227,22 @@ const executeChatAction = async (
     }
     const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
     const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
-      `${encodeURIComponent(message.params)}&pbj=1&prettyPrint=false`;
+      `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
     const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
-    // Do not override Innertube headers (X-Goog-Visitor-Id, etc). Let the page-side proxy
-    // merge the latest values from real YT requests to avoid auth mismatches.
+    function getCookie(name: string): string {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
+      return '';
+    }
+    const time = Math.floor(Date.now() / 1000);
+    const sapisid = getCookie('__Secure-3PAPISID') || getCookie('SAPISID');
+    const auth = sapisid ? `SAPISIDHASH ${time}_${sha1(`${time} ${sapisid} ${currentDomain}`)}` : null;
     const heads = {
       headers: {
         'Content-Type': 'application/json',
         Accept: '*/*',
-        // Debugging hook: the page-side proxy will strip this header before sending the request.
-        // Helps correlate the final normalized request/response in the live_chat page console.
-        'X-HC-Action': action === ChatUserActions.DELETE_MESSAGE ? 'delete' : 'other'
+        ...(auth != null ? { Authorization: auth } : {})
       },
       method: 'POST' as const,
       mode: 'same-origin' as const
@@ -310,7 +322,7 @@ const executeChatAction = async (
         throw new Error('Could not find moderate endpoint in context menu');
       }
       const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
-      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?prettyPrint=false`, {
+      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           params,
@@ -326,7 +338,7 @@ const executeChatAction = async (
         throw new Error('Could not find delete endpoint in context menu');
       }
       const { params, context } = parseServiceEndpoint(serviceEndpoint, 'moderateLiveChatEndpoint');
-      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?prettyPrint=false`, {
+      const moderationResponse = await fetcher(`${currentDomain}/youtubei/v1/live_chat/moderate?key=${apiKey}&prettyPrint=false`, {
         ...heads,
         body: JSON.stringify({
           params,
