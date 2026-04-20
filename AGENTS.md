@@ -101,6 +101,10 @@
 - Always post `chatUserActionResponse` even when message context params are missing so UI state can fail gracefully.
 - Keep proxy fetch request/response events correlated by request id; do not use unscoped global listeners.
 
+## YouTube Actions (Dev Notes)
+
+- For deeper notes on implementing new YouTube chat actions (headers, tracking params, endpoint discovery, SAPISIDHASH, and debugging), see `docs/YOUTUBE_ACTIONS.md`.
+
 ## Testbed URL
 
 - Headless validation should open the same `startUrl` used by `vite.config.ts`.
