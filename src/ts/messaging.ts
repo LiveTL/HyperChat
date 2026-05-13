@@ -1,6 +1,6 @@
 import type { Unsubscriber } from './queue';
 import { ytcQueue } from './queue';
-import { chatReportUserOptions, ChatUserActions, ChatReportUserOptions } from '../ts/chat-constants';
+import { chatReportUserOptions, ChatUserActions, ChatReportUserOptions, ChatPollActions } from '../ts/chat-constants';
 import type { Chat } from './typings/chat';
 import sha1 from 'sha-1';
 
@@ -180,6 +180,38 @@ const sendLtlMessage = (message: Chat.LtlMessage): void => {
   );
 };
 
+function getCookie(name: string): string {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
+  return '';
+}
+
+function parseServiceEndpoint(baseContext: any, serviceEndpoint: any, prop: string): { params: string, context: any } {
+  const { clickTrackingParams, [prop]: { params } } = serviceEndpoint;
+  const clonedContext = JSON.parse(JSON.stringify(baseContext));
+  clonedContext.clickTracking = {
+    clickTrackingParams
+  };
+  return {
+    params,
+    context: clonedContext
+  };
+}
+
+const fetcher = async (...args: any[]): Promise<any> => {
+  return await new Promise((resolve) => {
+    const encoded = JSON.stringify(args);
+    window.addEventListener('proxyFetchResponse', (e) => {
+      const response = JSON.parse((e as CustomEvent).detail);
+      resolve(response);
+    });
+    window.dispatchEvent(new CustomEvent('proxyFetchRequest', {
+      detail: encoded
+    }));
+  });
+};
+
 const executeChatAction = async (
   message: Ytc.ParsedMessage,
   ytcfg: YtCfg,
@@ -229,12 +261,7 @@ const executeChatAction = async (
     const contextMenuUrl = `${currentDomain}/youtubei/v1/live_chat/get_item_context_menu?params=` +
       `${encodeURIComponent(message.params)}&pbj=1&key=${apiKey}&prettyPrint=false`;
     const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
-    function getCookie(name: string): string {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return (parts.pop() ?? '').split(';').shift() ?? '';
-      return '';
-    }
+
     const time = Math.floor(Date.now() / 1000);
     const sapisid = getCookie('__Secure-3PAPISID') || getCookie('SAPISID');
     const auth = sapisid ? `SAPISIDHASH ${time}_${sha1(`${time} ${sapisid} ${currentDomain}`)}` : null;
@@ -423,6 +450,46 @@ const executeChatAction = async (
   );
 };
 
+const executePollAction = async (
+  poll: Ytc.ParsedPoll,
+  ytcfg: YtCfg,
+  action: ChatPollActions,
+): Promise<void> => {
+  try {
+    const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
+    const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
+
+    const time = Math.floor(Date.now() / 1000);
+    const SAPISID = getCookie('__Secure-3PAPISID');
+    const sha = sha1(`${time} ${SAPISID} ${currentDomain}`);
+    const auth = `SAPISIDHASH ${time}_${sha}`;
+    const heads = {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: '*/*',
+        Authorization: auth
+      },
+      method: 'POST'
+    };
+
+    if (action === ChatPollActions.END_POLL) {
+      const params = poll.item.action?.params || '';
+      const url = poll.item.action?.api || '/youtubei/v1/live_chat/live_chat_action';
+      
+      // Call YouTube API to end the poll
+      await fetcher(`${currentDomain}${url}?key=${apiKey}&prettyPrint=false`, {
+        ...heads,
+        body: JSON.stringify({
+          params,
+          context: baseContext
+        })
+      });
+    }
+  } catch (e) {
+    console.debug('Error executing poll action', e);
+  }
+}
+
 export const initInterceptor = (
   source: Chat.InterceptorSource,
   ytcfg: YtCfg,
@@ -461,6 +528,9 @@ export const initInterceptor = (
           break;
         case 'executeChatAction':
           executeChatAction(message.message, ytcfg, message.action, message.reportOption).catch(console.error);
+          break;
+        case 'executePollAction':
+          executePollAction(message.poll, ytcfg, message.action).catch(console.error);
           break;
         case 'ping':
           port.postMessage({ type: 'ping' });
