@@ -122,29 +122,28 @@ const chatLoaded = async (): Promise<void> => {
     async function handlePollAction(msg: any): Promise<void> {
       try {
         if (msg.action !== ChatPollActions.END_POLL) return;
+        const poll = msg.poll;
+        const params = poll.item.action?.params;
+        const apiPath = poll.item.action?.api || '/youtubei/v1/live_chat/live_chat_action';
+        if (!params) return;
         const currentDomain = (location.protocol + '//' + location.host);
-        const apiKey = ytcfg.data_.INNERTUBE_API_KEY;
         const baseContext = ytcfg.data_.INNERTUBE_CONTEXT;
         const time = Math.floor(Date.now() / 1000);
         const sapisid = getCookie('__Secure-3PAPISID') || getCookie('SAPISID');
         const auth = sapisid ? `SAPISIDHASH ${time}_${sha1(`${time} ${sapisid} ${currentDomain}`)}` : null;
-        const heads = {
+        const authuser = (ytcfg as any)?.data_?.SESSION_INDEX;
+        const pageId = (ytcfg as any)?.data_?.DELEGATED_SESSION_ID as string | undefined;
+        await fetcher(`${currentDomain}${apiPath}?prettyPrint=false`, {
           headers: {
-            'Content-Type': 'application/json',
-            Accept: '*/*',
+            ...(authuser != null ? { 'X-Goog-AuthUser': String(authuser) } : {}),
+            ...(pageId ? { 'X-Goog-PageId': pageId } : {}),
             ...(auth != null ? { Authorization: auth } : {})
           },
           method: 'POST' as const,
-          mode: 'same-origin' as const
-        };
-        const poll = msg.poll;
-        const params = poll.item.action?.params || '';
-        const url = poll.item.action?.url || '/youtubei/v1/live_chat/live_chat_action';
-        await fetcher(`${currentDomain}${url}?key=${apiKey}&prettyPrint=false`, {
-          ...heads,
+          mode: 'same-origin' as const,
           body: JSON.stringify({
-            params,
-            context: baseContext
+            context: baseContext,
+            params
           })
         });
       } catch (e) {
@@ -184,6 +183,7 @@ const chatLoaded = async (): Promise<void> => {
         const visitorId = (ytcfg as any)?.data_?.VISITOR_DATA ?? baseContext?.client?.visitorData;
         const clientName = (ytcfg as any)?.data_?.INNERTUBE_CLIENT_NAME;
         const clientVersion = (ytcfg as any)?.data_?.INNERTUBE_CLIENT_VERSION;
+        const pageId = (ytcfg as any)?.data_?.DELEGATED_SESSION_ID as string | undefined;
         const heads = {
           headers: {
             'Content-Type': 'application/json',
@@ -192,6 +192,7 @@ const chatLoaded = async (): Promise<void> => {
             ...(visitorId != null ? { 'X-Goog-Visitor-Id': String(visitorId) } : {}),
             ...(clientName != null ? { 'X-Youtube-Client-Name': String(clientName) } : {}),
             ...(clientVersion != null ? { 'X-Youtube-Client-Version': String(clientVersion) } : {}),
+            ...(pageId ? { 'X-Goog-PageId': pageId } : {}),
             'X-Origin': currentDomain,
             ...(auth != null ? { Authorization: auth } : {})
           },
