@@ -2,6 +2,7 @@
   import Message from './Message.svelte';
   import isDarkColor from 'is-dark-color';
   import { Theme } from '../ts/chat-constants';
+  import { formatAuthorName } from '../ts/component-utils';
   import { showProfileIcons } from '../ts/storage';
 
   export let message: Ytc.ParsedMessage;
@@ -22,6 +23,7 @@
   }
 
   const classes = 'inline-flex flex-col rounded break-words overflow-hidden w-full';
+  $: displayAuthorName = formatAuthorName(message.author.name);
 
   $: if (!paid) {
     console.error('Not a paid message', { message });
@@ -44,7 +46,7 @@
       {/if}
       <span class="mr-1 underline font-bold">{amount}</span>
       <span class="font-bold tracking-wide" style={nameColor}>
-        {message.author.name}
+        {displayAuthorName}
       </span>
       {#if message.superSticker}
         <img

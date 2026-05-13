@@ -11,8 +11,9 @@
     port,
     selfChannelId
   } from '../ts/storage';
-  import { chatUserActionsItems, Theme } from '../ts/chat-constants';
+  import { chatUserActionsItems, ChatUserActions, Theme } from '../ts/chat-constants';
   import { useBanHammer } from '../ts/chat-actions';
+  import { formatAuthorName } from '../ts/component-utils';
   import { mdiGift } from '@mdi/js';
 
   export let message: Ytc.ParsedMessage;
@@ -57,13 +58,21 @@
   $: if (deleted != null) {
     message.message = deleted.replace;
   }
+  $: displayAuthorName = formatAuthorName(message.author.name);
 
   $: showUserMargin = $showProfileIcons || $showUsernames || $showTimestamps ||
     ($showUserBadges && (moderator || verified || member));
   
   export let forceTLColor: Theme = Theme.YOUTUBE;
 
-  const menuItems = chatUserActionsItems.map((d) => ({
+  $: isSelf = message.author.id === $selfChannelId;
+  $: visibleActions = chatUserActionsItems.filter((d) => {
+    if (isSelf) {
+      return d.value === ChatUserActions.DELETE_MESSAGE && message.params != null;
+    }
+    return d.value !== ChatUserActions.DELETE_MESSAGE;
+  });
+  $: menuItems = visibleActions.map((d) => ({
     icon: d.icon,
     text: d.text,
     value: d.value.toString(),
@@ -106,7 +115,7 @@
           class="{nameClass} {nameColorClass}"
           class:hidden={!$showUsernames}
         >
-          {message.author.name}
+          {displayAuthorName}
         </span>
       </a>
       <span class="align-middle" class:hidden={!$showUserBadges}>
@@ -151,7 +160,7 @@
       </svg>
     {/if}
   </div>
-  {#if message.author.id !== $selfChannelId && !hideDropdown}
+  {#if menuItems.length > 0 && !hideDropdown}
     <Menu items={menuItems} visible={$hoveredItem === message.messageId} class="mr-2 ml-auto context-menu">
       <Icon slot="activator" style="font-size: 1.5em;">more_vert</Icon>
     </Menu>
