@@ -27,7 +27,7 @@
   The `runs` prop is supposed to always be an array,
   but somewhere, somehow, sometimes, YouTube forgets
   to provide us an array.
-  
+
   This is sorta cheap, but the easiest solution is
   to safeguard a null prop value with a simple check.
 
@@ -74,7 +74,7 @@
           </span>
         {:else if run.src}
           <img
-            class="h-5 w-5 inline mx-0.5 align-middle"
+            class="h-6 w-6 inline mx-0.5 align-middle"
             src={run.src}
             alt={run.alt}
             title={run.alt}
