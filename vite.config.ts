@@ -4,11 +4,13 @@ import copy from 'rollup-plugin-copy';
 import { defineConfig } from 'vite';
 import webExtension, { readJsonFile } from 'vite-plugin-web-extension';
 import zipPack from 'vite-plugin-zip-pack';
+import { resolveMv } from './scripts/resolve-manifest';
 
 const pkg = readJsonFile('package.json');
 const manifest = readJsonFile('src/manifest.json');
 
 const browser = process.env.BROWSER ?? 'chrome';
+const mv = process.env.MV === '2' ? 2 : 3;
 const version = process.env.VERSION ?? pkg.version;
 
 const buildDir = `build/${browser}`;
@@ -27,7 +29,7 @@ export default defineConfig({
   plugins: [
     webExtension({
       manifest: () => ({
-        ...manifest,
+        ...resolveMv(manifest, mv),
         version
       }),
       assets: 'assets',

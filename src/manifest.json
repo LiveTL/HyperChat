@@ -1,5 +1,5 @@
 {
-  "manifest_version": 3,
+  "{{mv3}}.manifest_version": 3,
   "name": "HyperChat [Improved YouTube Chat]",
   "version": "0.0.0",
   "homepage_url": "https://livetl.app/hyperchat",
@@ -11,7 +11,7 @@
   "permissions": [
     "storage"
   ],
-  "host_permissions": [
+  "{{mv3}}.host_permissions": [
     "https://www.youtube.com/live_chat*",
     "https://www.youtube.com/live_chat_replay*",
     "https://studio.youtube.com/live_chat*",
@@ -47,13 +47,13 @@
       "all_frames": true
     }
   ],
-  "{{firefox}}.background": {
+  "{{mv3}}.{{firefox}}.background": {
     "scripts": ["scripts/chat-background.ts"]
   },
-  "{{chrome}}.background": {
+  "{{mv3}}.{{chrome}}.background": {
     "service_worker": "scripts/chat-background.ts"
   },
-  "action": {
+  "{{mv3}}.action": {
     "default_icon": {
       "48": "assets/logo-48.png",
       "128": "assets/logo-128.png"
@@ -64,7 +64,7 @@
     "page": "options.html",
     "open_in_tab": true
   },
-  "web_accessible_resources": [
+  "{{mv3}}.web_accessible_resources": [
     {
       "resources": ["*"],
       "matches": ["<all_urls>"]
