@@ -13,7 +13,9 @@ const browser = process.env.BROWSER ?? 'chrome';
 const mv = process.env.MV === '2' ? 2 : 3;
 const version = process.env.VERSION ?? pkg.version;
 
-const buildDir = `build/${browser}`;
+// MV2 is Firefox-only, so it needs no per-browser output dir of its own.
+const target = mv === 2 ? 'mv2' : browser;
+const buildDir = `build/${target}`;
 
 export default defineConfig({
   root: 'src',
@@ -24,7 +26,8 @@ export default defineConfig({
   },
   define: {
     __BROWSER__: JSON.stringify(browser),
-    __VERSION__: JSON.stringify(version)
+    __VERSION__: JSON.stringify(version),
+    __MV__: JSON.stringify(mv)
   },
   plugins: [
     webExtension({
@@ -61,7 +64,7 @@ export default defineConfig({
     zipPack({
       inDir: buildDir,
       outDir: 'build',
-      outFileName: `HyperChat-${browser}.zip`
+      outFileName: `HyperChat-${target}.zip`
     })
   ]
 });
