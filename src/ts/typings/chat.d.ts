@@ -165,6 +165,7 @@ declare namespace Chat {
     message: Ytc.ParsedMessage;
     action: ChatUserActions;
     reportOption?: ChatReportUserOptions;
+    actionOption?: string;
   }
 
   type BackgroundMessage =

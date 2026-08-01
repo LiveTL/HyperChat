@@ -1,6 +1,6 @@
 import { parseChatResponse } from './chat-parser';
-import type { Chat } from './typings/chat';
 import { buildDeletedObj } from './chat-utils';
+import type { Chat } from './typings/chat';
 
 interface QueueItem<T> { data: T, next?: QueueItem<T> }
 export interface Queue<T> {
