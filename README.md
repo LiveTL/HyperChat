@@ -21,6 +21,9 @@ See https://livetl.app/hyperchat/install
 
 Everything ships from `main`. There is one source tree and three build targets:
 
+> Transition status: migrating both LiveTL lines to this source and deleting the
+> remote `mv2` rollback branch are still pending runtime validation.
+
 | Target    | Manifest          | Consumer                                                                               |
 | --------- | ----------------- | -------------------------------------------------------------------------------------- |
 | `chrome`  | MV3               | Chrome Web Store                                                                       |

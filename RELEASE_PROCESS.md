@@ -3,8 +3,9 @@
 Everything ships from `main`. There is no branch ladder — MV2 and MV3 are build
 targets, not branches.
 
-`mv2`, `mv3`, and `mv3-ltl` are historical. Do not route normal maintenance
-through them unless you are explicitly doing branch archaeology.
+`mv3` and `mv3-ltl` are historical. The remote `mv2` branch is rollback-only
+until LiveTL migration and runtime validation finish; do not route maintenance
+through it or delete it early.
 
 ## Branch Order
 
@@ -75,5 +76,5 @@ for b in ['HyperChat-chrome.zip','HyperChat-firefox.zip']:
 ## Notes For LiveTL Sync
 
 LiveTL consumes HyperChat via git submodules, not release assets. Its MV2 Firefox
-variant and its MV3 line both track `main` now — the MV2/MV3 split is a build
-target, so a single submodule bump carries both.
+variant and MV3 line will both track `main` after the downstream migration. Until
+their release pins and runtime checks pass, keep the remote `mv2` rollback branch.

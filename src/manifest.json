@@ -83,7 +83,7 @@
   ],
   "{{mv2}}.web_accessible_resources": ["*"],
   "{{chrome}}.incognito": "split",
-  "{{firefox}}.browser_specific_settings": {
+  "{{mv3}}.{{firefox}}.browser_specific_settings": {
     "gecko": {
       "id": "{14a15c41-13f4-498e-986c-7f00435c4d00}",
       "strict_min_version": "115.0"
